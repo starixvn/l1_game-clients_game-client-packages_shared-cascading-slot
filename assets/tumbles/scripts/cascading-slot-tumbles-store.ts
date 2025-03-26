@@ -1,6 +1,5 @@
-import { Tumble } from "./../game-messages-cascading";
-
 import inversify from "inversify";
+import { Tumble } from "../../game-messages-cascading";
 const { injectable, inject } = inversify;
 
 @injectable()

@@ -5,8 +5,8 @@ const { injectable, inject } = inversify;
 import { convertData } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotBoardHandlers } from "../slot-board";
-import { CascadingSlotTumblesStore } from "../tumbles";
-import { CascadingSlotTumblesHandlers } from "../tumbles/cascading-slot-tumbles-handlers";
+import { CascadingSlotTumblesHandlers } from "../tumbles/scripts/cascading-slot-tumbles-handlers";
+import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 import { CascadingSlotSettlementStore } from "./cascading-slot-settlement-store";
 
 @injectable()

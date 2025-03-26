@@ -6,6 +6,7 @@ import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { Tumble } from "../../game-messages-cascading";
+import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
 import { MultiplierItem } from "../../multiplier/multiplier-item";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
 import { CascadingSlotBoardStore } from "../cascading-slot-board-store";
@@ -114,7 +115,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                     const position = ComponentUtils.convertPosition(this.effectContainer, node);
                     this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
                 });
-                // mainGame.gameData.uiModel.increaseTumbleWin(tumbleWin);
+                this.handleTotalWinTumble(tumbleWin);
             }
 
             await this.removeItems(explode, i);
@@ -122,6 +123,11 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(false);
         }
+    }
+
+    @handle(CascadingUIHandler, (handler) => handler.handleTotalWinTumble)
+    handleTotalWinTumble(tumbleWin: number) {
+        return tumbleWin;
     }
 
     @render(CascadingSlotBoardStore, (store) => store.symbolsBoard, { fireImmediately: false })
