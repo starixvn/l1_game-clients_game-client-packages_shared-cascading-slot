@@ -14,6 +14,10 @@ export class CascadingTotalMultiplierHandler implements gc.Shared.IMultipleHandl
         this.totalMultiplierStore.totalMultiplier += multiplier;
     }
 
+    handleTotalMultiplierTimeline(show: boolean) {
+        this.totalMultiplierStore.isShowTotalMultiplierTimeline = show;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingTotalMultiplierMsg.eventName,

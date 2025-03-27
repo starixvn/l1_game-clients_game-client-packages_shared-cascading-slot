@@ -10,9 +10,12 @@ import { StaticGroupId } from "db://shared-components/shared/common-components/s
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
-import { prefabCache } from "./cascading-slot-utils";
+import { convertData, prefabCache } from "./cascading-slot-utils";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
+import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
+import { TotalMultiplierView } from "./total-multiplier/scripts/cascading-total-multiplier-view";
+import { TumbleWinWiew } from "./tumbles/scripts/components/tumble-win-view";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
@@ -21,6 +24,12 @@ const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories }
 export class CascadingSlotGame extends ObserverComponent {
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
+
+    @property(TotalMultiplierView)
+    totalMultiplierView: TotalMultiplierView = null;
+
+    @property(TumbleWinWiew)
+    tumbleWinView: TumbleWinWiew = null;
 
     @property(Label)
     lblRoundId: Label = null;
@@ -150,6 +159,19 @@ export class CascadingSlotGame extends ObserverComponent {
                 console.warn(`Missing prefab for ${path} `, e);
             }
         }
+    }
+
+    @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
+    async handleSettlement(finishData: any) {
+        if (!finishData) {
+            return;
+        }
+        const { win, roundId, totalFreeSpins, isFreeSpin, multiplier, totalMultiplier, reachMaxWin, tumbles, result } = finishData;
+        const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
+        await this.board.spinResult(symbolsBoard);
+        await this.board.handleTumbles(tumbles);
+        const winMultiplier = multiplier > 0 && win > 0;
+        await this.board.handleMultiplier(isFreeSpin, winMultiplier);
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())

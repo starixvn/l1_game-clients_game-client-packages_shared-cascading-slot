@@ -12,19 +12,24 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     total: Label = null;
 
     onLoad() {
+        super.onLoad();
         this.showView(false, true);
     }
 
     @render(CascadingTotalMultiplierStore, (store) => store.needShowTotalMultiplier)
     showTotalMultiplier(needShowTotalMultiplier: boolean) {
+        if (!needShowTotalMultiplier) {
+            return;
+        }
         this.showView(needShowTotalMultiplier, true);
     }
 
-    setValue(value: number, animated: boolean) {
+    @render(CascadingTotalMultiplierStore, (store) => store.totalMultiplier)
+    setValue(totalMultiplier: number, animated = true) {
         if (animated) {
-            ComponentUtils.floatToNumber({ label: this.total, amount: value, duration: 0.2, noZeroSuffix: true, prefixStr: "x" });
+            ComponentUtils.floatToNumber({ label: this.total, amount: totalMultiplier, duration: 0.2, noZeroSuffix: true, prefixStr: "x" });
         } else {
-            this.total.string = value > 0 ? `x${value}` : "";
+            this.total.string = totalMultiplier > 0 ? `x${totalMultiplier}` : "";
         }
     }
 }

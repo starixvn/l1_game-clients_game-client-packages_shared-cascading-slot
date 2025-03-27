@@ -1,5 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
+import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
+import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts/cascading-total-multiplier-store";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "./cascading-ui-store";
 
@@ -9,6 +11,8 @@ const { injectable, inject } = inversify;
 export class CascadingUIHandler implements gc.Shared.IHandler<void> {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
+    @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
+    @inject(CascadingTotalMultiplierStore) protected readonly totalMultiplierStore: CascadingTotalMultiplierStore;
     handle() {}
 
     handleTotalWinTumble(tumbleWin: number) {
@@ -19,19 +23,19 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
         this.uiStore.totalWin += win;
     }
 
-    handleTotalMultiplier(multiplier: number) {
-        this.uiStore.totalMultiplier += multiplier;
-    }
-
     handleFreeSpins(freeSpins: number) {
         this.uiStore.freeSpins += freeSpins;
     }
 
     handleMultiplier(multiplier: number) {
-        this.uiStore.multiplier = multiplier;
+        this.uiStore.multiplier += multiplier;
     }
 
     handleNewRound() {
         this.tumblesStore.tumbles = [];
+        this.uiStore.totalTumbleWin = 0;
+        this.totalMultiplierStore.totalMultiplier = 0;
+        this.totalMultiplierStore.isShowTotalMultiplierTimeline = false;
+        this.settlementStore.finishData = null;
     }
 }

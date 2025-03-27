@@ -1,5 +1,6 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
-import { FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
+import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { prefabCache } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
@@ -26,9 +27,13 @@ export class MultiplierItem extends Component {
 
     async playAnimationGlow() {
         try {
-            this.animation.play();
-            const duration = this.animation.defaultClip.duration;
-            await FunctionUtils.delay(duration);
+            const anim = "highlight";
+            this.spine.setAnimation(0, anim, true);
+            const duration = this.spine.findAnimation(anim)?.duration || 0;
+            AnimationUtils.updateSpineDuration(this.spine, anim, duration);
+            if (duration > 0) {
+                await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+            }
             this.hideMultiplier();
         } catch (e) {
             console.warn("Catch error after await method", e.message);
@@ -43,7 +48,7 @@ export class MultiplierItem extends Component {
 
     protected hideMultiplier() {
         this.value.node.active = false;
-        this.animation.stop();
+        this.spine.setAnimation(0, "idle", true);
     }
 
     protected updateColor(value: number) {
