@@ -166,12 +166,16 @@ export class CascadingSlotGame extends ObserverComponent {
         if (!finishData) {
             return;
         }
-        const { win, roundId, totalFreeSpins, isFreeSpin, multiplier, totalMultiplier, reachMaxWin, tumbles, result } = finishData;
+        const { win, roundId, totalFreeSpins, isFreeSpin, multiplier, totalMultiplier, reachMaxWin, tumbles, result, actualBetwin } =
+            finishData;
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard);
         await this.board.handleTumbles(tumbles);
         const winMultiplier = multiplier > 0 && win > 0;
-        await this.board.handleMultiplier(isFreeSpin, winMultiplier);
+        await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
+        if (win > 0) {
+            await this.tumbleWinView.setTotalWinValue(actualBetwin);
+        }
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())

@@ -3,6 +3,7 @@ import inversify from "inversify";
 const { injectable, inject } = inversify;
 
 import { convertData } from "../cascading-slot-utils";
+import { CascadingFreespinsStore } from "../freespins/scripts/cascading-freespins-store";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingUIStore } from "../main-ui";
 import { CascadingSlotBoardHandlers } from "../slot-board";
@@ -16,10 +17,11 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
     @inject(CascadingSlotBoardHandlers) protected readonly boardHandler: CascadingSlotBoardHandlers;
     @inject(CascadingSlotTumblesHandlers) protected readonly tumblesHandler: CascadingSlotTumblesHandlers;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
+    @inject(CascadingFreespinsStore) protected readonly freespinStore: CascadingFreespinsStore;
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
 
     handleFinish(data: any) {
-        const { result, tumbles } = data;
+        const { result, tumbles, totalFreeSpins } = data;
         this.settlementStore.finishData = data;
         this.tumblesHandler.handleTumbles(tumbles);
         this.boardHandler.handleResult({
@@ -28,6 +30,7 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
             isTurbo: false,
             tumbles: this.tumblesStore.tumbles,
         });
+        this.freespinStore.totalFreeSpins = totalFreeSpins;
     }
 
     eventHandleList = [

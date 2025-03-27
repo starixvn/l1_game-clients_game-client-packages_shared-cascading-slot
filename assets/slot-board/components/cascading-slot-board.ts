@@ -25,12 +25,6 @@ export class CascadingSlotBoard extends ObserverComponent {
     @property(Node)
     effectContainer: Node = null;
 
-    @property(TotalMultiplierView)
-    totalMultiplierView: TotalMultiplierView = null;
-
-    @property(TumbleWinWiew)
-    tumbleWinView: TumbleWinWiew = null;
-
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
 
@@ -304,12 +298,17 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.currentTotalMultiplier = totalMultiplier;
     }
 
-    async handleMultiplier(isFreeSpin: boolean, winMultiplier: boolean) {
+    async handleMultiplier(
+        isFreeSpin: boolean,
+        winMultiplier: boolean,
+        tumbleWinView: TumbleWinWiew,
+        totalMultiplierView: TotalMultiplierView
+    ) {
         const needMoveTotalMultiplier = isFreeSpin && winMultiplier && this.currentTotalMultiplier > 0;
 
         if (needMoveTotalMultiplier) {
-            await this.tumbleWinView.shiftRightTumbleWin(this.currentTotalMultiplier);
-            await this.movingMultiplier(this.totalMultiplierView.total.node, this.effectContainer, this.tumbleWinView.multiplier.node);
+            await tumbleWinView.shiftRightTumbleWin(this.currentTotalMultiplier);
+            await this.movingMultiplier(totalMultiplierView.total.node, this.effectContainer, tumbleWinView.multiplier.node);
             this.setTotalMultiplierValue(this.currentTotalMultiplier);
         }
 
@@ -318,13 +317,14 @@ export class CascadingSlotBoard extends ObserverComponent {
             for (const mItem of multiplierItems) {
                 //mainGame.playSound(CascadingSlotGameSound.MULTIPLIER_APPEAR);
                 await mItem.playAnimationGlow();
-                await this.tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
-                await this.movingMultiplier(mItem.value.node, this.effectContainer, this.tumbleWinView.multiplier.node);
+                await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
+                await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
                 //mainGame.playSound(CascadingSlotGameSound.COIN);
                 this.setTotalMultiplierValue(this.currentTotalMultiplier);
+                this.setMultiplierValue(mItem.multiplier);
             }
 
-            await FunctionUtils.delay(this.tumbleWinView.mulitiplierEffectDuration * UNIT_SECOND_SPIN);
+            await FunctionUtils.delay(tumbleWinView.mulitiplierEffectDuration * UNIT_SECOND_SPIN);
         }
     }
 
