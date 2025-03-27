@@ -1,6 +1,5 @@
 import { _decorator, Component, Label } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
-import { ChangeLabelColor } from "db://shared-components/shared/common-components/label/change-label-color";
 
 const { ccclass, property } = _decorator;
 
@@ -309,13 +308,13 @@ export class CascadingBetControl extends Component {
     updateColor(colorList) {
         const { textColor, numberColor, buttonBorderColor } = colorList;
 
-        this.getComponentsInChildren(ChangeLabelColor).forEach((comp) => {
-            const labelComp = comp.node.getComponent(Label);
-            if (labelComp) {
-                comp.updateColor(comp.node.getComponent("LocalizedLabel") ? textColor : numberColor);
-            } else {
-                comp.updateColor(buttonBorderColor);
-            }
-        });
+        // this.getComponentsInChildren(ChangeLabelColor).forEach((comp) => {
+        //     const labelComp = comp.node.getComponent(Label);
+        //     if (labelComp) {
+        //         comp.updateColor(comp.node.getComponent("LocalizedLabel") ? textColor : numberColor);
+        //     } else {
+        //         comp.updateColor(buttonBorderColor);
+        //     }
+        // });
     }
 }
