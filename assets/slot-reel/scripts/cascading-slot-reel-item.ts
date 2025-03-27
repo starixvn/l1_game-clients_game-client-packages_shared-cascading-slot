@@ -2,7 +2,7 @@ import { _decorator, Component, instantiate, Node, Prefab, sp } from "cc";
 import { FunctionUtils } from "db://shared-components/shared/utils";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { MULTIPLIER_SYMBOL, prefabCache, SCATTER_SYMBOL } from "../../cascading-slot-utils";
-import { MultiplierItem } from "../../multiplier/multiplier-item";
+import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
 const { ccclass, property } = _decorator;
 

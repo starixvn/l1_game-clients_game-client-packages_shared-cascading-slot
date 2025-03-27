@@ -1,6 +1,6 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
 import { FunctionUtils } from "db://shared-components/shared/utils";
-import { prefabCache } from "../cascading-slot-utils";
+import { prefabCache } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
 @ccclass

@@ -20,6 +20,7 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
 
     handleFinish(data: any) {
         const { result, tumbles } = data;
+        this.settlementStore.finishData = data;
         this.tumblesHandler.handleTumbles(tumbles);
         this.boardHandler.handleResult({
             symbols: convertData(result),

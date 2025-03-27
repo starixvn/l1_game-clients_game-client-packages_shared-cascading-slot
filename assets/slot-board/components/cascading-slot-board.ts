@@ -7,7 +7,7 @@ import Observer from "observer";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { Tumble } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { MultiplierItem } from "../../multiplier/multiplier-item";
+import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
 import { CascadingSlotBoardStore } from "../cascading-slot-board-store";
 import { convertBoardValue, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";

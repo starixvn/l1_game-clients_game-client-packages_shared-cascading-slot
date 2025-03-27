@@ -1,21 +1,21 @@
 export namespace GameServiceMessageCascading {
     export class CascadingSlotFinish {
-        //     roundId: number;
-        //     result: string;
+        roundId: number;
+        result: string;
 
-        //     multiplier: number;
-        //     totalMultiplier: number;
+        multiplier: number;
+        totalMultiplier: number;
 
-        //     actualBetwin: number;
-        //     win: number;
-        //     bigWin: boolean;
-        //     totalFreeSpins: number;
-        //     freeSpins: number;
-        //     isFreeSpin: boolean;
+        actualBetwin: number;
+        win: number;
+        bigWin: boolean;
+        totalFreeSpins: number;
+        freeSpins: number;
+        isFreeSpin: boolean;
 
-        //     tumbles: Tumble[];
-        //     m: number[];
-        //     reachMaxWin: boolean;
+        tumbles: Tumble[];
+        m: number[];
+        reachMaxWin: boolean;
         static eventName = "finish";
     }
     export class CascadingSlotConfigsMsg {
@@ -28,6 +28,18 @@ export namespace GameServiceMessageCascading {
         totalMultiplier: number;
 
         static eventName = "gameConfigs";
+    }
+
+    export class CascadingTotalMultiplierMsg {
+        totalMultiplier: number;
+        static eventName = "totalMultiplier";
+    }
+
+    export class CascadingFreeSpinsMsg {
+        total: number;
+        betLevel: number;
+        coinValue: number;
+        static eventName = "freeSpins";
     }
 }
 

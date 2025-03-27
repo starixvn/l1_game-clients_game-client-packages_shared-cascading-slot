@@ -27,6 +27,10 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
         this.uiStore.freeSpins += freeSpins;
     }
 
+    handleMultiplier(multiplier: number) {
+        this.uiStore.multiplier = multiplier;
+    }
+
     handleNewRound() {
         this.tumblesStore.tumbles = [];
     }

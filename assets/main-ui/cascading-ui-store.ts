@@ -11,7 +11,6 @@ export class CascadingUIStore {
     totalWin: number = 0;
     totalTumbleWin = 0;
     multiplier = 0;
-    totalMultiplier = 0;
 
     freeSpins = 0;
 
