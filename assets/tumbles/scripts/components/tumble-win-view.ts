@@ -1,8 +1,12 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label, Layout, Node, tween, UIOpacity, UITransform, v3 } from "cc";
+import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
 import { ComponentUtils } from "db://shared-components/shared/utils";
+import Observer from "observer";
+import { CascadingSlotTumblesStore } from "../cascading-slot-tumbles-store";
 const { ccclass, property } = _decorator;
+const { observer, render, handle } = Observer;
 
 @ccclass
 export class TumbleWinWiew extends FadeAppearanceNode {
@@ -21,6 +25,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
     readonly mulitiplierEffectDuration = 0.2;
 
     onLoad() {
+        super.onLoad();
         this.onHidden = () => {
             this.showTotalWin(false);
             this.resetPositionTumbleLabel();
@@ -35,13 +40,26 @@ export class TumbleWinWiew extends FadeAppearanceNode {
         this.multiplier.string = "";
     }
 
-    setTumbleWinValue(value: number, animated: boolean) {
-        this.showView(true);
-        if (animated) {
-            ComponentUtils.floatToNumber({ label: this.tumbleLabel, amount: value, duration: 0.5, noZeroSuffix: false });
+    @render(CascadingSlotTumblesStore, (store) => store.isShowTumbleWinFrame)
+    setIsShowTumbleWinFrame(isShowTumbleWinFrame: boolean) {
+        if (isShowTumbleWinFrame) {
+            this.showView(true);
         } else {
-            this.tumbleLabel.string = gc.FormatUtils.numberWithCommas(value, 2, false);
+            this.showView(false, true).then(() => {
+                this.clearLabels();
+            });
         }
+    }
+
+    @render(CascadingUIStore, (store) => store.totalTumbleWin, { fireImmediately: false })
+    setTumbleWinValuewin(totalTumbleWin: any) {
+        // if (totalTumbleWin.animated) {
+        //     ComponentUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin.totalWin, duration: 0.5, noZeroSuffix: false });
+        // } else {
+        //     this.tumbleLabel.string = gc.FormatUtils.numberWithCommas(totalTumbleWin.totalWin, 2, false);
+        // }
+
+        ComponentUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 
     setTotalWinValue(value: number) {

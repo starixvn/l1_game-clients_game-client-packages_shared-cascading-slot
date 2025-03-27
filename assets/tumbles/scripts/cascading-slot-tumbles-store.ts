@@ -1,9 +1,13 @@
 import inversify from "inversify";
+import mobx from "mobx";
 import { Tumble } from "../../game-messages-cascading";
 const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingSlotTumblesStore {
+    constructor() {
+        mobx.makeAutoObservable(this);
+    }
     private _tumbles = [];
 
     set tumbles(tumbles: Tumble[]) {
@@ -12,5 +16,9 @@ export class CascadingSlotTumblesStore {
 
     get tumbles() {
         return this._tumbles;
+    }
+
+    get isShowTumbleWinFrame() {
+        return this.tumbles.length > 1;
     }
 }

@@ -125,7 +125,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    @handle(CascadingUIHandler, (handler) => handler.handleTotalWinTumble)
+    @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWinTumble(tumbleWin))
     handleTotalWinTumble(tumbleWin: number) {
         return tumbleWin;
     }

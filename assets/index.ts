@@ -1,5 +1,6 @@
 export * as CascadingSlotConfigs from "./game-configs";
 export * from "./game-messages-cascading";
+export * as CascadingUI from "./main-ui";
 export * as CascadingSlotSettlements from "./settlements";
 export * as CascadingSlotBoard from "./slot-board";
 export * as CascadingSlotTumbles from "./tumbles/scripts";

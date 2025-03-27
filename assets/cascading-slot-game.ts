@@ -11,6 +11,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { prefabCache } from "./cascading-slot-utils";
+import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -154,7 +155,11 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(SlotBetHandler, (handler) => handler.handle())
     sendBet() {}
 
+    @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
+    handleNewRound() {}
+
     onClickSpin() {
+        this.handleNewRound();
         this.sendBet();
     }
 }

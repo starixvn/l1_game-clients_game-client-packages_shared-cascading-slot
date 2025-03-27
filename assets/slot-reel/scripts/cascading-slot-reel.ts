@@ -69,7 +69,7 @@ export class CascadingSlotReel extends Component {
             item.node.position = v3(item.node.position.x, this.getItemPosY(this.itemDisplayCount + i), 0);
             i++;
         });
-        console.log("addItems", items);
+
         return items;
     }
 
