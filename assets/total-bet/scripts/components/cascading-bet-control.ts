@@ -1,7 +1,14 @@
-import { _decorator, Component, Label } from "cc";
+import { _decorator, Label } from "cc";
+import { CascadingSlotConfigsStore } from "db://shared-cascading-slot/game-configs/cascading-slot-configs-store";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
+import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import Observer from "observer";
+
+import { BetControlHandlers } from "../bet-control-handlers";
+import { BetControlStore } from "../bet-control-store";
 
 const { ccclass, property } = _decorator;
+const { observer, render, handle } = Observer;
 
 export type TotalBetType = { coin: number; level: number; totalBet: number; increase: boolean; decrease: boolean };
 
@@ -31,7 +38,7 @@ export const CalculateTotalBet = (level: number, coin: number, betMultiplier: nu
 };
 
 @ccclass("CascadingBetControl")
-export class CascadingBetControl extends Component {
+export class CascadingBetControl extends ObserverComponent {
     @property(Label)
     betLevel: Label = null;
 
@@ -49,20 +56,19 @@ export class CascadingBetControl extends Component {
 
     private totalBetUnique = [];
     private currentCoinIndex = 0;
-    private currentBetLevelIndex = this.DefaultBetLevelIndex;
+    private currentBetLevelIndex = 0;
     private currentTotalBetIndex = 0;
     private currentTotalBet = 0;
     private coinValues: number[];
     private betLevels: number[];
     private betMultiplier: number;
+    private defaultCoinValue: number;
     // private placeBetModel: CascadingSlotPlaceBetModel;
     // private uiModel: CascadingUIModel;
     private isTrialMode = false;
 
     betControlStorageKey = "CASCADING_SLOT_BET_CONTROL";
     gameId: number;
-
-    closeBetControl = () => {};
 
     resetValues(isTrialMode: boolean) {
         this.isTrialMode = isTrialMode;
@@ -73,51 +79,94 @@ export class CascadingBetControl extends Component {
         // GameUtils.setGameSetting(this.gameId, data);
     }
 
-    init(callback: () => void) {
-        this.closeBetControl = callback;
+    // init(callback: () => void) {
+    //     this.closeBetControl = callback;
+    // }
+
+    @render(BetControlStore, (store) => store.currentBetLevelIndex)
+    private setCurrentBetLevelIndex(currentBetLevelIndex: number) {
+        this.currentBetLevelIndex = currentBetLevelIndex;
     }
 
-    showView(status: boolean, action?: string) {
+    @render(BetControlStore, (store) => store.isShow)
+    handleDialogVisibility(status: boolean) {
         this.node.active = status;
 
-        action === StatusAction.increase && this.onClickIncreaseTotalBet();
-        action === StatusAction.decrease && this.onClickDecreaseTotalBet();
+        // action === StatusAction.increase && this.onClickIncreaseTotalBet();
+        // action === StatusAction.decrease && this.onClickDecreaseTotalBet();
     }
 
-    onCloseBetControl() {
-        // AudioManager.getInstance().playClick();
-        this.closeBetControl();
-    }
+    @handle(BetControlHandlers, (handle, status: boolean) => handle.hideBetControl())
+    onCloseBetControl() {}
 
     // onSetData(data: BetMultiplier, placeBetModel: CascadingSlotPlaceBetModel, uiModel: CascadingUIModel) {
-    onSetData(data: BetMultiplier, placeBetModel: any, uiModel: any) {
-        // this.placeBetModel = placeBetModel;
-        // this.uiModel = uiModel;
-        if (data) {
-            this.handleData(data);
-            this.loadDataFromStorage();
-            this.updatePlaceBetAndUIModel();
-            this.saveData();
-        }
+    // onSetData(data: BetMultiplier, placeBetModel: any, uiModel: any) {
+    //     // this.placeBetModel = placeBetModel;
+    //     // this.uiModel = uiModel;
+    //     if (data) {
+    //         this.handleData(data);
+    //         this.loadDataFromStorage();
+    //         this.updatePlaceBetAndUIModel();
+    //         this.saveData();
+    //     }
+    // }
+
+    // private handleData(data: BetMultiplier) {
+    //     this.betMultiplier = data.betMultiplier;
+    //     this.prepareBetLevelData(data);
+    //     this.prepareCoinData(data);
+    //     this.prepareTotalBetData();
+    //     this.updateChangeByLevelOrCoin(false);
+    // }
+
+    @render(CascadingSlotConfigsStore, (store) => store.defaultCoinValue)
+    private setDefaultCoinValue(defaultCoinValue: number) {
+        console.log("-----------defaultCoinValue", defaultCoinValue);
+        this.defaultCoinValue = defaultCoinValue;
     }
 
-    private handleData(data: BetMultiplier) {
-        this.betMultiplier = data.betMultiplier;
-        this.prepareBetLevelData(data);
-        this.prepareCoinData(data);
-        this.prepareTotalBetData();
-        this.updateChangeByLevelOrCoin(false);
+    @render(CascadingSlotConfigsStore, (store) => store.betMultiplier)
+    private setBetMultiplier(betMultiplier: number) {
+        console.log("-----------betMultiplier", betMultiplier);
+        this.betMultiplier = betMultiplier;
     }
 
-    private prepareBetLevelData(data) {
-        this.betLevels = [...data.betLevels];
+    @render(CascadingSlotConfigsStore, (store) => store.betLevels)
+    private prepareBetLevels(betLevels) {
+        console.log("-----------betLevels", betLevels);
+        this.betLevels = [...betLevels];
         this.betLevels.sort((a, b) => a - b);
     }
 
-    private prepareCoinData(data) {
-        this.coinValues = [...data.coinValues];
+    @render(CascadingSlotConfigsStore, (store) => store.coinValues)
+    private prepareCoinValues(coinValues) {
+        console.log("-----------coinValues", coinValues);
+        this.coinValues = [...coinValues];
         this.coinValues.sort((a, b) => a - b);
-        this.currentCoinIndex = this.isTrialMode ? 0 : this.findCoinIndex(data.defaultCoinValue);
+        this.currentCoinIndex = this.isTrialMode ? 0 : this.findCoinIndex(this.defaultCoinValue);
+        this.prepareTotalBetData();
+    }
+
+    @render(BetControlStore, (store) => store.betLevel)
+    private updateBetLevelLabel(betLevel: number) {
+        this.betLevel.string = this.betLevels[this.currentBetLevelIndex].toString();
+    }
+
+    @render(BetControlStore, (store) => store.coinValue)
+    private updateCoinValueLabel(coinValue: number) {
+        this.coinValue.string = coinValue.toString();
+    }
+
+    @handle(BetControlHandlers, (handle, totalBet: number) => handle.updateTotalBet(totalBet))
+    private handleTotalBet(betLevelValue: number, coinValue: number) {
+        return CalculateTotalBet(betLevelValue, coinValue, this.betMultiplier);
+    }
+
+    @render(BetControlStore, (store) => store.totalBet)
+    private updateTotalBet(totalBet: number) {
+        this.currentTotalBet = totalBet;
+        this.currentTotalBetIndex = this.totalBetUnique.findIndex((detail) => +Object.keys(detail)[0] === this.currentTotalBet);
+        this.updateTotalBetLabel(this.currentTotalBet);
     }
 
     private prepareTotalBetData() {
@@ -149,10 +198,9 @@ export class CascadingBetControl extends Component {
     }
 
     private updateChangeByLevelOrCoin(saveData = true) {
-        this.updateTotalBet(this.betLevels[this.currentBetLevelIndex], this.coinValues[this.currentCoinIndex]);
+        this.handleTotalBet(this.betLevels[this.currentBetLevelIndex], this.coinValues[this.currentCoinIndex]);
         this.updateDisplayLabels();
         this.updateAllButtonStatus();
-        this.updatePlaceBetAndUIModel();
         saveData && this.saveData();
     }
 
@@ -202,16 +250,13 @@ export class CascadingBetControl extends Component {
         }
     }
 
-    private updateTotalBet(betLevelValue: number, coinValue: number) {
-        const totalBet = CalculateTotalBet(betLevelValue, coinValue, this.betMultiplier);
-        this.currentTotalBet = totalBet;
-        this.currentTotalBetIndex = this.totalBetUnique.findIndex((detail) => +Object.keys(detail)[0] === this.currentTotalBet);
+    private updateTotalBetLabel(totalBet: number) {
+        this.totalBet.string = totalBet.toString();
     }
 
     private updateDisplayLabels() {
         this.coinValue.string = this.coinValues[this.currentCoinIndex].toString();
         this.betLevel.string = this.betLevels[this.currentBetLevelIndex].toString();
-        this.totalBet.string = this.currentTotalBet.toLocaleString("en-US");
     }
 
     private handleClickTotalBet() {
@@ -224,7 +269,6 @@ export class CascadingBetControl extends Component {
 
         this.updateDisplayLabels();
         this.updateAllButtonStatus();
-        this.updatePlaceBetAndUIModel();
         this.saveData();
     }
 
@@ -255,7 +299,7 @@ export class CascadingBetControl extends Component {
         if (coinIndex !== -1 && levelIndex !== -1) {
             this.currentCoinIndex = coinIndex;
             this.currentBetLevelIndex = levelIndex;
-            this.updateTotalBet(level, coin);
+            this.handleTotalBet(level, coin);
             this.updateDisplayLabels();
             this.updateAllButtonStatus();
         }
@@ -303,18 +347,5 @@ export class CascadingBetControl extends Component {
             increase: this.nodeButtons[OrderButtonNode.totalIncrease].interactable,
             decrease: this.nodeButtons[OrderButtonNode.totalDecrease].interactable,
         };
-    }
-
-    updateColor(colorList) {
-        const { textColor, numberColor, buttonBorderColor } = colorList;
-
-        // this.getComponentsInChildren(ChangeLabelColor).forEach((comp) => {
-        //     const labelComp = comp.node.getComponent(Label);
-        //     if (labelComp) {
-        //         comp.updateColor(comp.node.getComponent("LocalizedLabel") ? textColor : numberColor);
-        //     } else {
-        //         comp.updateColor(buttonBorderColor);
-        //     }
-        // });
     }
 }

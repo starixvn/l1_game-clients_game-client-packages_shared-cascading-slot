@@ -4,6 +4,9 @@ import { StatusButton } from "db://shared-components/shared/common-components/bu
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
+import { BetControlStore } from "../bet-control-store";
+import { CascadingTotalBetHandlers } from "../cascading-total-bet-handlers";
+
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -33,12 +36,16 @@ export class CascadingTotalBet extends ObserverComponent {
     //     });
     // }
 
-    onClickOpenBetControl() {
-        // uiManager.emitter.emit(InternalEvents.CASCADING_CLOSE_MENU);
-        // uiManager.emitter.emit(InternalEvents.CASCADING_CLICK_TOTAL_BET);
-        // this.betControl.showView(!this.isOpenBetControl);
-        this.isOpenBetControl = !this.isOpenBetControl;
+    @render(BetControlStore, (store) => store.betLevel, { fireImmediately: false })
+    hideDisabledLayer(betLevel: number[]) {
+        if (!betLevel) {
+            return;
+        }
+        this.disabled.active = false;
     }
+
+    @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
+    onClickOpenBetControl() {}
 
     onHandleStatusBetControl(event: Event, customEventData: string) {
         // uiManager.emitter.emit(InternalEvents.CASCADING_CLICK_TOTAL_BET);

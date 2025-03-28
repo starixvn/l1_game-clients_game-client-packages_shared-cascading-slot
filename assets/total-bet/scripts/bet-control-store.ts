@@ -1,18 +1,23 @@
 import inversify from "inversify";
 import mobx from "mobx";
 
+import { CascadingSlotConfigsStore } from "../../game-configs/cascading-slot-configs-store";
+
 const { injectable, inject } = inversify;
 
 @injectable()
 export class BetControlStore {
-    _isShow = false;
-    _betLevel = 0;
-    _coinValue = 0;
-    _totalBet = 0;
+    @inject(CascadingSlotConfigsStore) protected readonly gameConfigStore: CascadingSlotConfigsStore;
 
     constructor() {
         mobx.makeAutoObservable(this);
     }
+
+    private _isShow = false;
+    private _betLevel = 0;
+    private _coinValue = 0;
+    private _totalBet = 0;
+    private _currentBetLevelIndex = 0;
 
     set isShow(status: boolean) {
         this._isShow = status;
@@ -44,5 +49,13 @@ export class BetControlStore {
 
     get totalBet() {
         return this._totalBet;
+    }
+
+    set currentBetLevelIndex(index: number) {
+        this._currentBetLevelIndex = index;
+    }
+
+    get currentBetLevelIndex() {
+        return this._currentBetLevelIndex;
     }
 }
