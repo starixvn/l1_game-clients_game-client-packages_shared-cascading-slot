@@ -33,8 +33,6 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
 
     handleNewRound() {
         this.tumblesStore.tumbles = [];
-        this.uiStore.totalTumbleWin = 0;
-        this.totalMultiplierStore.totalMultiplier = 0;
         this.totalMultiplierStore.isShowTotalMultiplierTimeline = false;
         this.settlementStore.finishData = null;
     }

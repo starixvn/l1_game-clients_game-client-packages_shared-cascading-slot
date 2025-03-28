@@ -2,7 +2,6 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 const { injectable, inject } = inversify;
 
-import { convertData } from "../cascading-slot-utils";
 import { CascadingFreespinsStore } from "../freespins/scripts/cascading-freespins-store";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingUIStore } from "../main-ui";
@@ -23,13 +22,6 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
     handleFinish(data: any) {
         const { result, tumbles, totalFreeSpins } = data;
         this.settlementStore.finishData = data;
-        this.tumblesHandler.handleTumbles(tumbles);
-        this.boardHandler.handleResult({
-            symbols: convertData(result),
-            multipliers: tumbles[0]?.multipliers,
-            isTurbo: false,
-            tumbles: this.tumblesStore.tumbles,
-        });
         this.freespinStore.totalFreeSpins = totalFreeSpins;
     }
 

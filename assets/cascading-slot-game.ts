@@ -11,9 +11,11 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { convertData, prefabCache } from "./cascading-slot-utils";
+import { CascadingFreespinsHandler } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
+import { CascadingTotalMultiplierHandler } from "./total-multiplier/scripts/cascading-total-multiplier-handler";
 import { TotalMultiplierView } from "./total-multiplier/scripts/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./tumbles/scripts/components/tumble-win-view";
 const { ccclass, property } = _decorator;
@@ -176,6 +178,9 @@ export class CascadingSlotGame extends ObserverComponent {
         if (win > 0) {
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
         }
+
+        this.setFreeSpins(totalFreeSpins);
+        this.setWinMultiplier(win, multiplier);
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())
@@ -183,6 +188,16 @@ export class CascadingSlotGame extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
     handleNewRound() {}
+
+    @handle(CascadingFreespinsHandler, (handle, freespins: number) => handle.setTotalFreeSpins(freespins))
+    setFreeSpins(freespins: number) {
+        return freespins;
+    }
+
+    @handle(CascadingTotalMultiplierHandler, (handler, winMultiplier: boolean) => handler.setWinMultiplier(winMultiplier))
+    setWinMultiplier(multiplier: number, win: number) {
+        return multiplier > 0 && win > 0;
+    }
 
     onClickSpin() {
         this.handleNewRound();

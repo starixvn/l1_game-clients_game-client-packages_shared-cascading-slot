@@ -6,12 +6,19 @@ import { CascadingFreespinsStore } from "./cascading-freespins-store";
 const { injectable, inject } = inversify;
 
 @injectable()
-export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
+export class CascadingFreespinsHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingFreespinsStore) protected readonly freespinStore: CascadingFreespinsStore;
     handle() {}
 
-    handleFreespins(freespins: any) {
-        const { total, betLevel, coinValue } = freespins;
+    handleFreespins(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
+        const { total, betLevel, coinValue, betMultiplier } = freespins;
+        this.freespinStore.totalFreeSpins = total;
+        this.freespinStore.betLevel = betLevel;
+        this.freespinStore.coinValue = coinValue;
+        this.freespinStore.betMultiplier = betMultiplier;
+    }
+
+    setTotalFreeSpins(total: number) {
         this.freespinStore.totalFreeSpins = total;
     }
 

@@ -12,6 +12,7 @@ import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
 import { CascadingTotalMultiplierHandler } from "../../total-multiplier/scripts/cascading-total-multiplier-handler";
 import { CascadingTotalMultiplierStore } from "../../total-multiplier/scripts/cascading-total-multiplier-store";
 import { TotalMultiplierView } from "../../total-multiplier/scripts/cascading-total-multiplier-view";
+import { CascadingSlotTumblesHandlers } from "../../tumbles/scripts/cascading-slot-tumbles-handlers";
 import { TumbleWinWiew } from "../../tumbles/scripts/components/tumble-win-view";
 import { convertBoardValue, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";
 const { observer, render, handle } = Observer;
@@ -119,6 +120,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                     const position = ComponentUtils.convertPosition(this.effectContainer, node);
                     this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
                 });
+                this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
             }
 
@@ -362,5 +364,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingTotalMultiplierHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
     setTotalMultiplierValue(multiplier: number) {
         return multiplier;
+    }
+
+    @handle(CascadingSlotTumblesHandlers, (handler, tumbles: Tumble[]) => handler.handleTumbles(tumbles))
+    setTumbles(tumbles: Tumble[]) {
+        return tumbles;
     }
 }

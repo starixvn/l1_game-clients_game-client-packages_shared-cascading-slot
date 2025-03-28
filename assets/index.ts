@@ -1,3 +1,4 @@
+export * as CascadingFreespins from "./freespins/scripts";
 export * as CascadingSlotConfigs from "./game-configs";
 export * from "./game-messages-cascading";
 export * as CascadingUI from "./main-ui";
