@@ -199,7 +199,7 @@ export class CascadingSlotGame extends ObserverComponent {
         return multiplier > 0 && win > 0;
     }
 
-    onClickSpin() {
+    spin() {
         this.handleNewRound();
         this.sendBet();
     }

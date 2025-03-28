@@ -373,7 +373,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @handle(CascadingSlotTumblesHandlers, (handler, tumble: any) => handler.setTumble(tumble))
-    setTumbleIcons(tumble: boolean) {
+    setTumbleIcons(tumble: any) {
         return tumble;
     }
 }

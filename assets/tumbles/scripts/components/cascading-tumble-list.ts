@@ -53,6 +53,10 @@ export class CascadingTumbleList extends ObserverComponent {
 
     @render(CascadingSlotTumblesStore, (store) => store.tumble)
     addIcons(tumble: any) {
+        if (!tumble || Object.keys(tumble).length === 0) {
+            this.clear();
+            return;
+        }
         const { icons } = tumble;
         this.content.active = true;
         Object.entries(icons).forEach(([key, value]) => {
