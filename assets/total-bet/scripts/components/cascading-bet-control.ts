@@ -244,7 +244,7 @@ export class CascadingBetControl extends ObserverComponent {
         if (this.currentBetLevelIndex < this.betLevels.length - 1) {
             console.log("-----------onClickIncreaseBetLevel", this.currentBetLevelIndex);
             this.currentBetLevelIndex++;
-            this.handleCurrentBetLevelIndex(this.currentBetLevelIndex++);
+            this.handleCurrentBetLevelIndex(this.currentBetLevelIndex);
             this.updateChangeByLevelOrCoin();
         }
     }
@@ -253,7 +253,7 @@ export class CascadingBetControl extends ObserverComponent {
         this.playSoundClick();
         if (this.currentCoinIndex > 0) {
             this.currentCoinIndex--;
-            this.handleCurrentCoinIndex(this.currentCoinIndex--);
+            this.handleCurrentCoinIndex(this.currentCoinIndex);
             this.updateChangeByLevelOrCoin();
         }
     }
@@ -262,7 +262,7 @@ export class CascadingBetControl extends ObserverComponent {
         this.playSoundClick();
         if (this.currentCoinIndex < this.coinValues.length - 1) {
             this.currentCoinIndex++;
-            this.handleCurrentCoinIndex(this.currentCoinIndex++);
+            this.handleCurrentCoinIndex(this.currentCoinIndex);
             this.updateChangeByLevelOrCoin();
         }
     }
@@ -270,7 +270,7 @@ export class CascadingBetControl extends ObserverComponent {
     protected onClickDecreaseTotalBet() {
         if (this.currentTotalBetIndex > 0) {
             this.currentTotalBetIndex--;
-            this.handleCurrentTotalBetIndex(this.currentTotalBetIndex--);
+            this.handleCurrentTotalBetIndex(this.currentTotalBetIndex);
             this.handleClickTotalBet();
         }
     }
@@ -278,7 +278,7 @@ export class CascadingBetControl extends ObserverComponent {
     protected onClickIncreaseTotalBet() {
         if (this.currentTotalBetIndex < this.totalBetUnique.length - 1) {
             this.currentTotalBetIndex++;
-            this.handleCurrentTotalBetIndex(this.currentTotalBetIndex++);
+            this.handleCurrentTotalBetIndex(this.currentTotalBetIndex);
             this.handleClickTotalBet();
         }
     }
