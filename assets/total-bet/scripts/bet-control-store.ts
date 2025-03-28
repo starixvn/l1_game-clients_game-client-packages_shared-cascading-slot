@@ -18,6 +18,8 @@ export class BetControlStore {
     private _coinValue = 0;
     private _totalBet = 0;
     private _currentBetLevelIndex = 0;
+    private _currentCoinIndex = 0;
+    private _currentTotalBetIndex = 0;
 
     set isShow(status: boolean) {
         this._isShow = status;
@@ -57,5 +59,21 @@ export class BetControlStore {
 
     get currentBetLevelIndex() {
         return this._currentBetLevelIndex;
+    }
+
+    set currentCoinIndex(index: number) {
+        this._currentCoinIndex = index;
+    }
+
+    get currentCoinIndex() {
+        return this._currentCoinIndex;
+    }
+
+    set currentTotalBetIndex(index: number) {
+        this._currentTotalBetIndex = index;
+    }
+
+    get currentTotalBetIndex() {
+        return this._currentTotalBetIndex;
     }
 }

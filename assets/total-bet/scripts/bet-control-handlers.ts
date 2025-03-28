@@ -15,4 +15,16 @@ export class BetControlHandlers {
     updateTotalBet(totalBet: number) {
         this.betControlStore.totalBet = totalBet;
     }
+
+    updateCurrentBetLevelIndex(index: number) {
+        this.betControlStore.currentBetLevelIndex = index;
+    }
+
+    updateCurrentCoinIndex(index: number) {
+        this.betControlStore.currentCoinIndex = index;
+    }
+
+    updateCurrentTotalBetIndex(index: number) {
+        this.betControlStore.currentTotalBetIndex = index;
+    }
 }
