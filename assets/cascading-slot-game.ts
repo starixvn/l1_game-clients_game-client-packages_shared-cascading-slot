@@ -10,8 +10,9 @@ import { StaticGroupId } from "db://shared-components/shared/common-components/s
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
+import { CascadingSlotState } from "./cascading-slot-state";
 import { convertData, prefabCache } from "./cascading-slot-utils";
-import { CascadingFreespinsHandler } from "./freespins/scripts";
+import { CascadingFreespinsHandler, CascadingFreespinsStore } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
@@ -189,6 +190,11 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
     handleNewRound() {}
 
+    @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
+    stateCascadingSpinning() {
+        return CascadingSlotState.SPINNING;
+    }
+
     @handle(CascadingFreespinsHandler, (handle, freespins: number) => handle.setTotalFreeSpins(freespins))
     setFreeSpins(freespins: number) {
         return freespins;
@@ -199,8 +205,16 @@ export class CascadingSlotGame extends ObserverComponent {
         return multiplier > 0 && win > 0;
     }
 
+    @render(CascadingFreespinsStore, (store) => store.isFreeSpin)
+    spinFreeSpins(isFreeSpin: boolean) {
+        if (isFreeSpin) {
+            this.spin();
+        }
+    }
+
     spin() {
         this.handleNewRound();
         this.sendBet();
+        this.stateCascadingSpinning();
     }
 }

@@ -53,8 +53,7 @@ export class CascadingTumbleList extends ObserverComponent {
 
     @render(CascadingSlotTumblesStore, (store) => store.tumble)
     addIcons(tumble: any) {
-        if (!tumble || Object.keys(tumble).length === 0) {
-            this.clear();
+        if (!tumble) {
             return;
         }
         const { icons } = tumble;
@@ -99,7 +98,11 @@ export class CascadingTumbleList extends ObserverComponent {
         });
     }
 
-    async clear() {
+    @render(CascadingSlotTumblesStore, (store) => store.clearTumbleList)
+    async clear(clearTumbleList: boolean) {
+        if (!clearTumbleList) {
+            return;
+        }
         await Promise.all(this.content.children.map((child) => this.fall(child)));
         this.content.destroyAllChildren();
         this.updateContentHeight();

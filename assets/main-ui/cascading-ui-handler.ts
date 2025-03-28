@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
+import { CascadingSlotState } from "../cascading-slot-state";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
 import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts/cascading-total-multiplier-store";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
@@ -33,8 +34,12 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
 
     handleNewRound() {
         this.tumblesStore.tumbles = [];
-        this.tumblesStore.tumble = null;
         this.uiStore.totalTumbleWin = 0;
         this.settlementStore.finishData = null;
+        this.changeCascadingState(CascadingSlotState.START_ROUND);
+    }
+
+    changeCascadingState(state: string) {
+        this.uiStore.cascadingState = state;
     }
 }

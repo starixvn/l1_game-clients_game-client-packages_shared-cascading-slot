@@ -21,10 +21,6 @@ export class CascadingTumbleItem extends Component {
 
     protected prefixSymbol = "symbol-";
 
-    onLoad() {
-        super.onLoad();
-    }
-
     setData(icon: number, count: number, win: number) {
         this.numberIcon.string = count.toString();
         this.winningValue.string = gc.FormatUtils.numberWithCommas(win, 2, false);
