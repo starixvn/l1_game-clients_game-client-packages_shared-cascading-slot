@@ -14,4 +14,8 @@ export class CascadingSlotTumblesHandlers implements gc.Shared.IHandler<void> {
     handleTumbles(tumbles: any) {
         this.tumblesStore.tumbles = tumbles;
     }
+
+    setTumble(tumble: any) {
+        this.tumblesStore.tumble = tumble;
+    }
 }

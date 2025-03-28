@@ -9,6 +9,7 @@ export class CascadingSlotTumblesStore {
         mobx.makeAutoObservable(this);
     }
     private _tumbles = [];
+    public tumble = null;
 
     set tumbles(tumbles: Tumble[]) {
         this._tumbles = tumbles;

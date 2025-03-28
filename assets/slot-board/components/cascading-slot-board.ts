@@ -122,6 +122,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 });
                 this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
+                this.setTumbleIcons(tumble);
             }
 
             await this.removeItems(explode, i);
@@ -369,5 +370,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingSlotTumblesHandlers, (handler, tumbles: Tumble[]) => handler.handleTumbles(tumbles))
     setTumbles(tumbles: Tumble[]) {
         return tumbles;
+    }
+
+    @handle(CascadingSlotTumblesHandlers, (handler, tumble: any) => handler.setTumble(tumble))
+    setTumbleIcons(tumble: boolean) {
+        return tumble;
     }
 }
