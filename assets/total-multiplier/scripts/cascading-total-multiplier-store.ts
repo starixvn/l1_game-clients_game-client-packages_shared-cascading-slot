@@ -12,11 +12,4 @@ export class CascadingTotalMultiplierStore {
 
     totalMultiplier = 0;
     winMultiplier = false;
-
-    get needShowTotalMultiplier() {
-        return (
-            (this.freespinStore.isFreeSpin && this.totalMultiplier > 0 && this.winMultiplier) ||
-            (this.freespinStore.isFreeSpin && this.totalMultiplier > 0)
-        );
-    }
 }

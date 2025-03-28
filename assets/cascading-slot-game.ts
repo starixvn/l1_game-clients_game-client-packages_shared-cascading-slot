@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, game, Game, Label, Prefab, sp } from "cc";
+import { _decorator, game, Game, Label, Node, Prefab, sp } from "cc";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -7,12 +7,13 @@ import Observer from "observer";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
+import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
-import { CascadingSlotConfig } from "./cascading-slot-base-configs";
+import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
 import { convertData, prefabCache } from "./cascading-slot-utils";
-import { CascadingFreespinsHandler, CascadingFreespinsStore } from "./freespins/scripts";
+import { CascadingFreespinsHandler } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
@@ -33,6 +34,9 @@ export class CascadingSlotGame extends ObserverComponent {
 
     @property(TumbleWinWiew)
     tumbleWinView: TumbleWinWiew = null;
+
+    @property(Node)
+    effectContainer: Node = null;
 
     @property(Label)
     lblRoundId: Label = null;
@@ -181,7 +185,20 @@ export class CascadingSlotGame extends ObserverComponent {
         }
 
         this.setFreeSpins(totalFreeSpins);
-        this.setWinMultiplier(win, multiplier);
+        const needShowTotalMultiplier = totalMultiplier > 0;
+        if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
+            await this.totalMultiplierView.showView(true);
+            await this.board.movingMultiplier(
+                this.tumbleWinView.multiplier.node,
+                this.effectContainer,
+                this.totalMultiplierView.total.node
+            );
+        }
+        await this.showEffectSpecialCase(finishData);
+        const delayForNextSpin = this.getCustomDuration("delayForNextSpin");
+        await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+        this.changeCascadingState(CascadingSlotState.SETTLED);
+        isFreeSpin && this.handleFreeSpins(totalFreeSpins);
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())
@@ -191,8 +208,8 @@ export class CascadingSlotGame extends ObserverComponent {
     handleNewRound() {}
 
     @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
-    stateCascadingSpinning() {
-        return CascadingSlotState.SPINNING;
+    changeCascadingState(state: string) {
+        return state;
     }
 
     @handle(CascadingFreespinsHandler, (handle, freespins: number) => handle.setTotalFreeSpins(freespins))
@@ -205,16 +222,35 @@ export class CascadingSlotGame extends ObserverComponent {
         return multiplier > 0 && win > 0;
     }
 
-    @render(CascadingFreespinsStore, (store) => store.isFreeSpin)
-    spinFreeSpins(isFreeSpin: boolean) {
-        if (isFreeSpin) {
+    spin() {
+        this.handleNewRound();
+        this.sendBet();
+        this.changeCascadingState(CascadingSlotState.SPINNING);
+    }
+
+    handleFreeSpins(totalFreeSpins: number) {
+        if (totalFreeSpins > 0) {
             this.spin();
         }
     }
 
-    spin() {
-        this.handleNewRound();
-        this.sendBet();
-        this.stateCascadingSpinning();
+    getCustomDuration(key: string): number {
+        //const config = this.isTurboMode() ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
+        const config = CascadingSlotConfig.normal;
+        return config[key];
+    }
+
+    async showEffectSpecialCase(data: any) {
+        const { bigWin, freeSpins } = data;
+        if (bigWin) {
+            console.log("show effect big win");
+            await FunctionUtils.delay(1000);
+        }
+
+        if (freeSpins > 0) {
+            await this.board.highlightScatterItems();
+            console.log("show effect free spins");
+            await FunctionUtils.delay(1000);
+        }
     }
 }

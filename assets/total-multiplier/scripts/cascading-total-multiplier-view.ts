@@ -16,16 +16,10 @@ export class TotalMultiplierView extends FadeAppearanceNode {
         this.showView(false, true);
     }
 
-    @render(CascadingTotalMultiplierStore, (store) => store.needShowTotalMultiplier)
-    showTotalMultiplier(needShowTotalMultiplier: boolean) {
-        if (!needShowTotalMultiplier) {
-            return;
-        }
-        this.showView(needShowTotalMultiplier, true);
-    }
-
     @render(CascadingTotalMultiplierStore, (store) => store.totalMultiplier)
     setValue(totalMultiplier: number, animated = true) {
+        console.log("setValue totalMultiplier", totalMultiplier);
+        this.showView(true);
         if (animated) {
             ComponentUtils.floatToNumber({ label: this.total, amount: totalMultiplier, duration: 0.2, noZeroSuffix: true, prefixStr: "x" });
         } else {

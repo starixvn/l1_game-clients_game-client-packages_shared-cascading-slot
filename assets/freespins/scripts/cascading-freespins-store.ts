@@ -11,7 +11,8 @@ export class CascadingFreespinsStore {
     betLevel = 0;
     coinValue = 0;
     betMultiplier = 0;
-    get isFreeSpin() {
+
+    get isFreeSpinJoinGame() {
         return this.totalFreeSpins > 0;
     }
 }
