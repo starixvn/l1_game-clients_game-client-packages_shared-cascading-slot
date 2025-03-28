@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import { CascadingSlotState, CascadingSlotStateStore } from "db://shared-cascading-slot/shared/scripts/cascading-slot-state-store";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
@@ -24,17 +25,13 @@ export class CascadingTotalBet extends ObserverComponent {
     @property(Node)
     disabled: Node = null;
 
-    // protected betControl: CascadingBetControl;
-    protected isOpenBetControl = false;
     protected increaseButtonStatus = true;
     protected decreaseButtonStatus = true;
 
-    // initData(betControl: CascadingBetControl) {
-    //     this.betControl = betControl;
-    //     this.betControl.init(() => {
-    //         this.onClickOpenBetControl();
-    //     });
-    // }
+    @render(BetControlStore, (store) => store.totalBet)
+    private updateTotalBet(totalBet: number) {
+        this.totalBetLabel.string = totalBet.toString();
+    }
 
     @render(BetControlStore, (store) => store.betLevel, { fireImmediately: false })
     hideDisabledLayer(betLevel: number[]) {
@@ -46,14 +43,6 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
     onClickOpenBetControl() {}
-
-    onHandleStatusBetControl(event: Event, customEventData: string) {
-        // uiManager.emitter.emit(InternalEvents.CASCADING_CLICK_TOTAL_BET);
-        // AudioManager.getInstance().playClick();
-
-        // this.betControl.showView(!this.isOpenBetControl, customEventData);
-        this.isOpenBetControl = !this.isOpenBetControl;
-    }
 
     @render(CascadingSlotStateStore, (store) => store.state)
     setAllowChangeBet(state: CascadingSlotState) {
@@ -67,14 +56,19 @@ export class CascadingTotalBet extends ObserverComponent {
     }
 
     setIncreaseButtonStatus(status: boolean) {
-        // AudioManager.getInstance().playClick();
+        this.playSoundClick();
         this.increaseButtonStatus = status;
         this.buttonIncrease.interactable = status;
     }
 
     setDecreaseButtonStatus(status: boolean) {
-        // AudioManager.getInstance().playClick();
+        this.playSoundClick();
         this.decreaseButtonStatus = status;
         this.buttonDecrease.interactable = status;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSoundClick() {
+        return gc.Audios.AudioIds.CLICK;
     }
 }
