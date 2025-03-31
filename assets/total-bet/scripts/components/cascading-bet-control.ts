@@ -30,10 +30,11 @@ enum OrderButtonNode {
     totalIncrease,
 }
 
-enum StatusAction {
-    decrease = "decrease",
-    increase = "increase",
-}
+type BetControl = {
+    coin: number;
+    level: number;
+    multiplier: number;
+};
 
 export const CalculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
     return +(level * coin * betMultiplier).toFixed(1);
@@ -87,7 +88,15 @@ export class CascadingBetControl extends ObserverComponent {
         if (!this.betLevels) {
             return;
         }
-        this.betLevel.string = this.betLevels[this.currentBetLevelIndex].toString();
+        const betLevel = this.betLevels[this.currentBetLevelIndex];
+        this.betLevel.string = betLevel.toString();
+        this.updateBetLevel(betLevel);
+        console.log("+++++++++++++++++updateBetLevelLabel", betLevel);
+    }
+
+    @handle(BetControlHandlers, (handle, betLevel: number) => handle.updateBetLevel(betLevel))
+    private updateBetLevel(betLevel: number) {
+        return betLevel;
     }
 
     @render(BetControlStore, (store) => store.currentCoinIndex, { fireImmediately: false })
@@ -105,7 +114,15 @@ export class CascadingBetControl extends ObserverComponent {
         if (!this.coinValues) {
             return;
         }
-        this.coinValue.string = this.coinValues[this.currentCoinIndex].toString();
+        console.log("+++++++++++++++++updateCoinValueLabel");
+        const coinValue = this.coinValues[this.currentCoinIndex];
+        this.coinValue.string = coinValue.toString();
+        this.updateCoinValue(coinValue);
+    }
+
+    @handle(BetControlHandlers, (handle, coinValue: number) => handle.updateCoinValue(coinValue))
+    private updateCoinValue(coinValue: number) {
+        return coinValue;
     }
 
     @render(BetControlStore, (store) => store.currentTotalBetIndex, { fireImmediately: false })
@@ -121,9 +138,6 @@ export class CascadingBetControl extends ObserverComponent {
     @render(BetControlStore, (store) => store.isOpenBetAmountPopup)
     handleDialogVisibility(status: boolean) {
         this.node.active = status;
-
-        // action === StatusAction.increase && this.onClickIncreaseTotalBet();
-        // action === StatusAction.decrease && this.onClickDecreaseTotalBet();
     }
 
     @handle(BetControlHandlers, (handle, status: boolean) => handle.updateStatusBetAmountPopup())
@@ -143,6 +157,8 @@ export class CascadingBetControl extends ObserverComponent {
         this.updateCoinValues(coinValues);
         this.prepareTotalBetData();
         this.updateAllButtonStatus();
+        this.loadDataFromStorage();
+        this.saveData();
     }
 
     private updateDefaultCoinValue(defaultCoinValue: number) {
@@ -153,13 +169,13 @@ export class CascadingBetControl extends ObserverComponent {
         this.betMultiplier = betMultiplier;
     }
 
-    private updateBetLevels(betLevels) {
+    private updateBetLevels(betLevels: number[]) {
         this.betLevels = [...betLevels];
         this.betLevels.sort((a, b) => a - b);
         this.updateBetLevelLabel();
     }
 
-    private updateCoinValues(coinValues) {
+    private updateCoinValues(coinValues: number[]) {
         this.coinValues = [...coinValues];
         this.coinValues.sort((a, b) => a - b);
         const currentCoinIndex = this.isTrialMode ? 0 : this.findCoinIndex(this.defaultCoinValue);
@@ -217,6 +233,9 @@ export class CascadingBetControl extends ObserverComponent {
     private updateChangeByLevelOrCoin(saveData = true) {
         this.handleTotalBetWithBetValueAndCoinValue(this.betLevels[this.currentBetLevelIndex], this.coinValues[this.currentCoinIndex]);
         this.updateAllButtonStatus();
+        if (saveData) {
+            this.saveData();
+        }
     }
 
     protected onClickDecreaseBetLevel() {
@@ -285,28 +304,39 @@ export class CascadingBetControl extends ObserverComponent {
         this.handleCurrentBetLevelIndex(detail.indexLevel);
         this.handleCurrentCoinIndex(detail.indexCoin);
         this.updateAllButtonStatus();
-        // this.saveData();
+        this.saveData();
     }
 
-    // private saveData() {
-    //     const betControl = {
-    //         coin: this.coinValues[this.currentCoinIndex],
-    //         level: this.betLevels[this.currentBetLevelIndex],
-    //         multiplier: this.betMultiplier,
-    //     };
-    //     // const data = GameUtils.getGameSetting(this.gameId);
-    //     // data.betControl = betControl;
-    //     // GameUtils.setGameSetting(this.gameId, data);
-    // }
+    private saveData() {
+        // const betControl = {
+        //     coin: this.coinValues[this.currentCoinIndex],
+        //     level: this.betLevels[this.currentBetLevelIndex],
+        //     multiplier: this.betMultiplier,
+        // };
+        // console.log("----------------saveData", betControl);
+        // gc.Shared.utils.StorageManager.set("BetControl", betControl);
+    }
 
-    // private loadDataFromStorage() {
-    //     // const data = GameUtils.getGameSetting(this.gameId);
-    //     // if (!data.betControl) {
-    //     //     return;
-    //     // }
-    //     // const { coin, level } = data.betControl;
-    //     // this.updateSelectedCoinLevel(coin, level);
-    // }
+    private loadDataFromStorage() {
+        // const betControl = gc.Shared.utils.StorageManager.get("BetControl");
+        // if (!betControl) {
+        //     return;
+        // }
+        // const { coin, level } = betControl as BetControl;
+        // this.updateSelectedCoinLevel(coin, level);
+    }
+
+    updateSelectedCoinLevel(coin: number, level: number) {
+        console.log("+++++++++++++++++updateSelectedCoinLevel", coin, level);
+        const coinIndex = this.findCoinIndex(coin);
+        const levelIndex = this.betLevels.findIndex((value) => value === level);
+
+        if (coinIndex !== -1 && levelIndex !== -1) {
+            this.handleCurrentCoinIndex(coinIndex);
+            this.handleCurrentBetLevelIndex(levelIndex);
+            this.updateAllButtonStatus();
+        }
+    }
 
     private findCoinIndex(coin: number) {
         return this.coinValues.findIndex((value) => value === coin);

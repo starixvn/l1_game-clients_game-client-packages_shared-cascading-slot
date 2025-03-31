@@ -12,6 +12,14 @@ export class BetControlHandlers {
         this.betControlStore.isOpenBetAmountPopup = false;
     }
 
+    updateBetLevel(betLevel: number) {
+        this.betControlStore.betLevel = betLevel;
+    }
+
+    updateCoinValue(coinValue: number) {
+        this.betControlStore.coinValue = coinValue;
+    }
+
     updateTotalBet(totalBet: number) {
         this.betControlStore.totalBet = totalBet;
     }
