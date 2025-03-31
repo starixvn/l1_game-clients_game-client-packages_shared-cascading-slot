@@ -100,6 +100,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     closeAutoPlayPopup() {
         this.autoPlayStore.isOpenAutoplayPopup = false;
+        this.cancelAutoPlay();
     }
 
     confirmRoundAndStart() {

@@ -22,11 +22,6 @@ export default class AutoPlayPopup extends ObserverComponent {
     @property(Toggle)
     tglTurboMode: Toggle = null;
 
-    @render(AutoPlayStore, (store) => store.isOpenAutoplayPopup)
-    updateStatusBetAmountPopup(status: boolean) {
-        this.node.active = status;
-    }
-
     @render(AutoPlayStore, (store) => store.roundsList)
     initContentRounds(roundsList: number[]) {
         this.nodeContent.destroyAllChildren();

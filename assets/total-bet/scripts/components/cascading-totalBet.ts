@@ -1,5 +1,6 @@
 import { _decorator, Label, Node } from "cc";
-import { CascadingSlotState, CascadingSlotStateStore } from "db://shared-cascading-slot/shared/scripts/cascading-slot-state-store";
+import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
+import { CascadingUIStore } from "db://shared-cascading-slot/main-ui";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -46,12 +47,13 @@ export class CascadingTotalBet extends ObserverComponent {
     @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
     onClickOpenBetControl() {}
 
-    @render(CascadingSlotStateStore, (store) => store.state)
-    setAllowChangeBet(state: CascadingSlotState) {
+    @render(CascadingUIStore, (store) => store.cascadingState)
+    setAllowChangeBet(state: string) {
         let status = true;
-        if (state === CascadingSlotState.Spinning || state === CascadingSlotState.Start_Round) {
+        if (state === CascadingSlotState.SPINNING || state === CascadingSlotState.START_ROUND) {
             status = false;
         }
+
         this.buttonIncrease.interactable = status && this.increaseButtonStatus;
         this.buttonDecrease.interactable = status && this.decreaseButtonStatus;
         this.disabled.active = !status;

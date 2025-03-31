@@ -3,7 +3,6 @@ import { _decorator, Sprite } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { BetControlHandlers } from "../../total-bet/scripts/bet-control-handlers";
 import { AutoPlayHandler } from "../scripts/auto-play-handlers";
 import { AutoPlayStore } from "../scripts/auto-play-store";
 
@@ -22,7 +21,6 @@ export default class AutoPlayButton extends ObserverComponent {
     @handle(AutoPlayHandler, (handle) => handle.clickAutoPlay())
     onClickAutoPlay() {
         this.playSoundClick();
-        this.openBetAmountPopup(false);
     }
 
     @render(AutoPlayStore, (store) => store.isTurnOnAutoPlay)
@@ -34,10 +32,5 @@ export default class AutoPlayButton extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return gc.Audios.AudioIds.CLICK;
-    }
-
-    @handle(BetControlHandlers, (handle, isOpen: boolean) => handle.updateStatusBetAmountPopup(isOpen))
-    openBetAmountPopup(isOpen: boolean) {
-        return isOpen;
     }
 }

@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "auto-play-dialog",
+    "_name": "auto-play-popup",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "auto-play-dialog",
+    "_name": "auto-play-popup",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -3138,6 +3138,9 @@
     },
     "tglTurboMode": {
       "__id__": 98
+    },
+    "dialog": {
+      "__id__": 144
     },
     "_id": ""
   },
