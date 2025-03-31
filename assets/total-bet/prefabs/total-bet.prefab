@@ -46,14 +46,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 79
+        "__id__": 80
       },
       {
-        "__id__": 81
+        "__id__": 82
       }
     ],
     "_prefab": {
-      "__id__": 83
+      "__id__": 84
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -767,8 +767,8 @@
     },
     "component": "",
     "_componentId": "9342bHg3q5LBq0TejwkgBDs",
-    "handler": "onHandleStatusBetControl",
-    "customEventData": "decrease"
+    "handler": "onClickDecreaseTotalBet",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -1120,8 +1120,8 @@
     },
     "component": "",
     "_componentId": "9342bHg3q5LBq0TejwkgBDs",
-    "handler": "onHandleStatusBetControl",
-    "customEventData": "increase"
+    "handler": "onClickIncreaseTotalBet",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -1683,6 +1683,9 @@
       },
       {
         "__id__": 78
+      },
+      {
+        "__id__": 79
       }
     ],
     "removedComponents": []
@@ -1750,6 +1753,16 @@
     }
   },
   {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 75
+    },
+    "propertyPath": [
+      "_active"
+    ],
+    "value": true
+  },
+  {
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
@@ -1759,7 +1772,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 80
+      "__id__": 81
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -1787,7 +1800,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 82
+      "__id__": 83
     },
     "buttonIncrease": {
       "__id__": 44
@@ -1801,6 +1814,7 @@
     "disabled": {
       "__id__": 63
     },
+    "betControl": null,
     "_id": ""
   },
   {
@@ -1817,11 +1831,37 @@
     },
     "fileId": "832tWs90pKv54WVwNth9fG",
     "instance": null,
-    "targetOverrides": [],
+    "targetOverrides": [
+      {
+        "__id__": 85
+      }
+    ],
     "nestedPrefabInstanceRoots": [
       {
         "__id__": 71
       }
+    ]
+  },
+  {
+    "__type__": "cc.TargetOverrideInfo",
+    "source": {
+      "__id__": 82
+    },
+    "sourceInfo": null,
+    "propertyPath": [
+      "betControl"
+    ],
+    "target": {
+      "__id__": 71
+    },
+    "targetInfo": {
+      "__id__": 86
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "20+v4T8LdLy6QGzwNeY99T"
     ]
   }
 ]

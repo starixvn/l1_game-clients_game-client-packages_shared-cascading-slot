@@ -257,7 +257,8 @@ export class CascadingBetControl extends ObserverComponent {
         }
     }
 
-    protected onClickDecreaseTotalBet() {
+    onClickDecreaseTotalBet() {
+        this.playSoundClick();
         if (this.currentTotalBetIndex > 0) {
             this.currentTotalBetIndex--;
             this.handleCurrentTotalBetIndex(this.currentTotalBetIndex);
@@ -265,7 +266,8 @@ export class CascadingBetControl extends ObserverComponent {
         }
     }
 
-    protected onClickIncreaseTotalBet() {
+    onClickIncreaseTotalBet() {
+        this.playSoundClick();
         if (this.currentTotalBetIndex < this.totalBetUnique.length - 1) {
             this.currentTotalBetIndex++;
             this.handleCurrentTotalBetIndex(this.currentTotalBetIndex);

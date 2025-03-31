@@ -1,4 +1,3 @@
-import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import { CascadingSlotState, CascadingSlotStateStore } from "db://shared-cascading-slot/shared/scripts/cascading-slot-state-store";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
@@ -7,6 +6,7 @@ import Observer from "observer";
 
 import { BetControlStore } from "../bet-control-store";
 import { CascadingTotalBetHandlers } from "../cascading-total-bet-handlers";
+import { CascadingBetControl } from "./cascading-bet-control";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -25,6 +25,8 @@ export class CascadingTotalBet extends ObserverComponent {
     @property(Node)
     disabled: Node = null;
 
+    @property(CascadingBetControl)
+    betControl: CascadingBetControl = null;
     protected increaseButtonStatus = true;
     protected decreaseButtonStatus = true;
 
@@ -55,20 +57,11 @@ export class CascadingTotalBet extends ObserverComponent {
         this.disabled.active = !status;
     }
 
-    setIncreaseButtonStatus(status: boolean) {
-        this.playSoundClick();
-        this.increaseButtonStatus = status;
-        this.buttonIncrease.interactable = status;
+    onClickDecreaseTotalBet() {
+        this.betControl?.onClickDecreaseTotalBet();
     }
 
-    setDecreaseButtonStatus(status: boolean) {
-        this.playSoundClick();
-        this.decreaseButtonStatus = status;
-        this.buttonDecrease.interactable = status;
-    }
-
-    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
-    playSoundClick() {
-        return gc.Audios.AudioIds.CLICK;
+    onClickIncreaseTotalBet() {
+        this.betControl?.onClickIncreaseTotalBet();
     }
 }
