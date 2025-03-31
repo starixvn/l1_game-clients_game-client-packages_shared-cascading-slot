@@ -120,7 +120,7 @@ export class CascadingBetControl extends ObserverComponent {
         return currentTotalBetIndex;
     }
 
-    @render(BetControlStore, (store) => store.isShow)
+    @render(BetControlStore, (store) => store.isOpenBetAmountPopup)
     handleDialogVisibility(status: boolean) {
         this.node.active = status;
 
@@ -128,7 +128,7 @@ export class CascadingBetControl extends ObserverComponent {
         // action === StatusAction.decrease && this.onClickDecreaseTotalBet();
     }
 
-    @handle(BetControlHandlers, (handle, status: boolean) => handle.hideBetControl())
+    @handle(BetControlHandlers, (handle, status: boolean) => handle.updateStatusBetAmountPopup())
     onCloseBetControl() {}
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
@@ -334,25 +334,6 @@ export class CascadingBetControl extends ObserverComponent {
         this.nodeButtons[OrderButtonNode.totalIncrease].interactable = this.currentTotalBetIndex < this.totalBetUnique.length - 1;
         this.nodeButtons[OrderButtonNode.totalDecrease].interactable = this.currentTotalBetIndex > 0;
     }
-
-    updatePlaceBetAndUIModel() {
-        // this.placeBetModel.change({
-        //     betLevel: this.betLevels[this.currentBetLevelIndex],
-        //     coinValue: this.coinValues[this.currentCoinIndex],
-        //     totalBet: this.currentTotalBet,
-        // });
-        // this.uiModel.emit(CascadingUIModel.Events.CHANGE_TOTAL_BET, this.generateBetControlData());
-    }
-
-    // private generateBetControlData(): TotalBetType {
-    //     return {
-    //         totalBet: this.currentTotalBet,
-    //         coin: this.coinValues[this.currentCoinIndex],
-    //         level: this.betLevels[this.currentBetLevelIndex],
-    //         increase: this.nodeButtons[OrderButtonNode.totalIncrease].interactable,
-    //         decrease: this.nodeButtons[OrderButtonNode.totalDecrease].interactable,
-    //     };
-    // }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {

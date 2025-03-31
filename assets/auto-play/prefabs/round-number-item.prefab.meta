@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "36ef279c-8643-474e-9f69-654941aed8e5",
+  "uuid": "3a2ef696-dd28-439c-9e84-ee7c2a6942f8",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "auto-spin-dialog"
+    "syncNodeName": "round-number-item"
   }
 }

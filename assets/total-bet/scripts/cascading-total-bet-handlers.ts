@@ -9,6 +9,6 @@ export class CascadingTotalBetHandlers {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
 
     showBetControl() {
-        this.betControlStore.isShow = true;
+        this.betControlStore.isOpenBetAmountPopup = true;
     }
 }

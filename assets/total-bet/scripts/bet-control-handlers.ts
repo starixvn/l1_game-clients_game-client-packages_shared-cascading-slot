@@ -8,8 +8,8 @@ const { injectable, inject } = inversify;
 export class BetControlHandlers {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
 
-    hideBetControl() {
-        this.betControlStore.isShow = false;
+    updateStatusBetAmountPopup(status = false) {
+        this.betControlStore.isOpenBetAmountPopup = false;
     }
 
     updateTotalBet(totalBet: number) {

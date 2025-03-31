@@ -13,7 +13,7 @@ export class BetControlStore {
         mobx.makeAutoObservable(this);
     }
 
-    private _isShow = false;
+    private _isOpenBetAmountPopup = false;
     private _betLevel = 0;
     private _coinValue = 0;
     private _totalBet = 0;
@@ -21,12 +21,12 @@ export class BetControlStore {
     private _currentCoinIndex = 0;
     private _currentTotalBetIndex = 0;
 
-    set isShow(status: boolean) {
-        this._isShow = status;
+    set isOpenBetAmountPopup(status: boolean) {
+        this._isOpenBetAmountPopup = status;
     }
 
-    get isShow() {
-        return this._isShow;
+    get isOpenBetAmountPopup() {
+        return this._isOpenBetAmountPopup;
     }
 
     set betLevel(level: number) {
