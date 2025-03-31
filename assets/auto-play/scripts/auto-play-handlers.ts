@@ -136,7 +136,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     handleTurboMode(isTurboMode: boolean) {
-        console.log("--------handleTurboMode", isTurboMode);
         this.autoPlayStore.isTurboMode = isTurboMode;
     }
 }

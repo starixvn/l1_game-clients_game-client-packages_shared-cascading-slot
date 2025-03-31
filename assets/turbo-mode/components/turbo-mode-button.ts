@@ -26,11 +26,6 @@ export default class TurboModeButton extends ObserverComponent {
         this.tglTurboMode.isChecked = isTurboMode;
     }
 
-    @render(AutoPlayStore, (store) => store.isTurnOnAutoPlay)
-    updateAutoPlayButton(isTurnOnAutoPlay: boolean) {
-        this.tglTurboMode.interactable = !isTurnOnAutoPlay;
-    }
-
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return gc.Audios.AudioIds.CLICK;

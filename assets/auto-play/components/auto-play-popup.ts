@@ -60,6 +60,7 @@ export default class AutoPlayPopup extends ObserverComponent {
     @render(AutoPlayStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
         this.playSoundClick();
+        console.log("--------autoplay -renderTurboMode", isTurboMode);
         this.tglTurboMode.isChecked = isTurboMode;
     }
 
