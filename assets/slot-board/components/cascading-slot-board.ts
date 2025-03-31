@@ -8,6 +8,7 @@ import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base
 import { Tumble } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
 import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
+import { CascadingPreviewOddsPopup } from "../../preview-symbol/scripts/cascading-preview-odds-popup";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
 import { CascadingTotalMultiplierHandler } from "../../total-multiplier/scripts/cascading-total-multiplier-handler";
 import { CascadingTotalMultiplierStore } from "../../total-multiplier/scripts/cascading-total-multiplier-store";
@@ -25,6 +26,9 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @property(Node)
     effectContainer: Node = null;
+
+    @property(CascadingPreviewOddsPopup)
+    previewPopup: CascadingPreviewOddsPopup = null;
 
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
@@ -79,6 +83,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             const itemData = symbols.slice(start, end);
             reel.setItemData(itemData, multipliers);
         });
+        this.previewPopup.addPreviewPopup(this.reels);
     }
 
     protected async fallOut(isTurbo: boolean, delay: number) {
@@ -375,5 +380,19 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingSlotTumblesHandlers, (handler, tumble: any) => handler.setTumble(tumble))
     setTumbleIcons(tumble: any) {
         return tumble;
+    }
+
+    // @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
+    // onSymbolPreview(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+    //     if (!gameConfigs?.odds) {
+    //         return;
+    //     }
+    //     this.playSound(gc.Audios.AudioIds.CLICK);
+    //     const spine = prefabCache[symbol.index].symbol;
+    // }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSound(id: string) {
+        return id;
     }
 }

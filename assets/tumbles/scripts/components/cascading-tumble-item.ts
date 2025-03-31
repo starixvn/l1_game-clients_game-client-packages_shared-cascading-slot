@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Component, Label, Sprite, SpriteAtlas } from "cc";
-import { SCATTER_SYMBOL } from "db://shared-cascading-slot/cascading-slot-utils";
+import { SpecialSymbol } from "db://shared-cascading-slot/cascading-slot-utils";
 import Observer from "observer";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -31,6 +31,6 @@ export class CascadingTumbleItem extends Component {
         const freeSpinTxt = freeSpin ? `extraFreeSpin` : `freeSpin`;
         this.numberIcon.string = count.toString();
         this.winningValue.string = win.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
-        this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${SCATTER_SYMBOL}`);
+        this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${SpecialSymbol.SCATTER_SYMBOL}`);
     }
 }

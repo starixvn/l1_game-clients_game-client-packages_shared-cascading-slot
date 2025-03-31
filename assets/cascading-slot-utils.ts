@@ -1,7 +1,12 @@
+import { Node, tween, UIOpacity } from "cc";
 import { Tumble } from "./game-messages-cascading";
 
-export const SCATTER_SYMBOL = 9;
-export const MULTIPLIER_SYMBOL = 10;
+export enum SpecialSymbol {
+    SCATTER_SYMBOL = 9,
+    MULTIPLIER_SYMBOL = 10,
+    FREESPIN = 11,
+    BONUS = 12,
+}
 
 export const convertBoardValue = (data: number[]): number[][] => {
     const result: number[][] = [];
@@ -45,3 +50,21 @@ export interface WinIconDetail {
     count: number;
     win: number;
 }
+
+export const showNode = (node: Node, transitionTime = 0.3) => {
+    const nodeOpacity = node.getComponent(UIOpacity);
+    node.active = true;
+    nodeOpacity.opacity = 0;
+    tween(nodeOpacity).to(transitionTime, { opacity: 255 }).start();
+};
+
+export const hideNode = (node: Node, options: any) => {
+    const duration = options.duration ?? 0.3;
+    const onHidden = options.onHidden;
+    tween(node.getComponent(UIOpacity))
+        .to(duration, { opacity: 0 })
+        .call(() => {
+            onHidden && onHidden();
+        })
+        .start();
+};

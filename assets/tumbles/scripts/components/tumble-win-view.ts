@@ -118,7 +118,6 @@ export class TumbleWinWiew extends FadeAppearanceNode {
 
     @render(CascadingUIStore, (store) => store.multiplier, { fireImmediately: false })
     setMultiplier(value: number) {
-        console.log("setMultiplier", value);
         this.multiplier.string = `x${value}`;
         this.multiplier.node.getComponent(UIOpacity).opacity = 255;
         this.tumbleLayout.enabled = true;
