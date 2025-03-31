@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "turbo",
+    "_name": "turbo-mode-button",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "turbo",
+    "_name": "turbo-mode-button",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -41,10 +41,13 @@
       },
       {
         "__id__": 34
+      },
+      {
+        "__id__": 37
       }
     ],
     "_prefab": {
-      "__id__": 37
+      "__id__": 39
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -848,11 +851,34 @@
   },
   {
     "__type__": "cc.ClickEvent",
-    "target": null,
+    "target": {
+      "__id__": 1
+    },
     "component": "",
-    "_componentId": "",
-    "handler": "",
+    "_componentId": "2af12AuVMhJq6CsnEVpMj0q",
+    "handler": "onTurboModeChanged",
     "customEventData": ""
+  },
+  {
+    "__type__": "2af12AuVMhJq6CsnEVpMj0q",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 38
+    },
+    "tglTurboMode": {
+      "__id__": 34
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "f9XxpVPTtLFag9Y4gi54hh"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -863,6 +889,7 @@
       "__id__": 0
     },
     "fileId": "acfGoqhrlENIRCFrR8Wuln",
+    "instance": null,
     "targetOverrides": null
   }
 ]
