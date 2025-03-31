@@ -42,7 +42,6 @@ export const prefabCache = {
 export interface SymbolBoard {
     symbols: number[][];
     multipliers: number[];
-    isTurbo: boolean;
     tumbles: Tumble[];
 }
 
