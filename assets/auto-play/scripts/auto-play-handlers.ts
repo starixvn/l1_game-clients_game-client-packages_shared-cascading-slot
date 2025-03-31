@@ -134,8 +134,4 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     updateNoOfRounds(rounds: number) {
         this.autoPlayStore.selectedRoundOnPopup = rounds;
     }
-
-    handleTurboMode(isTurboMode: boolean) {
-        this.autoPlayStore.isTurboMode = isTurboMode;
-    }
 }

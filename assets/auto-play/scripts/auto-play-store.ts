@@ -15,7 +15,6 @@ export class AutoPlayStore {
     public roundsAutoplay = 0;
 
     public isAutoplay = false;
-    public isTurboMode = false;
 
     public triggerBet = null;
 

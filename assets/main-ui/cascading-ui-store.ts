@@ -1,6 +1,8 @@
 import inversify from "inversify";
 import mobx from "mobx";
+
 import { CascadingSlotState } from "../cascading-slot-state";
+
 const { injectable, inject } = inversify;
 
 @injectable()
@@ -14,6 +16,8 @@ export class CascadingUIStore {
     multiplier = 0;
 
     freeSpins = 0;
+
+    isTurboMode = false;
 
     _cascadingState = CascadingSlotState.NONE;
 

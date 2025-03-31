@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
+
 import { CascadingSlotState } from "../cascading-slot-state";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
 import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts/cascading-total-multiplier-store";
@@ -41,5 +42,9 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
 
     changeCascadingState(state: string) {
         this.uiStore.cascadingState = state;
+    }
+
+    handleTurboMode(isTurboMode: boolean) {
+        this.uiStore.isTurboMode = isTurboMode;
     }
 }
