@@ -6,4 +6,6 @@ export * as CascadingSlotSettlements from "./settlements";
 export * as CascadingSlotBoard from "./slot-board";
 export * as CascadingTotalMultiplier from "./total-multiplier/scripts";
 export * as CascadingSlotTumbles from "./tumbles/scripts";
+export * as CascadingAutoPlay from "./auto-play/scripts";
+
 export const FEATURE_NAME = "cascading-slot";

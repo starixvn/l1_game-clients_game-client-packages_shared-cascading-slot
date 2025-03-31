@@ -1,14 +1,16 @@
 import gc from "@sg/game-client-base";
-import { _decorator, game, Game, Label, Node, Prefab, sp } from "cc";
+import { _decorator, Game, game, Label, Node, Prefab, sp } from "cc";
+import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import Observer from "observer";
-
-import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
 import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
+import Observer from "observer";
+
+import { AutoPlayHandler } from "./auto-play/scripts/auto-play-handlers";
+import { AutoPlayStore } from "./auto-play/scripts/auto-play-store";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
@@ -20,6 +22,7 @@ import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board
 import { CascadingTotalMultiplierHandler } from "./total-multiplier/scripts/cascading-total-multiplier-handler";
 import { TotalMultiplierView } from "./total-multiplier/scripts/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./tumbles/scripts/components/tumble-win-view";
+
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
@@ -48,6 +51,9 @@ export class CascadingSlotGame extends ObserverComponent {
     lblMaxBet: Label = null;
 
     protected enableEventShowHideGame = true;
+
+    private isAutoplay = false;
+    private roundsAutoplay = 0;
 
     onLoad() {
         super.onLoad();
@@ -81,6 +87,16 @@ export class CascadingSlotGame extends ObserverComponent {
             });
             ComponentUtils.setEmptyLabels(lblList);
         }
+    }
+
+    @render(AutoPlayStore, (store) => store.isAutoplay)
+    onAutoplay(isAutoplay: boolean) {
+        this.isAutoplay = isAutoplay;
+    }
+
+    @render(AutoPlayStore, (store) => store.roundsAutoplay)
+    onRoundsAutoplay(roundsAutoplay: number) {
+        this.roundsAutoplay = roundsAutoplay;
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
@@ -199,6 +215,7 @@ export class CascadingSlotGame extends ObserverComponent {
         await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
         this.changeCascadingState(CascadingSlotState.SETTLED);
         isFreeSpin && this.handleFreeSpins(totalFreeSpins);
+        this.isAutoplay && this.spin();
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())
@@ -226,7 +243,11 @@ export class CascadingSlotGame extends ObserverComponent {
         this.handleNewRound();
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
+        this.checkSpinNextRound();
     }
+
+    @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
+    checkSpinNextRound() {}
 
     handleFreeSpins(totalFreeSpins: number) {
         if (totalFreeSpins > 0) {
