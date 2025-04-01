@@ -20,6 +20,7 @@ export class CascadingUIStore {
     isTurboMode = false;
 
     _cascadingState = CascadingSlotState.NONE;
+    _isSymbolPreviewVisible = false;
 
     get cascadingState() {
         return this._cascadingState;
@@ -27,5 +28,13 @@ export class CascadingUIStore {
 
     set cascadingState(state: string) {
         this._cascadingState = state;
+    }
+
+    get isSymbolPreviewVisible() {
+        return this._isSymbolPreviewVisible;
+    }
+
+    set isSymbolPreviewVisible(value: boolean) {
+        this._isSymbolPreviewVisible = value;
     }
 }

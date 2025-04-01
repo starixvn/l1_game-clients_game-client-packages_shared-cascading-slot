@@ -1,6 +1,9 @@
-import { _decorator, Component, instantiate, Node, Prefab, UITransform, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Node, Prefab, UITransform, v3, Vec3 } from "cc";
+import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { hideNode, prefabCache, showNode } from "../../cascading-slot-utils";
+import { CascadingUIStore } from "../../main-ui";
+import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
 import { CascadingSlotReelItem } from "../../slot-reel/scripts/cascading-slot-reel-item";
 import { CascadingSymbolPreview } from "./cascading-symbol-preview";
 const { observer, render, handle } = Observer;
@@ -8,7 +11,7 @@ const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
 @ccclass
-export class CascadingPreviewOddsPopup extends Component {
+export class CascadingPreviewOddsPopup extends ObserverComponent {
     @property(Node)
     previewOverlay: Node = null;
 
@@ -35,7 +38,7 @@ export class CascadingPreviewOddsPopup extends Component {
     addReelItemEvent(item, isInfoOnLeft) {
         item.node.on(Node.EventType.TOUCH_END, () => {
             if (this.currentPreviewItem === item.node) {
-                this.hideSymbolPreview(true);
+                this.handleSymbolPreviewVisiblity(false);
                 return;
             }
             this.currentPreviewItem = item.node;
@@ -45,7 +48,7 @@ export class CascadingPreviewOddsPopup extends Component {
     }
 
     showPreview(previewNode: Node, worldPosition: Vec3) {
-        this.previewOverlay.active = true;
+        // this.previewOverlay.active = true;
         this.hideOtherPreview();
         this.previewOverlay.addChild(previewNode);
 
@@ -80,6 +83,7 @@ export class CascadingPreviewOddsPopup extends Component {
         const symbolPreview = previewNode.getComponent(CascadingSymbolPreview);
         const symbolOdds = this.odds.symbols[symbol.index];
         this.showPreview(previewNode, worldPosition);
+        this.handleSymbolPreviewVisiblity(true);
         symbolPreview.setInfo({
             symbol,
             spine,
@@ -93,11 +97,17 @@ export class CascadingPreviewOddsPopup extends Component {
         });
     }
 
-    hideSymbolPreview(hideSymbolPreview: boolean) {
-        if (hideSymbolPreview) {
-            this.previewOverlay.active = false;
+    @render(CascadingUIStore, (store) => store.isSymbolPreviewVisible)
+    hideSymbolPreview(isSymbolPreviewVisible: boolean) {
+        this.previewOverlay.active = isSymbolPreviewVisible;
+        if (!isSymbolPreviewVisible) {
             this.previewOverlay.destroyAllChildren();
             this.currentPreviewItem = null;
         }
+    }
+
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
+    handleSymbolPreviewVisiblity(isVisible: boolean) {
+        return isVisible;
     }
 }

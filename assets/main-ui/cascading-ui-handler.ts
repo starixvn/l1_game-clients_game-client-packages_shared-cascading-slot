@@ -47,4 +47,8 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
     handleTurboMode(isTurboMode: boolean) {
         this.uiStore.isTurboMode = isTurboMode;
     }
+
+    handleSymbolPreviewVisiblity(value: boolean) {
+        this.uiStore.isSymbolPreviewVisible = value;
+    }
 }

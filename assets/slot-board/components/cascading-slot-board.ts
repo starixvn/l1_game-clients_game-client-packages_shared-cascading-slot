@@ -52,7 +52,11 @@ export class CascadingSlotBoard extends ObserverComponent {
     public addItems(data: number[][]) {
         this.reels.forEach((reel, index) => {
             const items = data[index];
-            reel.addItems(items);
+            const reelItems = reel.addItems(items);
+            const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
+            reelItems.forEach((item) => {
+                this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
+            });
         });
     }
 

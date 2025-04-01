@@ -243,6 +243,7 @@ export class CascadingSlotGame extends ObserverComponent {
         this.handleNewRound();
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
+        this.handleSymbolPreviewVisiblity(false);
         this.checkSpinNextRound();
     }
 
@@ -273,5 +274,14 @@ export class CascadingSlotGame extends ObserverComponent {
             console.log("show effect free spins");
             await FunctionUtils.delay(1000);
         }
+    }
+
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
+    handleSymbolPreviewVisiblity(isVisible: boolean) {
+        return isVisible;
+    }
+
+    hideSymbolPreview() {
+        this.handleSymbolPreviewVisiblity(false);
     }
 }
