@@ -24,7 +24,7 @@ export namespace GameServiceMessageCascading {
         betMultiplier: number;
         coinValues: number[];
         maxWinPerRound: number;
-        odds: {};
+        odds: any;
         totalMultiplier: number;
 
         static eventName = "gameConfigs";

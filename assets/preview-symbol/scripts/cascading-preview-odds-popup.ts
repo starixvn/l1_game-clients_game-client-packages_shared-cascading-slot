@@ -18,6 +18,9 @@ export class CascadingPreviewOddsPopup extends Component {
     @property(Prefab)
     prfPreviewSymbolRight: Prefab = null;
     private currentPreviewItem: Node = null;
+    public odds: any;
+    public betLevel = 0;
+    public coinValue = 0;
 
     addPreviewPopup(reels) {
         reels.forEach((reel, index) => {
@@ -46,7 +49,7 @@ export class CascadingPreviewOddsPopup extends Component {
         this.hideOtherPreview();
         this.previewOverlay.addChild(previewNode);
 
-        previewNode.position = this.previewOverlay.inverseTransformPoint(new Vec3(), worldPosition);
+        previewNode.position = this.previewOverlay.getComponent(UITransform).convertToNodeSpaceAR(worldPosition);
 
         showNode(previewNode);
     }
@@ -72,11 +75,22 @@ export class CascadingPreviewOddsPopup extends Component {
         // }
         //this.onSymbolPreview(symbol, worldPosition, isInfoOnLeft);
         const spine = prefabCache.slotSymbols[symbol.index];
-        const previewPrefab = isInfoOnLeft ? this.prfPreviewSymbolLeft : this.prfPreviewSymbolLeft;
+        const previewPrefab = isInfoOnLeft ? this.prfPreviewSymbolLeft : this.prfPreviewSymbolRight;
         const previewNode = instantiate(previewPrefab);
         const symbolPreview = previewNode.getComponent(CascadingSymbolPreview);
+        const symbolOdds = this.odds.symbols[symbol.index];
         this.showPreview(previewNode, worldPosition);
-        symbolPreview.setInfo({ symbol, spine, odds: {}, colorList: ["#000000", "#000000"], borderColor: "#000000", symbolItem: symbol });
+        symbolPreview.setInfo({
+            symbol,
+            spine,
+            odds: symbolOdds,
+            coinValue: this.coinValue,
+            betLevel: this.betLevel,
+            freespin: this.odds.freeSpins.initialOdds,
+            colorList: ["#ffffff", "#ffffff"],
+            borderColor: "#ffffff",
+            symbolItem: symbol,
+        });
     }
 
     hideSymbolPreview(hideSymbolPreview: boolean) {

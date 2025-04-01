@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, instantiate, Label, Node, sp, Sprite, SpriteAtlas, UIRenderer, UITransform } from "cc";
+import { _decorator, Color, Component, instantiate, Label, Node, sp, SpriteAtlas, UIRenderer, UITransform } from "cc";
 import { SpecialSymbol } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "../../slot-reel/scripts/cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
@@ -26,9 +26,6 @@ export class CascadingSymbolPreview extends Component {
 
     @property(Node)
     border: Node = null;
-
-    @property(Node)
-    bg: Node = null;
 
     @property(Node)
     textImages: Node = null;
@@ -74,8 +71,8 @@ export class CascadingSymbolPreview extends Component {
         const skeleton = nodeTmp.getComponent(sp.Skeleton);
         skeleton.setAnimation(0, "highlight", false);
         this.border.getComponent(UIRenderer).color = new Color().fromHEX(info.borderColor);
-        //this.renderInfo(info);
-        //this.checkShowSpecialSymbol(info);
+        this.renderInfo(info);
+        this.checkShowSpecialSymbol(info);
     }
 
     renderNormalSymbol(info: CascadingSymbolPreviewType) {
@@ -114,26 +111,9 @@ export class CascadingSymbolPreview extends Component {
         this.updateLabelWidth(firstLabelWidth);
     }
 
-    showSymbolText(symbolNumber: number, textColor: string) {
-        const showText = symbolNumber === SpecialSymbol.FREESPIN || symbolNumber === SpecialSymbol.BONUS;
-
-        if (!showText) {
-            return;
-        }
-
-        this.textImages.active = true;
-        const symbolName = this.getSymbolName(symbolNumber);
-        this.textImages.children.forEach((node) => {
-            const nodeImage = node.getComponent(Sprite);
-
-            // nodeImage.spriteFrame = this.gameAtlas.getSpriteFrame(`text-symbol-${symbolName}`);
-            // nodeImage.node.color = new Color().fromHEX(textColor);
-        });
-    }
-
     findGreaterWidth(node, firstLabelWidth) {
         const firstLabel = node.children[0].getComponent(Label);
-        const labelWidth = firstLabel.node.width;
+        const labelWidth = firstLabel.node.getComponent(UITransform).width;
         labelWidth > firstLabelWidth && (firstLabelWidth = labelWidth);
         return firstLabelWidth;
     }

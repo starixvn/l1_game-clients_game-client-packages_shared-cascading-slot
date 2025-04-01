@@ -4,22 +4,20 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import { random } from "lodash-es";
 import Observer from "observer";
-
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { CascadingSlotGameSound } from "../../cascading-slot-game-sounds";
-import { Tumble } from "../../game-messages-cascading";
+import { CascadingSlotConfigsStore } from "../../game-configs/cascading-slot-configs-store";
+import { GameServiceMessageCascading, Tumble } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
 import { CascadingPreviewOddsPopup } from "../../preview-symbol/scripts/cascading-preview-odds-popup";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
+import { BetControlStore } from "../../total-bet/scripts/bet-control-store";
 import { CascadingTotalMultiplierHandler } from "../../total-multiplier/scripts/cascading-total-multiplier-handler";
 import { CascadingTotalMultiplierStore } from "../../total-multiplier/scripts/cascading-total-multiplier-store";
 import { TotalMultiplierView } from "../../total-multiplier/scripts/cascading-total-multiplier-view";
 import { CascadingSlotTumblesHandlers } from "../../tumbles/scripts/cascading-slot-tumbles-handlers";
 import { TumbleWinWiew } from "../../tumbles/scripts/components/tumble-win-view";
 import { convertBoardValue, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";
-
 const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
@@ -36,12 +34,6 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
-    private isTurbo = false;
-
-    @render(CascadingUIStore, (store) => store.isTurboMode)
-    onTurboMode(isTurboMode: boolean) {
-        this.isTurbo = isTurboMode;
-    }
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -157,46 +149,42 @@ export class CascadingSlotBoard extends ObserverComponent {
         await this.handleTumbles(symbolsBoard.tumbles);
     }
 
-    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
-    playSound(id: string) {
-        return id;
-    }
-
     public async spinResult(symbolsBoard: SymbolBoard) {
         const duration = (5 * 145) / this.reels[0].pixelPerSecond;
         const delay = 0.25 * duration;
         const { symbols, multipliers } = symbolsBoard;
+        const isTurbo = false;
 
-        if (this.isTurbo) {
-            this.playSound(CascadingSlotGameSound.TURBO_DROP_IN);
-        } else {
-            this.playSound(CascadingSlotGameSound.DROP_IN);
-        }
+        // if (isTurbo) {
+        //     this.addSoundBoard(CascadingSlotGameSound.TURBO_DROP_IN);
+        // } else {
+        //     this.addSoundBoard(CascadingSlotGameSound.DROP_IN);
+        // }
 
-        await this.fallOut(this.isTurbo, delay);
+        await this.fallOut(isTurbo, delay);
 
-        const soundArray = [
-            CascadingSlotGameSound.REEL_STOP,
-            CascadingSlotGameSound.REEL_STOP_1,
-            CascadingSlotGameSound.REEL_STOP_2,
-            CascadingSlotGameSound.REEL_STOP_3,
-            CascadingSlotGameSound.REEL_STOP_4,
-            CascadingSlotGameSound.REEL_STOP_5,
-        ];
+        // const soundArray = [
+        //     CascadingSlotGameSound.REEL_STOP,
+        //     CascadingSlotGameSound.REEL_STOP_1,
+        //     CascadingSlotGameSound.REEL_STOP_2,
+        //     CascadingSlotGameSound.REEL_STOP_3,
+        //     CascadingSlotGameSound.REEL_STOP_4,
+        //     CascadingSlotGameSound.REEL_STOP_5
+        // ];
         const playSoundOnBottomItem = (index: number) => () => {
-            if (index % 2 === 1) {
-                this.playSound(soundArray[index]);
-            }
+            // if (index % 2 === 1) {
+            //     this.addSoundBoard(soundArray[index]);
+            // }
         };
         for (let i = 0; i < this.reels.length; i++) {
-            if (!this.isTurbo && i > 0) {
+            if (!isTurbo && i > 0) {
                 await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
             }
 
             if (i < this.reels.length - 1) {
-                this.reels[i].spin(symbols[i], multipliers, this.isTurbo, playSoundOnBottomItem(i));
+                this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
             } else {
-                await this.reels[i].spin(symbols[i], multipliers, this.isTurbo, playSoundOnBottomItem(i));
+                await this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
             }
         }
     }
@@ -397,17 +385,26 @@ export class CascadingSlotBoard extends ObserverComponent {
         return tumble;
     }
 
-    // @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
-    // onSymbolPreview(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
-    //     if (!gameConfigs?.odds) {
-    //         return;
-    //     }
-    //     this.playSound(gc.Audios.AudioIds.CLICK);
-    //     const spine = prefabCache[symbol.index].symbol;
-    // }
-
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
         return id;
+    }
+
+    @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
+    getOdds(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+        if (!gameConfigs) {
+            return;
+        }
+        this.previewPopup.odds = gameConfigs.odds;
+    }
+
+    @render(BetControlStore, (store) => store.betLevel)
+    setBetLevel(betLevel: number) {
+        this.previewPopup.betLevel = betLevel;
+    }
+
+    @render(BetControlStore, (store) => store.coinValue)
+    setCoinValue(coinValue: number) {
+        this.previewPopup.coinValue = coinValue;
     }
 }

@@ -56,10 +56,10 @@ export class CascadingSlotGame extends ObserverComponent {
     private roundsAutoplay = 0;
 
     onLoad() {
-        super.onLoad();
         this.loadSlotSymbols().then(async () => {
             await this.loadMultiplierPrefab();
             this.board.initBoardFullItems();
+            super.onLoad();
         });
     }
 
