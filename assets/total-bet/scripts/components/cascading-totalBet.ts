@@ -1,6 +1,6 @@
 import { _decorator, Label, Node } from "cc";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
-import { CascadingUIStore } from "db://shared-cascading-slot/main-ui";
+import { CascadingUIHandler, CascadingUIStore } from "db://shared-cascading-slot/main-ui";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -45,7 +45,9 @@ export class CascadingTotalBet extends ObserverComponent {
     }
 
     @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
-    onClickOpenBetControl() {}
+    onClickOpenBetControl() {
+        this.hideSymbolPreview();
+    }
 
     @render(CascadingUIStore, (store) => store.cascadingState)
     setAllowChangeBet(state: string) {
@@ -60,10 +62,17 @@ export class CascadingTotalBet extends ObserverComponent {
     }
 
     onClickDecreaseTotalBet() {
+        this.hideSymbolPreview();
         this.betControl?.onClickDecreaseTotalBet();
     }
 
     onClickIncreaseTotalBet() {
+        this.hideSymbolPreview();
         this.betControl?.onClickIncreaseTotalBet();
+    }
+
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
+    hideSymbolPreview() {
+        return false;
     }
 }

@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, instantiate, Label, Node, sp, SpriteAtlas, UIRenderer, UITransform } from "cc";
+import { _decorator, Color, Component, instantiate, Label, Node, sp, UIRenderer, UITransform } from "cc";
 import { SpecialSymbol } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "../../slot-reel/scripts/cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
@@ -35,9 +35,6 @@ export class CascadingSymbolPreview extends Component {
 
     @property(Node)
     content: Node = null;
-
-    @property(SpriteAtlas)
-    gameAtlas: SpriteAtlas = null;
 
     hidePreview() {
         this.node.parent.active = false;

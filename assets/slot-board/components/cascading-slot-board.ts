@@ -34,6 +34,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
+    public colorInfo: any;
 
     public createReels() {
         if (this.reels.length > 0) {

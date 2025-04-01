@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Node, Prefab, UITransform, v3, Vec3 } from "cc";
+import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { hideNode, prefabCache, showNode } from "../../cascading-slot-utils";
@@ -20,10 +20,20 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     @property(Prefab)
     prfPreviewSymbolRight: Prefab = null;
+
+    @property(JsonAsset)
+    colorInfo: JsonAsset = null;
+
     private currentPreviewItem: Node = null;
     public odds: any;
     public betLevel = 0;
     public coinValue = 0;
+    public colorConfig: any;
+
+    onLoad() {
+        this.colorConfig = this.colorInfo.json;
+        super.onLoad();
+    }
 
     addPreviewPopup(reels) {
         reels.forEach((reel, index) => {
@@ -91,8 +101,8 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
             coinValue: this.coinValue,
             betLevel: this.betLevel,
             freespin: this.odds.freeSpins.initialOdds,
-            colorList: ["#ffffff", "#ffffff"],
-            borderColor: "#ffffff",
+            colorList: [this.colorConfig.previewOddsSymbolNumberColor, this.colorConfig.previewOddsWinValueColor],
+            borderColor: this.colorConfig.previewOddsBorderColor,
             symbolItem: symbol,
         });
     }

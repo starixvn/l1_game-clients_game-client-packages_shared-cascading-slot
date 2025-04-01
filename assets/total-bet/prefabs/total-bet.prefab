@@ -293,7 +293,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 159.50985717773438,
+      "width": 154.8268280029297,
       "height": 32.46
     },
     "_anchorPoint": {
@@ -329,7 +329,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.TOTAL_BET",
+    "_string": "TOTAL STAKE",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -410,7 +410,7 @@
     "__prefab": {
       "__id__": 16
     },
-    "key": "ui.total_bet",
+    "key": "Common.total_stake",
     "format": 1,
     "prefix": "",
     "suffix": "",

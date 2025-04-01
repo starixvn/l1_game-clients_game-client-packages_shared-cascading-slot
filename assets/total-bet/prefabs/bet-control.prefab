@@ -941,7 +941,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 464.2557373046875,
+      "width": 280.20184326171875,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -977,7 +977,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "CASCADINGSLOT.BETMULTIPLIERX",
+    "_string": "BET MULTIPLIER 20X",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 26,
@@ -1038,7 +1038,7 @@
     "__prefab": {
       "__id__": 43
     },
-    "key": "cascadingSlot.betMultiplierX",
+    "key": "cascadingslot.bet_multiplier_x",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1223,7 +1223,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 292.25982666015625,
+      "width": 113.59992980957031,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1259,7 +1259,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "CASCADINGSLOT.BETLEVEL",
+    "_string": "BET LEVEL",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1320,7 +1320,7 @@
     "__prefab": {
       "__id__": 56
     },
-    "key": "cascadingSlot.betLevel",
+    "key": "cascadingslot.bet_level",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -2542,7 +2542,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 305.61981201171875,
+      "width": 126.95989990234375,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -2578,7 +2578,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "CASCADINGSLOT.COINVALUE",
+    "_string": "COIN VALUE",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2639,7 +2639,7 @@
     "__prefab": {
       "__id__": 112
     },
-    "key": "cascadingSlot.coinValue",
+    "key": "cascadingslot.coin_value",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -3861,7 +3861,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 146.19989013671875,
+      "width": 141.73989868164062,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -3897,7 +3897,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.TOTAL_BET",
+    "_string": "TOTAL STAKE",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -3958,7 +3958,7 @@
     "__prefab": {
       "__id__": 168
     },
-    "key": "ui.total_bet",
+    "key": "Common.total_stake",
     "format": 1,
     "prefix": "",
     "suffix": "",

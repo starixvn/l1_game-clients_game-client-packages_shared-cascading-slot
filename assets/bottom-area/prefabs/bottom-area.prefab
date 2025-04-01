@@ -1625,7 +1625,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 109.08892822265625,
+      "width": 157.34690856933594,
       "height": 81.6
     },
     "_anchorPoint": {
@@ -1661,7 +1661,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.TURBO",
+    "_string": "TURBO MODE",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1740,7 +1740,7 @@
     "__prefab": {
       "__id__": 89
     },
-    "key": "ui.turbo",
+    "key": "cascadingslot.turbo_mode",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1826,7 +1826,6 @@
     "totalWinLabel": {
       "__id__": 49
     },
-    "totalWinNode": null,
     "_id": ""
   },
   {
