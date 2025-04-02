@@ -957,7 +957,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 171.44393920898438,
+      "width": 145.9379425048828,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -993,7 +993,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "UI.AUTOSPIN",
+    "_string": "AUTO SPIN",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 26,
@@ -1054,7 +1054,7 @@
     "__prefab": {
       "__id__": 43
     },
-    "key": "ui.autoSpin",
+    "key": "cascadingslot.auto_spin",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1185,7 +1185,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 289.17974853515625,
+      "width": 260.01983642578125,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1221,7 +1221,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.AUTO_SPIN_GUIDE_TEXT:",
+    "_string": "NUMBER OF AUTO SPINS:",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1282,7 +1282,7 @@
     "__prefab": {
       "__id__": 55
     },
-    "key": "ui.auto_spin_guide_text",
+    "key": "cascadingslot.auto_spin_guide_text",
     "format": 1,
     "prefix": "",
     "suffix": ":",
@@ -1933,7 +1933,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 131.06995391845703,
+      "x": 122.06996154785156,
       "y": 0,
       "z": 0
     },
@@ -1974,7 +1974,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 162.13990783691406,
+      "width": 144.13992309570312,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -2010,7 +2010,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.TURBOMODE",
+    "_string": "TURBO MODE",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2071,7 +2071,7 @@
     "__prefab": {
       "__id__": 90
     },
-    "key": "ui.turboMode",
+    "key": "cascadingslot.turbo_mode",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -2128,7 +2128,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 212.13990783691406,
+      "width": 194.13992309570312,
       "height": 100
     },
     "_anchorPoint": {
@@ -2398,7 +2398,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 95.01994323730469,
+      "width": 69.4599609375,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -2434,7 +2434,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "UI.START",
+    "_string": "START",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2495,7 +2495,7 @@
     "__prefab": {
       "__id__": 109
     },
-    "key": "ui.start",
+    "key": "cascadingslot.start",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -3138,9 +3138,6 @@
     },
     "tglTurboMode": {
       "__id__": 98
-    },
-    "dialog": {
-      "__id__": 144
     },
     "_id": ""
   },
