@@ -2,6 +2,7 @@ import inversify from "inversify";
 import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
+import { SlotNotification } from "../cascading-slot-utils";
 
 const { injectable, inject } = inversify;
 
@@ -22,6 +23,8 @@ export class CascadingUIStore {
     _cascadingState = CascadingSlotState.NONE;
     _isSymbolPreviewVisible = false;
 
+    _bottomMessageState = SlotNotification.BEFORE_SPIN;
+
     get cascadingState() {
         return this._cascadingState;
     }
@@ -36,5 +39,13 @@ export class CascadingUIStore {
 
     set isSymbolPreviewVisible(value: boolean) {
         this._isSymbolPreviewVisible = value;
+    }
+
+    get bottomMessageState() {
+        return this._bottomMessageState;
+    }
+
+    set bottomMessageState(state: string) {
+        this._bottomMessageState = state;
     }
 }

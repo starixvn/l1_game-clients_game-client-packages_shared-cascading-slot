@@ -14,7 +14,7 @@ import { AutoPlayStore } from "./auto-play/scripts/auto-play-store";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
-import { convertData, prefabCache } from "./cascading-slot-utils";
+import { convertData, prefabCache, SlotNotification } from "./cascading-slot-utils";
 import { CascadingFreespinsHandler } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "./main-ui/cascading-ui-store";
@@ -247,6 +247,7 @@ export class CascadingSlotGame extends ObserverComponent {
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
         this.handleSymbolPreviewVisiblity(false);
+        this.handleBottomMessage(SlotNotification.SPINNING);
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
@@ -305,5 +306,10 @@ export class CascadingSlotGame extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
         this.isTurboMode = isTurboMode;
+    }
+
+    @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
+    handleBottomMessage(state: string) {
+        return state;
     }
 }

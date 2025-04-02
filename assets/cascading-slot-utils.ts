@@ -8,6 +8,14 @@ export enum SpecialSymbol {
     BONUS = 12,
 }
 
+export const SlotNotification = {
+    BEFORE_SPIN: "BEFORE_SPIN",
+    SPINNING: "SPINNING",
+    SETTLED: "SETTLED",
+    TUMBLE_WIN: "TUMBLE_WIN",
+    FREESPINS: "FREESPINS",
+};
+
 export const convertBoardValue = (data: number[]): number[][] => {
     const result: number[][] = [];
 

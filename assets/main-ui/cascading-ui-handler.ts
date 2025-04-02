@@ -51,4 +51,8 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
     handleSymbolPreviewVisiblity(value: boolean) {
         this.uiStore.isSymbolPreviewVisible = value;
     }
+
+    handleBottomMessage(state: string) {
+        this.uiStore.bottomMessageState = state;
+    }
 }
