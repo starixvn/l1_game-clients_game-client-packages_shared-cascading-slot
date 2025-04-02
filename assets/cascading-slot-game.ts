@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Game, game, Label, Node, Prefab, sp } from "cc";
+import { _decorator, Game, game, JsonAsset, Label, Node, Prefab, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -27,7 +27,7 @@ const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
 
-@ccclass("cascading_slot_game")
+@ccclass
 export class CascadingSlotGame extends ObserverComponent {
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
@@ -50,6 +50,12 @@ export class CascadingSlotGame extends ObserverComponent {
     @property(Label)
     lblMaxBet: Label = null;
 
+    @property(Label)
+    lblBalance: Label = null;
+
+    @property(JsonAsset)
+    colorInfo: JsonAsset = null;
+
     protected enableEventShowHideGame = true;
 
     private isAutoplay = false;
@@ -58,6 +64,7 @@ export class CascadingSlotGame extends ObserverComponent {
     onLoad() {
         this.loadSlotSymbols().then(async () => {
             await this.loadMultiplierPrefab();
+            this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
             super.onLoad();
         });
@@ -197,6 +204,7 @@ export class CascadingSlotGame extends ObserverComponent {
         const winMultiplier = multiplier > 0 && win > 0;
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
         if (win > 0) {
+            this.getBalance();
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
         }
 
@@ -215,7 +223,12 @@ export class CascadingSlotGame extends ObserverComponent {
         await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
         this.changeCascadingState(CascadingSlotState.SETTLED);
         isFreeSpin && this.handleFreeSpins(totalFreeSpins);
-        this.isAutoplay && this.spin();
+        this.checkSpinNextRound();
+    }
+
+    @render(Rounds.RoundStore, (store) => store.clientRoundId)
+    renderRoundId(roundId: number) {
+        roundId > 1 && this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())
@@ -244,7 +257,6 @@ export class CascadingSlotGame extends ObserverComponent {
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
         this.handleSymbolPreviewVisiblity(false);
-        this.checkSpinNextRound();
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
@@ -276,6 +288,11 @@ export class CascadingSlotGame extends ObserverComponent {
         }
     }
 
+    @render(gc.Player.MainPlayerStore, (store) => store.balance)
+    setBalance(value: number) {
+        this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
+    }
+
     @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
     handleSymbolPreviewVisiblity(isVisible: boolean) {
         return isVisible;
@@ -283,5 +300,15 @@ export class CascadingSlotGame extends ObserverComponent {
 
     hideSymbolPreview() {
         this.handleSymbolPreviewVisiblity(false);
+    }
+
+    @handle(gc.Auth.AuthHandlers.GetBalance)
+    getBalance() {}
+
+    @render(AutoPlayStore, (store) => store.triggerBet)
+    renderTriggerBet(triggerBet: boolean) {
+        if (triggerBet) {
+            this.spin();
+        }
     }
 }

@@ -1,8 +1,8 @@
 import gc from "@sg/game-client-base";
-import { FunctionUtils } from "db://shared-components/shared/utils";
 import inversify from "inversify";
 import mobx from "mobx";
 
+import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { AutoPlayStore } from "./auto-play-store";
 
 const { injectable, inject } = inversify;
@@ -19,6 +19,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(gc.Notices.NoticeStore) private readonly noticeStore: gc.Notices.NoticeStore;
     @inject(gc.Error.ErrorStore) private readonly errorStore: gc.Error.ErrorStore;
     @inject(gc.Rounds.RoundStore) private readonly roundStore: gc.Rounds.RoundStore;
+    @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -41,8 +42,10 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.autoPlayStore.isOpenAutoplayPopup = true;
             return;
         }
-        const delayNextRoundDuration = this.autoPlayStore.isTurboMode ? AUTO_PLAY_CONSTANTS.TURBO_DELAY : AUTO_PLAY_CONSTANTS.NORMAL_DELAY;
-        await FunctionUtils.delay(delayNextRoundDuration);
+        // const delayNextRoundDuration = this.cascadingUIStore.isTurboMode
+        //     ? AUTO_PLAY_CONSTANTS.TURBO_DELAY
+        //     : AUTO_PLAY_CONSTANTS.NORMAL_DELAY;
+        // await FunctionUtils.delay(delayNextRoundDuration);
         this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         this.autoPlaceBet();
     }
