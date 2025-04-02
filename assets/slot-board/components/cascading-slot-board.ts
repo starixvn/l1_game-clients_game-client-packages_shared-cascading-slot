@@ -149,22 +149,16 @@ export class CascadingSlotBoard extends ObserverComponent {
         return tumbleWin;
     }
 
-    async handleSettlementForBoard(symbolsBoard: SymbolBoard) {
-        await this.spinResult(symbolsBoard);
-        await this.handleTumbles(symbolsBoard.tumbles);
-    }
-
-    public async spinResult(symbolsBoard: SymbolBoard) {
+    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
         const duration = (5 * 145) / this.reels[0].pixelPerSecond;
         const delay = 0.25 * duration;
         const { symbols, multipliers } = symbolsBoard;
-        const isTurbo = false;
 
-        // if (isTurbo) {
-        //     this.addSoundBoard(CascadingSlotGameSound.TURBO_DROP_IN);
-        // } else {
-        //     this.addSoundBoard(CascadingSlotGameSound.DROP_IN);
-        // }
+        if (isTurbo) {
+            //this.addSoundBoard(CascadingSlotGameSound.TURBO_DROP_IN);
+        } else {
+            //this.addSoundBoard(CascadingSlotGameSound.DROP_IN);
+        }
 
         await this.fallOut(isTurbo, delay);
 

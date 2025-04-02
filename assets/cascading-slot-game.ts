@@ -17,6 +17,7 @@ import { CascadingSlotState } from "./cascading-slot-state";
 import { convertData, prefabCache } from "./cascading-slot-utils";
 import { CascadingFreespinsHandler } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
+import { CascadingUIStore } from "./main-ui/cascading-ui-store";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
 import { CascadingTotalMultiplierHandler } from "./total-multiplier/scripts/cascading-total-multiplier-handler";
@@ -58,8 +59,7 @@ export class CascadingSlotGame extends ObserverComponent {
 
     protected enableEventShowHideGame = true;
 
-    private isAutoplay = false;
-    private roundsAutoplay = 0;
+    public isTurboMode = false;
 
     onLoad() {
         this.loadSlotSymbols().then(async () => {
@@ -94,16 +94,6 @@ export class CascadingSlotGame extends ObserverComponent {
             });
             ComponentUtils.setEmptyLabels(lblList);
         }
-    }
-
-    @render(AutoPlayStore, (store) => store.isAutoplay)
-    onAutoplay(isAutoplay: boolean) {
-        this.isAutoplay = isAutoplay;
-    }
-
-    @render(AutoPlayStore, (store) => store.roundsAutoplay)
-    onRoundsAutoplay(roundsAutoplay: number) {
-        this.roundsAutoplay = roundsAutoplay;
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
@@ -199,7 +189,7 @@ export class CascadingSlotGame extends ObserverComponent {
         const { win, roundId, totalFreeSpins, isFreeSpin, multiplier, totalMultiplier, reachMaxWin, tumbles, result, actualBetwin } =
             finishData;
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
-        await this.board.spinResult(symbolsBoard);
+        await this.board.spinResult(symbolsBoard, this.isTurboMode);
         await this.board.handleTumbles(tumbles);
         const winMultiplier = multiplier > 0 && win > 0;
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
@@ -269,8 +259,8 @@ export class CascadingSlotGame extends ObserverComponent {
     }
 
     getCustomDuration(key: string): number {
-        //const config = this.isTurboMode() ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
-        const config = CascadingSlotConfig.normal;
+        const config = this.isTurboMode ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
+
         return config[key];
     }
 
@@ -310,5 +300,10 @@ export class CascadingSlotGame extends ObserverComponent {
         if (triggerBet) {
             this.spin();
         }
+    }
+
+    @render(CascadingUIStore, (store) => store.isTurboMode)
+    renderTurboMode(isTurboMode: boolean) {
+        this.isTurboMode = isTurboMode;
     }
 }

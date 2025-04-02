@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 
+import { CascadingUIHandler } from "../../main-ui";
 import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { AutoPlayStore } from "./auto-play-store";
 
@@ -20,6 +21,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(gc.Error.ErrorStore) private readonly errorStore: gc.Error.ErrorStore;
     @inject(gc.Rounds.RoundStore) private readonly roundStore: gc.Rounds.RoundStore;
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
+    @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -42,10 +44,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.autoPlayStore.isOpenAutoplayPopup = true;
             return;
         }
-        // const delayNextRoundDuration = this.cascadingUIStore.isTurboMode
-        //     ? AUTO_PLAY_CONSTANTS.TURBO_DELAY
-        //     : AUTO_PLAY_CONSTANTS.NORMAL_DELAY;
-        // await FunctionUtils.delay(delayNextRoundDuration);
         this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         this.autoPlaceBet();
     }
@@ -119,7 +117,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     updateAutoPlayRounds(rounds: number) {
-        console.log("--------updateAutoPlayRounds", rounds);
         this.autoPlayStore.roundsAutoplay = rounds;
     }
 
@@ -131,6 +128,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (!this.autoPlayStore.isAutoplay) {
             return;
         }
+        this.cascadingUIHandler.handleNewRound();
         this.handleAutoPlaceBet();
     }
 
