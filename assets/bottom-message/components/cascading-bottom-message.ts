@@ -3,6 +3,7 @@ import { _decorator, Color, JsonAsset, RichText, sys } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
+import { AutoPlayStore } from "../../auto-play/scripts/auto-play-store";
 import { SlotNotification } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
@@ -37,6 +38,11 @@ export class CascadingBottomMessage extends ObserverComponent {
         this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
+    }
+
+    protected showAutoSpinCount(autoSpinCount: number) {
+        const msg = gc.Translator.gameTranslate(`auto_spin_left`);
+        this.updateMessageContent(`${msg} ${autoSpinCount}`);
     }
 
     @render(CascadingUIStore, (store) => store.bottomMessageState)
@@ -87,6 +93,13 @@ export class CascadingBottomMessage extends ObserverComponent {
     setFreeSpinsCount(freeSpinsCount: number) {
         if (this.bottomMessageState === SlotNotification.FREESPINS) {
             this.showFreeSpinCount(freeSpinsCount);
+        }
+    }
+
+    @render(AutoPlayStore, (store) => store.roundsAutoplay)
+    setRoundsAutoplayMsg(roundsAutoplay: number) {
+        if (this.bottomMessageState === SlotNotification.AUTO_SPIN) {
+            this.showAutoSpinCount(roundsAutoplay);
         }
     }
 }

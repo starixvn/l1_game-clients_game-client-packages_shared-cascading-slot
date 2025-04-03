@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 
+import { SlotNotification } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../main-ui";
 import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { AutoPlayStore } from "./auto-play-store";
@@ -109,6 +110,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.autoPlayStore.isOpenAutoplayPopup = false;
         if (this.isValidBet()) {
             this.autoPlayStore.isAutoplay = true;
+            this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
             this.autoPlaceBet();
             this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         } else {
@@ -128,13 +130,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.cascadingUIStore.freeSpinsCount > 0) {
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
-            return;
+        } else {
+            if (!this.autoPlayStore.isAutoplay) {
+                return;
+            }
+
+            this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
+            console.log("auto spin remain");
+            this.cascadingUIHandler.handleNewRound();
+            this.handleAutoPlaceBet();
         }
-        if (!this.autoPlayStore.isAutoplay) {
-            return;
-        }
-        this.cascadingUIHandler.handleNewRound();
-        this.handleAutoPlaceBet();
     }
 
     updateNoOfRounds(rounds: number) {

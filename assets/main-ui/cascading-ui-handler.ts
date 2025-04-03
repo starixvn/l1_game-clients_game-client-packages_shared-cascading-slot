@@ -28,7 +28,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreeSpins(freeSpins: number) {
-        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
+        if (freeSpins > 0) {
+            this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
+        }
         this.uiStore.freeSpinsCount = freeSpins;
     }
 
@@ -56,7 +58,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleBottomMessage(state: string) {
-        if (this.uiStore.bottomMessageState === SlotNotification.FREESPINS) {
+        if (
+            this.uiStore.bottomMessageState === SlotNotification.FREESPINS ||
+            this.uiStore.bottomMessageState === SlotNotification.AUTO_SPIN
+        ) {
             return;
         }
         this.uiStore.bottomMessageState = state;
