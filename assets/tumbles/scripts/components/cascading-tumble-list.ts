@@ -98,14 +98,13 @@ export class CascadingTumbleList extends ObserverComponent {
         });
     }
 
-    @render(CascadingSlotTumblesStore, (store) => store.clearTumbleList)
-    async clear(clearTumbleList: boolean) {
-        if (!clearTumbleList) {
-            return;
+    @render(CascadingSlotTumblesStore, (store) => store.tumbles)
+    async clear(tumbles: any) {
+        if (tumbles.length === 0) {
+            await Promise.all(this.content.children.map((child) => this.fall(child)));
+            this.content.destroyAllChildren();
+            this.updateContentHeight();
         }
-        await Promise.all(this.content.children.map((child) => this.fall(child)));
-        this.content.destroyAllChildren();
-        this.updateContentHeight();
     }
 
     setAnimation(node: Node, index: number) {

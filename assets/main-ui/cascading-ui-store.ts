@@ -3,11 +3,15 @@ import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
+import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts";
+import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingUIStore {
+    @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
+    @inject(CascadingTotalMultiplierStore) protected readonly totalMultiplierStore: CascadingTotalMultiplierStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -48,5 +52,9 @@ export class CascadingUIStore {
 
     set bottomMessageState(state: string) {
         this._bottomMessageState = state;
+    }
+
+    get isShowTopMessage() {
+        return this.tumblesStore.tumbles.length === 0 && this.totalMultiplierStore.totalMultiplier === 0;
     }
 }

@@ -4,6 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfigsStore } from "../game-configs";
+import { CascadingUIStore } from "../main-ui/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -32,12 +33,9 @@ export class CascadingTopMessage extends ObserverComponent {
         });
     }
 
-    showTopMessage() {
-        this.node.active = true;
-    }
-
-    hideTopMessage() {
-        this.node.active = false;
+    @render(CascadingUIStore, (store) => store.isShowTopMessage)
+    topMessageVisibility(isShowTopMessage: boolean) {
+        this.node.active = isShowTopMessage;
     }
 
     updateTopMessage() {

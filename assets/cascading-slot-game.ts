@@ -197,7 +197,6 @@ export class CascadingSlotGame extends ObserverComponent {
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
         }
 
-        this.setFreeSpins(totalFreeSpins);
         const needShowTotalMultiplier = totalMultiplier > 0;
         if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
             await this.totalMultiplierView.showView(true);
@@ -212,6 +211,7 @@ export class CascadingSlotGame extends ObserverComponent {
         this.changeCascadingState(CascadingSlotState.SETTLED);
         this.handleBottomMessage(SlotNotification.SETTLED);
         await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+        this.setFreeSpins(totalFreeSpins);
 
         this.checkSpinNextRound();
     }
