@@ -15,7 +15,6 @@ import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
 import { convertData, prefabCache, SlotNotification } from "./cascading-slot-utils";
-import { CascadingFreespinsHandler } from "./freespins/scripts";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "./main-ui/cascading-ui-store";
 import { CascadingSlotSettlementStore } from "./settlements";
@@ -210,9 +209,10 @@ export class CascadingSlotGame extends ObserverComponent {
         }
         await this.showEffectSpecialCase(finishData);
         const delayForNextSpin = this.getCustomDuration("delayForNextSpin");
-        await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
         this.changeCascadingState(CascadingSlotState.SETTLED);
-        isFreeSpin && this.handleFreeSpins(totalFreeSpins);
+        this.handleBottomMessage(SlotNotification.SETTLED);
+        await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+
         this.checkSpinNextRound();
     }
 
@@ -232,7 +232,7 @@ export class CascadingSlotGame extends ObserverComponent {
         return state;
     }
 
-    @handle(CascadingFreespinsHandler, (handle, freespins: number) => handle.setTotalFreeSpins(freespins))
+    @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpins(freespins))
     setFreeSpins(freespins: number) {
         return freespins;
     }
@@ -253,15 +253,8 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
-    handleFreeSpins(totalFreeSpins: number) {
-        if (totalFreeSpins > 0) {
-            this.spin();
-        }
-    }
-
     getCustomDuration(key: string): number {
         const config = this.isTurboMode ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
-
         return config[key];
     }
 
@@ -311,5 +304,10 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
     handleBottomMessage(state: string) {
         return state;
+    }
+
+    @handle(CascadingUIHandler, (handler, freespins: number) => handler.handleFreeSpins(freespins))
+    handleFreeSpins(totalFreeSpins: number) {
+        return totalFreeSpins;
     }
 }

@@ -14,6 +14,7 @@ export const SlotNotification = {
     SETTLED: "SETTLED",
     TUMBLE_WIN: "TUMBLE_WIN",
     FREESPINS: "FREESPINS",
+    AUTO_SPIN: "AUTO_SPIN",
 };
 
 export const convertBoardValue = (data: number[]): number[][] => {

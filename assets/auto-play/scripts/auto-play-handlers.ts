@@ -125,6 +125,11 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
+        if (this.cascadingUIStore.freeSpinsCount > 0) {
+            this.cascadingUIHandler.handleNewRound();
+            this.handleAutoPlaceBet();
+            return;
+        }
         if (!this.autoPlayStore.isAutoplay) {
             return;
         }

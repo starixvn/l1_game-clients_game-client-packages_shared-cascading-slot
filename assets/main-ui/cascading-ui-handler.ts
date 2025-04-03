@@ -2,6 +2,8 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
+import { SlotNotification } from "../cascading-slot-utils";
+import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
 import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts/cascading-total-multiplier-store";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
@@ -10,7 +12,7 @@ import { CascadingUIStore } from "./cascading-ui-store";
 const { injectable, inject } = inversify;
 
 @injectable()
-export class CascadingUIHandler implements gc.Shared.IHandler<void> {
+export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
@@ -26,7 +28,8 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
     }
 
     handleFreeSpins(freeSpins: number) {
-        this.uiStore.freeSpins += freeSpins;
+        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
+        this.uiStore.freeSpinsCount = freeSpins;
     }
 
     handleMultiplier(multiplier: number) {
@@ -53,6 +56,21 @@ export class CascadingUIHandler implements gc.Shared.IHandler<void> {
     }
 
     handleBottomMessage(state: string) {
+        if (this.uiStore.bottomMessageState === SlotNotification.FREESPINS) {
+            return;
+        }
         this.uiStore.bottomMessageState = state;
     }
+
+    handleFreespins(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
+        const { total, betLevel, coinValue, betMultiplier } = freespins;
+        this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
+    }
+
+    eventHandleList = [
+        {
+            name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,
+            handle: this.handleFreespins,
+        },
+    ];
 }

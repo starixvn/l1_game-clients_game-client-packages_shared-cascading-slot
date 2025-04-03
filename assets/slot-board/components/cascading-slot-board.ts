@@ -17,7 +17,7 @@ import { CascadingTotalMultiplierStore } from "../../total-multiplier/scripts/ca
 import { TotalMultiplierView } from "../../total-multiplier/scripts/cascading-total-multiplier-view";
 import { CascadingSlotTumblesHandlers } from "../../tumbles/scripts/cascading-slot-tumbles-handlers";
 import { TumbleWinWiew } from "../../tumbles/scripts/components/tumble-win-view";
-import { convertBoardValue, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";
+import { convertBoardValue, SlotNotification, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";
 const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
@@ -111,6 +111,9 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (!tumbles || tumbles.length <= 0) {
             return;
         }
+
+        this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
+
         let multiplierCount = tumbles[0].multipliers.length;
         for (let i = 0; i < tumbles.length - 1; i++) {
             const tumble = tumbles[i];
@@ -405,5 +408,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @render(BetControlStore, (store) => store.coinValue)
     setCoinValue(coinValue: number) {
         this.previewPopup.coinValue = coinValue;
+    }
+
+    @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
+    handleBottomMessage(state: string) {
+        return state;
     }
 }

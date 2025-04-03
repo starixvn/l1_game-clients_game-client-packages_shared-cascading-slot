@@ -16,7 +16,8 @@ export class CascadingUIStore {
     totalTumbleWin = 0;
     multiplier = 0;
 
-    freeSpins = 0;
+    freeSpinsCount = 0;
+    freeSpinsJoinGame = {};
 
     isTurboMode = false;
 

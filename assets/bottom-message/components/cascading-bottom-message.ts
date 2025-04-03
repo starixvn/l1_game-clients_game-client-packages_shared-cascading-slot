@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, RichText, sys } from "cc";
+import { _decorator, Color, JsonAsset, RichText, sys } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
@@ -14,10 +14,15 @@ export class CascadingBottomMessage extends ObserverComponent {
     @property(RichText)
     msgRichText: RichText = null;
 
+    @property(JsonAsset)
+    colorInfo: JsonAsset = null;
     highlightColor: string;
     private isTurboMode: boolean = false;
+    private bottomMessageState = "";
+    private colorConfig: any;
 
     onLoad() {
+        this.colorConfig = this.colorInfo.json;
         super.onLoad();
         this.handleBottomMessage(SlotNotification.BEFORE_SPIN);
     }
@@ -28,17 +33,16 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     protected showFreeSpinCount(amount: number) {
         const amountFormatting = `<color=${this.highlightColor}>${amount}</color>`;
-        const msg = gc.Translator.gameTranslate(`free_spin_left_amount`).toUpperCase();
-        this.msgRichText.string = msg.replace(`%{amount}`.toUpperCase(), amountFormatting);
-    }
-
-    updateColor(textColor: string, highlightColor: string) {
-        this.msgRichText.fontColor = new Color().fromHEX(textColor);
-        this.highlightColor = highlightColor;
+        const msg = gc.Translator.gameTranslate(`free_spin_left_amount`);
+        this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
+        this.highlightColor = this.colorConfig.noticeHighlightTextColor;
+        this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
     }
 
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
+        this.bottomMessageState = bottomMessageState;
+        console.log("renderBottomMessage", bottomMessageState);
         switch (bottomMessageState) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
@@ -50,10 +54,7 @@ export class CascadingBottomMessage extends ObserverComponent {
                 this.handleMessageSettled();
                 break;
             case SlotNotification.TUMBLE_WIN:
-                this.updateMessageContent(gc.Translator.gameTranslate(`tumble_win_msg`));
-                break;
-            case SlotNotification.FREESPINS:
-                //this.showFreeSpinCount();
+                this.updateMessageContent(gc.Translator.gameTranslate(`win_tumble_msg`));
                 break;
         }
     }
@@ -74,11 +75,18 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     handleMessageSettled() {
-        const index = this.randomMsgIndex;
-        this.updateMessageContent(gc.Translator.gameTranslate(`from_settle_to_spin_${index}`).toUpperCase());
+        const index = this.randomMsgIndex();
+        this.updateMessageContent(gc.Translator.gameTranslate(`from_settle_to_spin${index}`));
     }
 
     randomMsgIndex() {
         return this.isTurboMode ? random(1, 2) : random(1, 3);
+    }
+
+    @render(CascadingUIStore, (store) => store.freeSpinsCount)
+    setFreeSpinsCount(freeSpinsCount: number) {
+        if (this.bottomMessageState === SlotNotification.FREESPINS) {
+            this.showFreeSpinCount(freeSpinsCount);
+        }
     }
 }
