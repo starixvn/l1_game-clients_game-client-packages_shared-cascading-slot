@@ -14,7 +14,8 @@ import { AutoPlayStore } from "./auto-play/scripts/auto-play-store";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
-import { convertData, prefabCache, SlotNotification } from "./cascading-slot-utils";
+import { convertData, getCustomDuration, prefabCache, SlotNotification } from "./cascading-slot-utils";
+import { CascadingEffectGameContainer } from "./effects/cascading-effect-game-container";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "./main-ui/cascading-ui-store";
 import { CascadingSlotSettlementStore } from "./settlements";
@@ -40,6 +41,9 @@ export class CascadingSlotGame extends ObserverComponent {
 
     @property(Node)
     effectContainer: Node = null;
+
+    @property(CascadingEffectGameContainer)
+    effectGameContainer: CascadingEffectGameContainer = null;
 
     @property(Label)
     lblRoundId: Label = null;
@@ -206,8 +210,8 @@ export class CascadingSlotGame extends ObserverComponent {
                 this.totalMultiplierView.total.node
             );
         }
-        await this.showEffectSpecialCase(finishData);
-        const delayForNextSpin = this.getCustomDuration("delayForNextSpin");
+        await this.effectGameContainer.showEffectSpecialCase(finishData);
+        const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
         this.changeCascadingState(CascadingSlotState.SETTLED);
         this.handleBottomMessage(SlotNotification.SETTLED);
         await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
@@ -253,11 +257,6 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
-    getCustomDuration(key: string): number {
-        const config = this.isTurboMode ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
-        return config[key];
-    }
-
     async showEffectSpecialCase(data: any) {
         const { bigWin, freeSpins } = data;
         if (bigWin) {
@@ -267,8 +266,6 @@ export class CascadingSlotGame extends ObserverComponent {
 
         if (freeSpins > 0) {
             await this.board.highlightScatterItems();
-            console.log("show effect free spins");
-            await FunctionUtils.delay(1000);
         }
     }
 

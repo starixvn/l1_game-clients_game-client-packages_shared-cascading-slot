@@ -1,4 +1,5 @@
 import { Node, tween, UIOpacity } from "cc";
+import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
 
 export enum SpecialSymbol {
@@ -75,4 +76,9 @@ export const hideNode = (node: Node, options: any) => {
             onHidden && onHidden();
         })
         .start();
+};
+
+export const getCustomDuration = (key: string, isTurboMode: boolean): number => {
+    const config = isTurboMode ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
+    return config[key];
 };

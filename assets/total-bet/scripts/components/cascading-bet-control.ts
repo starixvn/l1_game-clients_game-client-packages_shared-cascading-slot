@@ -114,7 +114,7 @@ export class CascadingBetControl extends ObserverComponent {
         if (!this.coinValues) {
             return;
         }
-        console.log("+++++++++++++++++updateCoinValueLabel");
+
         const coinValue = this.coinValues[this.currentCoinIndex];
         this.coinValue.string = coinValue.toString();
         this.updateCoinValue(coinValue);
@@ -327,7 +327,6 @@ export class CascadingBetControl extends ObserverComponent {
     }
 
     updateSelectedCoinLevel(coin: number, level: number) {
-        console.log("+++++++++++++++++updateSelectedCoinLevel", coin, level);
         const coinIndex = this.findCoinIndex(coin);
         const levelIndex = this.betLevels.findIndex((value) => value === level);
 

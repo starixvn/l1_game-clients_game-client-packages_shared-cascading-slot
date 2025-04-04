@@ -48,7 +48,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
         this.bottomMessageState = bottomMessageState;
-        console.log("renderBottomMessage", bottomMessageState);
         switch (bottomMessageState) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
