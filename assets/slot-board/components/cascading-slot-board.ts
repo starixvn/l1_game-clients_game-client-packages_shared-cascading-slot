@@ -406,11 +406,17 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.betLevel)
     setBetLevel(betLevel: number) {
+        if (!this.previewPopup) {
+            return;
+        }
         this.previewPopup.betLevel = betLevel;
     }
 
     @render(BetControlStore, (store) => store.coinValue)
     setCoinValue(coinValue: number) {
+        if (!this.previewPopup) {
+            return;
+        }
         this.previewPopup.coinValue = coinValue;
     }
 
