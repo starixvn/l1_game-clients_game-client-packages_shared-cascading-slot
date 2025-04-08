@@ -841,7 +841,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "ROUND",
+    "_string": "ROUND:",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -923,7 +923,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 104.32794189453125,
+      "width": 110.43193054199219,
       "height": 70.56
     },
     "_anchorPoint": {
@@ -1042,7 +1042,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 54.663970947265625,
+      "x": 57.715965270996094,
       "y": 0,
       "z": 0
     },
@@ -1271,7 +1271,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 358.4158477783203,
+      "width": 364.51983642578125,
       "height": 44
     },
     "_anchorPoint": {
@@ -2354,7 +2354,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "CASCADINGSLOT.INDEX",
+    "_string": "NO.",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -7386,28 +7386,6 @@
     "fileId": "76aKfuOVdAN6h52P8Fxcv6"
   },
   {
-    "__type__": "8e947ykrfZFVoj7OR22GkrD",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "__prefab": {
-      "__id__": 351
-    },
-    "header": null,
-    "body": {
-      "__id__": 76
-    },
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "b19t4Bd+JBLoGD/KTQdW+h"
-  },
-  {
     "__type__": "005bc0+TtJHraxrdPo4rGru",
     "_name": "",
     "_objFlags": 0,
@@ -7417,7 +7395,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 353
+      "__id__": 351
     },
     "nodeFadeBackground": {
       "__id__": 19
@@ -7431,6 +7409,53 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "63jC8NMrFDlpLbKm99EDRO"
+  },
+  {
+    "__type__": "a7871uqr81JkbnDYw1Fj8Hb",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 353
+    },
+    "roundId": {
+      "__id__": 45
+    },
+    "ticketDetailItemPrefab": {
+      "__uuid__": "d6e4f8ce-67c7-4d44-8099-9e14ae3959d6",
+      "__expectedType__": "cc.Prefab"
+    },
+    "totalMultiplierPrefab": {
+      "__uuid__": "2e350b63-dda7-4452-ac21-49d604a3da42",
+      "__expectedType__": "cc.Prefab"
+    },
+    "content": {
+      "__id__": 203
+    },
+    "multiplierNode": {
+      "__id__": 250
+    },
+    "multiplierTotal": {
+      "__id__": 268
+    },
+    "textMultiplier": {
+      "__id__": 258
+    },
+    "winTotal": {
+      "__id__": 306
+    },
+    "reachMaxText": {
+      "__id__": 283
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "64nKyAIt9Dl5Q8Vg0c/aKf"
   },
   {
     "__type__": "cc.PrefabInfo",

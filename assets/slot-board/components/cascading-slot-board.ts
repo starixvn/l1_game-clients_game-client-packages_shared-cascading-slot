@@ -92,6 +92,12 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.previewPopup.addPreviewPopup(this.reels);
     }
 
+    public setData(symbols: number[][], multiplier: number[]) {
+        for (let i = 0; i < this.reels.length; i++) {
+            this.reels[i].setItemData(symbols[i], multiplier);
+        }
+    }
+
     protected async fallOut(isTurbo: boolean, delay: number) {
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {

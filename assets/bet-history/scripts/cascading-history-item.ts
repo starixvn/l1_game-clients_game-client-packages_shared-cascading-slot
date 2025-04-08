@@ -1,9 +1,12 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, Label, Node } from "cc";
+import { _decorator, Color, Label, Node } from "cc";
+import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import Observer from "observer";
 const { ccclass, property } = _decorator;
+const { handle } = Observer;
 
 @ccclass("cascading_history_item")
-export class CascadingHistoryItem extends Component {
+export class CascadingHistoryItem extends ObserverComponent {
     @property(Node)
     bg: Node = null;
 
@@ -26,6 +29,7 @@ export class CascadingHistoryItem extends Component {
     totalWin: Label = null;
 
     data: any = null;
+    betHistoryLog: gc.BetHistory.BetHistoryLog = null;
     @property
     textHighlightColor: Color = Color.YELLOW;
 
@@ -34,6 +38,7 @@ export class CascadingHistoryItem extends Component {
 
     setData(data: any) {
         const { betHistoryLog, index } = data;
+        this.betHistoryLog = betHistoryLog;
         const win = betHistoryLog.betwin;
         this.node.active = true;
         this.bg.active = index % 2 > 0;
@@ -56,5 +61,16 @@ export class CascadingHistoryItem extends Component {
                 this.coinValue.node.getComponent(Label).color =
                     this.textNormalColor;
         }
+    }
+
+    @handle(gc.BetHistory.BetDetailsHandlers)
+    openTicketDetail() {
+        this.playSoundClick();
+        return this.betHistoryLog;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSoundClick() {
+        return gc.Audios.AudioIds.CLICK;
     }
 }
