@@ -5,7 +5,6 @@ import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
-import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts/cascading-total-multiplier-store";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "./cascading-ui-store";
 
@@ -16,7 +15,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
-    @inject(CascadingTotalMultiplierStore) protected readonly totalMultiplierStore: CascadingTotalMultiplierStore;
+
     handle() {}
 
     handleTotalWinTumble(tumbleWin: number) {
@@ -42,6 +41,14 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.tumblesStore.tumbles = [];
         this.uiStore.totalTumbleWin = 0;
         this.settlementStore.finishData = null;
+        this.uiStore.isFreeSpinEffectCompleted = false;
+        this.uiStore.isBigWinCompleted = false;
+        this.uiStore.isHighlightScattersCompleted = false;
+        if (!this.uiStore.isFreeSpins) {
+            this.uiStore.multiplier = 0;
+            this.uiStore.totalMultiplier = 0;
+        }
+        this.uiStore.totalWin = 0;
         this.changeCascadingState(CascadingSlotState.START_ROUND);
     }
 
@@ -72,10 +79,48 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
     }
 
+    handleTotalMultiplier(totalMultiplier: number) {
+        this.uiStore.totalMultiplier = totalMultiplier;
+    }
+
+    handleHaveBigWin(bigwin: boolean) {
+        this.uiStore.haveBigWin = bigwin;
+        !bigwin && (this.uiStore.isBigWinCompleted = true);
+    }
+
+    handleBigWinAmount(win: number) {
+        this.uiStore.bigWinAmount = win;
+    }
+
+    handleBigWinCompleted(completed: boolean) {
+        this.uiStore.haveBigWin = false;
+        this.uiStore.isBigWinCompleted = completed;
+    }
+
+    handleHaveFreeSpin(haveFreeSpin: boolean) {
+        this.uiStore.haveFreeSpin = haveFreeSpin;
+        !haveFreeSpin && (this.uiStore.isFreeSpinEffectCompleted = true);
+    }
+
+    handleFreeSpinEffectCompleted(completed: boolean) {
+        this.uiStore.haveFreeSpin = false;
+        this.uiStore.isFreeSpinEffectCompleted = completed;
+    }
+
+    handleHighlightScattersCompleted(completed: boolean) {
+        this.uiStore.isHighlightScattersCompleted = completed;
+        console.log("handleHighlightScattersCompleted", completed);
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,
             handle: this.handleFreespins,
+        },
+
+        {
+            name: GameServiceMessageCascading.CascadingTotalMultiplierMsg.eventName,
+            handle: this.handleTotalMultiplier,
         },
     ];
 }

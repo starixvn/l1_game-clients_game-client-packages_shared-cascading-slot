@@ -8,12 +8,11 @@ import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base
 import { CascadingSlotConfigsStore } from "../../game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading, Tumble } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
+import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
 import { CascadingPreviewOddsPopup } from "../../preview-symbol/scripts/cascading-preview-odds-popup";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
 import { BetControlStore } from "../../total-bet/scripts/bet-control-store";
-import { CascadingTotalMultiplierHandler } from "../../total-multiplier/scripts/cascading-total-multiplier-handler";
-import { CascadingTotalMultiplierStore } from "../../total-multiplier/scripts/cascading-total-multiplier-store";
 import { TotalMultiplierView } from "../../total-multiplier/scripts/cascading-total-multiplier-view";
 import { CascadingSlotTumblesHandlers } from "../../tumbles/scripts/cascading-slot-tumbles-handlers";
 import { TumbleWinWiew } from "../../tumbles/scripts/components/tumble-win-view";
@@ -246,8 +245,13 @@ export class CascadingSlotBoard extends ObserverComponent {
         );
     }
 
-    async highlightScatterItems() {
+    @render(CascadingUIStore, (store) => store.isShowHighlightScatters)
+    async highlightScatterItems(highlightScatters: boolean) {
+        if (!highlightScatters) {
+            return;
+        }
         await Promise.all(this.reels.map((reel) => reel.highlightScatterItems()));
+        this.handleHighlightScattersCompleted(true);
     }
 
     public updateMultiplierItems(multipliers: number[]) {
@@ -306,7 +310,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             .start();
     }
 
-    @render(CascadingTotalMultiplierStore, (store) => store.totalMultiplier)
+    @render(CascadingUIStore, (store) => store.totalMultiplier)
     getTotalMultiplier(totalMultiplier: number) {
         this.currentTotalMultiplier = totalMultiplier;
     }
@@ -322,7 +326,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (needMoveTotalMultiplier) {
             await tumbleWinView.shiftRightTumbleWin(this.currentTotalMultiplier);
             await this.movingMultiplier(totalMultiplierView.total.node, this.effectContainer, tumbleWinView.multiplier.node);
-            this.setTotalMultiplierValue(this.currentTotalMultiplier);
+            this.setMultiplierValue(this.currentTotalMultiplier);
         }
 
         if (winMultiplier) {
@@ -333,7 +337,6 @@ export class CascadingSlotBoard extends ObserverComponent {
                 await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
                 await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
                 //mainGame.playSound(CascadingSlotGameSound.COIN);
-                this.setTotalMultiplierValue(this.currentTotalMultiplier);
                 this.setMultiplierValue(mItem.multiplier);
             }
 
@@ -369,11 +372,6 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handle, multiplier: number) => handle.handleMultiplier(multiplier))
     setMultiplierValue(multiplier: number) {
-        return multiplier;
-    }
-
-    @handle(CascadingTotalMultiplierHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
-    setTotalMultiplierValue(multiplier: number) {
         return multiplier;
     }
 
@@ -413,5 +411,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
     handleBottomMessage(state: string) {
         return state;
+    }
+
+    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleHighlightScattersCompleted(completed))
+    handleHighlightScattersCompleted(completed: boolean) {
+        return completed;
     }
 }

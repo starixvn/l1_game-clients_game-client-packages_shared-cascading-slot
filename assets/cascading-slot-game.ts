@@ -20,7 +20,6 @@ import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "./main-ui/cascading-ui-store";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
-import { CascadingTotalMultiplierHandler } from "./total-multiplier/scripts/cascading-total-multiplier-handler";
 import { TotalMultiplierView } from "./total-multiplier/scripts/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./tumbles/scripts/components/tumble-win-view";
 
@@ -189,8 +188,20 @@ export class CascadingSlotGame extends ObserverComponent {
         if (!finishData) {
             return;
         }
-        const { win, roundId, totalFreeSpins, isFreeSpin, multiplier, totalMultiplier, reachMaxWin, tumbles, result, actualBetwin } =
-            finishData;
+        const {
+            win,
+            bigWin,
+            roundId,
+            totalFreeSpins,
+            isFreeSpin,
+            multiplier,
+            totalMultiplier,
+            reachMaxWin,
+            tumbles,
+            result,
+            actualBetwin,
+            freeSpins,
+        } = finishData;
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
         await this.board.handleTumbles(tumbles);
@@ -210,14 +221,25 @@ export class CascadingSlotGame extends ObserverComponent {
                 this.totalMultiplierView.total.node
             );
         }
-        await this.effectGameContainer.showEffectSpecialCase(finishData);
-        const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
-        this.changeCascadingState(CascadingSlotState.SETTLED);
-        this.handleBottomMessage(SlotNotification.SETTLED);
-        await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
-        this.setFreeSpins(totalFreeSpins);
 
-        this.checkSpinNextRound();
+        this.setTotalMultiplierValue(totalMultiplier);
+        this.handleHaveBigWin(bigWin);
+        this.updateBigWinAmount(win);
+
+        this.setFreeSpins(totalFreeSpins);
+        this.handleHaveFreeSpin(freeSpins > 0);
+        //await this.effectGameContainer.showEffectSpecialCase(finishData);
+    }
+
+    @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
+    async checkNextRound(isFreeSpinEffectCompleted: boolean) {
+        if (isFreeSpinEffectCompleted) {
+            const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
+            this.changeCascadingState(CascadingSlotState.SETTLED);
+            this.handleBottomMessage(SlotNotification.SETTLED);
+            await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+            this.checkSpinNextRound();
+        }
     }
 
     @render(Rounds.RoundStore, (store) => store.clientRoundId)
@@ -241,11 +263,6 @@ export class CascadingSlotGame extends ObserverComponent {
         return freespins;
     }
 
-    @handle(CascadingTotalMultiplierHandler, (handler, winMultiplier: boolean) => handler.setWinMultiplier(winMultiplier))
-    setWinMultiplier(multiplier: number, win: number) {
-        return multiplier > 0 && win > 0;
-    }
-
     spin() {
         this.handleNewRound();
         this.sendBet();
@@ -257,17 +274,17 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
-    async showEffectSpecialCase(data: any) {
-        const { bigWin, freeSpins } = data;
-        if (bigWin) {
-            console.log("show effect big win");
-            await FunctionUtils.delay(1000);
-        }
+    // async showEffectSpecialCase(data: any) {
+    //     const { bigWin, freeSpins } = data;
+    //     if (bigWin) {
+    //         console.log("show effect big win");
+    //         await FunctionUtils.delay(1000);
+    //     }
 
-        if (freeSpins > 0) {
-            await this.board.highlightScatterItems();
-        }
-    }
+    //     if (freeSpins > 0) {
+    //         await this.board.highlightScatterItems();
+    //     }
+    // }
 
     @render(gc.Player.MainPlayerStore, (store) => store.balance)
     setBalance(value: number) {
@@ -303,8 +320,28 @@ export class CascadingSlotGame extends ObserverComponent {
         return state;
     }
 
-    @handle(CascadingUIHandler, (handler, freespins: number) => handler.handleFreeSpins(freespins))
-    handleFreeSpins(totalFreeSpins: number) {
-        return totalFreeSpins;
+    @handle(CascadingUIHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
+    setTotalMultiplierValue(totalMultiplier: number) {
+        return totalMultiplier;
+    }
+
+    @handle(CascadingUIHandler, (handle, bigWin: any) => handle.handleHaveBigWin(bigWin))
+    handleHaveBigWin(bigwin: boolean) {
+        return bigwin;
+    }
+
+    @handle(CascadingUIHandler, (handle, win: number) => handle.handleBigWinAmount(win))
+    updateBigWinAmount(win: number) {
+        return win;
+    }
+
+    @handle(CascadingUIHandler, (handle, freespin: any) => handle.handleHaveFreeSpin(freespin))
+    handleHaveFreeSpin(freespin: boolean) {
+        return freespin;
+    }
+
+    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
+    setFreeSpinEffectCompleted(completed: boolean) {
+        return completed;
     }
 }

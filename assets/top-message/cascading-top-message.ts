@@ -33,9 +33,9 @@ export class CascadingTopMessage extends ObserverComponent {
         });
     }
 
-    @render(CascadingUIStore, (store) => store.isShowTopMessage)
-    topMessageVisibility(isShowTopMessage: boolean) {
-        this.node.active = isShowTopMessage;
+    @render(CascadingUIStore, (store) => store.isHideTopMessage)
+    topMessageVisibility(isHideTopMessage: boolean) {
+        this.node.active = !isHideTopMessage;
     }
 
     updateTopMessage() {

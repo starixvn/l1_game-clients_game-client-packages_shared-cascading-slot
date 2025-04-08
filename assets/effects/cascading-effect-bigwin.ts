@@ -1,9 +1,12 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Node, Prefab, sp, tween } from "cc";
+import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { UNIT_SECOND_SPIN } from "../cascading-slot-base-configs";
+import { getCustomDuration } from "../cascading-slot-utils";
+import { CascadingUIHandler } from "../main-ui/cascading-ui-handler";
+import { CascadingUIStore } from "../main-ui/cascading-ui-store";
 import { BetControlStore } from "../total-bet/scripts/bet-control-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -40,23 +43,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private isChangeLevelMega = true;
     private totalBet: number = 0;
     private coinValue: number = 0;
-
-    async renderBigWinEffect(isTurboMode: boolean) {
-        //this.setWinAmount(this.winAmount, isTurboMode);
-        if (isTurboMode) {
-            this.winAmountForNoAnim(this.winAmount);
-            const ratio = this.winAmount / this.totalBet;
-            this.showHideBigWinNode(ratio < 3);
-        } else {
-            await this.floatNumberBigWin({
-                label: this.lblWinAmount,
-                amount: this.winAmount,
-                totalBet: this.totalBet,
-                coinValue: this.coinValue,
-            });
-            //this.soundEndForBigWinStandard(this.bigWinAudioId, this.incrementAudioId);
-        }
-    }
+    private isTurboMode = false;
+    private tweenBigWin: Tween<Node> = null;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -130,7 +118,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             let value = startValue;
             //label.node.stopAllActions();
             const formatText = (value) => prefixStr + formatNumber(value);
-            tween(label.node)
+            this.tweenBigWin = tween(label.node)
                 .repeat(
                     repeatCount,
                     tween(label.node)
@@ -145,6 +133,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
                 .call(() => {
                     label.string = formatText(end);
                     resolve();
+                    this.setBigWinCompleted(true);
                 })
                 .start();
         });
@@ -187,5 +176,45 @@ export class CascadingEffectBigwin extends ObserverComponent {
     @render(BetControlStore, (store) => store.coinValue)
     setCoinValue(coinValue: number) {
         this.coinValue = coinValue;
+    }
+
+    skipTouchToContinue() {
+        this.tweenBigWin?.stop();
+        this.winAmountForNoAnim(this.winAmount);
+        this.setBigWinCompleted(true);
+        //this.handleBigWinData({ isShowBigWin: false, winAmount: this.winAmount });
+    }
+
+    @render(CascadingUIStore, (store) => store.isTurboMode)
+    renderTurboMode(isTurboMode: boolean) {
+        this.isTurboMode = isTurboMode;
+    }
+
+    @render(CascadingUIStore, (store) => store.bigWinAmount)
+    handleBigWinAmount(win: number) {
+        if (win <= 0) {
+            return;
+        }
+        this.winAmount = win;
+        if (this.isTurboMode) {
+            this.winAmountForNoAnim(this.winAmount);
+            const ratio = this.winAmount / this.totalBet;
+            this.showHideBigWinNode(ratio < 3);
+            this.setBigWinCompleted(true);
+        } else {
+            this.floatNumberBigWin({
+                label: this.lblWinAmount,
+                amount: this.winAmount,
+                totalBet: this.totalBet,
+                coinValue: this.coinValue,
+            });
+        }
+    }
+
+    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
+    async setBigWinCompleted(completed: boolean) {
+        const duration = getCustomDuration("bigWin", this.isTurboMode);
+        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+        return completed;
     }
 }

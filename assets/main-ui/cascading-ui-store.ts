@@ -3,7 +3,6 @@ import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
-import { CascadingTotalMultiplierStore } from "../total-multiplier/scripts";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
@@ -11,7 +10,7 @@ const { injectable, inject } = inversify;
 @injectable()
 export class CascadingUIStore {
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
-    @inject(CascadingTotalMultiplierStore) protected readonly totalMultiplierStore: CascadingTotalMultiplierStore;
+
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -19,6 +18,7 @@ export class CascadingUIStore {
     totalWin: number = 0;
     totalTumbleWin = 0;
     multiplier = 0;
+    totalMultiplier = 0;
 
     freeSpinsCount = 0;
     freeSpinsJoinGame = {};
@@ -29,6 +29,28 @@ export class CascadingUIStore {
     _isSymbolPreviewVisible = false;
 
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
+
+    haveBigWin = false;
+    bigWinAmount = 0;
+    isBigWinCompleted = false;
+
+    highlightScatters = false;
+    isHighlightScattersCompleted = false;
+    haveFreeSpin = false;
+    isFreeSpinEffectCompleted = false;
+
+    get isShowBigWin() {
+        return this.haveBigWin || !this.isBigWinCompleted;
+    }
+
+    get isShowHighlightScatters() {
+        return this.isBigWinCompleted && this.haveFreeSpin;
+    }
+
+    get isShowFreeSpinEffect() {
+        console.log("isShowFreeSpinEffect", this.isHighlightScattersCompleted && this.haveFreeSpin);
+        return this.isHighlightScattersCompleted && this.haveFreeSpin;
+    }
 
     get cascadingState() {
         return this._cascadingState;
@@ -54,7 +76,11 @@ export class CascadingUIStore {
         this._bottomMessageState = state;
     }
 
-    get isShowTopMessage() {
-        return this.tumblesStore.tumbles.length === 0 && this.totalMultiplierStore.totalMultiplier === 0;
+    get isHideTopMessage() {
+        return this.tumblesStore.tumbles.length > 1 || this.totalMultiplier > 0;
+    }
+
+    get isFreeSpins() {
+        return this.freeSpinsCount > 0;
     }
 }
