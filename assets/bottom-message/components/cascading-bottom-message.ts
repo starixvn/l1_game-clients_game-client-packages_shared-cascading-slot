@@ -29,7 +29,7 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     updateMessageContent(msg: string) {
-        this.msgRichText.string = msg;
+        this.msgRichText.string = msg.toUpperCase();
     }
 
     protected showFreeSpinCount(amount: number) {

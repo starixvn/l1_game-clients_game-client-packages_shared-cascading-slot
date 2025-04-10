@@ -19,6 +19,12 @@ export const SlotNotification = {
     AUTO_SPIN: "AUTO_SPIN",
 };
 
+export const SpinButtonState = {
+    IDLE: "IDLE",
+    SPINNING: "SPINNING",
+    SPINNING_TURBO: "SPINNING_TURBO",
+};
+
 export const convertBoardValue = (data: number[]): number[][] => {
     const result: number[][] = [];
 

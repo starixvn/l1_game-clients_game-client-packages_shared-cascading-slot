@@ -116,6 +116,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isTrialMode = isTrialMode;
     }
 
+    updateSpinButtonState(state: string) {
+        this.uiStore.spinButtonState = state;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

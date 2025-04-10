@@ -14,7 +14,7 @@ import { AutoPlayStore } from "./auto-play/scripts/auto-play-store";
 import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
-import { convertData, getCustomDuration, prefabCache, SlotNotification } from "./cascading-slot-utils";
+import { convertData, getCustomDuration, prefabCache, SlotNotification, SpinButtonState } from "./cascading-slot-utils";
 import { CascadingEffectGameContainer } from "./effects/cascading-effect-game-container";
 import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
 import { CascadingUIStore } from "./main-ui/cascading-ui-store";
@@ -235,6 +235,7 @@ export class CascadingSlotGame extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
         if (isFreeSpinEffectCompleted) {
+            this.setSpinningButtonState(SpinButtonState.IDLE);
             const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
             this.changeCascadingState(CascadingSlotState.SETTLED);
             this.handleBottomMessage(SlotNotification.SETTLED);
@@ -266,6 +267,7 @@ export class CascadingSlotGame extends ObserverComponent {
 
     spin() {
         this.playSound(this.spinButtonSound);
+        this.setSpinningButtonState(SpinButtonState.SPINNING);
         this.handleNewRound();
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
@@ -345,6 +347,11 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(CascadingUIHandler, (handle, state: string) => handle.updateSpinButtonState(state))
+    setSpinningButtonState(state: string) {
+        return state;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))

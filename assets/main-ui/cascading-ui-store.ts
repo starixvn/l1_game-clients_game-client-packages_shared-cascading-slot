@@ -2,7 +2,7 @@ import inversify from "inversify";
 import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification } from "../cascading-slot-utils";
+import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
@@ -39,6 +39,7 @@ export class CascadingUIStore {
     isHighlightScattersCompleted = false;
     haveFreeSpin = false;
     isFreeSpinEffectCompleted = false;
+    spinButtonState = SpinButtonState.IDLE;
 
     get isShowBigWin() {
         return this.haveBigWin || !this.isBigWinCompleted;
