@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
@@ -18,6 +19,12 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     pfbEffectBigWin: Prefab = null;
 
     private isTurboMode = false;
+    private readonly Sound = {
+        FREE_SPIN_SOUND: "free_spin",
+        BIG_WIN_SOUND: "big_win",
+        INCREMENT: "increment",
+        INCREMENT_END: "increment_stop",
+    };
 
     onLoad() {
         super.onLoad();
@@ -30,6 +37,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        this.playSound(this.Sound.FREE_SPIN_SOUND);
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
         const duration = getCustomDuration("freeSpin", this.isTurboMode);
@@ -44,6 +52,8 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        this.playSoundBigWin();
+        this.playSound(this.Sound.INCREMENT);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);
     }
@@ -56,5 +66,20 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSound(id: string) {
+        return id;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, audioId: string) => handle.playStoppableSFX(audioId))
+    playSoundBigWin() {
+        return this.Sound.BIG_WIN_SOUND;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
+    stopSoundBigWin() {
+        return this.Sound.BIG_WIN_SOUND;
     }
 }

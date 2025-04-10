@@ -62,6 +62,7 @@ export class CascadingSlotGame extends ObserverComponent {
     protected enableEventShowHideGame = true;
 
     public isTurboMode = false;
+    private spinButtonSound = "spin_button";
 
     onLoad() {
         this.loadSlotSymbols().then(async () => {
@@ -264,6 +265,7 @@ export class CascadingSlotGame extends ObserverComponent {
     }
 
     spin() {
+        this.playSound(this.spinButtonSound);
         this.handleNewRound();
         this.sendBet();
         this.changeCascadingState(CascadingSlotState.SPINNING);
@@ -343,5 +345,10 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSound(id: string) {
+        return id;
     }
 }

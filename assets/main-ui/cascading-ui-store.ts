@@ -24,6 +24,7 @@ export class CascadingUIStore {
     freeSpinsJoinGame = {};
 
     isTurboMode = false;
+    isTrialMode = false;
 
     _cascadingState = CascadingSlotState.NONE;
     _isSymbolPreviewVisible = false;

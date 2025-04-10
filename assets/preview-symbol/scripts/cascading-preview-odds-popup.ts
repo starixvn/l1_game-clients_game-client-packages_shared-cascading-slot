@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -47,6 +48,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     addReelItemEvent(item, isInfoOnLeft) {
         item.node.on(Node.EventType.TOUCH_END, () => {
+            this.playSoundClick();
             if (this.currentPreviewItem === item.node) {
                 this.handleSymbolPreviewVisiblity(false);
                 return;
@@ -119,5 +121,10 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
     handleSymbolPreviewVisiblity(isVisible: boolean) {
         return isVisible;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSoundClick() {
+        return "click";
     }
 }

@@ -112,6 +112,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         console.log("handleHighlightScattersCompleted", completed);
     }
 
+    handleChangeMode(isTrialMode: boolean) {
+        this.uiStore.isTrialMode = isTrialMode;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

@@ -45,6 +45,12 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private coinValue: number = 0;
     private isTurboMode = false;
     private tweenBigWin: Tween<Node> = null;
+    private readonly Sound = {
+        FREE_SPIN_SOUND: "free_spin",
+        BIG_WIN_SOUND: "big_win",
+        INCREMENT: "increment",
+        INCREMENT_END: "increment_stop",
+    };
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -134,6 +140,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
                     label.string = formatText(end);
                     resolve();
                     this.setBigWinCompleted(true);
+                    this.playSound(this.Sound.INCREMENT_END);
+                    this.stopSoundBigWin();
                 })
                 .start();
         });
@@ -166,6 +174,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         //this.soundEndForBigWinStandard(this.bigWinAudioId, this.incrementAudioId);
         this.changeFrameForBigWinLevel(betWin, this.totalBet);
         this.setAmount({ amount: betWin });
+        this.playSound(this.Sound.INCREMENT_END);
+        this.stopSoundBigWin();
     }
 
     @render(BetControlStore, (store) => store.totalBet)
@@ -216,5 +226,15 @@ export class CascadingEffectBigwin extends ObserverComponent {
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
         return completed;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSound(id: string) {
+        return id;
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
+    stopSoundBigWin() {
+        return this.Sound.BIG_WIN_SOUND;
     }
 }

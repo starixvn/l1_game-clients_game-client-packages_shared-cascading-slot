@@ -34,6 +34,18 @@ export class CascadingSlotBoard extends ObserverComponent {
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
     public colorInfo: any;
+    private readonly Sound = {
+        MULTIPLIER_APPEAR_SOUND: "multiplier_appear",
+        COIN_SOUND: "coin",
+        REEL_STOP_1_SOUND: "reel_stop_1",
+        REEL_STOP_2_SOUND: "reel_stop_2",
+        REEL_STOP_3_SOUND: "reel_stop_3",
+        REEL_STOP_4_SOUND: "reel_stop_4",
+        REEL_STOP_5_SOUND: "reel_stop_5",
+        SPINNING_NORMAL: "spinning_normal",
+        SPINNING_TURBO: "spinning_turbo",
+        TUMBLE_WIN_SOUND: "tumble_win",
+    };
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -143,9 +155,11 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
                 this.setTumbleIcons(tumble);
+                this.playSound(this.Sound.TUMBLE_WIN_SOUND);
             }
 
             await this.removeItems(explode, i);
+
             this.addItems(newItems);
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(false);
@@ -163,25 +177,25 @@ export class CascadingSlotBoard extends ObserverComponent {
         const { symbols, multipliers } = symbolsBoard;
 
         if (isTurbo) {
-            //this.addSoundBoard(CascadingSlotGameSound.TURBO_DROP_IN);
+            this.playSound(this.Sound.SPINNING_TURBO);
         } else {
-            //this.addSoundBoard(CascadingSlotGameSound.DROP_IN);
+            this.playSound(this.Sound.SPINNING_NORMAL);
         }
 
         await this.fallOut(isTurbo, delay);
 
-        // const soundArray = [
-        //     CascadingSlotGameSound.REEL_STOP,
-        //     CascadingSlotGameSound.REEL_STOP_1,
-        //     CascadingSlotGameSound.REEL_STOP_2,
-        //     CascadingSlotGameSound.REEL_STOP_3,
-        //     CascadingSlotGameSound.REEL_STOP_4,
-        //     CascadingSlotGameSound.REEL_STOP_5
-        // ];
+        const soundArray = [
+            this.Sound.REEL_STOP_1_SOUND,
+            this.Sound.REEL_STOP_2_SOUND,
+            this.Sound.REEL_STOP_3_SOUND,
+            this.Sound.REEL_STOP_4_SOUND,
+            this.Sound.REEL_STOP_5_SOUND,
+            this.Sound.REEL_STOP_5_SOUND,
+        ];
         const playSoundOnBottomItem = (index: number) => () => {
-            // if (index % 2 === 1) {
-            //     this.addSoundBoard(soundArray[index]);
-            // }
+            if (index % 2 === 1) {
+                this.playSound(soundArray[index]);
+            }
         };
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
@@ -338,11 +352,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (winMultiplier) {
             const multiplierItems = this.getMultiplierItems();
             for (const mItem of multiplierItems) {
-                //mainGame.playSound(CascadingSlotGameSound.MULTIPLIER_APPEAR);
+                this.playSound(this.Sound.MULTIPLIER_APPEAR_SOUND);
                 await mItem.playAnimationGlow();
                 await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
                 await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
-                //mainGame.playSound(CascadingSlotGameSound.COIN);
+                this.playSound(this.Sound.COIN_SOUND);
                 this.setMultiplierValue(mItem.multiplier);
             }
 

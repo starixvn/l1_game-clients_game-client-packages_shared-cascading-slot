@@ -1,4 +1,5 @@
 import { _decorator, instantiate, Mask, Node, Prefab, ScrollView, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
+import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotTumblesStore } from "../cascading-slot-tumbles-store";
@@ -23,6 +24,7 @@ export class CascadingTumbleList extends ObserverComponent {
     @property(Node)
     maskNode: Node = null;
 
+    @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
     private readonly HEIGHT_PER_ROW = 35;
@@ -124,5 +126,10 @@ export class CascadingTumbleList extends ObserverComponent {
         this.trialModeNode.active = isTrialMode;
         this.setHeightContent(isTrialMode);
         this.updateContentHeight();
+    }
+
+    @render(CascadingUIStore, (store) => store.isTrialMode)
+    renderTrialMode(isTrialMode: boolean) {
+        this.offerTrialMode(isTrialMode);
     }
 }
