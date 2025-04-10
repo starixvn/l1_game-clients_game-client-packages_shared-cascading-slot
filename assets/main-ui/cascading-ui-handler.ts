@@ -5,6 +5,7 @@ import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
+import { BetControlStore } from "../total-bet/scripts/bet-control-store";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "./cascading-ui-store";
 
@@ -15,6 +16,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
+    @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
 
     handle() {}
 
@@ -74,9 +76,13 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.bottomMessageState = state;
     }
 
-    handleFreespins(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
+    handleFreespinsJoinGame(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
+        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
+        this.betControlStore.betLevel = betLevel;
+        this.betControlStore.coinValue = coinValue;
+        this.betControlStore.totalBet = betLevel * coinValue * betMultiplier;
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
@@ -123,7 +129,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,
-            handle: this.handleFreespins,
+            handle: this.handleFreespinsJoinGame,
         },
 
         {

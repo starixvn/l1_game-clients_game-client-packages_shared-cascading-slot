@@ -17,7 +17,6 @@ export class BetControlHandlers {
     }
 
     updateCoinValue(coinValue: number) {
-        console.log("updateCoinValue-----------", coinValue);
         this.betControlStore.coinValue = coinValue;
     }
 
