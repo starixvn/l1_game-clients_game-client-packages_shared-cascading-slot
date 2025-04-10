@@ -229,7 +229,6 @@ export class CascadingSlotGame extends ObserverComponent {
 
         this.setFreeSpins(totalFreeSpins);
         this.handleHaveFreeSpin(freeSpins > 0);
-        //await this.effectGameContainer.showEffectSpecialCase(finishData);
     }
 
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
@@ -277,18 +276,6 @@ export class CascadingSlotGame extends ObserverComponent {
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
-
-    // async showEffectSpecialCase(data: any) {
-    //     const { bigWin, freeSpins } = data;
-    //     if (bigWin) {
-    //         console.log("show effect big win");
-    //         await FunctionUtils.delay(1000);
-    //     }
-
-    //     if (freeSpins > 0) {
-    //         await this.board.highlightScatterItems();
-    //     }
-    // }
 
     @render(gc.Player.MainPlayerStore, (store) => store.balance)
     setBalance(value: number) {

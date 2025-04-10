@@ -2,7 +2,8 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification } from "../cascading-slot-utils";
+import { findIndex, SlotNotification } from "../cascading-slot-utils";
+import { CascadingSlotConfigsStore } from "../game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
 import { BetControlStore } from "../total-bet/scripts/bet-control-store";
@@ -17,6 +18,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
+    @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
 
     handle() {}
 
@@ -29,9 +31,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreeSpins(freeSpins: number) {
-        if (freeSpins > 0) {
-            this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
-        }
         this.uiStore.freeSpinsCount = freeSpins;
     }
 
@@ -79,9 +78,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     handleFreespinsJoinGame(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
-        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
-        this.betControlStore.betLevel = betLevel;
-        this.betControlStore.coinValue = coinValue;
+        this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);
+        this.betControlStore.currentCoinIndex = findIndex(coinValue, this.configsStore.gameConfigs.coinValues);
         this.betControlStore.totalBet = betLevel * coinValue * betMultiplier;
     }
 
@@ -115,7 +113,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleHighlightScattersCompleted(completed: boolean) {
         this.uiStore.isHighlightScattersCompleted = completed;
-        console.log("handleHighlightScattersCompleted", completed);
     }
 
     handleChangeMode(isTrialMode: boolean) {
@@ -124,6 +121,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     updateSpinButtonState(state: string) {
         this.uiStore.spinButtonState = state;
+    }
+
+    updateFreespinCountMsgBottom(count: number) {
+        this.uiStore.freespinCountMsgBottom = count;
     }
 
     eventHandleList = [

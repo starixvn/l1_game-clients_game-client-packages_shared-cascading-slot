@@ -9,11 +9,6 @@ import { AutoPlayStore } from "./auto-play-store";
 
 const { injectable, inject } = inversify;
 
-const AUTO_PLAY_CONSTANTS = {
-    TURBO_DELAY: 350,
-    NORMAL_DELAY: 1000,
-};
-
 @injectable()
 export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
@@ -43,6 +38,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.checkFinishedAutoPlay() || !this.isValidBet()) {
             this.autoPlayStore.isAutoplay = false;
             this.autoPlayStore.isOpenAutoplayPopup = true;
+            this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             return;
         }
         this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
@@ -106,11 +102,18 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     confirmRoundAndStart() {
+        const DELAY_AUTO_SPIN = 500;
+        this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
         this.autoPlayStore.roundsAutoplay = this.autoPlayStore.selectedRoundOnPopup;
         this.autoPlayStore.isOpenAutoplayPopup = false;
+        setTimeout(() => {
+            this.autoBetWhenConfirmStart();
+        }, DELAY_AUTO_SPIN);
+    }
+    autoBetWhenConfirmStart() {
         if (this.isValidBet()) {
             this.autoPlayStore.isAutoplay = true;
-            this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
+
             this.autoPlaceBet();
             this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         } else {
@@ -128,6 +131,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsCount > 0) {
+            this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
+            this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsCount - 1);
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
         } else {
@@ -136,7 +141,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             }
 
             this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
-            console.log("auto spin remain");
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
         }

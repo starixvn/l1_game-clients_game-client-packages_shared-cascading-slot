@@ -90,6 +90,10 @@ export const getCustomDuration = (key: string, isTurboMode: boolean): number => 
     return config[key];
 };
 
+export const findIndex = (value: number, valueList: number[]) => {
+    return valueList.findIndex((item) => item === value);
+};
+
 export class CascadingSiteConfigs extends gc.Configs.SiteConfigs {
     trialWebsocket: {
         proxyPath: string;

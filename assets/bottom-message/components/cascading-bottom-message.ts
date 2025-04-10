@@ -21,6 +21,7 @@ export class CascadingBottomMessage extends ObserverComponent {
     private isTurboMode: boolean = false;
     private bottomMessageState = "";
     private colorConfig: any;
+    private freeSpinsCount: number = 0;
 
     onLoad() {
         this.colorConfig = this.colorInfo.json;
@@ -34,7 +35,7 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     protected showFreeSpinCount(amount: number) {
         const amountFormatting = `<color=${this.highlightColor}>${amount}</color>`;
-        const msg = gc.Translator.gameTranslate(`free_spin_left_amount`);
+        const msg = gc.Translator.gameTranslate(`free_spin_left_amount`).toUpperCase();
         this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
@@ -48,6 +49,7 @@ export class CascadingBottomMessage extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
         this.bottomMessageState = bottomMessageState;
+        console.log("bottomMessageState", bottomMessageState);
         switch (bottomMessageState) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
@@ -88,11 +90,9 @@ export class CascadingBottomMessage extends ObserverComponent {
         return this.isTurboMode ? random(1, 2) : random(1, 3);
     }
 
-    @render(CascadingUIStore, (store) => store.freeSpinsCount)
-    setFreeSpinsCount(freeSpinsCount: number) {
-        if (this.bottomMessageState === SlotNotification.FREESPINS) {
-            this.showFreeSpinCount(freeSpinsCount);
-        }
+    @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
+    setFreeSpinsCount(freespinCountMsgBottom: number) {
+        this.showFreeSpinCount(freespinCountMsgBottom);
     }
 
     @render(AutoPlayStore, (store) => store.roundsAutoplay)

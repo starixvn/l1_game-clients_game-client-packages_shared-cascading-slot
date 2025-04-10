@@ -40,6 +40,7 @@ export class CascadingUIStore {
     haveFreeSpin = false;
     isFreeSpinEffectCompleted = false;
     spinButtonState = SpinButtonState.IDLE;
+    freespinCountMsgBottom = 0;
 
     get isShowBigWin() {
         return this.haveBigWin || !this.isBigWinCompleted;

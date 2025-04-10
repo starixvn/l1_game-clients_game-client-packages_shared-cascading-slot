@@ -18,7 +18,6 @@ export class CascadingEffectFreespin extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
     async freeSpinEffectVisibility(isShowFreeSpinEffect: boolean) {
-        console.log("freeSpinEffectVisibility", isShowFreeSpinEffect);
         this.node.active = isShowFreeSpinEffect;
         if (isShowFreeSpinEffect) {
             const duration = getCustomDuration("freeSpin", this.isTurboMode);
