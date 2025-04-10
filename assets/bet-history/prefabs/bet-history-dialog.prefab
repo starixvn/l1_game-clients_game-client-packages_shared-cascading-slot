@@ -208,8 +208,8 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "005bc0+TtJHraxrdPo4rGru",
-    "handler": "hide",
+    "_componentId": "aec3cP+maFEFrTGslFK4XEJ",
+    "handler": "onClickClose",
     "customEventData": ""
   },
   {
@@ -8198,8 +8198,8 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "005bc0+TtJHraxrdPo4rGru",
-    "handler": "hide",
+    "_componentId": "aec3cP+maFEFrTGslFK4XEJ",
+    "handler": "onClickClose",
     "customEventData": ""
   },
   {

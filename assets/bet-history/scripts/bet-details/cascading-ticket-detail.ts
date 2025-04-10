@@ -107,6 +107,7 @@ export class CascadingTicketDetail extends ObserverComponent {
         btnTextMulti.interactable = btnValueMulti.interactable = freeSpin;
     }
 
+    @handle(gc.Audios.AudioHandler, (handle) => handle.playSFX(gc.Audios.AudioIds.CLICK))
     onClickMultiplier() {
         const totalMultiplier = instantiate(this.totalMultiplierPrefab);
         const totalControl = totalMultiplier.getComponent(CascadingTotalMultiplier);

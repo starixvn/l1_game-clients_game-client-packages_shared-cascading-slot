@@ -835,7 +835,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "TỔNG SỐ NHÂN",
+    "_string": "TOTAL MULTIPLIER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -917,7 +917,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 220.61187744140625,
+      "width": 275.015869140625,
       "height": 70.56
     },
     "_anchorPoint": {
@@ -1319,7 +1319,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "STT",
+    "_string": "NO.",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1529,7 +1529,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "THỜI GIAN",
+    "_string": "TIME",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1739,7 +1739,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "PHIÊN",
+    "_string": "ROUND",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1949,7 +1949,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "SỐ NHÂN",
+    "_string": "MULTIPLIER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2159,7 +2159,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TỔNG SỐ NHÂN",
+    "_string": "TOTAL MULTIPLIER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2908,8 +2908,8 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "005bc0+TtJHraxrdPo4rGru",
-    "handler": "hide",
+    "_componentId": "53921fPpk5FLIzJSamsYFR/",
+    "handler": "onClickClose",
     "customEventData": ""
   },
   {

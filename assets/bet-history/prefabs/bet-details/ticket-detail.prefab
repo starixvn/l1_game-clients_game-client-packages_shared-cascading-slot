@@ -208,8 +208,8 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "005bc0+TtJHraxrdPo4rGru",
-    "handler": "hide",
+    "_componentId": "a7871uqr81JkbnDYw1Fj8Hb",
+    "handler": "onClickClose",
     "customEventData": ""
   },
   {
@@ -841,7 +841,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "PHIÊN:",
+    "_string": "ROUND:",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -923,7 +923,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 93.60395812988281,
+      "width": 110.43193054199219,
       "height": 70.56
     },
     "_anchorPoint": {
@@ -1042,7 +1042,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 49.301979064941406,
+      "x": 57.715965270996094,
       "y": 0,
       "z": 0
     },
@@ -1271,7 +1271,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 347.6918640136719,
+      "width": 364.51983642578125,
       "height": 44
     },
     "_anchorPoint": {
@@ -1514,8 +1514,8 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "005bc0+TtJHraxrdPo4rGru",
-    "handler": "hide",
+    "_componentId": "a7871uqr81JkbnDYw1Fj8Hb",
+    "handler": "onClickClose",
     "customEventData": ""
   },
   {
@@ -2354,7 +2354,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "STT",
+    "_string": "NO.",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2721,7 +2721,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "BẢNG KẾT QUẢ",
+    "_string": "RESULT BOARD",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -3088,7 +3088,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "BIỂU TƯỢNG THẮNG",
+    "_string": "WIN SYMBOLS",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -3455,7 +3455,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TIỀN THẮNG",
+    "_string": "WIN AMOUNT",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -3822,7 +3822,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "THẮNG\nNỔ SẬP",
+    "_string": "TUMBLE WIN",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -6465,7 +6465,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "Tổng Thắng",
+    "_string": "Total Win:",
     "_horizontalAlign": 2,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
