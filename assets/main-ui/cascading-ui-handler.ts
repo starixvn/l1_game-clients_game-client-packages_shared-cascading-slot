@@ -76,6 +76,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreespinsJoinGame(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
+        if (!freespins) {
+            return;
+        }
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
         this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);

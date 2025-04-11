@@ -91,7 +91,6 @@ export class CascadingBetControl extends ObserverComponent {
         const betLevel = this.betLevels[this.currentBetLevelIndex];
         this.betLevel.string = betLevel.toString();
         this.updateBetLevel(betLevel);
-        console.log("+++++++++++++++++updateBetLevelLabel", betLevel);
     }
 
     @handle(BetControlHandlers, (handle, betLevel: number) => handle.updateBetLevel(betLevel))

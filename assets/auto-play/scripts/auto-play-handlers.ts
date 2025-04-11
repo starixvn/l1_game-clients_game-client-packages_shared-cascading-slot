@@ -41,6 +41,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             return;
         }
+
         this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         this.autoPlaceBet();
     }
@@ -136,6 +137,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
         } else {
+            this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             if (!this.autoPlayStore.isAutoplay) {
                 return;
             }

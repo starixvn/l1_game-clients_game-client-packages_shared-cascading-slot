@@ -21,7 +21,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     private isTurboMode: boolean = false;
     private bottomMessageState = "";
     private colorConfig: any;
-    private freeSpinsCount: number = 0;
 
     onLoad() {
         this.colorConfig = this.colorInfo.json;
@@ -34,11 +33,12 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     protected showFreeSpinCount(amount: number) {
+        this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         const amountFormatting = `<color=${this.highlightColor}>${amount}</color>`;
         const msg = gc.Translator.gameTranslate(`free_spin_left_amount`).toUpperCase();
         this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
-        this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
+        console.log("showFreeSpinCount", this.msgRichText.string);
     }
 
     protected showAutoSpinCount(autoSpinCount: number) {
@@ -92,7 +92,10 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
     setFreeSpinsCount(freespinCountMsgBottom: number) {
-        this.showFreeSpinCount(freespinCountMsgBottom);
+        console.log("freespinCountMsgBottom", freespinCountMsgBottom);
+        if (this.bottomMessageState === SlotNotification.FREESPINS) {
+            this.showFreeSpinCount(freespinCountMsgBottom);
+        }
     }
 
     @render(AutoPlayStore, (store) => store.roundsAutoplay)
