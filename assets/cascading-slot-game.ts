@@ -266,12 +266,9 @@ export class CascadingSlotGame extends ObserverComponent {
 
     spin() {
         this.playSound(this.spinButtonSound);
-        this.setSpinningButtonState(SpinButtonState.SPINNING);
         this.handleNewRound();
         this.sendBet();
-        this.changeCascadingState(CascadingSlotState.SPINNING);
         this.handleSymbolPreviewVisiblity(false);
-        this.handleBottomMessage(SlotNotification.SPINNING);
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
