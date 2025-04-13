@@ -1085,7 +1085,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 175.33592224121094,
+      "width": 202.4679412841797,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1121,7 +1121,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "HƯỚNG DẪN",
+    "_string": "GAME GUIDES",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -1846,7 +1846,7 @@
     "fileId": "2443I8kStKOqQpPWnj+HVS"
   },
   {
-    "__type__": "5ef34jtIxdAhojKDIhbZjNG",
+    "__type__": "21f9baEho9LgaTTVl246P4z",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1867,7 +1867,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "f4JkMvuFpAyokVMq/CPZUy"
+    "fileId": "10rJWsxEdKWb+tCj+CnbmJ"
   },
   {
     "__type__": "cc.PrefabInfo",

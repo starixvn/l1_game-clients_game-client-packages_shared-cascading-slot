@@ -14,6 +14,9 @@ export class CascadingSpinButton extends ObserverComponent {
     iconSpinSkeleton: sp.Skeleton = null;
 
     @property(Node)
+    disableButton: Node = null;
+
+    @property(Node)
     nodeSpinning: Node = null;
 
     playAnimationSpin() {
@@ -34,10 +37,15 @@ export class CascadingSpinButton extends ObserverComponent {
     renderSpinButtonState(state: string) {
         this.nodeSpinning.active = true;
         const button = this.node.getComponent(Button);
-        button.interactable = state === SpinButtonState.IDLE;
+        console.log("spinButtonState", state);
+
+        button.interactable = true;
+        this.disableButton.active = state === SpinButtonState.SPINNING;
         if (state === SpinButtonState.SPINNING) {
+            button.interactable = false;
             this.playAnimationSpin();
         } else if (state === SpinButtonState.SPINNING_TURBO) {
+            button.interactable = false;
             this.playAnimationSpinTurbo();
         } else if (state === SpinButtonState.IDLE) {
             this.nodeSpinning.active = false;
