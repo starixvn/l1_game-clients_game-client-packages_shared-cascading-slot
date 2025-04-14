@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Mask, Node, Prefab, ScrollView, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
+import { _decorator, instantiate, Node, Prefab, ScrollView, Sprite, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -39,7 +39,7 @@ export class CascadingTumbleList extends ObserverComponent {
 
     setHeightContent(isTrialMode: boolean) {
         const scrollViewNode = this.scrollView.node;
-        const mask = this.maskNode.getComponent(Mask);
+        const mask = this.maskNode.getComponent(Sprite);
         if (isTrialMode) {
             scrollViewNode.getComponent(UITransform).height = this.HEIGHT_CONTENT_TRIAL_MODE;
             mask.spriteFrame = this.mainAtlas.getSpriteFrame("tumble-win-mask-trial");
