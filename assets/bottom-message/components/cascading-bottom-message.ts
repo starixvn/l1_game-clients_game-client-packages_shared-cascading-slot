@@ -38,7 +38,6 @@ export class CascadingBottomMessage extends ObserverComponent {
         const msg = gc.Translator.gameTranslate(`free_spin_left_amount`).toUpperCase();
         this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
-        console.log("showFreeSpinCount", this.msgRichText.string);
     }
 
     protected showAutoSpinCount(autoSpinCount: number) {

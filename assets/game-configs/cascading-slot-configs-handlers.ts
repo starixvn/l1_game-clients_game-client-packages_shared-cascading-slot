@@ -16,7 +16,6 @@ export class CascadingSlotConfigsHandlers implements gc.Shared.IMultipleHandlers
 
     handleTrialUser(trialUser: GameServiceMessageCascading.CascadingTrialUserMsg) {
         this.configStore.trialUser = trialUser;
-        console.log("trialUser", trialUser.balance);
     }
 
     eventHandleList = [

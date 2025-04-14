@@ -57,7 +57,6 @@ export class CascadingUIStore {
     }
 
     get isShowFreeSpinEffect() {
-        console.log("isShowFreeSpinEffect", this.isHighlightScattersCompleted && this.haveFreeSpin);
         return this.isHighlightScattersCompleted && this.haveFreeSpin;
     }
 

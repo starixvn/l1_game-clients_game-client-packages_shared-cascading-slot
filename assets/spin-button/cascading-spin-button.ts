@@ -37,7 +37,6 @@ export class CascadingSpinButton extends ObserverComponent {
     renderSpinButtonState(state: string) {
         this.nodeSpinning.active = true;
         const button = this.node.getComponent(Button);
-        console.log("spinButtonState", state);
 
         button.interactable = true;
         this.disableButton.active = state === SpinButtonState.SPINNING;
