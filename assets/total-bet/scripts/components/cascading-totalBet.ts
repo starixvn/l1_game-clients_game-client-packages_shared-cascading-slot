@@ -74,12 +74,12 @@ export class CascadingTotalBet extends ObserverComponent {
     }
 
     onClickDecreaseTotalBet() {
-        this.hideSymbolPreview();
+        this.onClickOpenBetControl();
         this.betControl?.onClickDecreaseTotalBet();
     }
 
     onClickIncreaseTotalBet() {
-        this.hideSymbolPreview();
+        this.onClickOpenBetControl();
         this.betControl?.onClickIncreaseTotalBet();
     }
 
