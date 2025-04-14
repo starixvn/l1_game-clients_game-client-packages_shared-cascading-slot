@@ -55,9 +55,6 @@ export class CascadingBetControl extends ObserverComponent {
     @property(StatusButton)
     nodeButtons: StatusButton[] = [];
 
-    private readonly TrialModeDefaultBetLevelIndex = 4;
-    private readonly DefaultBetLevelIndex = 0;
-
     private totalBetUnique = [];
     private currentCoinIndex = 0;
     private currentBetLevelIndex = 0;
@@ -73,7 +70,7 @@ export class CascadingBetControl extends ObserverComponent {
     gameId: number;
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
-    private setIsTrialMode(isTrialMode: boolean) {
+    private setTrialMode(isTrialMode: boolean) {
         this.isTrialMode = isTrialMode;
     }
 
