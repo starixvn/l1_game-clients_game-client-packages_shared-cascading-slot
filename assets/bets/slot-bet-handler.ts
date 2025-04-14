@@ -3,7 +3,7 @@ import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
-import { CascadingUIHandler } from "../main-ui";
+import { CascadingUIHandler, CascadingUIStore } from "../main-ui";
 import { BetControlStore } from "../total-bet/scripts/bet-control-store";
 
 const { injectable, inject } = inversify;
@@ -12,6 +12,8 @@ const { injectable, inject } = inversify;
 export class SlotBetHandler extends gc.Bet.BetHandler {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(CascadingUIHandler) protected readonly uiHandler: CascadingUIHandler;
+    @inject(gc.Connection.ConnectionTrialStore) protected readonly connectionTrialStore: gc.Connection.ConnectionTrialStore;
+    @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     handle() {
         const betData = this.slotBetData();
         this.handleBetData(betData);
@@ -23,6 +25,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             coinValue: this.betControlStore.coinValue,
             betLevel: this.betControlStore.betLevel,
             totalBet: this.betControlStore.totalBet,
+            freeSpin: this.uiStore.isFreeSpins,
             clientSentTime: new Date(),
         };
     }
@@ -31,7 +34,9 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
         const amount = data.totalBet;
         if (this.isValidBet(amount)) {
             this.betStore.isProcessingBet = true;
-            this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
+            this.uiStore.isTrialMode
+                ? this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data)
+                : this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
             this.uiHandler.updateSpinButtonState(SpinButtonState.SPINNING);

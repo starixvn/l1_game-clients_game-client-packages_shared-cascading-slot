@@ -1,10 +1,12 @@
 import inversify from "inversify";
 import mobx from "mobx";
+import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 
 const { injectable, inject } = inversify;
 
 @injectable()
 export class AutoPlayStore {
+    @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -20,5 +22,9 @@ export class AutoPlayStore {
 
     get isTurnOnAutoPlay() {
         return this.isOpenAutoplayPopup || this.isAutoplay;
+    }
+
+    get disabledAutoPlay() {
+        return this.uiStore.isTrialMode;
     }
 }

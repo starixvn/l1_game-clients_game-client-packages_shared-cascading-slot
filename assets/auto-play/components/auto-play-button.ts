@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Sprite } from "cc";
+import { _decorator, Node, Sprite } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
@@ -18,6 +18,9 @@ export default class AutoPlayButton extends ObserverComponent {
     @property(Sprite)
     sprIconPause: Sprite = null;
 
+    @property(Node)
+    nodeDisabled: Node = null;
+
     @handle(AutoPlayHandler, (handle) => handle.clickAutoPlay())
     onClickAutoPlay() {
         this.playSoundClick();
@@ -32,5 +35,10 @@ export default class AutoPlayButton extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return gc.Audios.AudioIds.CLICK;
+    }
+
+    @render(AutoPlayStore, (store) => store.disabledAutoPlay)
+    disabledAutoPlay(disabledAutoPlay: boolean) {
+        this.nodeDisabled.active = disabledAutoPlay;
     }
 }

@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { findIndex, SlotNotification } from "../cascading-slot-utils";
+import { SlotNotification } from "../cascading-slot-utils";
 import { CascadingSlotConfigsStore } from "../game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
@@ -75,15 +75,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.bottomMessageState = state;
     }
 
-    handleFreespinsJoinGame(freespins: GameServiceMessageCascading.CascadingFreeSpinsMsg) {
-        if (!freespins) {
+    handleFreespinsJoinGame(freespins: any) {
+        if (freespins.total === 0 || !freespins || freespins.length <= 0) {
             return;
         }
-        const { total, betLevel, coinValue, betMultiplier } = freespins;
-        this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
-        this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);
-        this.betControlStore.currentCoinIndex = findIndex(coinValue, this.configsStore.gameConfigs.coinValues);
-        this.betControlStore.totalBet = betLevel * coinValue * betMultiplier;
+        // const { total, betLevel, coinValue, betMultiplier } = freespins;
+        // this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
+        // this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);
+        // this.betControlStore.currentCoinIndex = findIndex(coinValue, this.configsStore.gameConfigs.coinValues);
+        // this.betControlStore.totalBet = betLevel * coinValue * betMultiplier;
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
@@ -128,6 +128,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     updateFreespinCountMsgBottom(count: number) {
         this.uiStore.freespinCountMsgBottom = count;
+    }
+
+    updateConnectedTrialService(connected: boolean) {
+        this.uiStore.isConnectedTrialService = connected;
     }
 
     eventHandleList = [

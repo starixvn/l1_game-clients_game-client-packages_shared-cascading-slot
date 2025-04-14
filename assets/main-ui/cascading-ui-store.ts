@@ -1,8 +1,10 @@
+import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { CascadingSlotConfigsStore } from "../game-configs";
 import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
@@ -10,11 +12,11 @@ const { injectable, inject } = inversify;
 @injectable()
 export class CascadingUIStore {
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
-
+    @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
+    @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
-    // totalTumbleWin = { totalWin: 0, isAnimated: false };
     totalWin: number = 0;
     totalTumbleWin = 0;
     multiplier = 0;
@@ -25,6 +27,8 @@ export class CascadingUIStore {
 
     isTurboMode = false;
     isTrialMode = false;
+    isTrialConnection = false;
+    isRealConnection = false;
 
     _cascadingState = CascadingSlotState.NONE;
     _isSymbolPreviewVisible = false;
@@ -41,6 +45,8 @@ export class CascadingUIStore {
     isFreeSpinEffectCompleted = false;
     spinButtonState = SpinButtonState.IDLE;
     freespinCountMsgBottom = 0;
+
+    isConnectedTrialService = false;
 
     get isShowBigWin() {
         return this.haveBigWin || !this.isBigWinCompleted;
@@ -85,5 +91,16 @@ export class CascadingUIStore {
 
     get isFreeSpins() {
         return this.freeSpinsCount > 0;
+    }
+
+    get userBalance() {
+        if (this.isTrialMode) {
+            return this.configsStore.trialUser?.balance;
+        }
+        return this.mainPlayerStore.balance;
+    }
+
+    get disabledTurboMode() {
+        return this.isTrialMode;
     }
 }

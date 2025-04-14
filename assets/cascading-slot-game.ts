@@ -274,8 +274,11 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
-    @render(gc.Player.MainPlayerStore, (store) => store.balance)
+    @render(CascadingUIStore, (store) => store.userBalance)
     setBalance(value: number) {
+        if (!value) {
+            return;
+        }
         this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
     }
 

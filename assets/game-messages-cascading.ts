@@ -42,6 +42,13 @@ export namespace GameServiceMessageCascading {
         betMultiplier: number;
         static eventName = "freeSpins";
     }
+
+    export class CascadingTrialUserMsg {
+        balance: number;
+        rate: number;
+        multiplier: number;
+        static eventName = "trialUser";
+    }
 }
 
 export interface Settlement {

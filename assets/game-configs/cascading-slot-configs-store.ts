@@ -8,6 +8,7 @@ const { injectable, inject } = inversify;
 @injectable()
 export class CascadingSlotConfigsStore {
     private _gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg = null;
+    private _trialUser: GameServiceMessageCascading.CascadingTrialUserMsg = null;
 
     constructor() {
         mobx.makeAutoObservable(this);
@@ -19,5 +20,13 @@ export class CascadingSlotConfigsStore {
 
     set gameConfigs(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
         this._gameConfigs = gameConfigs;
+    }
+
+    get trialUser() {
+        return this._trialUser;
+    }
+
+    set trialUser(user: GameServiceMessageCascading.CascadingTrialUserMsg) {
+        this._trialUser = user;
     }
 }

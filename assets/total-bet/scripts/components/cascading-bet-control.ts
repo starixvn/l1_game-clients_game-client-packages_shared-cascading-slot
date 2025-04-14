@@ -6,6 +6,7 @@ import { StatusButton } from "db://shared-components/shared/common-components/bu
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
+import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
 import { BetControlHandlers } from "../bet-control-handlers";
 import { BetControlStore } from "../bet-control-store";
 
@@ -66,26 +67,31 @@ export class CascadingBetControl extends ObserverComponent {
     private betLevels: number[];
     private betMultiplier: number;
     private defaultCoinValue: number;
-    // private placeBetModel: CascadingSlotPlaceBetModel;
-    // private uiModel: CascadingUIModel;
     private isTrialMode = false;
 
     betControlStorageKey = "CASCADING_SLOT_BET_CONTROL";
     gameId: number;
 
-    @render(BetControlStore, (store) => store.currentBetLevelIndex, { fireImmediately: false })
+    @render(CascadingUIStore, (store) => store.isTrialMode)
+    private setIsTrialMode(isTrialMode: boolean) {
+        this.isTrialMode = isTrialMode;
+    }
+
+    @render(BetControlStore, (store) => store.currentBetLevelIndex)
     private setCurrentBetLevelIndex(currentBetLevelIndex: number) {
+        console.log("[CascadingBetControl] Setting currentBetLevelIndex from store:", currentBetLevelIndex);
         this.currentBetLevelIndex = currentBetLevelIndex;
         this.updateBetLevelLabel();
     }
 
     @handle(BetControlHandlers, (handle, index: number) => handle.updateCurrentBetLevelIndex(index))
     private handleCurrentBetLevelIndex(currentBetLevelIndex: number) {
+        console.log("[CascadingBetControl] Handling currentBetLevelIndex update:", currentBetLevelIndex);
         return currentBetLevelIndex;
     }
 
     private updateBetLevelLabel() {
-        if (!this.betLevels) {
+        if (!this.betLevels || this.betLevels.length <= 0) {
             return;
         }
         const betLevel = this.betLevels[this.currentBetLevelIndex];
@@ -98,7 +104,7 @@ export class CascadingBetControl extends ObserverComponent {
         return betLevel;
     }
 
-    @render(BetControlStore, (store) => store.currentCoinIndex, { fireImmediately: false })
+    @render(BetControlStore, (store) => store.currentCoinIndex)
     private setCurrentCoinIndex(currentCoinIndex: number) {
         this.currentCoinIndex = currentCoinIndex;
         this.updateCoinValueLabel();
@@ -110,7 +116,7 @@ export class CascadingBetControl extends ObserverComponent {
     }
 
     private updateCoinValueLabel() {
-        if (!this.coinValues) {
+        if (!this.coinValues || this.coinValues.length <= 0) {
             return;
         }
 

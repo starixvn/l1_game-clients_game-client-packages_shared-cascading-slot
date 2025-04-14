@@ -7,11 +7,26 @@ import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 const { injectable, inject } = inversify;
 
 @injectable()
-export class CascadingSlotConfigsHandlers implements gc.Shared.IHandler<GameServiceMessageCascading.CascadingSlotConfigsMsg> {
+export class CascadingSlotConfigsHandlers implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotConfigsStore) protected readonly configStore: CascadingSlotConfigsStore;
-    name = GameServiceMessageCascading.CascadingSlotConfigsMsg.eventName;
 
-    handle(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+    handleConfigs(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
         this.configStore.gameConfigs = gameConfigs;
     }
+
+    handleTrialUser(trialUser: GameServiceMessageCascading.CascadingTrialUserMsg) {
+        this.configStore.trialUser = trialUser;
+        console.log("trialUser", trialUser.balance);
+    }
+
+    eventHandleList = [
+        {
+            name: GameServiceMessageCascading.CascadingSlotConfigsMsg.eventName,
+            handle: this.handleConfigs,
+        },
+        {
+            name: GameServiceMessageCascading.CascadingTrialUserMsg.eventName,
+            handle: this.handleTrialUser,
+        },
+    ];
 }
