@@ -4,7 +4,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { CascadingSlotSettlementStore } from "./settlements/cascading-slot-settlement-store";
+import { CascadingUIStore } from "./main-ui/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;
@@ -23,13 +23,9 @@ export class CascadingBottomArea extends ObserverComponent {
         this.updateColor();
         super.onLoad();
     }
-    @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
-    async handleSettlement(finishData: any) {
-        if (!finishData) {
-            return;
-        }
-        const { win } = finishData;
-        ComponentUtils.floatToNumber({ label: this.totalWinLabel, amount: win, duration: 0.5, noZeroSuffix: false });
+    @render(CascadingUIStore, (store) => store.totalTumbleWin, { fireImmediately: false })
+    async handleSettlement(totalTumbleWin: number) {
+        ComponentUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 
     updateColor() {
