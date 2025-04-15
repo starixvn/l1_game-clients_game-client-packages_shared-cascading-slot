@@ -2,11 +2,11 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 const { injectable, inject } = inversify;
 
-import { CascadingSlotBoardHandlers } from "../components/slot-board";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
-import { CascadingUIStore } from "../main-ui";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { CascadingSlotBoardHandlers } from "./cascading-slot-board-handlers";
 import { CascadingSlotTumblesHandlers } from "./cascading-slot-tumbles-handlers";
 
 @injectable()

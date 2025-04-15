@@ -4,7 +4,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { CascadingUIStore } from "./stores/cascading-ui-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;

@@ -3,7 +3,7 @@ import { _decorator, Color, JsonAsset, Label, macro, Sprite, SpriteAtlas } from 
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { CascadingSlotConfigsStore } from "../../game-configs";
+import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;

@@ -19,8 +19,8 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { SlotBetHandler } from "./handlers/slot-bet-handler";
-import { CascadingSlotSettlementStore } from "./settlements";
 import { AutoPlayStore } from "./stores/auto-play-store";
+import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;

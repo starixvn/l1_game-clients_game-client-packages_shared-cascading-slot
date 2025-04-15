@@ -1,13 +1,14 @@
 import { _decorator, JsonAsset, Label, Node } from "cc";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
-import { CascadingUIHandler, CascadingUIStore } from "db://shared-cascading-slot/main-ui";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { CascadingTotalBetHandlers } from "../../handlers/cascading-total-bet-handlers";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingBetControl } from "./cascading-bet-control";
 
 const { ccclass, property } = _decorator;

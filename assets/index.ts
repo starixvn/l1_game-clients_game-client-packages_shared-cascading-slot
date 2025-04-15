@@ -1,9 +1,15 @@
-export * as CascadingAutoPlay from "./components/auto-play/scripts";
-export * as CascadingSlotBoard from "./components/slot-board";
-export * as CascadingSlotTumbles from "./components/tumbles/scripts";
-export * as CascadingSlotConfigs from "./game-configs";
 export * from "./game-messages-cascading";
-export * as CascadingUI from "./main-ui";
-export * as CascadingSlotSettlements from "./settlements";
+export * from "./handlers/auto-play-handlers";
+export * from "./handlers/cascading-slot-board-handlers";
+export * from "./handlers/cascading-slot-configs-handlers";
+export * from "./handlers/cascading-slot-settlement-handlers";
+export * from "./handlers/cascading-slot-tumbles-handlers";
+export * from "./handlers/cascading-ui-handler";
+export * from "./stores/auto-play-store";
+export * from "./stores/cascading-slot-board-store";
+export * from "./stores/cascading-slot-configs-store";
+export * from "./stores/cascading-slot-settlement-store";
+export * from "./stores/cascading-slot-tumbles-store";
+export * from "./stores/cascading-ui-store";
 
 export const FEATURE_NAME = "cascading-slot";

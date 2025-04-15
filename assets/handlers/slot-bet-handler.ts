@@ -3,8 +3,9 @@ import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
-import { CascadingUIHandler, CascadingUIStore } from "../main-ui";
 import { BetControlStore } from "../stores/bet-control-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
 

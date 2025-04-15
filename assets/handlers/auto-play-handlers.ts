@@ -3,9 +3,9 @@ import inversify from "inversify";
 import mobx from "mobx";
 
 import { SlotNotification } from "../cascading-slot-utils";
-import { CascadingUIHandler } from "../main-ui";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
 

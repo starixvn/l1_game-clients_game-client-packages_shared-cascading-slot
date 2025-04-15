@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { hideNode, prefabCache, showNode } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
 import { CascadingSymbolPreview } from "./cascading-symbol-preview";
 const { observer, render, handle } = Observer;

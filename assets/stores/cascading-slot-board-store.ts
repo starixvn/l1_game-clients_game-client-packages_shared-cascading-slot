@@ -1,7 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
 import { SymbolBoard } from "../cascading-slot-utils";
-import { CascadingUIStore } from "../main-ui";
+import { CascadingUIStore } from "./cascading-ui-store";
 const { injectable, inject } = inversify;
 
 @injectable()

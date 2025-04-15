@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
-import { CascadingUIHandler } from "../../main-ui";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
