@@ -1,10 +1,10 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label, Layout, Node, tween, UIOpacity, UITransform, v3 } from "cc";
-import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
+import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
 import { ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { CascadingSlotTumblesStore } from "../cascading-slot-tumbles-store";
+import { CascadingSlotTumblesStore } from "../../../stores/cascading-slot-tumbles-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 

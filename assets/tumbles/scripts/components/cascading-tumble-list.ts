@@ -1,8 +1,8 @@
 import { _decorator, instantiate, Node, Prefab, ScrollView, Sprite, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
-import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
+import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
-import { CascadingSlotTumblesStore } from "../cascading-slot-tumbles-store";
+import { CascadingSlotTumblesStore } from "../../../stores/cascading-slot-tumbles-store";
 import { CascadingTumbleItem } from "./cascading-tumble-item";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;

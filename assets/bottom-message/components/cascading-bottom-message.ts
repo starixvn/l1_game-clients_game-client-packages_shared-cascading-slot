@@ -3,10 +3,10 @@ import { _decorator, Color, JsonAsset, RichText, sys } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { AutoPlayStore } from "../../auto-play/scripts/auto-play-store";
 import { SlotNotification } from "../../cascading-slot-utils";
-import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
+import { AutoPlayStore } from "../../stores/auto-play-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 

@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfigsStore } from "../game-configs";
-import { CascadingUIStore } from "../main-ui/cascading-ui-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;

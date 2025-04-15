@@ -5,8 +5,8 @@ import { FunctionUtils } from "db://shared-components/shared/utils/function-util
 import Observer from "observer";
 import { UNIT_SECOND_SPIN } from "../cascading-slot-base-configs";
 import { getCustomDuration } from "../cascading-slot-utils";
-import { CascadingUIHandler } from "../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../main-ui/cascading-ui-store";
+import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 

@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
-import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
+import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
 

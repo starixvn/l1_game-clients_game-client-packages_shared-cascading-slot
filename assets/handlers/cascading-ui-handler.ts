@@ -3,12 +3,12 @@ import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
-import { CascadingSlotConfigsStore } from "../game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
-import { CascadingSlotSettlementStore } from "../settlements/cascading-slot-settlement-store";
-import { BetControlStore } from "../total-bet/scripts/bet-control-store";
-import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
-import { CascadingUIStore } from "./cascading-ui-store";
+import { BetControlStore } from "../stores/bet-control-store";
+import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
+import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
+import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -120,7 +120,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     handleChangeMode(isTrialMode: boolean) {
         this.uiStore.isTrialMode = isTrialMode;
         this.uiStore.roundId = 0;
-        console.log("handleChangeMode", this.uiStore.roundId);
         this.handleNewRound();
     }
 

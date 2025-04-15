@@ -1,6 +1,6 @@
 import inversify from "inversify";
 import mobx from "mobx";
-import { Tumble } from "../../game-messages-cascading";
+import { Tumble } from "../game-messages-cascading";
 const { injectable, inject } = inversify;
 
 @injectable()

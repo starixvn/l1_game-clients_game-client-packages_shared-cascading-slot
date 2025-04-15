@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { SymbolBoard } from "../cascading-slot-utils";
-import { CascadingSlotBoardStore } from "./cascading-slot-board-store";
+import { CascadingSlotBoardStore } from "../stores/cascading-slot-board-store";
 
 const { injectable, inject } = inversify;
 

@@ -3,10 +3,10 @@ import { _decorator, instantiate, Node, Prefab, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
+import { AutoPlayStore } from "../../stores/auto-play-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { AutoPlayHandler } from "../scripts/auto-play-handlers";
-import { AutoPlayStore } from "../scripts/auto-play-store";
 import AutoPlayRoundNumber from "./auto-play-round-number";
 
 const { Connection } = gc;

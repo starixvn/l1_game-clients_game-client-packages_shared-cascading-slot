@@ -1,2 +1,2 @@
-export * from "./cascading-slot-board-handlers";
-export * from "./cascading-slot-board-store";
+export * from "../handlers/cascading-slot-board-handlers";
+export * from "../stores/cascading-slot-board-store";

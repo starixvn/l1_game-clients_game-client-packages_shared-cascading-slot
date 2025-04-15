@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { GameServiceMessageCascading } from "../game-messages-cascading";
-import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
+import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
 
 const { injectable, inject } = inversify;
 

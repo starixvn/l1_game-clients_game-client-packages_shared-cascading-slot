@@ -2,7 +2,7 @@ import { _decorator, Node } from "cc";
 import Observer from "observer";
 
 import { InGameMenu } from "db://shared-components/game/in-game-menu/scripts/components/in-game-menu";
-import { CascadingUIStore } from "../main-ui/cascading-ui-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 

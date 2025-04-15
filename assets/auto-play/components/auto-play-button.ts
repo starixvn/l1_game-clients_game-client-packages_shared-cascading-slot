@@ -3,8 +3,8 @@ import { _decorator, Node, Sprite } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
+import { AutoPlayStore } from "../../stores/auto-play-store";
 import { AutoPlayHandler } from "../scripts/auto-play-handlers";
-import { AutoPlayStore } from "../scripts/auto-play-store";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;

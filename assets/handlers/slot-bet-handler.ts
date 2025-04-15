@@ -4,7 +4,7 @@ import inversify from "inversify";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { CascadingUIHandler, CascadingUIStore } from "../main-ui";
-import { BetControlStore } from "../total-bet/scripts/bet-control-store";
+import { BetControlStore } from "../stores/bet-control-store";
 
 const { injectable, inject } = inversify;
 

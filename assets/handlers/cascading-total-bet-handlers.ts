@@ -1,6 +1,6 @@
 import inversify from "inversify";
 
-import { BetControlStore } from "./bet-control-store";
+import { BetControlStore } from "../stores/bet-control-store";
 
 const { injectable, inject } = inversify;
 

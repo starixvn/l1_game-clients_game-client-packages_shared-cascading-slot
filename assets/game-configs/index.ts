@@ -1,2 +1,2 @@
-export * from "./cascading-slot-configs-handlers";
-export * from "./cascading-slot-configs-store";
+export * from "../handlers/cascading-slot-configs-handlers";
+export * from "../stores/cascading-slot-configs-store";

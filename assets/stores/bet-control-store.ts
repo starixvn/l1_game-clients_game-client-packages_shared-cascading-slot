@@ -1,7 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
 
-import { CascadingSlotConfigsStore } from "../../game-configs/cascading-slot-configs-store";
+import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 
 const { injectable, inject } = inversify;
 

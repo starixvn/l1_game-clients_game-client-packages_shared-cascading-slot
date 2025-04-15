@@ -5,9 +5,9 @@ const { injectable, inject } = inversify;
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingUIStore } from "../main-ui";
 import { CascadingSlotBoardHandlers } from "../slot-board";
-import { CascadingSlotTumblesHandlers } from "../tumbles/scripts/cascading-slot-tumbles-handlers";
-import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
-import { CascadingSlotSettlementStore } from "./cascading-slot-settlement-store";
+import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
+import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
+import { CascadingSlotTumblesHandlers } from "./cascading-slot-tumbles-handlers";
 
 @injectable()
 export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandlers {

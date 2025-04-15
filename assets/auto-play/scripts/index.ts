@@ -1,2 +1,2 @@
+export * from "../../stores/auto-play-store";
 export * from "./auto-play-handlers";
-export * from "./auto-play-store";

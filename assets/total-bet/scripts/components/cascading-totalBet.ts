@@ -6,8 +6,8 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { BetControlStore } from "../bet-control-store";
-import { CascadingTotalBetHandlers } from "../cascading-total-bet-handlers";
+import { CascadingTotalBetHandlers } from "../../../handlers/cascading-total-bet-handlers";
+import { BetControlStore } from "../../../stores/bet-control-store";
 import { CascadingBetControl } from "./cascading-bet-control";
 
 const { ccclass, property } = _decorator;

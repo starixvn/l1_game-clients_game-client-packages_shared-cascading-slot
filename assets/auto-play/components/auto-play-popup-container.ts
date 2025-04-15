@@ -3,7 +3,7 @@ import { Dialog } from "db://shared-components/shared/common-components/dialogs/
 import { NodeContainer } from "db://shared-components/shared/common-components/node-container/node-container";
 import Observer from "observer";
 
-import { AutoPlayStore } from "../scripts/auto-play-store";
+import { AutoPlayStore } from "../../stores/auto-play-store";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;

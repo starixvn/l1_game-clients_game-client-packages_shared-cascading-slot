@@ -1,14 +1,14 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
-import { CascadingSlotConfigsStore } from "db://shared-cascading-slot/game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading } from "db://shared-cascading-slot/game-messages-cascading";
+import { CascadingSlotConfigsStore } from "db://shared-cascading-slot/stores/cascading-slot-configs-store";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { CascadingUIStore } from "db://shared-cascading-slot/main-ui/cascading-ui-store";
-import { BetControlHandlers } from "../bet-control-handlers";
-import { BetControlStore } from "../bet-control-store";
+import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
+import { BetControlHandlers } from "../../../handlers/bet-control-handlers";
+import { BetControlStore } from "../../../stores/bet-control-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;

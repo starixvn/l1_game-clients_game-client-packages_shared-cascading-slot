@@ -5,16 +5,16 @@ import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/uti
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { CascadingSlotConfigsStore } from "../../game-configs/cascading-slot-configs-store";
 import { GameServiceMessageCascading, Tumble } from "../../game-messages-cascading";
-import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingSlotTumblesHandlers } from "../../handlers/cascading-slot-tumbles-handlers";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { MultiplierItem } from "../../multiplier/scripts/multiplier-item";
 import { CascadingPreviewOddsPopup } from "../../preview-symbol/scripts/cascading-preview-odds-popup";
 import { CascadingSlotReel } from "../../slot-reel/scripts/cascading-slot-reel";
-import { BetControlStore } from "../../total-bet/scripts/bet-control-store";
+import { BetControlStore } from "../../stores/bet-control-store";
+import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { TotalMultiplierView } from "../../total-multiplier/scripts/cascading-total-multiplier-view";
-import { CascadingSlotTumblesHandlers } from "../../tumbles/scripts/cascading-slot-tumbles-handlers";
 import { TumbleWinWiew } from "../../tumbles/scripts/components/tumble-win-view";
 import { convertBoardValue, SlotNotification, SymbolBoard, WinIconDetail } from "./../../cascading-slot-utils";
 const { observer, render, handle } = Observer;
@@ -30,7 +30,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @property(CascadingPreviewOddsPopup)
     previewPopup: CascadingPreviewOddsPopup = null;
-
+    s;
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
     public colorInfo: any;

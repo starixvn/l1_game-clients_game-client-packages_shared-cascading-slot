@@ -1,7 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
-import { CascadingSlotState } from "../../cascading-slot-state";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingSlotState } from "../cascading-slot-state";
+import { CascadingUIStore } from "./cascading-ui-store";
 
 const { injectable, inject } = inversify;
 

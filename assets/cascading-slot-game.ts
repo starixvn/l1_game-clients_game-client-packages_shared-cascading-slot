@@ -10,16 +10,16 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import Observer from "observer";
 
 import { AutoPlayHandler } from "./auto-play/scripts/auto-play-handlers";
-import { AutoPlayStore } from "./auto-play/scripts/auto-play-store";
-import { SlotBetHandler } from "./bets/slot-bet-handler";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { CascadingSlotState } from "./cascading-slot-state";
 import { convertData, getCustomDuration, prefabCache, SlotNotification, SpinButtonState } from "./cascading-slot-utils";
 import { CascadingEffectGameContainer } from "./effects/cascading-effect-game-container";
-import { CascadingUIHandler } from "./main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "./main-ui/cascading-ui-store";
+import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
+import { SlotBetHandler } from "./handlers/slot-bet-handler";
 import { CascadingSlotSettlementStore } from "./settlements";
 import { CascadingSlotBoard } from "./slot-board/components/cascading-slot-board";
+import { AutoPlayStore } from "./stores/auto-play-store";
+import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { TotalMultiplierView } from "./total-multiplier/scripts/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./tumbles/scripts/components/tumble-win-view";
 

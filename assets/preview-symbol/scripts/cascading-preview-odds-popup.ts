@@ -3,8 +3,8 @@ import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { hideNode, prefabCache, showNode } from "../../cascading-slot-utils";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../main-ui";
-import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
 import { CascadingSlotReelItem } from "../../slot-reel/scripts/cascading-slot-reel-item";
 import { CascadingSymbolPreview } from "./cascading-symbol-preview";
 const { observer, render, handle } = Observer;

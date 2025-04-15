@@ -5,7 +5,7 @@ import mobx from "mobx";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { CascadingSlotConfigsStore } from "../game-configs";
-import { CascadingSlotTumblesStore } from "../tumbles/scripts/cascading-slot-tumbles-store";
+import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 
 const { injectable, inject } = inversify;
 

@@ -2,7 +2,7 @@ import { _decorator, Label } from "cc";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
 import { ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 

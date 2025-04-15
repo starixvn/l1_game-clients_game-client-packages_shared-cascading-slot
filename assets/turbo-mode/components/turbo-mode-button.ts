@@ -3,8 +3,8 @@ import { _decorator, Node, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { CascadingUIHandler } from "../../main-ui/cascading-ui-handler";
-import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;

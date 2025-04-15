@@ -3,7 +3,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { SpinButtonState } from "../cascading-slot-utils";
-import { CascadingUIStore } from "../main-ui/cascading-ui-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -37,14 +37,10 @@ export class CascadingSpinButton extends ObserverComponent {
     renderSpinButtonState(state: string) {
         this.nodeSpinning.active = true;
         const button = this.node.getComponent(Button);
-
-        button.interactable = true;
-        this.disableButton.active = state === SpinButtonState.SPINNING;
+        this.disableButton.active = state !== SpinButtonState.IDLE;
         if (state === SpinButtonState.SPINNING) {
-            button.interactable = false;
             this.playAnimationSpin();
         } else if (state === SpinButtonState.SPINNING_TURBO) {
-            button.interactable = false;
             this.playAnimationSpinTurbo();
         } else if (state === SpinButtonState.IDLE) {
             this.nodeSpinning.active = false;

@@ -3,7 +3,7 @@ import { _decorator } from "cc";
 import WebViewGuide from "db://shared-components/game/game-guide/scripts/web-view-guide";
 import Observer from "observer";
 
-import { BetControlStore } from "../total-bet/scripts/bet-control-store";
+import { BetControlStore } from "../stores/bet-control-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
