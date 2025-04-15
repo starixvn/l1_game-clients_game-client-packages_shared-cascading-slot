@@ -2,9 +2,9 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 const { injectable, inject } = inversify;
 
+import { CascadingSlotBoardHandlers } from "../components/slot-board";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingUIStore } from "../main-ui";
-import { CascadingSlotBoardHandlers } from "../slot-board";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingSlotTumblesHandlers } from "./cascading-slot-tumbles-handlers";
