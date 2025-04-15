@@ -53,6 +53,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             return;
         }
         this.playSoundBigWin();
+
         this.playSound(this.Sound.INCREMENT);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);

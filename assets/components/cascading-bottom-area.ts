@@ -25,6 +25,10 @@ export class CascadingBottomArea extends ObserverComponent {
     }
     @render(CascadingUIStore, (store) => store.totalTumbleWin, { fireImmediately: false })
     async handleSettlement(totalTumbleWin: number) {
+        if (totalTumbleWin === 0) {
+            this.totalWinLabel.string = totalTumbleWin.toString();
+            return;
+        }
         ComponentUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 

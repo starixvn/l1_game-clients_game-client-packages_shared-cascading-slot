@@ -64,14 +64,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.cascadingState)
     setAllowChangeBet(state: string) {
-        let status = true;
-        if (state === CascadingSlotState.SPINNING || state === CascadingSlotState.START_ROUND) {
-            status = false;
-        }
-
-        this.buttonIncrease.interactable = status && this.increaseButtonStatus;
-        this.buttonDecrease.interactable = status && this.decreaseButtonStatus;
-        this.disabled.active = !status;
+        this.disabled.active = state === CascadingSlotState.SPINNING;
     }
 
     onClickDecreaseTotalBet() {

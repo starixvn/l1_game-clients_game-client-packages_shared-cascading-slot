@@ -123,6 +123,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
             let value = startValue;
             //label.node.stopAllActions();
+
             const formatText = (value) => prefixStr + formatNumber(value);
             this.tweenBigWin = tween(label.node)
                 .repeat(
@@ -174,8 +175,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         //this.soundEndForBigWinStandard(this.bigWinAudioId, this.incrementAudioId);
         this.changeFrameForBigWinLevel(betWin, this.totalBet);
         this.setAmount({ amount: betWin });
-        this.playSound(this.Sound.INCREMENT_END);
-        this.stopSoundBigWin();
     }
 
     @render(BetControlStore, (store) => store.totalBet)
@@ -225,6 +224,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
     async setBigWinCompleted(completed: boolean) {
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+        this.stopSoundBigWin();
+        this.playSound(this.Sound.INCREMENT_END);
         return completed;
     }
 
