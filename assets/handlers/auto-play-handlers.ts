@@ -2,7 +2,8 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 
-import { SlotNotification } from "../cascading-slot-utils";
+import { CascadingSlotState } from "../cascading-slot-state";
+import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
@@ -132,12 +133,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsCount > 0) {
+            this.cascadingUIStore.cascadingState = CascadingSlotState.SPINNING;
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
+            this.cascadingUIStore.spinButtonState = SpinButtonState.SPINNING;
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsCount - 1);
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
         } else {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+            this.cascadingUIStore.cascadingState = CascadingSlotState.SETTLED;
+            this.cascadingUIStore.spinButtonState = SpinButtonState.IDLE;
             if (!this.autoPlayStore.isAutoplay) {
                 return;
             }

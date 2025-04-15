@@ -10,8 +10,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import Observer from "observer";
 
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
-import { CascadingSlotState } from "./cascading-slot-state";
-import { convertData, getCustomDuration, prefabCache, SlotNotification, SpinButtonState } from "./cascading-slot-utils";
+import { convertData, getCustomDuration, prefabCache } from "./cascading-slot-utils";
 import { CascadingEffectGameContainer } from "./components/effects/cascading-effect-game-container";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
@@ -234,10 +233,7 @@ export class CascadingSlotGame extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
         if (isFreeSpinEffectCompleted) {
-            this.setSpinningButtonState(SpinButtonState.IDLE);
             const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
-            this.changeCascadingState(CascadingSlotState.SETTLED);
-            this.handleBottomMessage(SlotNotification.SETTLED);
             await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
             this.checkSpinNextRound();
         }

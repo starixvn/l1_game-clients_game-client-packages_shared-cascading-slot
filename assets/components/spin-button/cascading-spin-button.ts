@@ -1,7 +1,8 @@
-import { _decorator, Button, Node, sp } from "cc";
+import { _decorator, Node, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { CascadingSlotState } from "../../cascading-slot-state";
 import { SpinButtonState } from "../../cascading-slot-utils";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -36,8 +37,6 @@ export class CascadingSpinButton extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.spinButtonState)
     renderSpinButtonState(state: string) {
         this.nodeSpinning.active = true;
-        const button = this.node.getComponent(Button);
-        this.disableButton.active = state !== SpinButtonState.IDLE;
         if (state === SpinButtonState.SPINNING) {
             this.playAnimationSpin();
         } else if (state === SpinButtonState.SPINNING_TURBO) {
@@ -46,5 +45,10 @@ export class CascadingSpinButton extends ObserverComponent {
             this.nodeSpinning.active = false;
             this.playAnimationIdle();
         }
+    }
+
+    @render(CascadingUIStore, (store) => store.cascadingState)
+    renderCascadingState(state: string) {
+        this.disableButton.active = state === CascadingSlotState.SPINNING;
     }
 }
