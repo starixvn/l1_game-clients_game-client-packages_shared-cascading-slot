@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import { _decorator, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { CascadingSlotState } from "../../cascading-slot-state";
 import { CascadingUIHandler } from "../../main-ui";
 import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 import { BetControlHandlers } from "../../total-bet/scripts/bet-control-handlers";
@@ -102,5 +103,10 @@ export class CascadingTrialMode extends ObserverComponent {
     @handle(BetControlHandlers, (handle, index: number) => handle.updateCurrentTotalBetIndex(index))
     private handleCurrentTotalBetIndex(currentTotalBetIndex: number) {
         return currentTotalBetIndex;
+    }
+
+    @render(CascadingUIStore, (store) => store.cascadingState)
+    renderDisabledTrialMode(cascadingState: string) {
+        this.nodeDisabled.active = cascadingState === CascadingSlotState.SPINNING;
     }
 }

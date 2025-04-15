@@ -48,6 +48,8 @@ export class CascadingUIStore {
 
     isConnectedTrialService = false;
 
+    roundId = 0;
+
     get isShowBigWin() {
         return this.haveBigWin || !this.isBigWinCompleted;
     }

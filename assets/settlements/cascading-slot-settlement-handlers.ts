@@ -18,8 +18,9 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
 
     handleFinish(data: any) {
-        const { result, tumbles, totalFreeSpins } = data;
+        const { result, tumbles, totalFreeSpins, roundId } = data;
         this.settlementStore.finishData = data;
+        this.uiStore.roundId = roundId;
     }
 
     eventHandleList = [

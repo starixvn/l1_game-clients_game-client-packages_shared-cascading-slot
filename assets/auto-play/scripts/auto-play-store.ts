@@ -1,5 +1,6 @@
 import inversify from "inversify";
 import mobx from "mobx";
+import { CascadingSlotState } from "../../cascading-slot-state";
 import { CascadingUIStore } from "../../main-ui/cascading-ui-store";
 
 const { injectable, inject } = inversify;
@@ -25,6 +26,6 @@ export class AutoPlayStore {
     }
 
     get disabledAutoPlay() {
-        return this.uiStore.isTrialMode;
+        return this.uiStore.isTrialMode || this.uiStore.cascadingState === CascadingSlotState.SPINNING;
     }
 }

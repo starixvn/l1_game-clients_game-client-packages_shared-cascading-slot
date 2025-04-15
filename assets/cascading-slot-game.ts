@@ -243,9 +243,14 @@ export class CascadingSlotGame extends ObserverComponent {
         }
     }
 
-    @render(Rounds.RoundStore, (store) => store.clientRoundId)
+    @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
-        roundId > 1 && this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
+        console.log("renderRoundId", roundId);
+        if (roundId < 1) {
+            this.lblRoundId && (this.lblRoundId.string = "");
+            return;
+        }
+        this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())

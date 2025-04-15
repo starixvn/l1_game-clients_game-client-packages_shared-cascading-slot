@@ -19,7 +19,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
-
     handle() {}
 
     handleTotalWinTumble(tumbleWin: number) {
@@ -120,6 +119,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleChangeMode(isTrialMode: boolean) {
         this.uiStore.isTrialMode = isTrialMode;
+        this.uiStore.roundId = 0;
+        console.log("handleChangeMode", this.uiStore.roundId);
+        this.handleNewRound();
     }
 
     updateSpinButtonState(state: string) {
