@@ -22,9 +22,6 @@ export class CascadingUIStore {
     multiplier = 0;
     totalMultiplier = 0;
 
-    freeSpinsCount = 0;
-    freeSpinsJoinGame = {};
-
     isTurboMode = false;
     isTrialMode = false;
     isTrialConnection = false;
@@ -34,6 +31,7 @@ export class CascadingUIStore {
     _isSymbolPreviewVisible = false;
 
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
+    spinButtonState = SpinButtonState.IDLE;
 
     haveBigWin = false;
     bigWinAmount = 0;
@@ -41,9 +39,13 @@ export class CascadingUIStore {
 
     highlightScatters = false;
     isHighlightScattersCompleted = false;
+
+    freeSpinsTotal = 0;
+    freeSpinsByRound = 0;
+    freeSpinsJoinGame = {};
     haveFreeSpin = false;
     isFreeSpinEffectCompleted = false;
-    spinButtonState = SpinButtonState.IDLE;
+
     freespinCountMsgBottom = 0;
 
     isConnectedTrialService = false;
@@ -91,7 +93,7 @@ export class CascadingUIStore {
     }
 
     get isFreeSpins() {
-        return this.freeSpinsCount > 0;
+        return this.freeSpinsTotal > 0;
     }
 
     get userBalance() {

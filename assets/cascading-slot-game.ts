@@ -226,7 +226,8 @@ export class CascadingSlotGame extends ObserverComponent {
         this.handleHaveBigWin(bigWin);
         this.updateBigWinAmount(win);
 
-        this.setFreeSpins(totalFreeSpins);
+        this.setFreeSpinsByRound(freeSpins);
+        this.setFreeSpinsTotal(totalFreeSpins);
         this.handleHaveFreeSpin(freeSpins > 0);
     }
 
@@ -260,8 +261,13 @@ export class CascadingSlotGame extends ObserverComponent {
         return state;
     }
 
-    @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpins(freespins))
-    setFreeSpins(freespins: number) {
+    @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
+    setFreeSpinsTotal(freespins: number) {
+        return freespins;
+    }
+
+    @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsByRound(freespins))
+    setFreeSpinsByRound(freespins: number) {
         return freespins;
     }
 

@@ -29,8 +29,12 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.totalWin += win;
     }
 
-    handleFreeSpins(freeSpins: number) {
-        this.uiStore.freeSpinsCount = freeSpins;
+    handleFreeSpinsTotal(freeSpinsTotal: number) {
+        this.uiStore.freeSpinsTotal = freeSpinsTotal;
+    }
+
+    handleFreeSpinsByRound(freeSpins: number) {
+        this.uiStore.freeSpinsByRound = freeSpins;
     }
 
     handleMultiplier(multiplier: number) {

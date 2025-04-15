@@ -27,7 +27,7 @@ export class CascadingEffectFreespin extends ObserverComponent {
         }
     }
 
-    @render(CascadingUIStore, (store) => store.freeSpinsCount)
+    @render(CascadingUIStore, (store) => store.freeSpinsByRound)
     renderFreeSpinsCount(freeSpinsCount: number) {
         this.freeSpinsCount = freeSpinsCount;
         this.lblFreeSpinCount.string = this.freeSpinsCount.toString();
