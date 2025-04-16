@@ -194,6 +194,7 @@ export class CascadingSlotGame extends Component {
             this.getBalance();
             this.handleChangeUserBalance(true);
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
+            this.handleTotalWin({ win: actualBetwin, isActualWin: true });
         }
 
         const needShowTotalMultiplier = totalMultiplier > 0;
@@ -335,6 +336,11 @@ export class CascadingSlotGame extends Component {
     @handle(CascadingUIHandler, (handle, state: string) => handle.updateSpinButtonState(state))
     setSpinningButtonState(state: string) {
         return state;
+    }
+
+    @handle(CascadingUIHandler, (handle, params: any) => handle.handleTotalWin(params))
+    handleTotalWin(params: { win: number; isActualWin: boolean }) {
+        return params;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))

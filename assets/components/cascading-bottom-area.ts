@@ -23,7 +23,7 @@ export class CascadingBottomArea extends ObserverComponent {
         this.updateColor();
         super.onLoad();
     }
-    @render(CascadingUIStore, (store) => store.totalTumbleWin, { fireImmediately: false })
+    @render(CascadingUIStore, (store) => store.totalWin, { fireImmediately: false })
     async handleSettlement(totalTumbleWin: number) {
         if (totalTumbleWin === 0) {
             this.totalWinLabel.string = totalTumbleWin.toString();

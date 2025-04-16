@@ -17,8 +17,11 @@ export class CascadingUIStore {
     constructor() {
         mobx.makeAutoObservable(this);
     }
+
     totalWin: number = 0;
     totalTumbleWin = 0;
+    isActualWin = false;
+
     multiplier = 0;
     totalMultiplier = 0;
 
