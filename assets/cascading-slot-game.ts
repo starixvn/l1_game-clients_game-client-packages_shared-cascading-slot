@@ -175,7 +175,6 @@ export class CascadingSlotGame extends Component {
         const {
             win,
             bigWin,
-            roundId,
             totalFreeSpins,
             isFreeSpin,
             multiplier,

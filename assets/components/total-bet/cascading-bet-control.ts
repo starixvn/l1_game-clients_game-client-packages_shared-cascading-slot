@@ -178,7 +178,7 @@ export class CascadingBetControl extends ObserverComponent {
     private updateCoinValues(coinValues: number[]) {
         this.coinValues = [...coinValues];
         this.coinValues.sort((a, b) => a - b);
-        const currentCoinIndex = this.isTrialMode ? 0 : this.findCoinIndex(this.defaultCoinValue);
+        const currentCoinIndex = this.isTrialMode ? 1 : this.findCoinIndex(this.defaultCoinValue);
         this.handleCurrentCoinIndex(currentCoinIndex);
         this.handleTotalBetWithBetValueAndCoinValue(this.betLevels[this.currentBetLevelIndex], this.coinValues[currentCoinIndex]);
         this.updateCoinValueLabel();
