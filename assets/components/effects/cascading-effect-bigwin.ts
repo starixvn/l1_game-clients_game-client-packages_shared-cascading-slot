@@ -1,7 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { getCustomDuration } from "../../cascading-slot-utils";
@@ -60,7 +60,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
         tween(this.lblWinAmount.node)
             .delay(delayTime)
-            .call(() => ComponentUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: noZeroSuffix }))
+            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: noZeroSuffix }))
             .start();
     }
 

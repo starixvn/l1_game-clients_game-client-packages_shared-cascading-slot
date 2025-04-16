@@ -1,6 +1,6 @@
 import { _decorator, Color, JsonAsset, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { ComponentUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
@@ -29,7 +29,7 @@ export class CascadingBottomArea extends ObserverComponent {
             this.totalWinLabel.string = totalTumbleWin.toString();
             return;
         }
-        ComponentUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
+        AnimationUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 
     updateColor() {

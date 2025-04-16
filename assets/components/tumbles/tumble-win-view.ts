@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import { _decorator, Label, Layout, Node, tween, UIOpacity, UITransform, v3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
-import { ComponentUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
 const { ccclass, property } = _decorator;
@@ -59,7 +59,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
         //     this.tumbleLabel.string = gc.FormatUtils.numberWithCommas(totalTumbleWin.totalWin, 2, false);
         // }
 
-        ComponentUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
+        AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 
     setTotalWinValue(value: number) {

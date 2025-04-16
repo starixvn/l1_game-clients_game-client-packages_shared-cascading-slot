@@ -1,6 +1,6 @@
 import { _decorator, Label } from "cc";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
-import { ComponentUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -24,7 +24,7 @@ export class TotalMultiplierView extends FadeAppearanceNode {
         }
 
         if (animated) {
-            ComponentUtils.floatToNumber({
+            AnimationUtils.floatToNumber({
                 label: this.total,
                 amount: totalMultiplier,
                 duration: 0.2,
