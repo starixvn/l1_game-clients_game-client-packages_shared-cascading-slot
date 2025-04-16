@@ -53,13 +53,6 @@ export class TumbleWinWiew extends FadeAppearanceNode {
 
     @render(CascadingUIStore, (store) => store.totalWin, { fireImmediately: false })
     setTumbleWinValuewin(totalTumbleWin: any) {
-        console.log("totalTumbleWin", totalTumbleWin);
-        // if (totalTumbleWin.animated) {
-        //     ComponentUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin.totalWin, duration: 0.5, noZeroSuffix: false });
-        // } else {
-        //     this.tumbleLabel.string = gc.FormatUtils.numberWithCommas(totalTumbleWin.totalWin, 2, false);
-        // }
-
         AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 

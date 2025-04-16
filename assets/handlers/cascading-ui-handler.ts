@@ -53,8 +53,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isFreeSpinEffectCompleted = false;
         this.uiStore.isBigWinCompleted = false;
         this.uiStore.isHighlightScattersCompleted = false;
+        this.uiStore.multiplier = 0;
         if (!this.uiStore.isFreeSpins) {
-            this.uiStore.multiplier = 0;
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
