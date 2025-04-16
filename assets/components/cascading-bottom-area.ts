@@ -36,11 +36,11 @@ export class CascadingBottomArea extends ObserverComponent {
         this.node.getComponentsInChildren(ChangeNodeColor).forEach((comp) => {
             const labelComp = comp.node.getComponent(Label);
             if (labelComp) {
-                comp.updateLabelColor(
+                comp.updateColor(
                     comp.node.getComponent("LocalizedLabel") ? this.colorConfig.bottomAreaTextColor : this.colorConfig.bottomAreaNumberColor
                 );
             } else {
-                comp.updateSpriteColor(this.colorConfig.bottomAreaButtonBorderColor);
+                comp.updateColor(this.colorConfig.bottomAreaButtonBorderColor);
             }
         });
 

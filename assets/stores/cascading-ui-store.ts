@@ -49,6 +49,7 @@ export class CascadingUIStore {
     freespinCountMsgBottom = 0;
 
     isConnectedTrialService = false;
+    changeUserBalance = true;
 
     roundId = 0;
 
@@ -97,6 +98,9 @@ export class CascadingUIStore {
     }
 
     get userBalance() {
+        if (!this.changeUserBalance) {
+            return;
+        }
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }

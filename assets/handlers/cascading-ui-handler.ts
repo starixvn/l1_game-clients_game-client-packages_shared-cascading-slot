@@ -139,6 +139,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isConnectedTrialService = connected;
     }
 
+    handleChangeUserBalance(change: boolean) {
+        this.uiStore.changeUserBalance = change;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

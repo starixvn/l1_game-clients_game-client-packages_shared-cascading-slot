@@ -188,6 +188,7 @@ export class CascadingSlotGame extends ObserverComponent {
         if (!finishData) {
             return;
         }
+        this.handleChangeUserBalance(false);
         const {
             win,
             bigWin,
@@ -209,6 +210,7 @@ export class CascadingSlotGame extends ObserverComponent {
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
         if (win > 0) {
             this.getBalance();
+            this.handleChangeUserBalance(true);
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
         }
 
@@ -341,6 +343,11 @@ export class CascadingSlotGame extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))
+    handleChangeUserBalance(changed: boolean) {
+        return changed;
     }
 
     @handle(CascadingUIHandler, (handle, state: string) => handle.updateSpinButtonState(state))

@@ -34,10 +34,12 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     handleBetData(data: any) {
         const amount = data.totalBet;
         if (this.isValidBet(amount)) {
+            this.uiStore.changeUserBalance = false;
             this.betStore.isProcessingBet = true;
             this.uiStore.isTrialMode
                 ? this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data)
                 : this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
+            this.uiStore.changeUserBalance = true;
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
             this.uiHandler.updateSpinButtonState(SpinButtonState.SPINNING);
