@@ -51,9 +51,8 @@ export const convertData = (value: string) => {
     return convertBoardValue(convertStringToArray(value));
 };
 
-export const prefabCache = {
+export const resourcesCache = {
     slotSymbols: {},
-    multiplierPrefab: {},
 };
 
 export interface SymbolBoard {

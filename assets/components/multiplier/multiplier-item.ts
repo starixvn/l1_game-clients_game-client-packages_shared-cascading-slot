@@ -1,7 +1,7 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
 import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { prefabCache } from "../../cascading-slot-utils";
+import { resourcesCache } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -61,7 +61,7 @@ export class MultiplierItem extends Component {
             }
         }
         const anim = "idle";
-        this.spine.skeletonData = prefabCache.slotSymbols[level[i]];
+        this.spine.skeletonData = resourcesCache.slotSymbols[level[i]];
         this.spine.setAnimation(0, anim, true);
     }
 }

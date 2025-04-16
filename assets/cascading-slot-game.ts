@@ -1,8 +1,7 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Game, game, JsonAsset, Label, Node, Prefab, sp } from "cc";
+import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
-import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
 import { FunctionUtils } from "db://shared-components/shared/utils";
@@ -10,7 +9,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import Observer from "observer";
 
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
-import { convertData, getCustomDuration, prefabCache } from "./cascading-slot-utils";
+import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingEffectGameContainer } from "./components/effects/cascading-effect-game-container";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
@@ -27,7 +26,7 @@ const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
 
 @ccclass
-export class CascadingSlotGame extends ObserverComponent {
+export class CascadingSlotGame extends Component {
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
 
@@ -65,10 +64,8 @@ export class CascadingSlotGame extends ObserverComponent {
 
     onLoad() {
         this.loadSlotSymbols().then(async () => {
-            await this.loadMultiplierPrefab();
             this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
-            super.onLoad();
         });
     }
 
@@ -144,7 +141,7 @@ export class CascadingSlotGame extends ObserverComponent {
     inGame() {}
 
     async loadSlotSymbols() {
-        const cache = prefabCache.slotSymbols || {};
+        const cache = resourcesCache.slotSymbols || {};
         for (let index = 0; index < CascadingSlotConfig?.symbolCount; index++) {
             if (cache[index]) {
                 continue;
@@ -166,21 +163,7 @@ export class CascadingSlotGame extends ObserverComponent {
             }
         }
 
-        prefabCache.slotSymbols = cache;
-    }
-
-    async loadMultiplierPrefab() {
-        const cache = prefabCache.multiplierPrefab || {};
-        if (cache !== null) {
-            const path = `prefabs/multiplier`;
-            try {
-                const prefab = await bundleManager.loadAssetsFromBundle<Prefab>("resources", path, Prefab, null);
-
-                prefabCache.multiplierPrefab = prefab;
-            } catch (e) {
-                console.warn(`Missing prefab for ${path} `, e);
-            }
-        }
+        resourcesCache.slotSymbols = cache;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })

@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
-import { hideNode, prefabCache, showNode } from "../../cascading-slot-utils";
+import { hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
@@ -81,15 +81,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     }
 
     protected onSymbolTouched(symbol: CascadingSlotReelItem, worldPosition: Vec3, isInfoOnLeft: boolean) {
-        // if (this.gameId) {
-        //     const storage = GameUtils.getGameSetting(this.gameId);
-        //     if (!storage.autoSpin) {
-        //         this.onSymbolPreview(symbol, worldPosition, isInfoOnLeft);
-        //     }
-        //     return;
-        // }
-        //this.onSymbolPreview(symbol, worldPosition, isInfoOnLeft);
-        const spine = prefabCache.slotSymbols[symbol.index];
+        const spine = resourcesCache.slotSymbols[symbol.index];
         const previewPrefab = isInfoOnLeft ? this.prfPreviewSymbolLeft : this.prfPreviewSymbolRight;
         const previewNode = instantiate(previewPrefab);
         const symbolPreview = previewNode.getComponent(CascadingSymbolPreview);

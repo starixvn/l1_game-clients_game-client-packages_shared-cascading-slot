@@ -1,7 +1,7 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp } from "cc";
 import { FunctionUtils } from "db://shared-components/shared/utils";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { prefabCache, SpecialSymbol } from "../../cascading-slot-utils";
+import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
 const { ccclass, property } = _decorator;
@@ -36,7 +36,7 @@ export class CascadingSlotReelItem extends Component {
         this.content.addChild(node);
         const reelSymbol = node.getComponent(CascadingSlotReelSymbol);
 
-        reelSymbol.setAminamtion(prefabCache.slotSymbols[index]);
+        reelSymbol.setAminamtion(resourcesCache.slotSymbols[index]);
     }
 
     updateMultiplierItem(multiplier: number[]) {
@@ -50,7 +50,7 @@ export class CascadingSlotReelItem extends Component {
     async highlightScatterItem() {
         const effectSpine = this.content.getComponentInChildren(sp.Skeleton);
         const anim = "highlight";
-        effectSpine.skeletonData = prefabCache.slotSymbols[SpecialSymbol.SCATTER_SYMBOL];
+        effectSpine.skeletonData = resourcesCache.slotSymbols[SpecialSymbol.SCATTER_SYMBOL];
         effectSpine.setAnimation(0, anim, true);
         const original = effectSpine.findAnimation(anim).duration;
         await FunctionUtils.delay(original * UNIT_SECOND_SPIN);
