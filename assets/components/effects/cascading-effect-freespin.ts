@@ -1,9 +1,6 @@
 import { _decorator, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import Observer from "observer";
-import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -16,16 +13,6 @@ export class CascadingEffectFreespin extends ObserverComponent {
 
     freeSpinsCount = 0;
     private isTurboMode = false;
-
-    @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
-    async freeSpinEffectVisibility(isShowFreeSpinEffect: boolean) {
-        this.node.active = isShowFreeSpinEffect;
-        if (isShowFreeSpinEffect) {
-            const duration = getCustomDuration("freeSpin", this.isTurboMode);
-            await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
-            this.setFreeSpinEffectCompleted(true);
-        }
-    }
 
     @render(CascadingUIStore, (store) => store.freeSpinsByRound)
     renderFreeSpinsCount(freeSpinsCount: number) {
