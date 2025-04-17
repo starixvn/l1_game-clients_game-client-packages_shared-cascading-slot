@@ -230,7 +230,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "804e34c8-b444-4503-8ea8-dd23ab05fbbb@7fff8",
+      "__uuid__": "112fa8bd-6bd6-4804-8bde-00279c46ce76@7fff8",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -352,7 +352,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "804e34c8-b444-4503-8ea8-dd23ab05fbbb@678e4",
+      "__uuid__": "112fa8bd-6bd6-4804-8bde-00279c46ce76@678e4",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -3161,7 +3161,6 @@
     "content": {
       "__id__": 19
     },
-    "gameAtlas": null,
     "_id": ""
   },
   {

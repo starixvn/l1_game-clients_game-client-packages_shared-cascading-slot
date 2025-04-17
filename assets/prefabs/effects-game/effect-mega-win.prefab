@@ -170,7 +170,7 @@
       "a": 255
     },
     "_skeletonData": {
-      "__uuid__": "a579b82b-0de2-4d9e-ab44-24bffdf85152",
+      "__uuid__": "f2851d39-646b-4b61-b781-5154ce77e268",
       "__expectedType__": "sp.SkeletonData"
     },
     "defaultSkin": "default",
@@ -306,7 +306,7 @@
       "a": 255
     },
     "_skeletonData": {
-      "__uuid__": "a579b82b-0de2-4d9e-ab44-24bffdf85152",
+      "__uuid__": "f2851d39-646b-4b61-b781-5154ce77e268",
       "__expectedType__": "sp.SkeletonData"
     },
     "defaultSkin": "default",
