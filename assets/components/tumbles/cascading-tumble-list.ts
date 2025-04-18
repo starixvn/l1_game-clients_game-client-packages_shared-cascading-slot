@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Node, Prefab, ScrollView, Sprite, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
+import { _decorator, instantiate, Mask, Node, Prefab, ScrollView, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -27,10 +27,10 @@ export class CascadingTumbleList extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    private readonly HEIGHT_PER_ROW = 35;
+    private readonly HEIGHT_PER_ROW = 42;
     NUMBER_MAX_ITEM = 6;
-    HEIGHT_CONTENT_REAL_MODE = 220;
-    HEIGHT_CONTENT_TRIAL_MODE = 180;
+    HEIGHT_CONTENT_REAL_MODE = 252;
+    HEIGHT_CONTENT_TRIAL_MODE = 210;
 
     onLoad() {
         super.onLoad();
@@ -39,13 +39,13 @@ export class CascadingTumbleList extends ObserverComponent {
 
     setHeightContent(isTrialMode: boolean) {
         const scrollViewNode = this.scrollView.node;
-        const mask = this.maskNode.getComponent(Sprite);
+        const mask = this.maskNode.getComponent(Mask);
         if (isTrialMode) {
             scrollViewNode.getComponent(UITransform).height = this.HEIGHT_CONTENT_TRIAL_MODE;
-            mask.spriteFrame = this.mainAtlas.getSpriteFrame("tumble-win-mask-trial");
+            mask.getComponent(UITransform).height = this.HEIGHT_CONTENT_TRIAL_MODE;
         } else {
             scrollViewNode.getComponent(UITransform).height = this.HEIGHT_CONTENT_REAL_MODE;
-            mask.spriteFrame = this.mainAtlas.getSpriteFrame("tumble-win-mask-real");
+            mask.getComponent(UITransform).height = this.HEIGHT_CONTENT_REAL_MODE;
         }
     }
 
