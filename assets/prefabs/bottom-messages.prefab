@@ -136,7 +136,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 200,
+      "width": 0,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -174,7 +174,7 @@
       "b": 255,
       "a": 255
     },
-    "_maxWidth": 200,
+    "_maxWidth": 0,
     "_fontFamily": "Arial",
     "_font": {
       "__uuid__": "0f6981e6-5811-45ce-ac30-f06164d111a7",
