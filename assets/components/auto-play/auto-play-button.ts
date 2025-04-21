@@ -4,6 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 
 const { Connection } = gc;
@@ -24,6 +25,7 @@ export default class AutoPlayButton extends ObserverComponent {
     @handle(AutoPlayHandler, (handle) => handle.clickAutoPlay())
     onClickAutoPlay() {
         this.playSoundClick();
+        this.handleSymbolPreviewVisiblity(false);
     }
 
     @render(AutoPlayStore, (store) => store.isTurnOnAutoPlay)
@@ -40,5 +42,10 @@ export default class AutoPlayButton extends ObserverComponent {
     @render(AutoPlayStore, (store) => store.disabledAutoPlay)
     disabledAutoPlay(disabledAutoPlay: boolean) {
         this.nodeDisabled.active = disabledAutoPlay;
+    }
+
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
+    handleSymbolPreviewVisiblity(isVisible: boolean) {
+        return isVisible;
     }
 }
