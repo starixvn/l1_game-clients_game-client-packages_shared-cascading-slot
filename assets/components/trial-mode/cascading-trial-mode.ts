@@ -22,15 +22,19 @@ export class CascadingTrialMode extends ObserverComponent {
 
     private isTrialMode = false;
     private isConnectedTrialService = false;
+    private readonly BET_LEVEL_DEFAULT_TRIAL_MODE = 4;
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
         this.isTrialMode = isTrialMode;
         this.nodeTrialMode.active = !isTrialMode;
         this.nodeRealMode.active = isTrialMode;
+        this.handleCurrentCoinIndex(0);
         if (isTrialMode) {
+            this.handleCurrentBetLevelIndex(this.BET_LEVEL_DEFAULT_TRIAL_MODE);
             this.isConnectedTrialService ? this.inGameTrial() : this.connectToServiceTrial();
         } else {
+            this.handleCurrentBetLevelIndex(0);
             this.inGame();
         }
     }
@@ -39,9 +43,6 @@ export class CascadingTrialMode extends ObserverComponent {
     onClickChangeMode() {
         this.playSoundClick();
         this.handleSymbolPreviewVisiblity(false);
-        this.handleCurrentBetLevelIndex(0);
-        this.handleCurrentCoinIndex(0);
-        this.handleCurrentTotalBetIndex(0);
         this.handleChangeUserBalance(true);
         return !this.isTrialMode;
     }
