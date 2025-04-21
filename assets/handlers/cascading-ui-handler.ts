@@ -54,7 +54,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
-        this.changeCascadingState(CascadingSlotState.START_ROUND);
+        //this.changeCascadingState(CascadingSlotState.START_ROUND);
     }
 
     changeCascadingState(state: string) {
@@ -126,11 +126,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleChangeMode(isTrialMode: boolean) {
         this.uiStore.isTrialMode = isTrialMode;
-        console.log("isTrialMode CascadingSlotState", this.uiStore.cascadingState);
         if (isTrialMode) {
             this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
         } else {
-            if (this.uiStore.cascadingState !== CascadingSlotState.NONE) {
+            if (this.uiStore.cascadingState !== CascadingSlotState.START_ROUND) {
                 this.uiStore.bottomMessageState = SlotNotification.SETTLED;
             } else {
                 this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
