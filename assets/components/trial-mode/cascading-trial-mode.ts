@@ -42,6 +42,7 @@ export class CascadingTrialMode extends ObserverComponent {
         this.handleCurrentBetLevelIndex(0);
         this.handleCurrentCoinIndex(0);
         this.handleCurrentTotalBetIndex(0);
+        this.handleChangeUserBalance(true);
         return !this.isTrialMode;
     }
 
@@ -108,5 +109,10 @@ export class CascadingTrialMode extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.cascadingState)
     renderDisabledTrialMode(cascadingState: string) {
         this.nodeDisabled.active = cascadingState === CascadingSlotState.SPINNING;
+    }
+
+    @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))
+    handleChangeUserBalance(changed: boolean) {
+        return changed;
     }
 }
