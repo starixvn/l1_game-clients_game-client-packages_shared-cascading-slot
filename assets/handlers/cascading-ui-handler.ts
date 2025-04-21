@@ -21,10 +21,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     handle() {}
 
-    handleTotalWinTumble(tumbleWin: number) {
-        this.uiStore.totalTumbleWin += tumbleWin;
-    }
-
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
         if (!this.uiStore.isActualWin) {
@@ -114,7 +110,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleHaveFreeSpin(haveFreeSpin: boolean) {
         this.uiStore.haveFreeSpin = haveFreeSpin;
-        !haveFreeSpin && (this.uiStore.isFreeSpinEffectCompleted = true);
+        if (!haveFreeSpin) {
+            this.handleFreeSpinEffectCompleted(true);
+        }
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {
@@ -128,6 +126,16 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleChangeMode(isTrialMode: boolean) {
         this.uiStore.isTrialMode = isTrialMode;
+        console.log("isTrialMode CascadingSlotState", this.uiStore.cascadingState);
+        if (isTrialMode) {
+            this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
+        } else {
+            if (this.uiStore.cascadingState !== CascadingSlotState.NONE) {
+                this.uiStore.bottomMessageState = SlotNotification.SETTLED;
+            } else {
+                this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
+            }
+        }
         this.uiStore.roundId = 0;
         this.handleNewRound();
     }

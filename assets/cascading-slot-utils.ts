@@ -12,6 +12,7 @@ export enum SpecialSymbol {
 
 export const SlotNotification = {
     BEFORE_SPIN: "BEFORE_SPIN",
+    BEFORE_SPIN_TRIAL: "BEFORE_SPIN_TRIAL",
     SPINNING: "SPINNING",
     SETTLED: "SETTLED",
     TUMBLE_WIN: "TUMBLE_WIN",

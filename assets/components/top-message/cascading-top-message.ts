@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, JsonAsset, Label, macro, Sprite, SpriteAtlas } from "cc";
+import { _decorator, Color, JsonAsset, Label, macro, Node, Sprite, SpriteAtlas } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
@@ -16,6 +16,9 @@ export class CascadingTopMessage extends ObserverComponent {
 
     @property(Label)
     msg3: Label = null;
+
+    @property(Node)
+    nodeContent: Node = null;
 
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
@@ -40,12 +43,12 @@ export class CascadingTopMessage extends ObserverComponent {
 
     updateTopMessage() {
         this.iconMultiplier.spriteFrame = this.mainAtlas.getSpriteFrame("symbol-13");
-        this.node.children.forEach((child) => {
+        this.nodeContent.children.forEach((child) => {
             child.active = false;
         });
         const items = [1, 2, 3];
         const item = items[random(items.length - 1)];
-        this.node.children[item - 1].active = true;
+        this.nodeContent.children[item - 1].active = true;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)

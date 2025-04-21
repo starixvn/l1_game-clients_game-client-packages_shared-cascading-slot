@@ -18,7 +18,8 @@ export class CascadingBottomMessage extends ObserverComponent {
     @property(JsonAsset)
     colorInfo: JsonAsset = null;
     highlightColor: string;
-    private isTurboMode: boolean = false;
+    private isTurboMode = false;
+    private isTrialMode = false;
     private bottomMessageState = "";
     private colorConfig: any;
 
@@ -48,9 +49,13 @@ export class CascadingBottomMessage extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
         this.bottomMessageState = bottomMessageState;
+        console.log("bottomMessageState", bottomMessageState);
         switch (bottomMessageState) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
+                break;
+            case SlotNotification.BEFORE_SPIN_TRIAL:
+                this.handleMessageSettled();
                 break;
             case SlotNotification.SPINNING:
                 this.updateMessageContent(gc.Translator.gameTranslate(`round_settle_msg`));
@@ -85,12 +90,14 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     randomMsgIndex() {
-        return this.isTurboMode ? random(1, 2) : random(1, 3);
+        if (this.isTurboMode || this.isTrialMode) {
+            return random(1, 2);
+        }
+        return random(1, 3);
     }
 
     @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
     setFreeSpinsCount(freespinCountMsgBottom: number) {
-        console.log("freespinCountMsgBottom", freespinCountMsgBottom);
         if (this.bottomMessageState === SlotNotification.FREESPINS) {
             this.showFreeSpinCount(freespinCountMsgBottom);
         }
@@ -101,5 +108,10 @@ export class CascadingBottomMessage extends ObserverComponent {
         if (this.bottomMessageState === SlotNotification.AUTO_SPIN) {
             this.showAutoSpinCount(roundsAutoplay);
         }
+    }
+
+    @render(CascadingUIStore, (store) => store.isTrialMode)
+    setTrialMode(isTrialMode: boolean) {
+        this.isTrialMode = isTrialMode;
     }
 }

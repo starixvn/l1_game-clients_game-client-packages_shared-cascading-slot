@@ -27,8 +27,6 @@ export class CascadingUIStore {
 
     isTurboMode = false;
     isTrialMode = false;
-    isTrialConnection = false;
-    isRealConnection = false;
 
     _cascadingState = CascadingSlotState.NONE;
     _isSymbolPreviewVisible = false;

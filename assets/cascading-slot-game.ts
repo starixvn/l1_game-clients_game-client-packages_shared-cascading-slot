@@ -218,6 +218,7 @@ export class CascadingSlotGame extends Component {
 
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
+        console.log("checkNextRound isFreeSpinEffectCompleted", isFreeSpinEffectCompleted);
         if (isFreeSpinEffectCompleted) {
             const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
             await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
@@ -227,7 +228,6 @@ export class CascadingSlotGame extends Component {
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
-        console.log("renderRoundId", roundId);
         if (roundId < 1) {
             this.lblRoundId && (this.lblRoundId.string = "");
             return;
@@ -321,11 +321,6 @@ export class CascadingSlotGame extends Component {
     @handle(CascadingUIHandler, (handle, freespin: any) => handle.handleHaveFreeSpin(freespin))
     handleHaveFreeSpin(freespin: boolean) {
         return freespin;
-    }
-
-    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
-    setFreeSpinEffectCompleted(completed: boolean) {
-        return completed;
     }
 
     @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))

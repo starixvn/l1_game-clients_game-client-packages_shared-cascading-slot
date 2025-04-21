@@ -26,6 +26,9 @@ export class AutoPlayStore {
     }
 
     get disabledAutoPlay() {
+        if (this.isAutoplay) {
+            return false;
+        }
         return this.uiStore.isTrialMode || this.uiStore.cascadingState === CascadingSlotState.SPINNING;
     }
 }
