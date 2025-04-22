@@ -95,6 +95,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleHaveBigWin(bigwin: boolean) {
+        const { freeSpins, bigWin } = this.settlementStore.finishData;
+        if (freeSpins <= 0 && !bigWin) {
+            this.handleFreeSpinEffectCompleted(true);
+            return;
+        }
         this.uiStore.haveBigWin = bigwin;
         !bigwin && (this.uiStore.isBigWinCompleted = true);
     }
@@ -104,15 +109,16 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleBigWinCompleted(completed: boolean) {
+        const { freeSpins } = this.settlementStore.finishData;
         this.uiStore.haveBigWin = false;
         this.uiStore.isBigWinCompleted = completed;
+        if (freeSpins <= 0) {
+            this.handleFreeSpinEffectCompleted(true);
+        }
     }
 
     handleHaveFreeSpin(haveFreeSpin: boolean) {
         this.uiStore.haveFreeSpin = haveFreeSpin;
-        if (!haveFreeSpin) {
-            this.handleFreeSpinEffectCompleted(true);
-        }
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {

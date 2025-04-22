@@ -36,12 +36,10 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     handle() {}
 
     async handleAutoPlaceBet() {
-        if (this.checkFinishedAutoPlay() || !this.isValidBet()) {
-            this.autoPlayStore.isAutoplay = false;
+        if (!this.isValidBet()) {
             return;
         }
 
-        this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         this.autoPlaceBet();
     }
 
@@ -126,7 +124,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkFinishedAutoPlay() {
-        return this.autoPlayStore.isAutoplay && this.autoPlayStore.roundsAutoplay <= 0;
+        return this.autoPlayStore.roundsAutoplay <= 0;
     }
 
     checkSpinNextRound() {
@@ -148,10 +146,20 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
             this.cascadingUIHandler.handleNewRound();
             this.handleAutoPlaceBet();
+            this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         }
     }
 
     updateNoOfRounds(rounds: number) {
         this.autoPlayStore.selectedRoundOnPopup = rounds;
+    }
+
+    // Enable autoplay directly when free spin effect is completed
+    checkAutoPlayWhenSettlementCompleted() {
+        if (this.autoPlayStore.isAutoplay && this.autoPlayStore.roundsAutoplay === 0 && this.cascadingUIStore.freeSpinsTotal === 0) {
+            this.autoPlayStore.isAutoplay = false;
+            this.autoPlayStore.isOpenAutoplayPopup = true;
+            this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+        }
     }
 }

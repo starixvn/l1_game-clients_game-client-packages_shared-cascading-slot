@@ -218,13 +218,21 @@ export class CascadingSlotGame extends Component {
 
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
-        console.log("checkNextRound isFreeSpinEffectCompleted", isFreeSpinEffectCompleted);
         if (isFreeSpinEffectCompleted) {
             const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
             await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+
+            // Enable autoplay when free spin effect is completed
+            this.enableAutoPlayOnFreeSpinCompleted();
+
+            // When the free spin effect is completed, handle the next round
+            // by automatically spinning
             this.checkSpinNextRound();
         }
     }
+
+    @handle(AutoPlayHandler, (handler) => handler.checkAutoPlayWhenSettlementCompleted())
+    enableAutoPlayOnFreeSpinCompleted() {}
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
