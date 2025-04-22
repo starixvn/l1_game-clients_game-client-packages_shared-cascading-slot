@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Mask, Node, Prefab, ScrollView, SpriteAtlas, tween, UIOpacity, UITransform, v3 } from "cc";
+import { _decorator, instantiate, macro, Mask, Node, Prefab, ScrollView, SpriteAtlas, tween, UIOpacity, UITransform, v3, Vec3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -35,6 +35,30 @@ export class CascadingTumbleList extends ObserverComponent {
     onLoad() {
         super.onLoad();
         this.scrollView = this.scrollView.getComponent(ScrollView);
+        this.schedule(
+            () => {
+                this.animTrialMsg();
+            },
+            300,
+            macro.REPEAT_FOREVER,
+            0
+        );
+    }
+
+    animTrialMsg() {
+        // Scale animation with repeat
+        const scaleAnim = tween(this.trialModeNode)
+            .to(0.1, { scale: new Vec3(0.9, 0.9, 0.9) }, { easing: "sineIn" })
+            .to(0.1, { scale: new Vec3(1, 1, 1) }, { easing: "sineIn" });
+
+        // Rotation animation with repeat
+        const rotateAnim = tween(this.trialModeNode)
+            .to(0.1, { angle: -2 }, { easing: "sineIn" })
+            .to(0.1, { angle: 2 }, { easing: "sineIn" })
+            .to(0.1, { angle: 0 }, { easing: "sineIn" });
+
+        // Run scale animation 3 times, then run rotation animation 2 times
+        tween(this.trialModeNode).then(scaleAnim.clone().repeat(3)).delay(0.2).then(rotateAnim.clone().repeat(3)).start();
     }
 
     setHeightContent(isTrialMode: boolean) {
@@ -126,6 +150,18 @@ export class CascadingTumbleList extends ObserverComponent {
         this.trialModeNode.active = isTrialMode;
         this.setHeightContent(isTrialMode);
         this.updateContentHeight();
+        if (isTrialMode) {
+            this.schedule(
+                () => {
+                    this.animTrialMsg();
+                },
+                300,
+                macro.REPEAT_FOREVER,
+                0
+            );
+        } else {
+            this.unschedule(this.animTrialMsg);
+        }
     }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
