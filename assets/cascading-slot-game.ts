@@ -276,9 +276,6 @@ export class CascadingSlotGame extends Component {
 
     @render(CascadingUIStore, (store) => store.userBalance)
     setBalance(value: number) {
-        if (!value) {
-            return;
-        }
         this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
     }
 

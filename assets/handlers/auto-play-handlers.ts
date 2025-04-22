@@ -134,7 +134,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.spinButtonState = SpinButtonState.SPINNING;
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             this.cascadingUIHandler.handleNewRound();
-            this.handleAutoPlaceBet();
+            this.autoPlaceBet();
         } else {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.cascadingUIStore.cascadingState = CascadingSlotState.SETTLED;
