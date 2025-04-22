@@ -7,6 +7,7 @@ import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
@@ -21,6 +22,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
+    @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -131,6 +133,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
+            this.holdActionStore.isPressingKey = false;
             this.cascadingUIStore.cascadingState = CascadingSlotState.SPINNING;
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
             this.cascadingUIStore.spinButtonState = SpinButtonState.SPINNING;
@@ -141,14 +144,17 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.cascadingUIStore.cascadingState = CascadingSlotState.SETTLED;
             this.cascadingUIStore.spinButtonState = SpinButtonState.IDLE;
-            if (!this.autoPlayStore.isAutoplay) {
-                return;
+            if (this.autoPlayStore.isAutoplay) {
+                this.holdActionStore.isPressingKey = false;
+                this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
+                this.cascadingUIHandler.handleNewRound();
+                this.handleAutoPlaceBet();
+                this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
+            } else {
+                if (this.holdActionStore.isPressingKey) {
+                    this.handleAutoPlaceBet();
+                }
             }
-
-            this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
-            this.cascadingUIHandler.handleNewRound();
-            this.handleAutoPlaceBet();
-            this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         }
     }
 
@@ -163,5 +169,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.autoPlayStore.isOpenAutoplayPopup = true;
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
         }
+    }
+
+    updatePressingKey(isPressingKey: boolean) {
+        if (this.autoPlayStore.isAutoplay || this.cascadingUIStore.freeSpinsTotal > 0) {
+            this.holdActionStore.isPressingKey = false;
+            return;
+        }
+        this.holdActionStore.isPressingKey = isPressingKey;
     }
 }

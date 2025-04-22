@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
+import { _decorator, Component, Game, game, Input, input, JsonAsset, KeyCode, Label, Node, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
@@ -20,6 +20,7 @@ import { SlotBetHandler } from "./handlers/slot-bet-handler";
 import { AutoPlayStore } from "./stores/auto-play-store";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
+import { HoldActionStore } from "./stores/hold-action-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -67,6 +68,7 @@ export class CascadingSlotGame extends Component {
             this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
         });
+        this.addEvent();
     }
 
     private registerEventShowHideGame() {
@@ -115,6 +117,7 @@ export class CascadingSlotGame extends Component {
     onDestroy(): void {
         super.onDestroy();
         this.clearEventShowHideGame();
+        this.removeEvent();
     }
 
     @handle(HideGame.HideGameHandler)
@@ -349,5 +352,43 @@ export class CascadingSlotGame extends Component {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
         return id;
+    }
+
+    addEvent() {
+        input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+        input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
+    }
+
+    removeEvent() {
+        input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+        input.off(Input.EventType.KEY_UP, this.onKeyUp, this);
+    }
+
+    onKeyDown(event) {
+        const { keyCode } = event;
+        if (keyCode === KeyCode.SPACE) {
+            this.updatePressingKey(true);
+        }
+    }
+
+    onKeyUp(event) {
+        const { keyCode } = event;
+        if (keyCode === KeyCode.SPACE) {
+            this.updatePressingKey(false);
+        }
+    }
+
+    @handle(AutoPlayHandler, (handler, isPressingKey: boolean) => handler.updatePressingKey(isPressingKey))
+    updatePressingKey(isPressingKey: boolean) {
+        return isPressingKey;
+    }
+
+    @render(HoldActionStore, (store) => store.isPressingKey, { fireImmediately: false })
+    handlePressingKey(isPressingKey: boolean) {
+        if (!isPressingKey) {
+            return;
+        }
+
+        this.spin();
     }
 }

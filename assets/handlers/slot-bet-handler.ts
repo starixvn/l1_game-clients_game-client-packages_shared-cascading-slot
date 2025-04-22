@@ -3,8 +3,10 @@ import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { AutoPlayStore } from "../stores/auto-play-store";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
@@ -15,6 +17,8 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     @inject(CascadingUIHandler) protected readonly uiHandler: CascadingUIHandler;
     @inject(gc.Connection.ConnectionTrialStore) protected readonly connectionTrialStore: gc.Connection.ConnectionTrialStore;
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
+    @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
+    @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     handle() {
         const betData = this.slotBetData();
         this.handleBetData(betData);
