@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, tween, UIOpacity, v3, Vec3 } from "cc";
+import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import { random } from "lodash-es";
@@ -75,6 +76,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     initBoardFullItems() {
         this.createReels();
         this.generateRandomItems();
+        this.changeCascadingState(CascadingSlotState.START_ROUND);
     }
 
     generateRandomBoardData() {
@@ -442,5 +444,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleHighlightScattersCompleted(completed))
     handleHighlightScattersCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
+    changeCascadingState(state: string) {
+        return state;
     }
 }

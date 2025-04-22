@@ -28,7 +28,7 @@ export class CascadingUIStore {
     isTurboMode = false;
     isTrialMode = false;
 
-    _cascadingState = CascadingSlotState.START_ROUND;
+    _cascadingState = CascadingSlotState.INITBOARD;
     _isSymbolPreviewVisible = false;
 
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
