@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
+import { BetControlStore } from "./../stores/bet-control-store";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
@@ -19,6 +20,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(gc.Rounds.RoundStore) private readonly roundStore: gc.Rounds.RoundStore;
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
+    @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -75,11 +77,11 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     isEnoughMoney() {
-        return this.betStore.amount <= this.betStore.availableBalance;
+        return this.betControlStore.totalBet <= this.betStore.availableBalance;
     }
 
     isAmountGreaterMinBet() {
-        return this.betStore.amount >= this.roundStore.minBet;
+        return this.betControlStore.totalBet >= this.roundStore.minBet;
     }
 
     private showNotEnoughMoney() {
