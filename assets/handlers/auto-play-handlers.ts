@@ -133,7 +133,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            this.holdActionStore.isPressingKey = false;
             this.cascadingUIStore.cascadingState = CascadingSlotState.SPINNING;
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
             this.cascadingUIStore.spinButtonState = SpinButtonState.SPINNING;
@@ -145,7 +144,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.cascadingState = CascadingSlotState.SETTLED;
             this.cascadingUIStore.spinButtonState = SpinButtonState.IDLE;
             if (this.autoPlayStore.isAutoplay) {
-                this.holdActionStore.isPressingKey = false;
                 this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
                 this.cascadingUIHandler.handleNewRound();
                 this.handleAutoPlaceBet();
@@ -168,11 +166,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.autoPlayStore.isAutoplay = false;
             this.autoPlayStore.isOpenAutoplayPopup = true;
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+            this.autoPlayStore.triggerBet = null;
         }
     }
 
     updatePressingKey(isPressingKey: boolean) {
-        if (this.autoPlayStore.isAutoplay || this.cascadingUIStore.freeSpinsTotal > 0) {
+        if (
+            this.autoPlayStore.isAutoplay ||
+            this.cascadingUIStore.freeSpinsTotal > 0 ||
+            (this.autoPlayStore.triggerBet && !this.cascadingUIStore.isFreeSpinEffectCompleted)
+        ) {
             this.holdActionStore.isPressingKey = false;
             return;
         }

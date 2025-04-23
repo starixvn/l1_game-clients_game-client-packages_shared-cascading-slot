@@ -62,6 +62,7 @@ export class CascadingSlotGame extends Component {
 
     public isTurboMode = false;
     private spinButtonSound = "spin_button";
+    private pressingKeyTime = 0;
 
     onLoad() {
         this.loadSlotSymbols().then(async () => {
@@ -69,6 +70,7 @@ export class CascadingSlotGame extends Component {
             this.board.initBoardFullItems();
         });
         this.addEvent();
+        this.focusGameCanvas();
     }
 
     private registerEventShowHideGame() {
@@ -357,6 +359,13 @@ export class CascadingSlotGame extends Component {
     addEvent() {
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
         input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
+
+        // // Add click event to ensure focus is set when user clicks anywhere on canvas
+        // if (game.canvas) {
+        //     game.canvas.addEventListener("click", () => {
+        //         game.canvas.focus();
+        //     });
+        // }
     }
 
     removeEvent() {
@@ -367,6 +376,7 @@ export class CascadingSlotGame extends Component {
     onKeyDown(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
+            this.pressingKeyTime = Date.now();
             this.updatePressingKey(true);
         }
     }
@@ -374,8 +384,16 @@ export class CascadingSlotGame extends Component {
     onKeyUp(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
+            console.log("onKeyUp");
             this.updatePressingKey(false);
+            const delta = Date.now() - this.pressingKeyTime;
+            //this.handleTurboMode(delta < 1000);
         }
+    }
+
+    @handle(CascadingUIHandler, (handler, turboMode: boolean) => handler.handleTurboMode(turboMode))
+    handleTurboMode(turboMode: boolean) {
+        return turboMode;
     }
 
     @handle(AutoPlayHandler, (handler, isPressingKey: boolean) => handler.updatePressingKey(isPressingKey))
@@ -390,5 +408,16 @@ export class CascadingSlotGame extends Component {
         }
 
         this.spin();
+    }
+
+    private focusGameCanvas() {
+        // Auto-focus the game canvas when loading
+        if (game.canvas) {
+            // Set initial focus
+            setTimeout(() => {
+                game.canvas.focus();
+                console.log("Canvas focused automatically");
+            }, 100);
+        }
     }
 }
