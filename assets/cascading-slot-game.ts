@@ -366,14 +366,14 @@ export class CascadingSlotGame extends Component {
 
     onKeyDown(event) {
         const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE) {
+        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
             this.updatePressingKey(true);
         }
     }
 
     onKeyUp(event) {
         const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE) {
+        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
             this.updatePressingKey(false);
         }
     }
