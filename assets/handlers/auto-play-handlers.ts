@@ -150,7 +150,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
             } else {
                 if (this.holdActionStore.isPressingKey) {
-                    this.handleAutoPlaceBet();
+                    setTimeout(() => {
+                        this.handleAutoPlaceBet();
+                    }, 1000);
                 }
             }
         }
@@ -168,17 +170,5 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.autoPlayStore.triggerBet = null;
         }
-    }
-
-    updatePressingKey(isPressingKey: boolean) {
-        if (
-            this.autoPlayStore.isAutoplay ||
-            this.cascadingUIStore.freeSpinsTotal > 0 ||
-            (this.autoPlayStore.triggerBet && !this.cascadingUIStore.isFreeSpinEffectCompleted)
-        ) {
-            this.holdActionStore.isPressingKey = false;
-            return;
-        }
-        this.holdActionStore.isPressingKey = isPressingKey;
     }
 }

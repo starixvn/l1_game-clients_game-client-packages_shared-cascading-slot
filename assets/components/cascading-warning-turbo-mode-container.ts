@@ -17,7 +17,11 @@ export class CascadingWarningTurboModeContainer extends ObserverComponent {
         const turboNode = instantiate(this.prefabWarningTurboMode);
         const comp = turboNode.getComponent(CascadingWarningTurboMode);
         this.node.addChild(turboNode);
-        //const msg = isTurboMode ? gc.Translator.gameTranslate("enable_turbo_mode") : gc.Translator.gameTranslate("disable_turbo_mode");
         comp.setData(isTurboMode);
+    }
+
+    @render(CascadingUIStore, (store) => store.isClickTurboModeToggle)
+    renderDisabledTurboMode(isClickTurboModeToggle: boolean) {
+        this.node.active = isClickTurboModeToggle;
     }
 }

@@ -161,6 +161,13 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.changeUserBalance = change;
     }
 
+    triggerClickTurboModeToggle() {
+        this.uiStore.isClickTurboModeToggle = true;
+        setTimeout(() => {
+            this.uiStore.isClickTurboModeToggle = false;
+        }, 100);
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

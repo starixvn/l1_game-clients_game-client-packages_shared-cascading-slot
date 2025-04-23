@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, Game, game, Input, input, JsonAsset, KeyCode, Label, Node, sp } from "cc";
+import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
@@ -17,10 +17,8 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { SlotBetHandler } from "./handlers/slot-bet-handler";
-import { AutoPlayStore } from "./stores/auto-play-store";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { HoldActionStore } from "./stores/hold-action-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -62,14 +60,12 @@ export class CascadingSlotGame extends Component {
 
     public isTurboMode = false;
     private spinButtonSound = "spin_button";
-    private pressingKeyTime = 0;
 
     onLoad() {
         this.loadSlotSymbols().then(async () => {
             this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
         });
-        this.addEvent();
         this.focusGameCanvas();
     }
 
@@ -119,7 +115,6 @@ export class CascadingSlotGame extends Component {
     onDestroy(): void {
         super.onDestroy();
         this.clearEventShowHideGame();
-        this.removeEvent();
     }
 
     @handle(HideGame.HideGameHandler)
@@ -269,13 +264,6 @@ export class CascadingSlotGame extends Component {
         return freespins;
     }
 
-    spin() {
-        this.playSound(this.spinButtonSound);
-        this.handleNewRound();
-        this.sendBet();
-        this.handleSymbolPreviewVisiblity(false);
-    }
-
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
@@ -298,13 +286,6 @@ export class CascadingSlotGame extends Component {
 
     @handle(gc.Auth.AuthHandlers.GetBalance)
     getBalance() {}
-
-    @render(AutoPlayStore, (store) => store.triggerBet)
-    renderTriggerBet(triggerBet: boolean) {
-        if (triggerBet) {
-            this.spin();
-        }
-    }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
@@ -356,58 +337,9 @@ export class CascadingSlotGame extends Component {
         return id;
     }
 
-    addEvent() {
-        input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
-        input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
-
-        // // Add click event to ensure focus is set when user clicks anywhere on canvas
-        // if (game.canvas) {
-        //     game.canvas.addEventListener("click", () => {
-        //         game.canvas.focus();
-        //     });
-        // }
-    }
-
-    removeEvent() {
-        input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
-        input.off(Input.EventType.KEY_UP, this.onKeyUp, this);
-    }
-
-    onKeyDown(event) {
-        const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
-            this.pressingKeyTime = Date.now();
-            this.updatePressingKey(true);
-        }
-    }
-
-    onKeyUp(event) {
-        const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
-            console.log("onKeyUp");
-            this.updatePressingKey(false);
-            const delta = Date.now() - this.pressingKeyTime;
-            //this.handleTurboMode(delta < 1000);
-        }
-    }
-
     @handle(CascadingUIHandler, (handler, turboMode: boolean) => handler.handleTurboMode(turboMode))
     handleTurboMode(turboMode: boolean) {
         return turboMode;
-    }
-
-    @handle(AutoPlayHandler, (handler, isPressingKey: boolean) => handler.updatePressingKey(isPressingKey))
-    updatePressingKey(isPressingKey: boolean) {
-        return isPressingKey;
-    }
-
-    @render(HoldActionStore, (store) => store.isPressingKey, { fireImmediately: false })
-    handlePressingKey(isPressingKey: boolean) {
-        if (!isPressingKey) {
-            return;
-        }
-
-        this.spin();
     }
 
     private focusGameCanvas() {

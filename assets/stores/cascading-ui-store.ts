@@ -6,6 +6,7 @@ import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
+import { HoldActionStore } from "./hold-action-store";
 
 const { injectable, inject } = inversify;
 
@@ -14,6 +15,7 @@ export class CascadingUIStore {
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
+    @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -26,6 +28,8 @@ export class CascadingUIStore {
     totalMultiplier = 0;
 
     isTurboMode = false;
+    isClickTurboModeToggle = false;
+
     isTrialMode = false;
 
     _cascadingState = CascadingSlotState.INITBOARD;
@@ -109,6 +113,6 @@ export class CascadingUIStore {
     }
 
     get disabledTurboMode() {
-        return this.isTrialMode;
+        return this.isTrialMode || this.holdActionStore.isPressingKey;
     }
 }
