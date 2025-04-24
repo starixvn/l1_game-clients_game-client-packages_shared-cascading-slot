@@ -65,8 +65,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleTurboMode(isTurboMode: boolean) {
+        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
+            return;
+        }
         this.uiStore.isTurboMode = isTurboMode;
-        this.uiStore.isTurboModeUI = isTurboMode;
     }
 
     handleSymbolPreviewVisiblity(value: boolean) {
@@ -150,6 +152,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     updateSpinButtonState(state: string) {
+        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
+            this.uiStore.spinButtonState = CascadingSlotState.SPINNING;
+            return;
+        }
         this.uiStore.spinButtonState = state;
     }
 

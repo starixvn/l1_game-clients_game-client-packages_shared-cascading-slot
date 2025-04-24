@@ -47,6 +47,7 @@ export class CascadingSpinButton extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.cascadingState)
     renderCascadingState(state: string) {
-        this.disableButton.active = state === CascadingSlotState.SPINNING || state === CascadingSlotState.INITBOARD;
+        this.disableButton.active =
+            state === CascadingSlotState.SPINNING || state === CascadingSlotState.INITBOARD || state === CascadingSlotState.HOLDING;
     }
 }

@@ -90,11 +90,6 @@ export class HoldActionButton extends ObserverComponent {
         return isPressingKey;
     }
 
-    @handle(CascadingUIHandler, (handler, turboMode: boolean) => handler.handleTurboMode(turboMode))
-    handleTurboMode(turboMode: boolean) {
-        return turboMode;
-    }
-
     private handleTouchMove(event: EventTouch) {
         const location = event.getLocation();
         const transform = ComponentUtils.getTransform(this.node);

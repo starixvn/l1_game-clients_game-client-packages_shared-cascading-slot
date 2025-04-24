@@ -20,8 +20,8 @@ export class CascadingWarningTurboModeContainer extends ObserverComponent {
         comp.setData(isTurboMode);
     }
 
-    @render(CascadingUIStore, (store) => store.isClickTurboModeToggle)
-    renderDisabledTurboMode(isClickTurboModeToggle: boolean) {
-        this.node.active = isClickTurboModeToggle;
-    }
+    // @render(CascadingUIStore, (store) => store.isClickTurboModeToggle)
+    // renderDisabledTurboMode(isClickTurboModeToggle: boolean) {
+    //     this.node.active = isClickTurboModeToggle;
+    // }
 }

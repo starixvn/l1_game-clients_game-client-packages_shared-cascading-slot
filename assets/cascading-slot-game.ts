@@ -302,11 +302,6 @@ export class CascadingSlotGame extends Component {
         return changed;
     }
 
-    @handle(CascadingUIHandler, (handle, state: string) => handle.updateSpinButtonState(state))
-    setSpinningButtonState(state: string) {
-        return state;
-    }
-
     @handle(CascadingUIHandler, (handle, params: any) => handle.handleTotalWin(params))
     handleTotalWin(params: { win: number; isActualWin: boolean }) {
         return params;
@@ -315,11 +310,6 @@ export class CascadingSlotGame extends Component {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
         return id;
-    }
-
-    @handle(CascadingUIHandler, (handler, turboMode: boolean) => handler.handleTurboMode(turboMode))
-    handleTurboMode(turboMode: boolean) {
-        return turboMode;
     }
 
     private focusGameCanvas() {
