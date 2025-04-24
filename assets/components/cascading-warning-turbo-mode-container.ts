@@ -12,7 +12,7 @@ export class CascadingWarningTurboModeContainer extends ObserverComponent {
     @property(Prefab)
     prefabWarningTurboMode: Prefab = null;
 
-    @render(CascadingUIStore, (store) => store.isTurboMode, { fireImmediately: false })
+    @render(CascadingUIStore, (store) => store.isTurboModeUI, { fireImmediately: false })
     renderTurboModeMsg(isTurboMode: boolean) {
         const turboNode = instantiate(this.prefabWarningTurboMode);
         const comp = turboNode.getComponent(CascadingWarningTurboMode);

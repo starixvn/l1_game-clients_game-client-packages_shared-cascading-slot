@@ -65,10 +65,12 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleTurboMode(isTurboMode: boolean) {
-        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
-            return;
-        }
         this.uiStore.isTurboMode = isTurboMode;
+    }
+
+    handleTurboModeUI(isTurboModeUI: boolean) {
+        this.uiStore.isTurboModeUI = isTurboModeUI;
+        this.uiStore.isTurboMode = isTurboModeUI;
     }
 
     handleSymbolPreviewVisiblity(value: boolean) {

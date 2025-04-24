@@ -18,12 +18,12 @@ export default class TurboModeButton extends ObserverComponent {
     @property(Node)
     nodeDisabled: Node = null;
 
-    @handle(CascadingUIHandler, (handle, isTurboMode: boolean) => handle.handleTurboMode(isTurboMode))
+    @handle(CascadingUIHandler, (handle, isTurboModeUI: boolean) => handle.handleTurboModeUI(isTurboModeUI))
     onTurboModeChanged() {
         return this.tglTurboMode.isChecked;
     }
 
-    @render(CascadingUIStore, (store) => store.isTurboMode)
+    @render(CascadingUIStore, (store) => store.isTurboModeUI)
     renderTurboMode(isTurboMode: boolean) {
         this.playSoundClick();
         this.tglTurboMode.isChecked = isTurboMode;
