@@ -220,12 +220,12 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "TIME",
+    "_string": "WAKTU",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -307,7 +307,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 55.460968017578125,
+      "width": 79.94694519042969,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -495,12 +495,12 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "ROUND",
+    "_string": "BABAK",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -582,7 +582,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 79.29595947265625,
+      "width": 76.33494567871094,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -726,7 +726,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -83.981,
+      "x": -80.61400000000003,
       "y": 0,
       "z": 0
     },
@@ -770,18 +770,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "BET LEVEL",
-    "_horizontalAlign": 0,
+    "_string": "TINGKAT\nTARUHAN",
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
     "_fontSize": 21,
     "_fontFamily": "Arial",
-    "_lineHeight": 44,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -857,8 +857,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 119.2799072265625,
-      "height": 55.44
+      "width": 105.65090942382812,
+      "height": 63.279999999999994
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -883,7 +883,7 @@
     "__prefab": {
       "__id__": 43
     },
-    "key": "cascadingslot.bet_level",
+    "key": "cascadingslot.bet_level_shorten",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1045,12 +1045,12 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "COIN VALUE",
+    "_string": "NILAI KOIN",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1132,7 +1132,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 133.3079071044922,
+      "width": 115.47892761230469,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -1276,7 +1276,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 272.88599999999997,
+      "x": 267.836,
       "y": 0,
       "z": 0
     },
@@ -1320,18 +1320,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "TOTAL STAKE",
-    "_horizontalAlign": 0,
+    "_string": "TOTAL\nTARUHAN",
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
     "_fontSize": 21,
     "_fontFamily": "Arial",
-    "_lineHeight": 44,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -1407,8 +1407,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 148.8268280029297,
-      "height": 55.44
+      "width": 105.65090942382812,
+      "height": 63.279999999999994
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1433,7 +1433,7 @@
     "__prefab": {
       "__id__": 75
     },
-    "key": "Common.total_stake",
+    "key": "Common.total_stake_shorten",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1595,12 +1595,12 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 237,
-      "g": 187,
-      "b": 2,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
-    "_string": "WIN",
+    "_string": "MENANG",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1682,7 +1682,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 42.06298828125,
+      "width": 96.66294860839844,
       "height": 55.44
     },
     "_anchorPoint": {
