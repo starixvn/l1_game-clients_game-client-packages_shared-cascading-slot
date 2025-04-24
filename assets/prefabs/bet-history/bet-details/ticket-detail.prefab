@@ -5585,7 +5585,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "Tổng Số Nhân",
+    "_string": "Total Multiplier",
     "_horizontalAlign": 2,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -6254,7 +6254,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -100.37099999999998,
+      "x": -157.558,
       "y": 0,
       "z": 0
     },
@@ -6394,8 +6394,8 @@
     },
     "key": "Common.you_reach_max_win",
     "format": 0,
-    "prefix": "",
-    "suffix": "",
+    "prefix": "(",
+    "suffix": ")",
     "_id": ""
   },
   {
