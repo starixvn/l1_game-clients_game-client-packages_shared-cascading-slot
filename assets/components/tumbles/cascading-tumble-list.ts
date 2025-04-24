@@ -39,7 +39,7 @@ export class CascadingTumbleList extends ObserverComponent {
             () => {
                 this.animTrialMsg();
             },
-            300,
+            30,
             macro.REPEAT_FOREVER,
             0
         );
