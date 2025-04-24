@@ -28,7 +28,7 @@ export class CascadingTumbleItem extends Component {
     }
 
     setDataForFreeSpinTumble(count: number, win: number, freeSpin: boolean) {
-        const freeSpinTxt = freeSpin ? `extraFreeSpin` : `freeSpin`;
+        const freeSpinTxt = freeSpin ? "extra_free_spin" : "free_spin";
         this.numberIcon.string = count.toString();
         this.winningValue.string = win.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${SpecialSymbol.SCATTER_SYMBOL}`);
