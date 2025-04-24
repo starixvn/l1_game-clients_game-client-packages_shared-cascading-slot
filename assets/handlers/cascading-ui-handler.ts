@@ -58,11 +58,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     changeCascadingState(state: string) {
+        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
+            return;
+        }
         this.uiStore.cascadingState = state;
     }
 
     handleTurboMode(isTurboMode: boolean) {
         this.uiStore.isTurboMode = isTurboMode;
+        this.uiStore.isTurboModeUI = isTurboMode;
     }
 
     handleSymbolPreviewVisiblity(value: boolean) {
@@ -159,13 +163,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleChangeUserBalance(change: boolean) {
         this.uiStore.changeUserBalance = change;
-    }
-
-    triggerClickTurboModeToggle() {
-        this.uiStore.isClickTurboModeToggle = true;
-        setTimeout(() => {
-            this.uiStore.isClickTurboModeToggle = false;
-        }, 100);
     }
 
     eventHandleList = [

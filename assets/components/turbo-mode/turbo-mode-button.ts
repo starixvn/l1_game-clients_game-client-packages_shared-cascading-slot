@@ -38,7 +38,4 @@ export default class TurboModeButton extends ObserverComponent {
     turboModeDisabled(disabledTurboMode: boolean) {
         this.nodeDisabled.active = disabledTurboMode;
     }
-
-    @handle(CascadingUIHandler, (handler) => handler.triggerClickTurboModeToggle())
-    triggerClickTurboModeToggle() {}
 }

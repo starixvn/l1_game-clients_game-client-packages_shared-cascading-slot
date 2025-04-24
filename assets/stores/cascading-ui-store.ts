@@ -28,7 +28,7 @@ export class CascadingUIStore {
     totalMultiplier = 0;
 
     isTurboMode = false;
-    isClickTurboModeToggle = false;
+    isTurboModeUI = false;
 
     isTrialMode = false;
 
@@ -113,6 +113,9 @@ export class CascadingUIStore {
     }
 
     get disabledTurboMode() {
-        return this.isTrialMode || this.holdActionStore.isPressingKey;
+        if (this.cascadingState === CascadingSlotState.HOLDING) {
+            return true;
+        }
+        return this.isTrialMode;
     }
 }

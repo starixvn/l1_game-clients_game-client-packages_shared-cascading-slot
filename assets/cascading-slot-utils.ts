@@ -1,4 +1,3 @@
-import gc from "@sg/game-client-base";
 import { Node, tween, UIOpacity } from "cc";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
@@ -93,10 +92,3 @@ export const getCustomDuration = (key: string, isTurboMode: boolean): number => 
 export const findIndex = (value: number, valueList: number[]) => {
     return valueList.findIndex((item) => item === value);
 };
-
-export class CascadingSiteConfigs extends gc.Configs.SiteConfigs {
-    trialWebsocket: {
-        proxyPath: string;
-        route: string;
-    };
-}

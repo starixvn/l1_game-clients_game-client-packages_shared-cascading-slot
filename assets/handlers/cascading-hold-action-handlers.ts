@@ -1,9 +1,11 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
+import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
 
@@ -11,7 +13,7 @@ const { injectable, inject } = inversify;
 export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
-
+    @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     handle() {}
 
@@ -34,6 +36,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     updatePressingDownKeyTime(pressingDownKeyTime: number) {
         this.holdActionStore.isPressingDownKeyTime = pressingDownKeyTime;
         this.holdActionStore.isPressingUpKeyTime = 0;
+        this.cascadingUIHandler.changeCascadingState(CascadingSlotState.HOLDING);
         if (this.holdActionStore.isPressingUpKeyTime === 0) {
             this.cascadingUIStore.isTurboMode = true;
         }
@@ -41,6 +44,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
 
     updatePressingUpKeyTime(pressingUpKeyTime: number) {
         this.holdActionStore.isPressingUpKeyTime = pressingUpKeyTime;
+
         const delta = pressingUpKeyTime - this.holdActionStore.isPressingDownKeyTime;
         if (delta < 1000) {
             this.cascadingUIStore.isTurboMode = false;

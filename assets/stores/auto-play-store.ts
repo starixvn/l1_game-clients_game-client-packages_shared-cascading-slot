@@ -31,6 +31,9 @@ export class AutoPlayStore {
         if (this.isAutoplay) {
             return false;
         }
+        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
+            return true;
+        }
         return this.uiStore.isTrialMode || this.uiStore.cascadingState === CascadingSlotState.SPINNING;
     }
 }

@@ -41,6 +41,7 @@ export default class AutoPlayButton extends ObserverComponent {
 
     @render(AutoPlayStore, (store) => store.disabledAutoPlay)
     disabledAutoPlay(disabledAutoPlay: boolean) {
+        console.log("disabledAutoPlay--------------", disabledAutoPlay);
         this.nodeDisabled.active = disabledAutoPlay;
     }
 

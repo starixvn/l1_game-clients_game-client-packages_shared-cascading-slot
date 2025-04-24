@@ -3,4 +3,5 @@ export const CascadingSlotState = {
     SPINNING: "SPINNING",
     SETTLED: "SETTLED",
     INITBOARD: "INITBOARD",
+    HOLDING: "HOLDING",
 };
