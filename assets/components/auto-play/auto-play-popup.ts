@@ -54,7 +54,7 @@ export default class AutoPlayPopup extends ObserverComponent {
         this.playSoundClick();
     }
 
-    @handle(CascadingUIHandler, (handle, isTurboMode: boolean) => handle.handleTurboMode(isTurboMode))
+    @handle(CascadingUIHandler, (handle, isTurboMode: boolean) => handle.handleTurboModeUI(isTurboMode))
     onTurboModeChanged() {
         return this.tglTurboMode.isChecked;
     }
