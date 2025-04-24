@@ -9,7 +9,6 @@ import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
-import { CascadingSlotErrorHandler } from "./cascading-slot-error-handler";
 
 const { injectable, inject } = inversify;
 
@@ -24,7 +23,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
-    @inject(CascadingSlotErrorHandler) protected readonly cascadingSlotErrorHandler: CascadingSlotErrorHandler;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -134,7 +132,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
-        this.cascadingSlotErrorHandler.handleEndGameApiError();
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;

@@ -15,6 +15,7 @@ import { CascadingSlotBoard } from "./components/slot-board/components/cascading
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
+import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { SlotBetHandler } from "./handlers/slot-bet-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
@@ -207,9 +208,13 @@ export class CascadingSlotGame extends Component {
 
             // When the free spin effect is completed, handle the next round
             // by automatically spinning
+            this.handleEndGameApiError();
             this.checkSpinNextRound();
         }
     }
+
+    @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
+    handleEndGameApiError() {}
 
     @handle(AutoPlayHandler, (handler) => handler.checkAutoPlayWhenSettlementCompleted())
     enableAutoPlayOnFreeSpinCompleted() {}
