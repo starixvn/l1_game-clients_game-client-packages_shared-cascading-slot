@@ -225,7 +225,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "WAKTU",
+    "_string": "TIME",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -307,7 +307,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 79.94694519042969,
+      "width": 55.460968017578125,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -500,7 +500,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "BABAK",
+    "_string": "ROUND",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -582,7 +582,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 76.33494567871094,
+      "width": 79.29595947265625,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -775,7 +775,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TINGKAT\nTARUHAN",
+    "_string": "BET LEVEL",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -857,8 +857,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 105.65090942382812,
-      "height": 63.279999999999994
+      "width": 119.2799072265625,
+      "height": 35.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1050,7 +1050,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "NILAI KOIN",
+    "_string": "COIN VALUE",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1132,7 +1132,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 115.47892761230469,
+      "width": 133.3079071044922,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -1325,7 +1325,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TOTAL\nTARUHAN",
+    "_string": "CASCADINGSLOT.TOTAL_BET_SHORTEN",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1407,8 +1407,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 105.65090942382812,
-      "height": 63.279999999999994
+      "width": 439.59259033203125,
+      "height": 35.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1433,7 +1433,7 @@
     "__prefab": {
       "__id__": 75
     },
-    "key": "Common.total_stake_shorten",
+    "key": "cascadingslot.total_bet_shorten",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1600,7 +1600,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "MENANG",
+    "_string": "WIN",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1682,7 +1682,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 96.66294860839844,
+      "width": 42.06298828125,
       "height": 55.44
     },
     "_anchorPoint": {
