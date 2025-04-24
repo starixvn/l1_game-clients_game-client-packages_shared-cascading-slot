@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
+import { _decorator, Component, game, JsonAsset, Label, Node, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
@@ -56,8 +56,6 @@ export class CascadingSlotGame extends Component {
     @property(JsonAsset)
     colorInfo: JsonAsset = null;
 
-    protected enableEventShowHideGame = true;
-
     public isTurboMode = false;
     private spinButtonSound = "spin_button";
 
@@ -67,19 +65,6 @@ export class CascadingSlotGame extends Component {
             this.board.initBoardFullItems();
         });
         this.focusGameCanvas();
-    }
-
-    private registerEventShowHideGame() {
-        if (!this.enableEventShowHideGame) {
-            return;
-        }
-        game.on(Game.EVENT_HIDE, this.onHideGame, this);
-        game.on(Game.EVENT_SHOW, this.onShowGame, this);
-    }
-
-    private clearEventShowHideGame() {
-        game.off(Game.EVENT_HIDE, this.onHideGame, this);
-        game.off(Game.EVENT_SHOW, this.onShowGame, this);
     }
 
     protected handleStaticNodeAndSetEmptyLabels() {
@@ -111,11 +96,6 @@ export class CascadingSlotGame extends Component {
 
     @handle(gc.PlayerSelections.PlayerSelectionHandlers.InitHandlers)
     initPlayerSelections() {}
-
-    onDestroy(): void {
-        super.onDestroy();
-        this.clearEventShowHideGame();
-    }
 
     @handle(HideGame.HideGameHandler)
     onHideGame() {
