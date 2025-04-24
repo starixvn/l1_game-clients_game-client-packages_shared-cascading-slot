@@ -835,7 +835,7 @@
       "b": 2,
       "a": 255
     },
-    "_string": "TOTAL MULTIPLIER",
+    "_string": "PENGGANDA TOTAL",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -917,7 +917,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 275.015869140625,
+      "width": 284.31182861328125,
       "height": 70.56
     },
     "_anchorPoint": {
@@ -1319,7 +1319,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "NO.",
+    "_string": "NOMOR",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1529,7 +1529,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TIME",
+    "_string": "WAKTU",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1739,7 +1739,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "ROUND",
+    "_string": "BABAK",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -1949,7 +1949,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "MULTIPLIER",
+    "_string": "PENGALI",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -2159,13 +2159,13 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TOTAL MULTIPLIER",
+    "_string": "PENGGANDA TOTAL",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 26,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": {
