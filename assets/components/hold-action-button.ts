@@ -14,8 +14,6 @@ const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 @ccclass
 export class HoldActionButton extends ObserverComponent {
-    private pressingKeyTime = 0;
-    private isTouching = false;
     private spinButtonSound = "spin_button";
     private quickPressSpinTriggered = false;
 
@@ -52,26 +50,26 @@ export class HoldActionButton extends ObserverComponent {
     onKeyDown(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
+            this.handleHoldAction();
             this.updatePressingDownKeyTime(Date.now());
-            this.updatePressingKey(true);
         }
     }
 
     onKeyUp(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
-            this.updatePressingKey(false);
+            this.handleDropAction();
             this.updatePressingUpKeyTime(Date.now());
         }
     }
 
     private startHoldButton() {
-        this.updateTouching(true);
+        this.handleHoldAction();
         this.updatePressingDownKeyTime(Date.now());
     }
 
     private stopHoldButton() {
-        this.updateTouching(false);
+        this.handleDropAction();
         this.updatePressingUpKeyTime(Date.now());
     }
 
@@ -85,10 +83,11 @@ export class HoldActionButton extends ObserverComponent {
         return pressingUpKeyTime;
     }
 
-    @handle(CascadingHoldActionHandlers, (handler, isPressingKey: boolean) => handler.updatePressingKey(isPressingKey))
-    updatePressingKey(isPressingKey: boolean) {
-        return isPressingKey;
-    }
+    @handle(CascadingHoldActionHandlers, (handler) => handler.handleHoldAction())
+    handleHoldAction() {}
+
+    @handle(CascadingHoldActionHandlers, (handler) => handler.handleDropAction())
+    handleDropAction() {}
 
     private handleTouchMove(event: EventTouch) {
         const location = event.getLocation();
@@ -136,11 +135,6 @@ export class HoldActionButton extends ObserverComponent {
         if (triggerBet) {
             this.spin();
         }
-    }
-
-    @handle(CascadingHoldActionHandlers, (handler, isTouching: boolean) => handler.updateTouching(isTouching))
-    updateTouching(isTouching: boolean) {
-        return isTouching;
     }
 
     @handle(SlotBetHandler, (handler) => handler.handle())

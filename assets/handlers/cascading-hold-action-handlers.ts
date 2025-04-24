@@ -17,20 +17,28 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     handle() {}
 
-    updatePressingKey(isPressingKey: boolean) {
+    handleHoldAction() {
         if (
             this.autoPlayStore.isAutoplay ||
             this.cascadingUIStore.freeSpinsTotal > 0 ||
             (this.autoPlayStore.triggerBet && !this.cascadingUIStore.isFreeSpinEffectCompleted)
         ) {
             this.holdActionStore.isPressingKey = false;
+            this.holdActionStore.isTouching = false;
             return;
         }
-        this.holdActionStore.isPressingKey = isPressingKey;
+        if (
+            this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED ||
+            this.cascadingUIStore.cascadingState === CascadingSlotState.START_ROUND
+        ) {
+            this.holdActionStore.isPressingKey = true;
+            this.holdActionStore.isTouching = true;
+        }
     }
 
-    updateTouching(isTouching: boolean) {
-        this.holdActionStore.isTouching = isTouching;
+    handleDropAction() {
+        this.holdActionStore.isPressingKey = false;
+        this.holdActionStore.isTouching = false;
     }
 
     updatePressingDownKeyTime(pressingDownKeyTime: number) {
