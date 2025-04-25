@@ -134,6 +134,14 @@ export class CascadingUIStore {
         }
     }
 
+    get disabledSpinButton() {
+        return (
+            this.cascadingState === CascadingSlotState.SPINNING ||
+            this.cascadingState === CascadingSlotState.NOT_READY_BET ||
+            this.cascadingState === CascadingSlotState.HOLDING
+        );
+    }
+
     get disabledAutoPlay() {
         if (this.autoPlayStore.isAutoplay) {
             return false;

@@ -2,7 +2,6 @@ import { _decorator, Node, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { CascadingSlotState } from "../../cascading-slot-state";
 import { SpinButtonState } from "../../cascading-slot-utils";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -34,11 +33,17 @@ export class CascadingSpinButton extends ObserverComponent {
         AnimationUtils.updateSpineDuration(this.iconSpinSkeleton, "spin", 2);
     }
 
+    @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurbo(isTurbo: boolean) {
         this.isTurbo = isTurbo;
+        this.changeAnimationSpinning();
     }
 
     changeAnimationSpinning() {
+        if (!this.nodeSpinning.active) {
+            return;
+        }
+
         if (this.isTurbo) {
             this.playAnimationSpinTurbo();
         } else {
@@ -48,8 +53,8 @@ export class CascadingSpinButton extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.spinButtonState)
     renderSpinButtonState(state: string) {
-        this.nodeSpinning.active = true;
         if (state === SpinButtonState.SPINNING) {
+            this.nodeSpinning.active = true;
             this.changeAnimationSpinning();
         } else if (state === SpinButtonState.IDLE) {
             this.nodeSpinning.active = false;
@@ -57,9 +62,8 @@ export class CascadingSpinButton extends ObserverComponent {
         }
     }
 
-    @render(CascadingUIStore, (store) => store.cascadingState)
-    renderCascadingState(state: string) {
-        this.disableButton.active =
-            state === CascadingSlotState.SPINNING || state === CascadingSlotState.NOT_READY_BET || state === CascadingSlotState.HOLDING;
+    @render(CascadingUIStore, (store) => store.disabledSpinButton)
+    renderCascadingState(disabledSpinButton: boolean) {
+        this.disableButton.active = disabledSpinButton;
     }
 }
