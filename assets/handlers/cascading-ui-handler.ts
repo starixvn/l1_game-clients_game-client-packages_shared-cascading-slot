@@ -44,6 +44,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     resetProcessingBet() {
         this.changeCascadingState(CascadingSlotState.READY_BET);
+        this.uiStore.bottomMessageState = this.uiStore.isTrialMode ? SlotNotification.BEFORE_SPIN_TRIAL : SlotNotification.BEFORE_SPIN;
     }
 
     handleNewRound() {

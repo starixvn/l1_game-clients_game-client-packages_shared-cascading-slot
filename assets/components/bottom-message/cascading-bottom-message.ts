@@ -4,7 +4,6 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { random } from "lodash-es";
 import Observer from "observer";
 import { SlotNotification } from "../../cascading-slot-utils";
-import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -26,7 +25,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     onLoad() {
         this.colorConfig = this.colorInfo.json;
         super.onLoad();
-        this.handleBottomMessage(SlotNotification.BEFORE_SPIN);
     }
 
     updateMessageContent(msg: string) {
@@ -71,11 +69,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(turboMode: boolean) {
         this.isTurboMode = turboMode;
-    }
-
-    @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
-    handleBottomMessage(state: string) {
-        return state;
     }
 
     handleMessageBeforeSpin() {

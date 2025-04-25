@@ -276,11 +276,6 @@ export class CascadingSlotGame extends Component {
         this.isTurboMode = isTurboMode;
     }
 
-    @handle(CascadingUIHandler, (handler, state: string) => handler.handleBottomMessage(state))
-    handleBottomMessage(state: string) {
-        return state;
-    }
-
     @handle(CascadingUIHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
     setTotalMultiplierValue(totalMultiplier: number) {
         return totalMultiplier;
