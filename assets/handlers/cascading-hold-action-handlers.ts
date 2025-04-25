@@ -18,9 +18,6 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     handle() {}
 
     handleHoldAction() {
-        if (this.cascadingUIStore.isTrialMode) {
-            return;
-        }
         if (this.autoPlayStore.isAutoplay || this.cascadingUIStore.freeSpinsTotal > 0) {
             this.holdActionStore.isPressingKey = false;
             this.holdActionStore.isTouching = false;

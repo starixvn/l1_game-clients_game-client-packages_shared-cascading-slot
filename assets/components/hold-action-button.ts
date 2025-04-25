@@ -4,6 +4,7 @@ import Observer from "observer";
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
+import { AutoPlayHandler } from "../handlers/auto-play-handlers";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -104,7 +105,7 @@ export class HoldActionButton extends ObserverComponent {
         this.stopHoldButton();
         if (hit) {
             this.quickPressSpinTriggered = true;
-            this.spin();
+            this.placeBet();
             // Reset flag after a short delay to allow for next interactions
             setTimeout(() => {
                 this.quickPressSpinTriggered = false;
@@ -116,19 +117,18 @@ export class HoldActionButton extends ObserverComponent {
     handlePressingKey(isAutoSpinHolding: boolean) {
         setTimeout(() => {
             if (isAutoSpinHolding && !this.quickPressSpinTriggered) {
-                this.spin();
+                this.placeBet();
             }
         }, 1000);
     }
 
-    spin() {
-        this.playSound(this.spinButtonSound);
-    }
+    @handle(AutoPlayHandler, (handler) => handler.placeBet())
+    placeBet() {}
 
     @render(AutoPlayStore, (store) => store.triggerBet)
     renderTriggerBet(triggerBet: any) {
         if (triggerBet) {
-            this.spin();
+            this.playSound(this.spinButtonSound);
         }
     }
 

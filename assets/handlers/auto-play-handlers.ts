@@ -50,8 +50,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
-        this.cascadingUIHandler.handleNewRound();
         this.autoPlayStore.triggerBet = {};
+        this.cascadingUIHandler.handleNewRound();
+        this.slotBetHandler.handle();
+    }
+
+    placeBetSilent() {
+        this.cascadingUIHandler.handleNewRound();
         this.slotBetHandler.handle();
     }
 
