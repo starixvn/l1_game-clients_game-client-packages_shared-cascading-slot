@@ -863,7 +863,7 @@
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
-    "_overflow": 3,
+    "_overflow": 1,
     "_enableWrapText": true,
     "_font": {
       "__uuid__": "10013268-eb64-492c-9cd9-4a1aebbcfe21",

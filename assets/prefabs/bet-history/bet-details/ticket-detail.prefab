@@ -7408,7 +7408,7 @@
     "roundId": {
       "__id__": 45
     },
-    "ticketDetailItemPrefab": {
+    "prfTicketDetailItem": {
       "__uuid__": "d6e4f8ce-67c7-4d44-8099-9e14ae3959d6",
       "__expectedType__": "cc.Prefab"
     },
@@ -7433,6 +7433,10 @@
     },
     "reachMaxText": {
       "__id__": 289
+    },
+    "prfMobileTicketDetailItem": {
+      "__uuid__": "647a3f92-51c4-4139-b7bf-423999479d37",
+      "__expectedType__": "cc.Prefab"
     },
     "_id": ""
   },

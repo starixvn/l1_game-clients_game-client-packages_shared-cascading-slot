@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Button, Color, instantiate, Label, Node, Prefab } from "cc";
+import { _decorator, Button, Color, instantiate, Label, Node, Prefab, sys } from "cc";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -21,7 +21,7 @@ export class CascadingTicketDetail extends ObserverComponent {
     roundId: Label = null;
 
     @property(Prefab)
-    ticketDetailItemPrefab: Prefab = null;
+    prfTicketDetailItem: Prefab = null;
 
     @property(Prefab)
     totalMultiplierPrefab: Prefab = null;
@@ -43,6 +43,9 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     @property(Label)
     reachMaxText: Label = null;
+
+    @property(Prefab)
+    prfMobileTicketDetailItem: Prefab = null;
 
     data: any = null;
 
@@ -77,7 +80,7 @@ export class CascadingTicketDetail extends ObserverComponent {
     }
 
     loadDetailItem() {
-        return instantiate(this.ticketDetailItemPrefab);
+        return sys.isMobile ? instantiate(this.prfMobileTicketDetailItem) : instantiate(this.prfTicketDetailItem);
     }
 
     handleMultiplierData(data: any) {
