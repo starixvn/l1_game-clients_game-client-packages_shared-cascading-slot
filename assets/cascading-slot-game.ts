@@ -17,7 +17,6 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
-import { SlotBetHandler } from "./handlers/slot-bet-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 
@@ -227,9 +226,6 @@ export class CascadingSlotGame extends Component {
         }
         this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
     }
-
-    @handle(SlotBetHandler, (handler) => handler.handle())
-    sendBet() {}
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
     handleNewRound() {}

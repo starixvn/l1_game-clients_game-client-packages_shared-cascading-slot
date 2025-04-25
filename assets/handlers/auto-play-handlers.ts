@@ -9,6 +9,7 @@ import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
+import { SlotBetHandler } from "./slot-bet-handler";
 
 const { injectable, inject } = inversify;
 
@@ -23,6 +24,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
+    @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -44,11 +46,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        this.autoPlaceBet();
+        this.placeBet();
     }
 
-    autoPlaceBet() {
+    placeBet() {
+        this.cascadingUIHandler.handleNewRound();
         this.autoPlayStore.triggerBet = {};
+        this.slotBetHandler.handle();
     }
 
     openAutoPlayPopup() {
@@ -116,7 +120,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.isValidBet()) {
             this.autoPlayStore.isAutoplay = true;
 
-            this.autoPlaceBet();
+            this.placeBet();
             this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
         } else {
             this.cancelAutoPlay();
@@ -138,7 +142,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIHandler.updateSpinButtonState(SpinButtonState.SPINNING);
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             this.cascadingUIHandler.handleNewRound();
-            this.autoPlaceBet();
+            this.placeBet();
         } else {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);

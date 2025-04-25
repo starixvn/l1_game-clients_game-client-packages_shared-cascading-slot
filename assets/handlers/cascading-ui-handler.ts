@@ -54,6 +54,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
+        this.handleSymbolPreviewVisiblity(false);
         //this.changeCascadingState(CascadingSlotState.START_ROUND);
     }
 

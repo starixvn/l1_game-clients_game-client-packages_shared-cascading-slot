@@ -5,8 +5,6 @@ import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
-import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
-import { SlotBetHandler } from "../handlers/slot-bet-handler";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 
@@ -125,31 +123,17 @@ export class HoldActionButton extends ObserverComponent {
 
     spin() {
         this.playSound(this.spinButtonSound);
-        this.handleNewRound();
-        this.sendBet();
-        this.handleSymbolPreviewVisiblity(false);
     }
 
     @render(AutoPlayStore, (store) => store.triggerBet)
-    renderTriggerBet(triggerBet: boolean) {
+    renderTriggerBet(triggerBet: any) {
         if (triggerBet) {
             this.spin();
         }
     }
 
-    @handle(SlotBetHandler, (handler) => handler.handle())
-    sendBet() {}
-
-    @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
-    handleNewRound() {}
-
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
         return id;
-    }
-
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    handleSymbolPreviewVisiblity(isVisible: boolean) {
-        return isVisible;
     }
 }

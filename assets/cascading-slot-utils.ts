@@ -69,7 +69,7 @@ export interface WinIconDetail {
 export const showNode = (node: Node, transitionTime = 0.3) => {
     const nodeOpacity = node.getComponent(UIOpacity);
     node.active = true;
-    nodeOpacity.opacity = 0;
+    nodeOpacity.opacity = 1;
     tween(nodeOpacity).to(transitionTime, { opacity: 255 }).start();
 };
 
@@ -77,7 +77,7 @@ export const hideNode = (node: Node, options: any) => {
     const duration = options.duration ?? 0.3;
     const onHidden = options.onHidden;
     tween(node.getComponent(UIOpacity))
-        .to(duration, { opacity: 0 })
+        .to(duration, { opacity: 1 })
         .call(() => {
             onHidden && onHidden();
         })
