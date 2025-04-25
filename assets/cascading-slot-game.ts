@@ -8,6 +8,7 @@ import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
+import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingEffectGameContainer } from "./components/effects/cascading-effect-game-container";
@@ -323,4 +324,14 @@ export class CascadingSlotGame extends Component {
             }, 100);
         }
     }
+
+    @render(GameVisibilityStore, (store) => store.isVisible)
+    renderGameVisibility(isVisible: boolean) {
+        if (!isVisible) {
+            this.cancelAutoPlay();
+        }
+    }
+
+    @handle(AutoPlayHandler, (handler) => handler.cancelAutoPlay())
+    cancelAutoPlay() {}
 }
