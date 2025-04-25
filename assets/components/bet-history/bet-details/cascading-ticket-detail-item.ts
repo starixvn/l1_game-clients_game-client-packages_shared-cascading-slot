@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, instantiate, Label, Node, Prefab, UITransform } from "cc";
+import { _decorator, Component, instantiate, Label, Node, Prefab, sys, UITransform } from "cc";
 import { convertData } from "db://shared-cascading-slot/cascading-slot-utils";
 import { CascadingSlotBoard } from "db://shared-cascading-slot/components/slot-board/components/cascading-slot-board";
 import { CascadingTumbleItem } from "db://shared-cascading-slot/components/tumbles/cascading-tumble-item";
@@ -33,6 +33,8 @@ export class CascadingTicketDetailItem extends Component {
 
     protected readonly MIN_HEIGHT_TOTALROW = 178;
     protected readonly HEIGHT_ROW = 89;
+    private readonly MIN_HEIGHT_TOTALROW_MOBILE = 250;
+    private readonly HEIGHT_ROW_MOBILE = 125;
 
     onLoad() {
         this.resultBoard && this.resultBoard.createReels();
@@ -102,10 +104,10 @@ export class CascadingTicketDetailItem extends Component {
     }
 
     getMinHeightRow() {
-        return this.MIN_HEIGHT_TOTALROW;
+        return sys.isMobile ? this.MIN_HEIGHT_TOTALROW_MOBILE : this.MIN_HEIGHT_TOTALROW;
     }
 
     getHeightRow() {
-        return this.HEIGHT_ROW;
+        return sys.isMobile ? this.HEIGHT_ROW_MOBILE : this.HEIGHT_ROW;
     }
 }
