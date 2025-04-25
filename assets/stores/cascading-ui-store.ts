@@ -58,6 +58,8 @@ export class CascadingUIStore {
     isConnectedTrialService = false;
     changeUserBalance = true;
 
+    showReachMaxWin = false;
+
     roundId = 0;
 
     get isShowBigWin() {

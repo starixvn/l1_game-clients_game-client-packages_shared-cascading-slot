@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "warning-turbo-mode-container",
+    "_name": "cascading-warning-container",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "warning-turbo-mode-container",
+    "_name": "cascading-warning-container",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -121,7 +121,7 @@
     "__prefab": {
       "__id__": 7
     },
-    "prefabWarningTurboMode": {
+    "prefabWarning": {
       "__uuid__": "ba38becf-609b-4f10-b2e9-55c6f652ec18",
       "__expectedType__": "cc.Prefab"
     },

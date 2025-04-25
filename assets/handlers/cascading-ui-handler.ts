@@ -54,6 +54,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isFreeSpinEffectCompleted = false;
         this.uiStore.isBigWinCompleted = false;
         this.uiStore.isHighlightScattersCompleted = false;
+        this.uiStore.showReachMaxWin = false;
         this.uiStore.multiplier = 0;
         if (!this.uiStore.isFreeSpins) {
             this.uiStore.totalMultiplier = 0;
@@ -168,6 +169,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleChangeUserBalance(change: boolean) {
         this.uiStore.changeUserBalance = change;
+    }
+
+    setReachMaxWin(show: boolean) {
+        this.uiStore.showReachMaxWin = show;
     }
 
     eventHandleList = [

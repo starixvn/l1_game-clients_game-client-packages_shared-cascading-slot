@@ -177,7 +177,7 @@ export class CascadingSlotGame extends Component {
             this.getBalance();
             this.handleChangeUserBalance(true);
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
-            this.handleTotalWin({ win: actualBetwin, isActualWin: true });
+            this.handleTotalWin({ win: win, isActualWin: true });
         }
 
         const needShowTotalMultiplier = totalMultiplier > 0;
@@ -189,8 +189,9 @@ export class CascadingSlotGame extends Component {
                 this.totalMultiplierView.total.node
             );
         }
-
+        reachMaxWin && this.setReachMaxWin(true);
         this.setTotalMultiplierValue(totalMultiplier);
+
         this.handleHaveBigWin(bigWin);
         this.updateBigWinAmount(win);
 
@@ -279,6 +280,11 @@ export class CascadingSlotGame extends Component {
     @handle(CascadingUIHandler, (handle, bigWin: any) => handle.handleHaveBigWin(bigWin))
     handleHaveBigWin(bigwin: boolean) {
         return bigwin;
+    }
+
+    @handle(CascadingUIHandler, (handle, isShow: any) => handle.setReachMaxWin(isShow))
+    setReachMaxWin(isShow: boolean) {
+        return isShow;
     }
 
     @handle(CascadingUIHandler, (handle, win: number) => handle.handleBigWinAmount(win))
