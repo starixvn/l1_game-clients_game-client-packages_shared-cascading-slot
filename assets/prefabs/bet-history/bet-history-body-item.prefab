@@ -1747,8 +1747,8 @@
     "_color": {
       "__type__": "cc.Color",
       "r": 255,
-      "g": 255,
-      "b": 255,
+      "g": 204,
+      "b": 0,
       "a": 255
     },
     "_string": "1,238.56",
@@ -1761,7 +1761,7 @@
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": {
-      "__uuid__": "10013268-eb64-492c-9cd9-4a1aebbcfe21",
+      "__uuid__": "0f6981e6-5811-45ce-ac30-f06164d111a7",
       "__expectedType__": "cc.TTFFont"
     },
     "_isSystemFontUsed": false,
