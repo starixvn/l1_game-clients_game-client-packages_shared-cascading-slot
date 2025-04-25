@@ -1,7 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
-import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -17,43 +16,14 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     handle() {}
 
-    handleHoldAction() {
-        if (this.autoPlayStore.isAutoplay || this.cascadingUIStore.freeSpinsTotal > 0) {
-            this.holdActionStore.isPressingKey = false;
-            this.holdActionStore.isTouching = false;
-            return;
-        }
-        if (
-            this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED ||
-            this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET
-        ) {
-            this.holdActionStore.isPressingKey = true;
-            this.holdActionStore.isTouching = true;
+    callTriggerAction() {
+        if (!this.holdActionStore.triggerAction) {
+            //TODO: bug trigger contiuously fast => not wait spin finish
+            this.holdActionStore.triggerAction = {};
         }
     }
 
-    handleDropAction() {
-        this.holdActionStore.isPressingKey = false;
-        this.holdActionStore.isTouching = false;
-    }
-
-    updatePressingDownKeyTime(pressingDownKeyTime: number) {
-        this.holdActionStore.isPressingDownKeyTime = pressingDownKeyTime;
-        this.holdActionStore.isPressingUpKeyTime = 0;
-        this.cascadingUIHandler.changeCascadingState(CascadingSlotState.HOLDING);
-        if (this.holdActionStore.isPressingUpKeyTime === 0) {
-            this.cascadingUIStore.isTurboMode = true;
-        }
-    }
-
-    updatePressingUpKeyTime(pressingUpKeyTime: number) {
-        this.holdActionStore.isPressingUpKeyTime = pressingUpKeyTime;
-
-        const delta = pressingUpKeyTime - this.holdActionStore.isPressingDownKeyTime;
-        if (delta < 1000) {
-            this.cascadingUIStore.isTurboMode = false;
-        } else {
-            this.cascadingUIStore.isTurboMode = true;
-        }
+    clearTriggerAction() {
+        this.holdActionStore.triggerAction = null;
     }
 }

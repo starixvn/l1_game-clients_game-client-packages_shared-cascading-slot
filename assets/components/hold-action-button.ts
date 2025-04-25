@@ -1,9 +1,8 @@
-import { _decorator, EventTouch, input, Input, KeyCode, Node } from "cc";
+import { _decorator, input, Input, KeyCode, Node } from "cc";
 import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { AutoPlayHandler } from "../handlers/auto-play-handlers";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
 import { AutoPlayStore } from "../stores/auto-play-store";
@@ -14,7 +13,6 @@ const { render, handle } = Observer;
 @ccclass
 export class HoldActionButton extends ObserverComponent {
     private spinButtonSound = "spin_button";
-    private quickPressSpinTriggered = false;
 
     onLoad() {
         this.addEvent();
@@ -25,20 +23,13 @@ export class HoldActionButton extends ObserverComponent {
     addEvent() {
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
         input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
-
-        // // Add click event to ensure focus is set when user clicks anywhere on canvas
-        // if (game.canvas) {
-        //     game.canvas.addEventListener("click", () => {
-        //         game.canvas.focus();
-        //     });
-        // }
     }
 
     registerTouchEvents() {
-        this.node.on(Node.EventType.TOUCH_START, this.startHoldButton, this);
-        this.node.on(Node.EventType.TOUCH_MOVE, this.handleTouchMove, this);
-        this.node.on(Node.EventType.TOUCH_CANCEL, this.stopHoldButton, this);
-        this.node.on(Node.EventType.TOUCH_END, this.handleTouchEnd, this);
+        this.node.on(Node.EventType.TOUCH_START, this.callTriggerAction, this);
+        // this.node.on(Node.EventType.TOUCH_MOVE, this.handleTouchMove, this);
+        this.node.on(Node.EventType.TOUCH_CANCEL, this.clearTriggerAction, this);
+        this.node.on(Node.EventType.TOUCH_END, this.clearTriggerAction, this);
     }
 
     removeEvent() {
@@ -49,77 +40,32 @@ export class HoldActionButton extends ObserverComponent {
     onKeyDown(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
-            this.handleHoldAction();
-            this.updatePressingDownKeyTime(Date.now());
+            this.callTriggerAction();
         }
     }
 
     onKeyUp(event) {
         const { keyCode } = event;
         if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
-            this.handleDropAction();
-            this.updatePressingUpKeyTime(Date.now());
+            this.clearTriggerAction();
         }
-    }
-
-    private startHoldButton() {
-        this.handleHoldAction();
-        this.updatePressingDownKeyTime(Date.now());
     }
 
     private stopHoldButton() {
-        this.handleDropAction();
-        this.updatePressingUpKeyTime(Date.now());
+        this.clearTriggerAction();
     }
 
-    @handle(CascadingHoldActionHandlers, (handler, pressingDownKeyTime: number) => handler.updatePressingDownKeyTime(pressingDownKeyTime))
-    updatePressingDownKeyTime(pressingDownKeyTime: number) {
-        return pressingDownKeyTime;
-    }
+    @handle(CascadingHoldActionHandlers, (handler) => handler.callTriggerAction())
+    callTriggerAction() {}
 
-    @handle(CascadingHoldActionHandlers, (handler, pressingUpKeyTime: number) => handler.updatePressingUpKeyTime(pressingUpKeyTime))
-    updatePressingUpKeyTime(pressingUpKeyTime: number) {
-        return pressingUpKeyTime;
-    }
+    @handle(CascadingHoldActionHandlers, (handler) => handler.clearTriggerAction())
+    clearTriggerAction() {}
 
-    @handle(CascadingHoldActionHandlers, (handler) => handler.handleHoldAction())
-    handleHoldAction() {}
-
-    @handle(CascadingHoldActionHandlers, (handler) => handler.handleDropAction())
-    handleDropAction() {}
-
-    private handleTouchMove(event: EventTouch) {
-        const location = event.getLocation();
-        const transform = ComponentUtils.getTransform(this.node);
-        const hit = transform ? transform.hitTest(location) : false;
-        if (!hit) {
-            this.stopHoldButton();
-            event.propagationStopped = true;
-        }
-    }
-
-    private handleTouchEnd(event: EventTouch) {
-        const location = event.getLocation();
-        const transform = ComponentUtils.getTransform(this.node);
-        const hit = transform ? transform.hitTest(location) : false;
-        this.stopHoldButton();
-        if (hit) {
-            this.quickPressSpinTriggered = true;
+    @render(HoldActionStore, (store) => store.triggerAction, { fireImmediately: false })
+    handlePressingKey(triggerAction: any) {
+        if (triggerAction) {
             this.placeBet();
-            // Reset flag after a short delay to allow for next interactions
-            setTimeout(() => {
-                this.quickPressSpinTriggered = false;
-            }, 1500);
         }
-    }
-
-    @render(HoldActionStore, (store) => store.isAutoSpinHolding, { fireImmediately: false })
-    handlePressingKey(isAutoSpinHolding: boolean) {
-        setTimeout(() => {
-            if (isAutoSpinHolding && !this.quickPressSpinTriggered) {
-                this.placeBet();
-            }
-        }, 1000);
     }
 
     @handle(AutoPlayHandler, (handler) => handler.placeBet())
