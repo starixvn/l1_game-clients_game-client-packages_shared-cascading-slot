@@ -42,6 +42,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.multiplier += multiplier;
     }
 
+    resetProcessingBet() {
+        this.changeCascadingState(CascadingSlotState.READY_BET);
+    }
+
     handleNewRound() {
         this.tumblesStore.tumbles = [];
         this.uiStore.totalTumbleWin = 0;
@@ -55,13 +59,12 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
         this.uiStore.totalWin = 0;
         this.handleSymbolPreviewVisiblity(false);
-        //this.changeCascadingState(CascadingSlotState.START_ROUND);
     }
 
     changeCascadingState(state: string) {
-        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
-            return;
-        }
+        // if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
+        //     return;
+        // }
         this.uiStore.cascadingState = state;
     }
 
@@ -144,7 +147,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         if (isTrialMode) {
             this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
         } else {
-            if (this.uiStore.cascadingState !== CascadingSlotState.START_ROUND) {
+            if (this.uiStore.cascadingState !== CascadingSlotState.READY_BET) {
                 this.uiStore.bottomMessageState = SlotNotification.SETTLED;
             } else {
                 this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
@@ -152,14 +155,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
         this.uiStore.roundId = 0;
         this.handleNewRound();
-    }
-
-    updateSpinButtonState(state: string) {
-        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
-            this.uiStore.spinButtonState = CascadingSlotState.SPINNING;
-            return;
-        }
-        this.uiStore.spinButtonState = state;
     }
 
     updateFreespinCountMsgBottom(count: number) {

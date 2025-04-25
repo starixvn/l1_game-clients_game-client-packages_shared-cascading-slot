@@ -6,6 +6,7 @@ import Observer from "observer";
 import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;
@@ -39,7 +40,7 @@ export default class AutoPlayButton extends ObserverComponent {
         return gc.Audios.AudioIds.CLICK;
     }
 
-    @render(AutoPlayStore, (store) => store.disabledAutoPlay)
+    @render(CascadingUIStore, (store) => store.disabledAutoPlay)
     disabledAutoPlay(disabledAutoPlay: boolean) {
         console.log("disabledAutoPlay--------------", disabledAutoPlay);
         this.nodeDisabled.active = disabledAutoPlay;

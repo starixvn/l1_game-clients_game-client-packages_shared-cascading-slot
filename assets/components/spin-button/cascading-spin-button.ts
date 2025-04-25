@@ -20,6 +20,8 @@ export class CascadingSpinButton extends ObserverComponent {
     @property(Node)
     nodeSpinning: Node = null;
 
+    private isTurbo = false;
+
     playAnimationSpin() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
     }
@@ -32,13 +34,23 @@ export class CascadingSpinButton extends ObserverComponent {
         AnimationUtils.updateSpineDuration(this.iconSpinSkeleton, "spin", 2);
     }
 
+    renderTurbo(isTurbo: boolean) {
+        this.isTurbo = isTurbo;
+    }
+
+    changeAnimationSpinning() {
+        if (this.isTurbo) {
+            this.playAnimationSpinTurbo();
+        } else {
+            this.playAnimationSpin();
+        }
+    }
+
     @render(CascadingUIStore, (store) => store.spinButtonState)
     renderSpinButtonState(state: string) {
         this.nodeSpinning.active = true;
         if (state === SpinButtonState.SPINNING) {
-            this.playAnimationSpin();
-        } else if (state === SpinButtonState.SPINNING_TURBO) {
-            this.playAnimationSpinTurbo();
+            this.changeAnimationSpinning();
         } else if (state === SpinButtonState.IDLE) {
             this.nodeSpinning.active = false;
             this.playAnimationIdle();
@@ -48,6 +60,6 @@ export class CascadingSpinButton extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.cascadingState)
     renderCascadingState(state: string) {
         this.disableButton.active =
-            state === CascadingSlotState.SPINNING || state === CascadingSlotState.INITBOARD || state === CascadingSlotState.HOLDING;
+            state === CascadingSlotState.SPINNING || state === CascadingSlotState.NOT_READY_BET || state === CascadingSlotState.HOLDING;
     }
 }

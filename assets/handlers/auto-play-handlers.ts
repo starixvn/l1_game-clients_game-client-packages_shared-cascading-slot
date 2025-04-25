@@ -4,7 +4,7 @@ import mobx from "mobx";
 import { BetControlStore } from "./../stores/bet-control-store";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { SlotNotification } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -32,7 +32,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 () => this.errorStore.apiError,
                 (apiError) => {
                     if (apiError) {
-                        this.cancelAutoPlay();
+                        this.handleError();
+                    }
+                }
+            );
+
+            mobx.reaction(
+                () => this.betStore.lastReceivedBet,
+                (lastReceivedBet) => {
+                    if (lastReceivedBet?.value === -1) {
+                        this.handleError();
                     }
                 }
             );
@@ -49,10 +58,14 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.placeBet();
     }
 
+    handleError() {
+        this.cascadingUIHandler.resetProcessingBet();
+        this.cancelAutoPlay();
+    }
+
     placeBet() {
         this.autoPlayStore.triggerBet = {};
-        this.cascadingUIHandler.handleNewRound();
-        this.slotBetHandler.handle();
+        this.placeBetSilent();
     }
 
     placeBetSilent() {
@@ -144,14 +157,12 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
-            this.cascadingUIHandler.updateSpinButtonState(SpinButtonState.SPINNING);
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             this.cascadingUIHandler.handleNewRound();
             this.placeBet();
         } else {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);
-            this.cascadingUIHandler.updateSpinButtonState(SpinButtonState.IDLE);
             if (this.autoPlayStore.isAutoplay) {
                 this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
                 this.cascadingUIHandler.handleNewRound();

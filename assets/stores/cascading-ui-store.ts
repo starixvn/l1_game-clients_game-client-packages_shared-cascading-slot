@@ -4,6 +4,7 @@ import mobx from "mobx";
 
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
@@ -12,6 +13,7 @@ const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingUIStore {
+    @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
@@ -32,11 +34,11 @@ export class CascadingUIStore {
 
     isTrialMode = false;
 
-    _cascadingState = CascadingSlotState.INITBOARD;
+    _cascadingState = CascadingSlotState.NOT_READY_BET;
     _isSymbolPreviewVisible = false;
 
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
-    spinButtonState = SpinButtonState.IDLE;
+    _spinButtonState = SpinButtonState.IDLE;
 
     haveBigWin = false;
     bigWinAmount = 0;
@@ -121,5 +123,28 @@ export class CascadingUIStore {
 
     get haveEventGame() {
         return this.haveBigWin || this.isShowFreeSpinEffect;
+    }
+
+    get spinButtonState() {
+        switch (this.cascadingState) {
+            case CascadingSlotState.SPINNING:
+                return SpinButtonState.SPINNING;
+            default:
+                return SpinButtonState.IDLE;
+        }
+    }
+
+    get disabledAutoPlay() {
+        if (this.autoPlayStore.isAutoplay) {
+            return false;
+        }
+        if (this.cascadingState === CascadingSlotState.HOLDING) {
+            return true;
+        }
+        return this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING;
+    }
+
+    get disableInputBet() {
+        return this.cascadingState === CascadingSlotState.SPINNING;
     }
 }

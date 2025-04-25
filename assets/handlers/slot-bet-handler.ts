@@ -2,7 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { SlotNotification } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
@@ -46,7 +46,6 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             this.uiStore.changeUserBalance = true;
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
-            this.uiHandler.updateSpinButtonState(SpinButtonState.SPINNING);
             this.retryGameHandler.handle();
         }
     }

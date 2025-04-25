@@ -25,7 +25,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
         }
         if (
             this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED ||
-            this.cascadingUIStore.cascadingState === CascadingSlotState.START_ROUND
+            this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET
         ) {
             this.holdActionStore.isPressingKey = true;
             this.holdActionStore.isTouching = true;

@@ -1,13 +1,10 @@
 import inversify from "inversify";
 import mobx from "mobx";
-import { CascadingSlotState } from "../cascading-slot-state";
-import { CascadingUIStore } from "./cascading-ui-store";
 
 const { injectable, inject } = inversify;
 
 @injectable()
 export class AutoPlayStore {
-    @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -25,15 +22,5 @@ export class AutoPlayStore {
 
     get isTurnOnAutoPlay() {
         return this.isOpenAutoplayPopup || this.isAutoplay;
-    }
-
-    get disabledAutoPlay() {
-        if (this.isAutoplay) {
-            return false;
-        }
-        if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
-            return true;
-        }
-        return this.uiStore.isTrialMode || this.uiStore.cascadingState === CascadingSlotState.SPINNING;
     }
 }

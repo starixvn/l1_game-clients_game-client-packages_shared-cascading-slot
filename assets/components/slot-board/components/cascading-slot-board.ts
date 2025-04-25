@@ -76,7 +76,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     initBoardFullItems() {
         this.createReels();
         this.generateRandomItems();
-        this.changeCascadingState(CascadingSlotState.START_ROUND);
+        this.changeCascadingState(CascadingSlotState.READY_BET);
     }
 
     generateRandomBoardData() {

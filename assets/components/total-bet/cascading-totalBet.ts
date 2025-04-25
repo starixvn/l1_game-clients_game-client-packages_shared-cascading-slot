@@ -1,5 +1,4 @@
 import { _decorator, JsonAsset, Label, Node } from "cc";
-import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -62,9 +61,9 @@ export class CascadingTotalBet extends ObserverComponent {
         this.hideSymbolPreview();
     }
 
-    @render(CascadingUIStore, (store) => store.cascadingState)
-    setAllowChangeBet(state: string) {
-        this.disabled.active = state === CascadingSlotState.SPINNING;
+    @render(CascadingUIStore, (store) => store.disableInputBet)
+    setAllowChangeBet(disableInputBet: boolean) {
+        this.disabled.active = disableInputBet;
     }
 
     onClickDecreaseTotalBet() {
