@@ -820,7 +820,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 140,
+      "width": 150,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -862,7 +862,7 @@
     "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
-    "_lineHeight": 44,
+    "_lineHeight": 24,
     "_overflow": 1,
     "_enableWrapText": true,
     "_font": {
