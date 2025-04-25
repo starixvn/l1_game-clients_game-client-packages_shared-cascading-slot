@@ -8,6 +8,7 @@ import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
+import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
@@ -61,6 +62,7 @@ export class CascadingSlotGame extends Component {
     private spinButtonSound = "spin_button";
 
     onLoad() {
+        this.node.addComponent(GameVisibility);
         this.loadSlotSymbols().then(async () => {
             this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
