@@ -52,6 +52,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
+            this.handleError();
             return;
         }
 
@@ -155,19 +156,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
-            this.cascadingUIHandler.handleNewRound();
             this.placeBet();
         } else {
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);
             if (this.autoPlayStore.isAutoplay) {
                 this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
-                this.cascadingUIHandler.handleNewRound();
-                this.handleAutoPlaceBet();
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
+                this.handleAutoPlaceBet();
             } else {
                 if (this.holdActionStore.isPressingKey) {
                     setTimeout(() => {

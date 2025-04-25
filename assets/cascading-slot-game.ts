@@ -233,11 +233,6 @@ export class CascadingSlotGame extends Component {
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
     handleNewRound() {}
 
-    @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
-    changeCascadingState(state: string) {
-        return state;
-    }
-
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
     setFreeSpinsTotal(freespins: number) {
         return freespins;

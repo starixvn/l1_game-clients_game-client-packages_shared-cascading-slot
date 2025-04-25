@@ -47,6 +47,8 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
             this.retryGameHandler.handle();
+        } else {
+            this.uiHandler.resetProcessingBet();
         }
     }
 
