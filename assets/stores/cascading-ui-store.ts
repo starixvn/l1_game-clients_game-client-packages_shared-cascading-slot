@@ -118,4 +118,8 @@ export class CascadingUIStore {
         }
         return this.isTrialMode;
     }
+
+    get haveEventGame() {
+        return this.haveBigWin || this.isShowFreeSpinEffect;
+    }
 }
