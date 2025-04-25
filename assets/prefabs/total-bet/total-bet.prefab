@@ -296,7 +296,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 154.8268280029297,
+      "width": 127.12788391113281,
       "height": 41.28
     },
     "_anchorPoint": {
@@ -332,7 +332,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "TOTAL STAKE",
+    "_string": "TOTAL BET",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -413,7 +413,7 @@
     "__prefab": {
       "__id__": 16
     },
-    "key": "Common.total_stake",
+    "key": "cascadingslot.total_bet_shorten",
     "format": 1,
     "prefix": "",
     "suffix": "",
