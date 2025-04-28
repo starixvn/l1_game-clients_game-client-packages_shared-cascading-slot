@@ -48,6 +48,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private readonly Sound = {
         FREE_SPIN_SOUND: "free_spin",
         BIG_WIN_SOUND: "big_win",
+        BIG_WIN_STOP: "big_win_stop",
         INCREMENT: "increment",
         INCREMENT_END: "increment_stop",
     };
@@ -98,10 +99,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.changeLevel.addChild(node);
     }
 
-    async showWinAmountForBigWinAnim(amount: number, totalBet: number, coinValue: number) {
-        await this.floatNumberBigWin({ label: this.lblWinAmount, amount, totalBet, coinValue });
-    }
-
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
         return new Promise<void>((resolve) => {
             const { label, amount: end, start, totalBet, coinValue } = opt;
@@ -142,6 +139,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
                     resolve();
                     this.setBigWinCompleted(true);
                     this.playSound(this.Sound.INCREMENT_END);
+                    this.playSound(this.Sound.BIG_WIN_STOP);
                     this.stopSoundBigWin();
                 })
                 .start();
@@ -172,7 +170,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     private winAmountForNoAnim(betWin: number) {
-        //this.soundEndForBigWinStandard(this.bigWinAudioId, this.incrementAudioId);
         this.changeFrameForBigWinLevel(betWin, this.totalBet);
         this.setAmount({ amount: betWin });
     }
@@ -191,7 +188,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
         this.setBigWinCompleted(true);
-        //this.handleBigWinData({ isShowBigWin: false, winAmount: this.winAmount });
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
@@ -226,6 +222,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
         this.stopSoundBigWin();
         this.playSound(this.Sound.INCREMENT_END);
+        this.playSound(this.Sound.BIG_WIN_STOP);
         return completed;
     }
 
