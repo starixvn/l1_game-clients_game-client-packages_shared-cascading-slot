@@ -3,7 +3,6 @@ import { _decorator, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
-import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -29,12 +28,9 @@ export class CascadingTrialMode extends ObserverComponent {
         this.isTrialMode = isTrialMode;
         this.nodeTrialMode.active = !isTrialMode;
         this.nodeRealMode.active = isTrialMode;
-        this.handleCurrentCoinIndex(0);
         if (isTrialMode) {
-            this.handleCurrentBetLevelIndex(this.BET_LEVEL_DEFAULT_TRIAL_MODE);
             this.isConnectedTrialService ? this.inGameTrial() : this.connectToServiceTrial();
         } else {
-            this.handleCurrentBetLevelIndex(0);
             this.inGame();
         }
     }
@@ -90,21 +86,6 @@ export class CascadingTrialMode extends ObserverComponent {
     @handle(gc.GameConfigs.GameConfigHandlers, (handler, connected: boolean) => handler.setInitializedGameConfigs(connected))
     setInitializedGameConfigs(initialized: boolean) {
         return initialized;
-    }
-
-    @handle(BetControlHandlers, (handle, index: number) => handle.updateCurrentBetLevelIndex(index))
-    private handleCurrentBetLevelIndex(currentBetLevelIndex: number) {
-        return currentBetLevelIndex;
-    }
-
-    @handle(BetControlHandlers, (handle, index: number) => handle.updateCurrentCoinIndex(index))
-    private handleCurrentCoinIndex(currentCoinIndex: number) {
-        return currentCoinIndex;
-    }
-
-    @handle(BetControlHandlers, (handle, index: number) => handle.updateCurrentTotalBetIndex(index))
-    private handleCurrentTotalBetIndex(currentTotalBetIndex: number) {
-        return currentTotalBetIndex;
     }
 
     @render(CascadingUIStore, (store) => store.cascadingState)

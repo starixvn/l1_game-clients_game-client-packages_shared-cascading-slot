@@ -91,3 +91,7 @@ export const getCustomDuration = (key: string, isTurboMode: boolean): number => 
 export const findIndex = (value: number, valueList: number[]) => {
     return valueList.findIndex((item) => item === value);
 };
+
+export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
+    return +(level * coin * betMultiplier).toFixed(1);
+};

@@ -1,79 +1,66 @@
 import inversify from "inversify";
 import mobx from "mobx";
 
-import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
-
 const { injectable, inject } = inversify;
 
 @injectable()
 export class BetControlStore {
-    @inject(CascadingSlotConfigsStore) protected readonly gameConfigStore: CascadingSlotConfigsStore;
-
     constructor() {
         mobx.makeAutoObservable(this);
     }
 
-    private _isOpenBetAmountPopup = false;
-    private _betLevel = 0;
-    private _coinValue = 0;
-    private _totalBet = 0;
-    private _currentBetLevelIndex = 0;
-    private _currentCoinIndex = 0;
-    private _currentTotalBetIndex = 0;
+    isOpenBetAmountPopup = false;
 
-    set isOpenBetAmountPopup(status: boolean) {
-        this._isOpenBetAmountPopup = status;
-    }
+    totalBetUnique = [];
+    betLevels: number[] = [];
+    coinValues: number[] = [];
+    betMultiplier = 0;
+    defaultCoinValue = 0;
 
-    get isOpenBetAmountPopup() {
-        return this._isOpenBetAmountPopup;
-    }
+    _totalBet = 0;
 
-    set betLevel(level: number) {
-        this._betLevel = level;
-    }
+    resumeLastBet = false;
 
     get betLevel() {
-        return this._betLevel;
-    }
-
-    set coinValue(value: number) {
-        this._coinValue = value;
+        return this.betLevels[this.currentBetLevelIndex] ?? 0;
     }
 
     get coinValue() {
-        return this._coinValue;
+        return this.coinValues[this.currentCoinIndex] ?? 0;
     }
 
-    set totalBet(bet: number) {
-        this._totalBet = bet;
+    set totalBet(value: number) {
+        this._totalBet = value;
     }
 
     get totalBet() {
-        return this._totalBet;
+        const item = this.totalBetUnique[this.currentTotalBetIndex];
+        const total = Object.keys(item)[0];
+        return this.resumeLastBet ? this._totalBet : +total;
     }
 
-    set currentBetLevelIndex(index: number) {
-        this._currentBetLevelIndex = index;
+    currentBetLevelIndex = 0;
+    currentCoinIndex = 0;
+    currentTotalBetIndex = 0;
+
+    get interactableBetLevel() {
+        return {
+            increase: this.currentBetLevelIndex < this.betLevels.length - 1,
+            decrease: this.currentBetLevelIndex > 0,
+        };
     }
 
-    get currentBetLevelIndex() {
-        return this._currentBetLevelIndex;
+    get interactableCoinValue() {
+        return {
+            increase: this.currentCoinIndex < this.coinValues.length - 1,
+            decrease: this.currentCoinIndex > 0,
+        };
     }
 
-    set currentCoinIndex(index: number) {
-        this._currentCoinIndex = index;
-    }
-
-    get currentCoinIndex() {
-        return this._currentCoinIndex;
-    }
-
-    set currentTotalBetIndex(index: number) {
-        this._currentTotalBetIndex = index;
-    }
-
-    get currentTotalBetIndex() {
-        return this._currentTotalBetIndex;
+    get interactableTotalBet() {
+        return {
+            increase: this.currentTotalBetIndex < this.totalBetUnique.length - 1,
+            decrease: this.currentTotalBetIndex > 0,
+        };
     }
 }

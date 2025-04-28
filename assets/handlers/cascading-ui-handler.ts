@@ -2,14 +2,14 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification } from "../cascading-slot-utils";
+import { calculateTotalBet, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
-
+import { BetControlHandlers } from "./bet-control-handlers";
 const { injectable, inject } = inversify;
 
 @injectable()
@@ -19,6 +19,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
+    @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
+
     handle() {}
 
     handleTotalWin({ win, isActualWin = false }) {
@@ -87,6 +89,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreespinsJoinGame(freespins: any) {
         if (!freespins || freespins.total === 0) {
+            this.betControlHandlers.init();
             return;
         }
 
@@ -95,10 +98,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
         this.updateFreespinCountMsgBottom(freespins.total);
 
-        // this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
-        // this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);
-        // this.betControlStore.currentCoinIndex = findIndex(coinValue, this.configsStore.gameConfigs.coinValues);
-        // this.betControlStore.totalBet = betLevel * coinValue * betMultiplier;
+        this.betControlHandlers.init(coinValue);
+        this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
