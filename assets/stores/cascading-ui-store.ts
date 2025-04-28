@@ -29,9 +29,7 @@ export class CascadingUIStore {
     multiplier = 0;
     totalMultiplier = 0;
 
-    isTurboMode = false;
     isTurboModeUI = false;
-
     isTrialMode = false;
 
     _cascadingState = CascadingSlotState.NOT_READY_BET;
@@ -61,6 +59,10 @@ export class CascadingUIStore {
     showReachMaxWin = false;
 
     roundId = 0;
+
+    get isTurboMode() {
+        return this.isTurboModeUI || this.holdActionStore.isHolding;
+    }
 
     get isShowBigWin() {
         return this.haveBigWin || !this.isBigWinCompleted;
