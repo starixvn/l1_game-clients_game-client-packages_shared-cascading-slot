@@ -61,7 +61,7 @@ export class CascadingUIStore {
     roundId = 0;
 
     get isTurboMode() {
-        return this.isTurboModeUI || this.holdActionStore.isHolding;
+        return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
 
     get isShowBigWin() {
