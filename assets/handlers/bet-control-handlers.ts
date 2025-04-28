@@ -62,7 +62,7 @@ export class BetControlHandlers {
         this.betControlStore.coinValues = coinValues;
 
         this.prepareBetLevelData(betLevels);
-        this.prepareCoinData(coinValues);
+        this.prepareCoinData(coinValues, currentCoinValue);
         this.prepareTotalBetData();
     }
 
@@ -114,8 +114,6 @@ export class BetControlHandlers {
     setTotalBet(totalBet: number) {
         this.betControlStore.resumeLastBet = true;
         this.betControlStore.totalBet = totalBet;
-        this.betControlStore.currentTotalBetIndex = this.betControlStore.totalBetUnique.findIndex(
-            (detail) => +Object.keys(detail)[0] === totalBet
-        );
+        this.betControlStore.syncCurrentTotalBetIndex(totalBet);
     }
 }

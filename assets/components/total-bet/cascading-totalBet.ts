@@ -56,12 +56,18 @@ export class CascadingTotalBet extends ObserverComponent {
         this.disabled.active = false;
     }
 
+    @render(BetControlStore, (store) => store.interactableTotalBet)
+    renderChangeTotalBet(interactableTotalBet: { increase: boolean; decrease: boolean }) {
+        this.buttonIncrease.interactable = interactableTotalBet.increase;
+        this.buttonDecrease.interactable = interactableTotalBet.decrease;
+    }
+
     @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
     onClickOpenBetControl() {
         this.hideSymbolPreview();
     }
 
-    @render(CascadingUIStore, (store) => store.disableInputBet)
+    @render(CascadingUIStore, (store) => store.disabledOpenInputBet)
     setAllowChangeBet(disableInputBet: boolean) {
         this.disabled.active = disableInputBet;
     }

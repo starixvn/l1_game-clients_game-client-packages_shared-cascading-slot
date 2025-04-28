@@ -156,7 +156,7 @@ export class CascadingUIStore {
         return this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING;
     }
 
-    get disableInputBet() {
+    get disabledOpenInputBet() {
         return this.cascadingState === CascadingSlotState.SPINNING;
     }
 }
