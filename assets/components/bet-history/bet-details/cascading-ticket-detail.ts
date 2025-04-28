@@ -76,7 +76,6 @@ export class CascadingTicketDetail extends ObserverComponent {
         this.handleMultiplierData(betHistoryLog);
         this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin, 2, false);
         this.reachMaxText.node.active = isReachMaxWin;
-        this.reachMaxText.string = gc.Translator.gameTranslate(`reach_max_win`);
     }
 
     loadDetailItem() {
