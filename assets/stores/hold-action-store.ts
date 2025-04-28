@@ -10,4 +10,5 @@ export class HoldActionStore {
     }
 
     triggerAction = null;
+    isHolding = false;
 }

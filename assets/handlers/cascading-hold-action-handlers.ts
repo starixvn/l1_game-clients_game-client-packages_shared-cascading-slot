@@ -15,21 +15,26 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
+    private timeoutHolding: NodeJS.Timeout;
+    private readonly HOLDING_THRESHOLD = 1000;
     handle() {}
-
     callTriggerAction() {
         if (!this.holdActionStore.triggerAction) {
             const canBet =
                 this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET ||
                 this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED;
-            //TODO: bug trigger contiuously fast => not wait spin finish
             if (canBet) {
                 this.holdActionStore.triggerAction = {};
+                this.timeoutHolding = setTimeout(() => {
+                    this.holdActionStore.isHolding = true;
+                }, this.HOLDING_THRESHOLD);
             }
         }
     }
 
     clearTriggerAction() {
         this.holdActionStore.triggerAction = null;
+        this.holdActionStore.isHolding = false;
+        this.timeoutHolding && clearTimeout(this.timeoutHolding);
     }
 }

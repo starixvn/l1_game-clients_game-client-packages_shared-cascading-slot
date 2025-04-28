@@ -117,7 +117,7 @@ export class CascadingUIStore {
     }
 
     get disabledTurboMode() {
-        if (this.holdActionStore.triggerAction) {
+        if (this.holdActionStore.isHolding) {
             return true;
         }
         return this.isTrialMode;
@@ -148,7 +148,7 @@ export class CascadingUIStore {
         if (this.autoPlayStore.isAutoplay) {
             return false;
         }
-        if (this.holdActionStore.triggerAction) {
+        if (this.holdActionStore.isHolding) {
             return true;
         }
         return this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING;
