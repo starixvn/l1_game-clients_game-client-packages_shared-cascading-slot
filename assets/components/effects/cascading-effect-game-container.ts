@@ -70,9 +70,9 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         await this.playEffectEventMascot();
         await this.playEffectTransition();
-        this.playSoundBigWin();
+        this.playSoundCoinIncrement();
 
-        this.playSound(this.Sound.INCREMENT);
+        this.playSound(this.Sound.BIG_WIN_SOUND);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);
     }
@@ -93,13 +93,13 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     }
 
     @handle(gc.Audios.AudioHandler, (handle, audioId: string) => handle.playStoppableSFX(audioId))
-    playSoundBigWin() {
-        return this.Sound.BIG_WIN_SOUND;
+    playSoundCoinIncrement() {
+        return this.Sound.INCREMENT;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
-    stopSoundBigWin() {
-        return this.Sound.BIG_WIN_SOUND;
+    stopSoundCoinIncrement() {
+        return this.Sound.INCREMENT;
     }
 
     private async playEffectTransition() {
