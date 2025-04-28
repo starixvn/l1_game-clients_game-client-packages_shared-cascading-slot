@@ -76,7 +76,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1398.0000000000002,
+      "width": 1398,
       "height": 786
     },
     "_anchorPoint": {
@@ -146,7 +146,10 @@
       "__uuid__": "30f5fce7-c7c1-4d09-a22e-6e65d5e1cd72",
       "__expectedType__": "cc.Prefab"
     },
-    "board": null,
+    "pfbEffectTransition": {
+      "__uuid__": "109fe622-2100-4a07-9ed1-362ef334cd0a",
+      "__expectedType__": "cc.Prefab"
+    },
     "_id": ""
   },
   {

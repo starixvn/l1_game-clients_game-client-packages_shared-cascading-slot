@@ -18,12 +18,16 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @property(Prefab)
     pfbEffectBigWin: Prefab = null;
 
+    @property(Prefab)
+    pfbEffectTransition: Prefab = null;
+
     private isTurboMode = false;
     private readonly Sound = {
         FREE_SPIN_SOUND: "free_spin",
         BIG_WIN_SOUND: "big_win",
         INCREMENT: "increment",
         INCREMENT_END: "increment_stop",
+        TRANSITION: "transition",
     };
 
     onLoad() {
@@ -37,6 +41,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        await this.playEffectTransition();
         this.playSound(this.Sound.FREE_SPIN_SOUND);
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
@@ -47,11 +52,12 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
-    renderBigWinEffect(isShowBigWin: boolean) {
+    async renderBigWinEffect(isShowBigWin: boolean) {
         if (!isShowBigWin) {
             this.node.destroyAllChildren();
             return;
         }
+        await this.playEffectTransition();
         this.playSoundBigWin();
 
         this.playSound(this.Sound.INCREMENT);
@@ -82,5 +88,16 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundBigWin() {
         return this.Sound.BIG_WIN_SOUND;
+    }
+
+    protected async playEffectTransition() {
+        if (!this.pfbEffectTransition) {
+            return null;
+        }
+        const transition = instantiate(this.pfbEffectTransition);
+        this.playSound(this.Sound.TRANSITION);
+        this.node.addChild(transition);
+        await FunctionUtils.delay(0.5 * UNIT_SECOND_SPIN);
+        transition.destroy();
     }
 }
