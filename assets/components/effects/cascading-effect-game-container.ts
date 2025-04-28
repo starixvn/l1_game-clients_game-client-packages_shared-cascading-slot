@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Prefab } from "cc";
+import { _decorator, instantiate, JsonAsset, Node, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import Observer from "observer";
@@ -7,6 +7,7 @@ import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { CascadingMascot } from "../cascading-mascot";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -21,7 +22,15 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @property(Prefab)
     pfbEffectTransition: Prefab = null;
 
+    @property(Node)
+    nodeMascot: Node = null;
+
+    @property(JsonAsset)
+    gameInfo: JsonAsset = null;
+
     private isTurboMode = false;
+    private gameConfig: any;
+
     private readonly Sound = {
         FREE_SPIN_SOUND: "free_spin",
         BIG_WIN_SOUND: "big_win",
@@ -32,6 +41,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     onLoad() {
         super.onLoad();
+        this.gameConfig = this.gameInfo.json;
         this.node.destroyAllChildren();
     }
 
@@ -41,6 +51,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        await this.playEffectEventMascot();
         await this.playEffectTransition();
         this.playSound(this.Sound.FREE_SPIN_SOUND);
         const freespin = instantiate(this.pfbEffectFreespin);
@@ -57,6 +68,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        await this.playEffectEventMascot();
         await this.playEffectTransition();
         this.playSoundBigWin();
 
@@ -90,7 +102,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         return this.Sound.BIG_WIN_SOUND;
     }
 
-    protected async playEffectTransition() {
+    private async playEffectTransition() {
         if (!this.pfbEffectTransition) {
             return null;
         }
@@ -100,5 +112,13 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         const duration = getCustomDuration("transition", this.isTurboMode);
         await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
         transition.destroy();
+    }
+
+    private async playEffectEventMascot() {
+        if (!this.nodeMascot || !this.gameConfig.turnOnEventMascot) {
+            return null;
+        }
+        const comp = this.nodeMascot.getComponent(CascadingMascot);
+        await comp.playAnimEventGame();
     }
 }
