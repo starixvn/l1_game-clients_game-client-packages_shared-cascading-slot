@@ -97,7 +97,8 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         const transition = instantiate(this.pfbEffectTransition);
         this.playSound(this.Sound.TRANSITION);
         this.node.addChild(transition);
-        await FunctionUtils.delay(0.5 * UNIT_SECOND_SPIN);
+        const duration = getCustomDuration("transition", this.isTurboMode);
+        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
         transition.destroy();
     }
 }
