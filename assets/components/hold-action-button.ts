@@ -26,10 +26,17 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     registerTouchEvents() {
-        this.node.on(Node.EventType.TOUCH_START, this.callTriggerAction, this);
-        // this.node.on(Node.EventType.TOUCH_MOVE, this.handleTouchMove, this);
-        this.node.on(Node.EventType.TOUCH_CANCEL, this.clearTriggerAction, this);
-        this.node.on(Node.EventType.TOUCH_END, this.clearTriggerAction, this);
+        this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+    }
+
+    onTouchStart() {
+        this.callTriggerAction();
+    }
+
+    onTouchEnd() {
+        this.clearTriggerAction();
     }
 
     removeEvent() {
