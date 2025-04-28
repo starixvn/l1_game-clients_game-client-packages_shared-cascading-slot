@@ -102,6 +102,13 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
     }
 
+    clearFreeSpins() {
+        this.uiStore.freeSpinsTotal = 0;
+        this.uiStore.freeSpinsByRound = 0;
+        this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
+        this.betControlHandlers.init();
+    }
+
     handleTotalMultiplier(totalMultiplier: number) {
         this.uiStore.totalMultiplier = totalMultiplier;
     }
