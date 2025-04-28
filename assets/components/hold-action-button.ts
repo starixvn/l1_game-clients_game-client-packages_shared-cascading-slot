@@ -62,14 +62,14 @@ export class HoldActionButton extends ObserverComponent {
 
     onKeyDown(event) {
         const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
+        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER || keyCode === KeyCode.NUM_ENTER) {
             this.callTriggerAction();
         }
     }
 
     onKeyUp(event) {
         const { keyCode } = event;
-        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER) {
+        if (keyCode === KeyCode.SPACE || keyCode === KeyCode.ENTER || keyCode === KeyCode.NUM_ENTER) {
             this.clearTriggerAction();
         }
     }
