@@ -64,9 +64,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     changeCascadingState(state: string) {
-        // if (this.uiStore.cascadingState === CascadingSlotState.HOLDING) {
-        //     return;
-        // }
         this.uiStore.cascadingState = state;
     }
 
@@ -89,10 +86,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreespinsJoinGame(freespins: any) {
-        if (freespins.total === 0 || !freespins || freespins.length <= 0) {
+        if (!freespins || freespins.total === 0) {
             return;
         }
-        // const { total, betLevel, coinValue, betMultiplier } = freespins;
+
+        const { total, betLevel, coinValue, betMultiplier } = freespins;
+        this.handleFreeSpinsTotal(total);
+        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
+        this.updateFreespinCountMsgBottom(freespins.total);
+
         // this.uiStore.freeSpinsJoinGame = { total, betLevel, coinValue, betMultiplier };
         // this.betControlStore.currentBetLevelIndex = findIndex(betLevel, this.configsStore.gameConfigs.betLevels);
         // this.betControlStore.currentCoinIndex = findIndex(coinValue, this.configsStore.gameConfigs.coinValues);
