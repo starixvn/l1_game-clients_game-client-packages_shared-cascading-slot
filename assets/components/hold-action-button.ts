@@ -1,8 +1,9 @@
-import { _decorator, input, Input, KeyCode, Node } from "cc";
+import { _decorator, EventTouch, game, input, Input, KeyCode, Node } from "cc";
 import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { AutoPlayHandler } from "../handlers/auto-play-handlers";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
 import { AutoPlayStore } from "../stores/auto-play-store";
@@ -27,8 +28,23 @@ export class HoldActionButton extends ObserverComponent {
 
     registerTouchEvents() {
         this.node.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(Node.EventType.TOUCH_MOVE, this.handleTouchMove, this);
         this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
         this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+
+        game.canvas.onblur = () => {
+            this.clearTriggerAction();
+        };
+    }
+
+    private handleTouchMove(event: EventTouch) {
+        const location = event.getLocation();
+        const transform = ComponentUtils.getTransform(this.node);
+        const hit = transform.hitTest(location, event.windowId);
+        if (!hit) {
+            this.clearTriggerAction();
+            event.propagationStopped = true;
+        }
     }
 
     onTouchStart() {

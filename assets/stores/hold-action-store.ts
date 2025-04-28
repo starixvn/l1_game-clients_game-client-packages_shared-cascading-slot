@@ -9,5 +9,5 @@ export class HoldActionStore {
         mobx.makeAutoObservable(this);
     }
 
-    triggerAction = {};
+    triggerAction = null;
 }
