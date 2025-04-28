@@ -117,7 +117,7 @@ export class CascadingUIStore {
     }
 
     get disabledTurboMode() {
-        if (this.cascadingState === CascadingSlotState.HOLDING) {
+        if (this.holdActionStore.triggerAction) {
             return true;
         }
         return this.isTrialMode;
@@ -140,7 +140,7 @@ export class CascadingUIStore {
         return (
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.cascadingState === CascadingSlotState.NOT_READY_BET ||
-            this.cascadingState === CascadingSlotState.HOLDING
+            this.holdActionStore.triggerAction
         );
     }
 
@@ -148,7 +148,7 @@ export class CascadingUIStore {
         if (this.autoPlayStore.isAutoplay) {
             return false;
         }
-        if (this.cascadingState === CascadingSlotState.HOLDING) {
+        if (this.holdActionStore.triggerAction) {
             return true;
         }
         return this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING;

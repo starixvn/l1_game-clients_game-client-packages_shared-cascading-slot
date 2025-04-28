@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -18,8 +19,13 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
 
     callTriggerAction() {
         if (!this.holdActionStore.triggerAction) {
+            const canBet =
+                this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET ||
+                this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED;
             //TODO: bug trigger contiuously fast => not wait spin finish
-            this.holdActionStore.triggerAction = {};
+            if (canBet) {
+                this.holdActionStore.triggerAction = {};
+            }
         }
     }
 
