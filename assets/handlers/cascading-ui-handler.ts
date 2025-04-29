@@ -20,6 +20,13 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
+    @inject(gc.UserSettings.UserSettingHandlers) protected readonly userSettingHandlers: gc.UserSettings.UserSettingHandlers;
+
+    constructor() {
+        setInterval(() => {
+            this.userSettingHandlers.loadStorages();
+        }, 0);
+    }
 
     handle() {}
 
