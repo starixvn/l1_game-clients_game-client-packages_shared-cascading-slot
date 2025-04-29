@@ -111,7 +111,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreespinsJoinGame(freespins: any) {
-        if (!freespins || freespins.total === 0) {
+        if (!freespins || freespins.total === 0 || freespins.length === 0) {
             this.betControlHandlers.init();
             return;
         }
@@ -120,7 +120,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.handleFreeSpinsTotal(total);
         this.updateFreespinCountMsgBottom(freespins.total);
 
-        this.betControlHandlers.init(coinValue);
+        this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
     }
 

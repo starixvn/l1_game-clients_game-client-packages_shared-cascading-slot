@@ -54,7 +54,11 @@ export class BetControlStore {
             return this._totalBet;
         }
 
-        if (this.totalBetUnique.length === 0) {
+        if (
+            this.totalBetUnique.length === 0 ||
+            this.currentTotalBetIndex === -1 ||
+            this.currentTotalBetIndex >= this.totalBetUnique.length
+        ) {
             return 0;
         }
         const item = this.totalBetUnique[this.currentTotalBetIndex];
@@ -116,6 +120,5 @@ export class BetControlStore {
     onChangeCoinAndBetLevel() {
         const totalBet = calculateTotalBet(this.betLevel, this.coinValue, this.betMultiplier);
         this.syncCurrentTotalBetIndex(totalBet);
-        console.log("onChangeCoinAndBetLevel", this.currentTotalBetIndex);
     }
 }

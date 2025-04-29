@@ -13,6 +13,8 @@ export class BetControlHandlers {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(CascadingSlotConfigsStore) protected readonly configStore: CascadingSlotConfigsStore;
 
+    private readonly TrialModeDefaultBetLevelIndex = 4;
+
     updateStatusBetAmountPopup(status = false) {
         this.betControlStore.isOpenBetAmountPopup = false;
     }
@@ -53,7 +55,7 @@ export class BetControlHandlers {
         }
     }
 
-    init(currentCoinValue?: number) {
+    init(currentCoinValue?: number, betLevel?: number) {
         const { coinValues, betLevels, betMultiplier, defaultCoinValue } = this.configStore.gameConfigs;
 
         this.betControlStore.defaultCoinValue = defaultCoinValue;
@@ -61,22 +63,36 @@ export class BetControlHandlers {
         this.betControlStore.betLevels = betLevels;
         this.betControlStore.coinValues = coinValues;
 
-        this.prepareBetLevelData(betLevels);
+        this.prepareBetLevelData(betLevels, betLevel);
         this.prepareCoinData(coinValues, currentCoinValue);
         this.prepareTotalBetData();
     }
 
-    private prepareBetLevelData(betLevels) {
+    private prepareBetLevelData(betLevels: number[], betLevel?: number) {
         this.betControlStore.betLevels = [...betLevels];
         this.betControlStore.betLevels.sort((a, b) => a - b);
+
+        if (this.cascadingUIStore.isTrialMode) {
+            this.betControlStore.currentBetLevelIndex = this.TrialModeDefaultBetLevelIndex;
+        } else {
+            const betLevelIndex = this.betControlStore.betLevels.findIndex((level) => level === betLevel);
+            if (betLevelIndex !== -1) {
+                this.betControlStore.currentBetLevelIndex = betLevelIndex;
+            } else {
+                this.betControlStore.currentBetLevelIndex = 0;
+            }
+        }
     }
 
     private prepareCoinData(coinValues, currentCoinValue?: number) {
         this.betControlStore.coinValues = [...coinValues];
         this.betControlStore.coinValues.sort((a, b) => a - b);
-        this.betControlStore.currentCoinIndex = this.cascadingUIStore.isTrialMode
-            ? 0
-            : this.findCoinIndex(currentCoinValue ?? this.betControlStore.defaultCoinValue);
+        const coinIndex = this.findCoinIndex(currentCoinValue ?? this.betControlStore.defaultCoinValue);
+        if (coinIndex !== -1) {
+            this.betControlStore.currentCoinIndex = coinIndex;
+        } else {
+            this.betControlStore.currentCoinIndex = 0;
+        }
     }
 
     private prepareTotalBetData() {
