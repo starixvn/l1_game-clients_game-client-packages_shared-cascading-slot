@@ -218,12 +218,11 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     async setBigWinCompleted(completed: boolean) {
-        this.stopSoundCoinIncrement();
+        !this.isTurboMode && this.stopSoundCoinIncrement();
         this.playSound(this.Sound.BIG_WIN_STOP);
         this.playSound(this.Sound.INCREMENT_END);
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
-
         return completed;
     }
 

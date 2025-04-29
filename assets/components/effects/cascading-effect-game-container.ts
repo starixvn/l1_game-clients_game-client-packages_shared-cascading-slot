@@ -70,7 +70,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         await this.playEffectEventMascot();
         await this.playEffectTransition();
-        this.playSoundCoinIncrement();
+        !this.isTurboMode && this.playSoundCoinIncrement();
 
         this.playSound(this.Sound.BIG_WIN_SOUND);
         const bigwin = instantiate(this.pfbEffectBigWin);
