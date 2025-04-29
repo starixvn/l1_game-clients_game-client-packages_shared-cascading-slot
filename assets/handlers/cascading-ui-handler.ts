@@ -51,8 +51,24 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.multiplier += multiplier;
     }
 
+    handleOnGameHide() {
+        this.resetBottomMessageState();
+        this.uiStore.triggerCancelAutoPlay = {};
+    }
+
+    handlePlaceBetFailed() {
+        this.changeCascadingState(CascadingSlotState.READY_BET);
+        this.resetBottomMessageState();
+        this.uiStore.triggerCancelAutoPlay = {};
+        this.clearFreeSpins();
+    }
+
     resetProcessingBet() {
         this.changeCascadingState(CascadingSlotState.READY_BET);
+        this.resetBottomMessageState();
+    }
+
+    resetBottomMessageState() {
         this.uiStore.bottomMessageState = this.uiStore.isTrialMode ? SlotNotification.BEFORE_SPIN_TRIAL : SlotNotification.BEFORE_SPIN;
     }
 
@@ -102,18 +118,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.handleFreeSpinsTotal(total);
-        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
         this.updateFreespinCountMsgBottom(freespins.total);
 
         this.betControlHandlers.init(coinValue);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
     }
 
-    clearFreeSpins() {
+    protected clearFreeSpins() {
         this.uiStore.freeSpinsTotal = 0;
         this.uiStore.freeSpinsByRound = 0;
-        this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
-        this.betControlHandlers.init();
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
@@ -172,6 +185,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     updateFreespinCountMsgBottom(count: number) {
+        this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
         this.uiStore.freespinCountMsgBottom = count;
     }
 

@@ -59,6 +59,7 @@ export class CascadingUIStore {
     showReachMaxWin = false;
 
     roundId = 0;
+    triggerCancelAutoPlay = null;
 
     get isTurboMode() {
         return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);

@@ -45,6 +45,14 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }
                 }
             );
+            mobx.reaction(
+                () => this.cascadingUIStore.triggerCancelAutoPlay,
+                (triggerCancelAutoPlay) => {
+                    if (triggerCancelAutoPlay) {
+                        this.cancelAutoPlay();
+                    }
+                }
+            );
         }, 0);
     }
 
@@ -60,8 +68,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     handleError() {
-        this.cascadingUIHandler.resetProcessingBet();
-        this.cancelAutoPlay();
+        this.cascadingUIHandler.handlePlaceBetFailed();
     }
 
     placeBet() {
@@ -156,14 +163,14 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            this.cascadingUIStore.bottomMessageState = SlotNotification.FREESPINS;
             this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             this.placeBet();
         } else {
-            this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+            this.cascadingUIStore.bottomMessageState = this.autoPlayStore.isAutoplay
+                ? SlotNotification.AUTO_SPIN
+                : SlotNotification.SETTLED;
             this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);
             if (this.autoPlayStore.isAutoplay) {
-                this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
                 this.handleAutoPlaceBet();
             } else {

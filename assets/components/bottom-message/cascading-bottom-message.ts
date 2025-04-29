@@ -19,7 +19,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     highlightColor: string;
     private isTurboMode = false;
     private isTrialMode = false;
-    private bottomMessageState = "";
     private colorConfig: any;
 
     onLoad() {
@@ -46,7 +45,6 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
-        this.bottomMessageState = bottomMessageState;
         switch (bottomMessageState) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
@@ -90,16 +88,12 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
     setFreeSpinsCount(freespinCountMsgBottom: number) {
-        if (this.bottomMessageState === SlotNotification.FREESPINS) {
-            this.showFreeSpinCount(freespinCountMsgBottom);
-        }
+        this.showFreeSpinCount(freespinCountMsgBottom);
     }
 
     @render(AutoPlayStore, (store) => store.roundsAutoplay)
     setRoundsAutoplayMsg(roundsAutoplay: number) {
-        if (this.bottomMessageState === SlotNotification.AUTO_SPIN) {
-            this.showAutoSpinCount(roundsAutoplay);
-        }
+        this.showAutoSpinCount(roundsAutoplay);
     }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)

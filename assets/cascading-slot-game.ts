@@ -326,10 +326,10 @@ export class CascadingSlotGame extends Component {
     @render(GameVisibilityStore, (store) => store.isVisible)
     renderGameVisibility(isVisible: boolean) {
         if (!isVisible) {
-            this.cancelAutoPlay();
+            this.handleOnGameHide();
         }
     }
 
-    @handle(AutoPlayHandler, (handler) => handler.cancelAutoPlay())
-    cancelAutoPlay() {}
+    @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
+    handleOnGameHide() {}
 }

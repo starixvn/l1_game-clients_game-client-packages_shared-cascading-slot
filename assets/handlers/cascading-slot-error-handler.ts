@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import { AutoPlayHandler } from "./auto-play-handlers";
+import { BetControlHandlers } from "./bet-control-handlers";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 const { injectable, inject } = inversify;
 
@@ -9,6 +10,7 @@ export class CascadingSlotErrorHandler extends gc.Error.ErrorHandlers {
     @inject(gc.Bet.BetStore) protected readonly betStore: gc.Bet.BetStore;
     @inject(AutoPlayHandler) protected readonly autoPlayHandler: AutoPlayHandler;
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
+    @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
     eventHandleList = [
         {
             name: gc.GameServiceMessage.ApiError.eventName,
@@ -35,17 +37,14 @@ export class CascadingSlotErrorHandler extends gc.Error.ErrorHandlers {
     handleEndGameApiError() {
         if (this.endGameApiError) {
             this.handleApiError(this.endGameApiError);
-            this.autoPlayHandler.cancelAutoPlay();
+            this.cascadingUIHandler.handlePlaceBetFailed();
         }
     }
 
     slotHandleNotice(notice: { errorCode: string }) {
         if (notice && notice.errorCode === "SB1929") {
-            this.clearFreeSpins();
+            this.cascadingUIHandler.handlePlaceBetFailed();
+            this.betControlHandlers.init();
         }
-    }
-
-    clearFreeSpins() {
-        this.cascadingUIHandler.clearFreeSpins();
     }
 }
