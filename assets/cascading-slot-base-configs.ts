@@ -2,7 +2,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
     normal: {
         highlightWinItemsDuration: 0.5,
         freeSpin: 4,
-        bigWin: 1,
+        bigWin: 2.17,
         bigWinFloatNumber: 3,
         delayForNextSpin: 0.3,
         transition: 1.16,
@@ -11,7 +11,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
     turbo: {
         highlightWinItemsDuration: 0.3,
         freeSpin: 2.5,
-        bigWin: 1,
+        bigWin: 2.17,
         bigWinFloatNumber: 0.3,
         delayForNextSpin: 0.5,
         transition: 1.16,
