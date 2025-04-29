@@ -6,6 +6,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         bigWinFloatNumber: 3,
         delayForNextSpin: 0.3,
         transition: 1.16,
+        eventMascot: 2,
     },
 
     turbo: {
@@ -15,6 +16,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         bigWinFloatNumber: 0.3,
         delayForNextSpin: 0.5,
         transition: 1.16,
+        eventMascot: 2,
     },
 
     itemTypeCount: 11,
@@ -38,6 +40,7 @@ export interface CascadingSlotConfigDuration {
     bigWinFloatNumber: number;
     delayForNextSpin: number;
     transition?: number;
+    eventMascot?: number;
 }
 
 export enum ConfigDurationEnum {

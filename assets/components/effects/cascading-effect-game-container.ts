@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, JsonAsset, Node, Prefab } from "cc";
+import { _decorator, instantiate, JsonAsset, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import Observer from "observer";
@@ -7,7 +7,6 @@ import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
-import { CascadingMascot } from "../cascading-mascot";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -21,9 +20,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     @property(Prefab)
     pfbEffectTransition: Prefab = null;
-
-    @property(Node)
-    nodeMascot: Node = null;
 
     @property(JsonAsset)
     gameInfo: JsonAsset = null;
@@ -51,7 +47,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
-        await this.playEffectEventMascot();
+        await this.delayMascotEvent();
         await this.playEffectTransition();
         this.playSound(this.Sound.FREE_SPIN_SOUND);
         const freespin = instantiate(this.pfbEffectFreespin);
@@ -68,7 +64,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
-        await this.playEffectEventMascot();
+        await this.delayMascotEvent();
         await this.playEffectTransition();
         !this.isTurboMode && this.playSoundCoinIncrement();
 
@@ -114,11 +110,11 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         transition.destroy();
     }
 
-    private async playEffectEventMascot() {
-        if (!this.nodeMascot || !this.gameConfig.turnOnEventMascot) {
-            return null;
+    async delayMascotEvent() {
+        if (!this.gameConfig.turnOnEventMascot) {
+            return;
         }
-        const comp = this.nodeMascot.getComponent(CascadingMascot);
-        await comp.playAnimEventGame();
+        const duration = getCustomDuration("eventMascot", this.isTurboMode);
+        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
     }
 }
