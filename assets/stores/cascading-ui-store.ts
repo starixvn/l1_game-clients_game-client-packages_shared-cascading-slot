@@ -148,17 +148,20 @@ export class CascadingUIStore {
         );
     }
 
+    get disabledChangeTrialMode() {
+        return this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode);
+    }
+
     get disabledAutoPlay() {
         if (this.autoPlayStore.isAutoplay) {
             return false;
         }
-        if (this.holdActionStore.isHolding) {
-            return true;
-        }
-        return this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING;
+        return (
+            this.holdActionStore.isHolding || this.isFreeSpins || this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING
+        );
     }
 
     get disabledOpenInputBet() {
-        return this.cascadingState === CascadingSlotState.SPINNING;
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING;
     }
 }

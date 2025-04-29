@@ -48,14 +48,6 @@ export class CascadingTotalBet extends ObserverComponent {
         this.totalBetLabel.string = totalBet.toString();
     }
 
-    @render(BetControlStore, (store) => store.betLevel, { fireImmediately: false })
-    hideDisabledLayer(betLevel: number[]) {
-        if (!betLevel) {
-            return;
-        }
-        this.disabled.active = false;
-    }
-
     @render(BetControlStore, (store) => store.interactableTotalBet)
     renderChangeTotalBet(interactableTotalBet: { increase: boolean; decrease: boolean }) {
         this.buttonIncrease.interactable = interactableTotalBet.increase;

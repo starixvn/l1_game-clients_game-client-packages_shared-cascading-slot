@@ -2,7 +2,6 @@ import gc from "@sg/game-client-base";
 import { _decorator, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
-import { CascadingSlotState } from "../../cascading-slot-state";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -88,9 +87,9 @@ export class CascadingTrialMode extends ObserverComponent {
         return initialized;
     }
 
-    @render(CascadingUIStore, (store) => store.cascadingState)
-    renderDisabledTrialMode(cascadingState: string) {
-        this.nodeDisabled.active = cascadingState === CascadingSlotState.SPINNING;
+    @render(CascadingUIStore, (store) => store.disabledChangeTrialMode)
+    renderDisabledTrialMode(disabledChangeTrialMode: boolean) {
+        this.nodeDisabled.active = disabledChangeTrialMode;
     }
 
     @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))
