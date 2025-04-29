@@ -91,6 +91,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.openAutoPlayPopup();
         } else {
             this.cancelAutoPlay();
+            this.cascadingUIHandler.resetBottomMessageState();
         }
     }
 
