@@ -11,6 +11,8 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     @property(Label)
     total: Label = null;
 
+    private isShowTotalMultiplierJoinGame = false;
+
     onLoad() {
         super.onLoad();
         this.showView(false, true);
@@ -34,5 +36,10 @@ export class TotalMultiplierView extends FadeAppearanceNode {
         } else {
             this.total.string = totalMultiplier > 0 ? `x${totalMultiplier}` : "";
         }
+    }
+
+    @render(CascadingUIStore, (store) => store.isShowTotalMultiplierJoinGame)
+    renderTotalMultiplierJoinGame(isShow: boolean) {
+        isShow && this.showView(true);
     }
 }
