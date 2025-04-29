@@ -20,9 +20,13 @@ export class CascadingBottomMessage extends ObserverComponent {
     private isTurboMode = false;
     private isTrialMode = false;
     private colorConfig: any;
-
+    private state = "";
+    private roundsAutoplay = 0;
+    private freespinCountMsgBottom = 0;
     onLoad() {
         this.colorConfig = this.colorInfo.json;
+        this.highlightColor = this.colorConfig.noticeHighlightTextColor;
+        this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         super.onLoad();
     }
 
@@ -31,10 +35,8 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     protected showFreeSpinCount(amount: number) {
-        this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         const amountFormatting = `<color=${this.highlightColor}>${amount}</color>`;
         const msg = gc.Translator.gameTranslate(`free_spin_left_amount`).toUpperCase();
-        this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         this.msgRichText.string = msg.replace(/%{amount}/i, amountFormatting);
     }
 
@@ -45,7 +47,12 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.bottomMessageState)
     renderBottomMessage(bottomMessageState: string) {
-        switch (bottomMessageState) {
+        this.state = bottomMessageState;
+        this.updateMessage();
+    }
+
+    updateMessage() {
+        switch (this.state) {
             case SlotNotification.BEFORE_SPIN:
                 this.handleMessageBeforeSpin();
                 break;
@@ -60,6 +67,14 @@ export class CascadingBottomMessage extends ObserverComponent {
                 break;
             case SlotNotification.TUMBLE_WIN:
                 this.updateMessageContent(gc.Translator.gameTranslate(`win_tumble_msg`));
+                break;
+            case SlotNotification.AUTO_SPIN:
+                this.showAutoSpinCount(this.roundsAutoplay);
+                break;
+            case SlotNotification.FREESPINS:
+                this.showFreeSpinCount(this.freespinCountMsgBottom);
+                break;
+            default:
                 break;
         }
     }
@@ -88,12 +103,14 @@ export class CascadingBottomMessage extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
     setFreeSpinsCount(freespinCountMsgBottom: number) {
-        this.showFreeSpinCount(freespinCountMsgBottom);
+        this.freespinCountMsgBottom = freespinCountMsgBottom;
+        this.updateMessage();
     }
 
     @render(AutoPlayStore, (store) => store.roundsAutoplay)
     setRoundsAutoplayMsg(roundsAutoplay: number) {
-        this.showAutoSpinCount(roundsAutoplay);
+        this.roundsAutoplay = roundsAutoplay;
+        this.updateMessage();
     }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
