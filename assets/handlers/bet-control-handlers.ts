@@ -53,6 +53,15 @@ export class BetControlHandlers {
                 this.betControlStore.currentTotalBetIndex--;
             }
         }
+        this.syncOthersByTotalBet();
+    }
+
+    syncOthersByTotalBet() {
+        const item = this.betControlStore.totalBetUnique[this.betControlStore.currentTotalBetIndex];
+        const total = Object.keys(item)[0];
+        const detail = item[total];
+        this.betControlStore.currentBetLevelIndex = detail.indexLevel;
+        this.betControlStore.currentCoinIndex = detail.indexCoin;
     }
 
     init(currentCoinValue?: number, betLevel?: number) {
