@@ -35,6 +35,8 @@ export class BetControlStore {
 
     resumeLastBet = false;
 
+    needClearLastSetting = false;
+
     _lastSetting = null;
 
     get lastSetting() {

@@ -205,6 +205,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
         this.uiStore.roundId = 0;
         this.handleNewRound();
+        this.betControlStore.needClearLastSetting = true;
         this.saveGameUserSettings();
     }
 

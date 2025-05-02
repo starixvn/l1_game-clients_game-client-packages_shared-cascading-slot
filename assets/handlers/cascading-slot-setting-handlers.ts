@@ -44,12 +44,14 @@ export class CascadingSlotSettingHandlers {
     saveTempStorage() {
         const currentSetting = {
             trialMode: this.cascadingUIStore.isTrialMode,
-            lastBetSetting: {
-                betLevel: this.betControlStore.betLevel,
-                coinValue: this.betControlStore.coinValue,
-            },
+            lastBetSetting: this.betControlStore.needClearLastSetting
+                ? null
+                : {
+                      betLevel: this.betControlStore.betLevel,
+                      coinValue: this.betControlStore.coinValue,
+                  },
         };
-
+        this.betControlStore.needClearLastSetting = false;
         StorageManager.set(localStorageKeys.gameUserSetting, currentSetting);
     }
 }
