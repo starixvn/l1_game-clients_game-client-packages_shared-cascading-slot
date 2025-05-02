@@ -23,14 +23,17 @@ export class CascadingSpinButton extends ObserverComponent {
 
     playAnimationSpin() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
+        this.iconSpinSkeleton.timeScale = 1;
     }
 
     playAnimationIdle() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
+        this.iconSpinSkeleton.timeScale = 1;
     }
 
     playAnimationSpinTurbo() {
-        AnimationUtils.updateSpineDuration(this.iconSpinSkeleton, "spin", 2);
+        AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
+        this.iconSpinSkeleton.timeScale = 2;
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
