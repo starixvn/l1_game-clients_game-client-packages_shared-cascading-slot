@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, game, JsonAsset, Label, Node, sp } from "cc";
+import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
@@ -62,12 +62,23 @@ export class CascadingSlotGame extends Component {
     private spinButtonSound = "spin_button";
 
     onLoad() {
+        this.registerEventShowHideGame();
         this.node.addComponent(GameVisibility);
         this.loadSlotSymbols().then(async () => {
             this.board.colorInfo = this.colorInfo;
             this.board.initBoardFullItems();
         });
         this.focusGameCanvas();
+    }
+
+    protected registerEventShowHideGame() {
+        game.on(Game.EVENT_HIDE, this.onHideGame, this);
+        game.on(Game.EVENT_SHOW, this.onShowGame, this);
+    }
+
+    protected clearEventShowHideGame() {
+        game.off(Game.EVENT_HIDE, this.onHideGame, this);
+        game.off(Game.EVENT_SHOW, this.onShowGame, this);
     }
 
     protected handleStaticNodeAndSetEmptyLabels() {
