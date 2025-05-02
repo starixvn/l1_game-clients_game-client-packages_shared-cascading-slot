@@ -119,7 +119,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.handleFreeSpinsTotal(total);
-        this.updateFreespinCountMsgBottom(freespins.total);
+        this.updateFreespinCountMsgBottom(total);
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));

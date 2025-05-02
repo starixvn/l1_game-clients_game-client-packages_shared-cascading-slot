@@ -21,7 +21,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     handle() {
         const betData = this.slotBetData();
-        this.handleBetData(betData);
+        return this.handleBetData(betData);
     }
     slotBetData() {
         return {
@@ -36,6 +36,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     }
 
     handleBetData(data: any) {
+        let success = false;
         const amount = data.totalBet;
         if (this.isValidBet(amount)) {
             this.uiStore.changeUserBalance = false;
@@ -47,9 +48,12 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
             this.retryGameHandler.handle();
+            success = true;
         } else {
             this.uiHandler.resetProcessingBet();
         }
+
+        return success;
     }
 
     isValidBet(amount: number) {

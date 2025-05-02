@@ -78,7 +78,12 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     placeBetSilent() {
         this.cascadingUIHandler.handleNewRound();
-        this.slotBetHandler.handle();
+        const success = this.slotBetHandler.handle();
+        if (success) {
+            if (this.cascadingUIStore.freeSpinsTotal > 0) {
+                this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
+            }
+        }
     }
 
     openAutoPlayPopup() {
@@ -164,7 +169,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     checkSpinNextRound() {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             this.placeBet();
         } else {
             this.cascadingUIStore.bottomMessageState = this.autoPlayStore.isAutoplay
