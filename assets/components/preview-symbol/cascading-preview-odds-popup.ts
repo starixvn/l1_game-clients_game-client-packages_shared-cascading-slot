@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { CascadingSlotState } from "../../cascading-slot-state";
 import { hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -30,6 +31,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     public betLevel = 0;
     public coinValue = 0;
     public colorConfig: any;
+    private cascadingState = "";
 
     onLoad() {
         this.colorConfig = this.colorInfo.json;
@@ -48,6 +50,9 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     addReelItemEvent(item, isInfoOnLeft) {
         item.node.on(Node.EventType.TOUCH_END, () => {
+            if (this.cascadingState === CascadingSlotState.SPINNING) {
+                return;
+            }
             this.playSoundClick();
             if (this.currentPreviewItem === item.node) {
                 this.handleSymbolPreviewVisiblity(false);
@@ -60,7 +65,6 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     }
 
     showPreview(previewNode: Node, worldPosition: Vec3) {
-        // this.previewOverlay.active = true;
         this.hideOtherPreview();
         this.previewOverlay.addChild(previewNode);
 
@@ -118,5 +122,10 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return "click";
+    }
+
+    @render(CascadingUIStore, (store) => store.cascadingState)
+    renderCascadingState(cascadingState: string) {
+        this.cascadingState = cascadingState;
     }
 }
