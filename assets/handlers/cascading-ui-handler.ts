@@ -175,6 +175,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isTrialMode = isTrialMode;
         if (isTrialMode) {
             this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
+            this.uiStore.isTurboModeUI = false;
         } else {
             if (this.uiStore.cascadingState !== CascadingSlotState.READY_BET) {
                 this.uiStore.bottomMessageState = SlotNotification.SETTLED;
