@@ -11,6 +11,7 @@ const { StorageManager, localStorageKeys } = gc;
 
 interface IGameUserSetting {
     trialMode: boolean;
+    turboMode: boolean;
     lastBetSetting: { betLevel: number; coinValue: number };
 }
 
@@ -37,6 +38,7 @@ export class CascadingSlotSettingHandlers {
         const data = StorageManager.get(localStorageKeys.gameUserSetting) as IGameUserSetting;
         if (data) {
             this.cascadingUIStore.isTrialMode = data.trialMode;
+            this.cascadingUIStore.isTurboModeUI = data.turboMode;
             this.betControlStore.lastSetting = data.lastBetSetting;
         }
     }
@@ -44,6 +46,7 @@ export class CascadingSlotSettingHandlers {
     saveTempStorage() {
         const currentSetting = {
             trialMode: this.cascadingUIStore.isTrialMode,
+            turboMode: this.cascadingUIStore.isTurboModeUI,
             lastBetSetting: this.betControlStore.needClearLastSetting
                 ? null
                 : {
