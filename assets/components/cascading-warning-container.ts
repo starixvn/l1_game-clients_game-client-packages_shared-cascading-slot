@@ -13,8 +13,13 @@ export class CascadingWarningContainer extends ObserverComponent {
     @property(Prefab)
     prefabWarning: Prefab = null;
 
+    private isTrialMode = false;
+
     @render(CascadingUIStore, (store) => store.isTurboModeUI, { fireImmediately: false })
     renderTurboModeMsg(isTurboMode: boolean) {
+        if (this.isTrialMode) {
+            return;
+        }
         const msg = isTurboMode ? gc.Translator.gameTranslate("enable_turbo_mode") : gc.Translator.gameTranslate("disable_turbo_mode");
         this.addNode(msg);
     }
@@ -32,5 +37,10 @@ export class CascadingWarningContainer extends ObserverComponent {
         const comp = warningNode.getComponent(CascadingWarningMsg);
         this.node.addChild(warningNode);
         comp.setData(msg);
+    }
+
+    @render(CascadingUIStore, (store) => store.isTrialMode)
+    renderTrialMode(isTrialMode: boolean) {
+        this.isTrialMode = isTrialMode;
     }
 }
