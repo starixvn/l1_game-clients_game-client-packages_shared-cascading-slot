@@ -12,14 +12,12 @@ export class BetControlStore {
         mobx.reaction(
             () => this.currentCoinIndex,
             () => {
-                console.log(" on changed currentCoinIndex", this.currentCoinIndex);
                 this.onChangeCoinAndBetLevel();
             }
         );
         mobx.reaction(
             () => this.currentBetLevelIndex,
             () => {
-                console.log(" on changed currentBetLevelIndex", this.currentBetLevelIndex);
                 this.onChangeCoinAndBetLevel();
             }
         );
@@ -36,6 +34,16 @@ export class BetControlStore {
     _totalBet = 0;
 
     resumeLastBet = false;
+
+    _lastSetting = null;
+
+    get lastSetting() {
+        return this._lastSetting;
+    }
+
+    set lastSetting(value: { betLevel: number; coinValue: number }) {
+        this._lastSetting = value;
+    }
 
     get betLevel() {
         return this.betLevels[this.currentBetLevelIndex] ?? 0;

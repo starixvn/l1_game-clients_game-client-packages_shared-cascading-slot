@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import mobx from "mobx";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
@@ -21,10 +22,24 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
     @inject(gc.UserSettings.UserSettingHandlers) protected readonly userSettingHandlers: gc.UserSettings.UserSettingHandlers;
+    @inject(gc.GameUserSettings.GameUserSettingHandler)
+    protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
 
     constructor() {
-        setInterval(() => {
+        setTimeout(() => {
             this.userSettingHandlers.loadStorages();
+            mobx.reaction(
+                () => this.betControlStore.coinValue,
+                () => {
+                    this.saveGameUserSettings();
+                }
+            );
+            mobx.reaction(
+                () => this.betControlStore.betLevel,
+                () => {
+                    this.saveGameUserSettings();
+                }
+            );
         }, 0);
     }
 
@@ -113,7 +128,12 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreespinsJoinGame(freespins: any) {
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
-            this.betControlHandlers.init();
+            if (this.betControlStore.lastSetting) {
+                const { betLevel, coinValue } = this.betControlStore.lastSetting;
+                this.betControlHandlers.init(coinValue, betLevel);
+            } else {
+                this.betControlHandlers.init();
+            }
             return;
         }
 
@@ -185,6 +205,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
         this.uiStore.roundId = 0;
         this.handleNewRound();
+        this.saveGameUserSettings();
+    }
+
+    saveGameUserSettings() {
+        this.gameUserSettingHandler.saveTempStorage();
     }
 
     updateFreespinCountMsgBottom(count: number) {
