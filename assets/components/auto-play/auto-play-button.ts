@@ -42,7 +42,6 @@ export default class AutoPlayButton extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.disabledAutoPlay)
     disabledAutoPlay(disabledAutoPlay: boolean) {
-        console.log("disabledAutoPlay--------------", disabledAutoPlay);
         this.nodeDisabled.active = disabledAutoPlay;
     }
 

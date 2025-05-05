@@ -74,10 +74,6 @@ export class HoldActionButton extends ObserverComponent {
         }
     }
 
-    private stopHoldButton() {
-        this.clearTriggerAction();
-    }
-
     @handle(CascadingHoldActionHandlers, (handler) => handler.callTriggerAction())
     callTriggerAction() {}
 
