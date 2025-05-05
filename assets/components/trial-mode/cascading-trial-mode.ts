@@ -20,7 +20,6 @@ export class CascadingTrialMode extends ObserverComponent {
 
     private isTrialMode = false;
     private isConnectedTrialService = false;
-    private readonly BET_LEVEL_DEFAULT_TRIAL_MODE = 4;
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
@@ -63,14 +62,10 @@ export class CascadingTrialMode extends ObserverComponent {
     }
 
     @handle(gc.Connection.ConnectionHandlers.InGameHandler, (handle) => handle.handleTrial())
-    inGameTrial() {
-        this.setInitializedGameConfigs(false);
-    }
+    inGameTrial() {}
 
     @handle(gc.Connection.ConnectionHandlers.InGameHandler)
-    inGame() {
-        this.setInitializedGameConfigs(false);
-    }
+    inGame() {}
 
     @handle(CascadingUIHandler, (handler, connected: boolean) => handler.updateConnectedTrialService(connected))
     updateConnectedTrialService(connected: boolean) {
@@ -80,11 +75,6 @@ export class CascadingTrialMode extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isConnectedTrialService)
     renderConnectedTrialService(isConnected: boolean) {
         this.isConnectedTrialService = isConnected;
-    }
-
-    @handle(gc.GameConfigs.GameConfigHandlers, (handler, connected: boolean) => handler.setInitializedGameConfigs(connected))
-    setInitializedGameConfigs(initialized: boolean) {
-        return initialized;
     }
 
     @render(CascadingUIStore, (store) => store.disabledChangeTrialMode)
