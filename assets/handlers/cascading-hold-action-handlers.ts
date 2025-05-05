@@ -23,7 +23,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
             const canBet =
                 this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET ||
                 this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED;
-            if (canBet) {
+            if (canBet && !this.cascadingUIStore.disabledSpinButton) {
                 this.holdActionStore.triggerAction = {};
                 this.timeoutHolding = setTimeout(() => {
                     this.holdActionStore.isHolding = true;
