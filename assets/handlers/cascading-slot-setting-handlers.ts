@@ -26,8 +26,13 @@ export class CascadingSlotSettingHandlers {
             mobx.reaction(
                 () => this.gameUserSettingStore.tempStorage,
                 (trigger) => {
-                    if (trigger?.action === GameUserSettingAction.Save) {
-                        this.saveTempStorage();
+                    switch (trigger?.action) {
+                        case GameUserSettingAction.Save:
+                            this.saveTempStorage();
+                            break;
+                        case GameUserSettingAction.Load:
+                            this.loadTempStorage();
+                            break;
                     }
                 }
             );
@@ -40,6 +45,10 @@ export class CascadingSlotSettingHandlers {
             this.cascadingUIStore.isTrialMode = data.trialMode;
             this.cascadingUIStore.isTurboModeUI = data.turboMode;
             this.betControlStore.lastSetting = data.lastBetSetting;
+        } else {
+            this.cascadingUIStore.isTrialMode = false;
+            this.cascadingUIStore.isTurboModeUI = false;
+            this.betControlStore.lastSetting = null;
         }
     }
 
