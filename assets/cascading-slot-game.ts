@@ -126,12 +126,14 @@ export class CascadingSlotGame extends Component {
         window.location.reload();
     }
 
-    @render(Connection.ConnectionStore, (store) => store.signedIn)
-    onSignedIn(signedIn: boolean) {
-        signedIn && this.inGame();
+    @render(CascadingUIStore, (store) => store.isTrialMode)
+    renderTrialMode(isTrialMode: boolean) {
+        if (!isTrialMode) {
+            this.inGame();
+        }
     }
 
-    @handle(Connection.ConnectionHandlers.InGameHandler)
+    @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
     inGame() {}
 
     async loadSlotSymbols() {

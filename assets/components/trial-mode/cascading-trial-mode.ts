@@ -28,8 +28,6 @@ export class CascadingTrialMode extends ObserverComponent {
         this.nodeRealMode.active = isTrialMode;
         if (isTrialMode) {
             this.isConnectedTrialService ? this.inGameTrial() : this.connectToServiceTrial();
-        } else {
-            this.inGame();
         }
     }
 
@@ -63,9 +61,6 @@ export class CascadingTrialMode extends ObserverComponent {
 
     @handle(gc.Connection.ConnectionHandlers.InGameHandler, (handle) => handle.handleTrial())
     inGameTrial() {}
-
-    @handle(gc.Connection.ConnectionHandlers.InGameHandler)
-    inGame() {}
 
     @handle(CascadingUIHandler, (handler, connected: boolean) => handler.updateConnectedTrialService(connected))
     updateConnectedTrialService(connected: boolean) {
