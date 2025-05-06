@@ -1,12 +1,15 @@
 import inversify from "inversify";
 import mobx from "mobx";
+import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet } from "../cascading-slot-utils";
+import { AutoPlayStore } from "./auto-play-store";
 import { CascadingUIStore } from "./cascading-ui-store";
 const { injectable, inject } = inversify;
 
 @injectable()
 export class BetControlStore {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
+    @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     constructor() {
         mobx.makeAutoObservable(this);
         mobx.reaction(
@@ -130,5 +133,13 @@ export class BetControlStore {
     onChangeCoinAndBetLevel() {
         const totalBet = calculateTotalBet(this.betLevel, this.coinValue, this.betMultiplier);
         this.syncCurrentTotalBetIndex(totalBet);
+    }
+
+    get isCollapseMenuInGame() {
+        return (
+            this.cascadingUIStore.cascadingState === CascadingSlotState.SPINNING ||
+            this.autoPlayStore.isOpenAutoplayPopup ||
+            this.isOpenBetAmountPopup
+        );
     }
 }
