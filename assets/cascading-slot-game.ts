@@ -1,18 +1,17 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, Game, game, JsonAsset, Label, Node, sp } from "cc";
+import { _decorator, Component, Game, game, JsonAsset, Label, Node } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
-import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
 import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
+import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
 import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
-import { CascadingEffectGameContainer } from "./components/effects/cascading-effect-game-container";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
@@ -40,9 +39,6 @@ export class CascadingSlotGame extends Component {
     @property(Node)
     effectContainer: Node = null;
 
-    @property(CascadingEffectGameContainer)
-    effectGameContainer: CascadingEffectGameContainer = null;
-
     @property(Label)
     lblRoundId: Label = null;
 
@@ -59,15 +55,13 @@ export class CascadingSlotGame extends Component {
     colorInfo: JsonAsset = null;
 
     public isTurboMode = false;
-    private spinButtonSound = "spin_button";
 
     onLoad() {
         this.registerEventShowHideGame();
         this.node.addComponent(GameVisibility);
-        this.loadSlotSymbols().then(async () => {
-            this.board.colorInfo = this.colorInfo;
-            this.board.initBoardFullItems();
-        });
+        this.loadSlotSymbols();
+        this.board.colorInfo = this.colorInfo;
+        this.board.initBoardFullItems();
         this.focusGameCanvas();
     }
 
@@ -136,27 +130,14 @@ export class CascadingSlotGame extends Component {
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
     inGame() {}
 
-    async loadSlotSymbols() {
+    loadSlotSymbols() {
         const cache = resourcesCache.slotSymbols || {};
         for (let index = 0; index < CascadingSlotConfig?.symbolCount; index++) {
             if (cache[index]) {
                 continue;
             }
             const path = `symbol-spines/symbol-${index}`;
-            //const devPath = `../games/*/${path}`;
-            try {
-                const data = await bundleManager.loadAssetsFromBundle<sp.SkeletonData>("resources", path, sp.SkeletonData, null);
-                // const data = await BundleManager.getInstance().loadAsset<sp.SkeletonData>({
-                //     bundleId: this.gameId.toString(),
-                //     path: path,
-                //     pathForDevMode: devPath,
-                //     type: sp.SkeletonData
-                // });
-
-                cache[index] = data;
-            } catch (error) {
-                console.warn(`Missing SkeletonData for ${path} `, error);
-            }
+            cache[index] = bundleManager.cachedAssets[path];
         }
 
         resourcesCache.slotSymbols = cache;
