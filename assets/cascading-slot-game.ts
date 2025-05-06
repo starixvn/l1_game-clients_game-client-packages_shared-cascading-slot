@@ -97,6 +97,7 @@ export class CascadingSlotGame extends Component {
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
         console.log(`LoadScene ${gameName}`);
+        console.timeEnd("Game Load Time");
     }
 
     @render(LogStore, (store) => store.message)
