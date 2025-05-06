@@ -59,10 +59,13 @@ export class CascadingSlotGame extends Component {
     onLoad() {
         this.registerEventShowHideGame();
         this.node.addComponent(GameVisibility);
+        this.focusGameCanvas();
+    }
+
+    start() {
         this.loadSlotSymbols();
         this.board.colorInfo = this.colorInfo;
         this.board.initBoardFullItems();
-        this.focusGameCanvas();
     }
 
     protected registerEventShowHideGame() {
