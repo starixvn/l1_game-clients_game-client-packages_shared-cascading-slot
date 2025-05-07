@@ -31,7 +31,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @property(CascadingPreviewOddsPopup)
     previewPopup: CascadingPreviewOddsPopup = null;
-    s;
+
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
     public colorInfo: any;
