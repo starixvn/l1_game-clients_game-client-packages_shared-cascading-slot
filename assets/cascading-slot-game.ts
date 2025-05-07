@@ -58,6 +58,7 @@ export class CascadingSlotGame extends Component {
 
     onLoad() {
         this.registerEventShowHideGame();
+        this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
     }
@@ -316,7 +317,6 @@ export class CascadingSlotGame extends Component {
             // Set initial focus
             setTimeout(() => {
                 game.canvas.focus();
-                console.log("Canvas focused automatically");
             }, 100);
         }
     }

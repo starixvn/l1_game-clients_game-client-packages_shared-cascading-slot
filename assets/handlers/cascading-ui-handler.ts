@@ -27,7 +27,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     constructor() {
         setTimeout(() => {
-            this.userSettingHandlers.loadStorages();
             mobx.reaction(
                 () => this.betControlStore.coinValue,
                 () => {
