@@ -1,4 +1,4 @@
-import { _decorator, Node, sp } from "cc";
+import { _decorator, Button, Node, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -14,12 +14,15 @@ export class CascadingSpinButton extends ObserverComponent {
     iconSpinSkeleton: sp.Skeleton = null;
 
     @property(Node)
-    disableButton: Node = null;
-
-    @property(Node)
     nodeSpinning: Node = null;
 
     private isTurbo = false;
+    private button: Button = null;
+
+    onLoad() {
+        this.button = this.getComponent(Button);
+        super.onLoad();
+    }
 
     playAnimationSpin() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
@@ -67,6 +70,9 @@ export class CascadingSpinButton extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.disabledSpinButton)
     renderCascadingState(disabledSpinButton: boolean) {
-        this.disableButton.active = disabledSpinButton;
+        //HACK: disable button too fast will cause the button transition scale not working
+        setTimeout(() => {
+            this.button.interactable = !disabledSpinButton;
+        }, 100);
     }
 }
