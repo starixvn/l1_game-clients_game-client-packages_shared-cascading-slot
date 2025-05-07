@@ -1,4 +1,6 @@
-import { _decorator, Button, Node, sp } from "cc";
+import { _decorator, Button, sp } from "cc";
+import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
+import { ButtonState } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -8,20 +10,37 @@ import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
+enum SpineAnimationTrack {
+    MAIN = 0,
+    HOVER = 1,
+    EXTRA = 2,
+}
+
 @ccclass
 export class CascadingSpinButton extends ObserverComponent {
     @property(sp.Skeleton)
     iconSpinSkeleton: sp.Skeleton = null;
 
-    @property(Node)
-    nodeSpinning: Node = null;
-
     private isTurbo = false;
     private button: Button = null;
 
+    private isSpinning = false;
+
     onLoad() {
         this.button = this.getComponent(Button);
+        this.button.node.on(StateChangedEvent, this.onButtonStateChanged, this);
         super.onLoad();
+    }
+
+    onButtonStateChanged(state: ButtonState) {
+        switch (state) {
+            case ButtonState.HOVER:
+                this.iconSpinSkeleton.setAnimation(SpineAnimationTrack.HOVER, "hover", true);
+                break;
+            default:
+                this.iconSpinSkeleton.clearAnimation(SpineAnimationTrack.HOVER);
+                break;
+        }
     }
 
     playAnimationSpin() {
@@ -46,10 +65,9 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     changeAnimationSpinning() {
-        if (!this.nodeSpinning.active) {
+        if (!this.isSpinning) {
             return;
         }
-
         if (this.isTurbo) {
             this.playAnimationSpinTurbo();
         } else {
@@ -60,12 +78,22 @@ export class CascadingSpinButton extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.spinButtonState)
     renderSpinButtonState(state: string) {
         if (state === SpinButtonState.SPINNING) {
-            this.nodeSpinning.active = true;
+            this.isSpinning = true;
+            this.playAnimationSpinExtra();
             this.changeAnimationSpinning();
         } else if (state === SpinButtonState.IDLE) {
-            this.nodeSpinning.active = false;
+            this.isSpinning = false;
+            this.stopAnimationSpinExtra();
             this.playAnimationIdle();
         }
+    }
+
+    playAnimationSpinExtra() {
+        this.iconSpinSkeleton.setAnimation(SpineAnimationTrack.EXTRA, "spin-extra", true);
+    }
+
+    stopAnimationSpinExtra() {
+        this.iconSpinSkeleton.clearAnimation(SpineAnimationTrack.EXTRA);
     }
 
     @render(CascadingUIStore, (store) => store.disabledSpinButton)
