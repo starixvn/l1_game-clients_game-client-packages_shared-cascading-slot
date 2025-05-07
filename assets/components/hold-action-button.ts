@@ -43,7 +43,7 @@ export class HoldActionButton extends ObserverComponent {
         const hit = transform.hitTest(location, event.windowId);
         if (!hit) {
             this.clearTriggerAction();
-            event.propagationStopped = true;
+            // event.propagationStopped = true;
         }
     }
 

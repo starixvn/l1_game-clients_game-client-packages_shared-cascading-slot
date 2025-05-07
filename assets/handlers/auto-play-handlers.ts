@@ -199,11 +199,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.autoPlayStore.isOpenAutoplayPopup = true;
             this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
             this.autoPlayStore.triggerBet = null;
-            return;
-        }
-
-        if (!this.holdActionStore.triggerAction && this.cascadingUIStore.isFreeSpinEffectCompleted) {
-            this.cascadingUIStore.cascadingState = CascadingSlotState.SETTLED;
         }
     }
 }
