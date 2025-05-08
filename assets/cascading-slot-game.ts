@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Component, Game, game, JsonAsset, Label, Node } from "cc";
+import { _decorator, Game, game, JsonAsset, Label, Node } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
@@ -7,6 +7,7 @@ import { FunctionUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
+import { GameComponentBase } from "db://shared-components/game/scripts/components/game-component-base";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
@@ -26,7 +27,7 @@ const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
 
 @ccclass
-export class CascadingSlotGame extends Component {
+export class CascadingSlotGame extends GameComponentBase {
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
 
