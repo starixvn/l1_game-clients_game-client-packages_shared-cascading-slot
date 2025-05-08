@@ -171,6 +171,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
         } else {
+            this.betControlStore.resumeLastBet = false;
             this.cascadingUIStore.bottomMessageState = this.autoPlayStore.isAutoplay
                 ? SlotNotification.AUTO_SPIN
                 : SlotNotification.SETTLED;
