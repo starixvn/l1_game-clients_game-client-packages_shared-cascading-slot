@@ -15,10 +15,19 @@ const { render, handle } = Observer;
 export class HoldActionButton extends ObserverComponent {
     private spinButtonSound = "spin_button";
 
+    onBlur = () => {
+        this.clearTriggerAction();
+    };
+
     onLoad() {
         this.addEvent();
         this.registerTouchEvents();
         super.onLoad();
+    }
+
+    onDestroy() {
+        game.canvas.removeEventListener("blur", this.onBlur);
+        super.onDestroy();
     }
 
     addEvent() {
@@ -32,9 +41,7 @@ export class HoldActionButton extends ObserverComponent {
         this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
         this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
 
-        game.canvas.onblur = () => {
-            this.clearTriggerAction();
-        };
+        game.canvas.addEventListener("blur", this.onBlur);
     }
 
     private handleTouchMove(event: EventTouch) {
