@@ -100,50 +100,45 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
-        return new Promise<void>((resolve) => {
-            const { label, amount: end, start, totalBet, coinValue } = opt;
-            const prefixStr = "";
-            const defaultFormater = (v) => gc.FormatUtils.numberWithCommas(v, 2, false);
-            const formatNumber = defaultFormater;
-            const stepValue = parseFloat(this.calculateStepValue(coinValue));
-            const stepTime = 0.05;
-            const startStr = label.string.replace(prefixStr, "");
-            const startValue = start || parseFloat(startStr.replace(/,/g, "")) || 0;
-            const range = Math.abs(end - startValue);
+        const { label, amount: end, start, totalBet, coinValue } = opt;
+        const prefixStr = "";
+        const defaultFormater = (v) => gc.FormatUtils.numberWithCommas(v, 2, false);
+        const formatNumber = defaultFormater;
+        const stepValue = parseFloat(this.calculateStepValue(coinValue));
+        const stepTime = 0.05;
+        const startStr = label.string.replace(prefixStr, "");
+        const startValue = start || parseFloat(startStr.replace(/,/g, "")) || 0;
+        const range = Math.abs(end - startValue);
 
-            if (!range) {
-                resolve();
-                return;
-            }
+        if (!range) {
+            return;
+        }
 
-            const repeatCount = Math.floor(range / stepValue);
+        const repeatCount = Math.floor(range / stepValue);
 
-            let value = startValue;
-            //label.node.stopAllActions();
+        let value = startValue;
 
-            const formatText = (value) => prefixStr + formatNumber(value);
-            this.tweenBigWin = tween(label.node)
-                .repeat(
-                    repeatCount,
-                    tween(label.node)
-                        .call(() => {
-                            label.string = formatText(value);
-                            value += stepValue;
+        const formatText = (value) => prefixStr + formatNumber(value);
+        this.tweenBigWin = tween(label.node)
+            .repeat(
+                repeatCount,
+                tween(label.node)
+                    .call(() => {
+                        label.string = formatText(value);
+                        value += stepValue;
 
-                            this.changeFrameForBigWinLevel(value, totalBet);
-                        })
-                        .delay(stepTime)
-                )
-                .call(() => {
-                    label.string = formatText(end);
-                    resolve();
-                    this.setBigWinCompleted(true);
-                    this.playSound(this.Sound.BIG_WIN_STOP);
-                    this.playSound(this.Sound.INCREMENT_END);
-                    this.stopSoundCoinIncrement();
-                })
-                .start();
-        });
+                        this.changeFrameForBigWinLevel(value, totalBet);
+                    })
+                    .delay(stepTime)
+            )
+            .call(() => {
+                label.string = formatText(end);
+                this.setBigWinCompleted(true);
+                this.playSound(this.Sound.BIG_WIN_STOP);
+                this.playSound(this.Sound.INCREMENT_END);
+                this.stopSoundCoinIncrement();
+            })
+            .start();
     }
 
     private calculateStepValue(coinValue: number) {

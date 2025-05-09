@@ -100,7 +100,9 @@ export class CascadingSpinButton extends ObserverComponent {
     renderCascadingState(disabledSpinButton: boolean) {
         //HACK: disable button too fast will cause the button transition scale not working
         setTimeout(() => {
-            this.button.interactable = !disabledSpinButton;
+            try {
+                this.button.interactable = !disabledSpinButton;
+            } catch (error) {}
         }, 100);
     }
 }
