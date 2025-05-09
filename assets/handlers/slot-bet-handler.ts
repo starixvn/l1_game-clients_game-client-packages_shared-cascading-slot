@@ -63,7 +63,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             return true;
         }
 
-        const availableBalance = this.uiStore.isTrialMode ? this.uiStore.userBalance : this.betStore.availableBalance;
+        const availableBalance = this.uiStore.userBalance;
         if (this.gameSetting?.validateBalanceWhenBet && amount > availableBalance) {
             this.showNoticePlaceBetFailure();
             return false;

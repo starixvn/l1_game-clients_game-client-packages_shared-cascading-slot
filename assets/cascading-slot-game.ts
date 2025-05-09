@@ -247,8 +247,13 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
 
-    @render(CascadingUIStore, (store) => store.userBalance)
-    setBalance(value: number) {
+    @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))
+    setBalance(data: { balance: number; changedBalance: boolean }) {
+        if (!data || !data.changedBalance) {
+            return;
+        }
+
+        const value = data.balance;
         if (value === undefined || value === null) {
             return;
         }

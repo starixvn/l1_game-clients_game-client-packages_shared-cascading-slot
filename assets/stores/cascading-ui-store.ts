@@ -111,9 +111,6 @@ export class CascadingUIStore {
     }
 
     get userBalance() {
-        if (!this.changeUserBalance) {
-            return;
-        }
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }
