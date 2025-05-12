@@ -41,8 +41,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
     winAmount = 0;
     private isChangeLevelSuper = true;
     private isChangeLevelMega = true;
-    private totalBet: number = 0;
-    private coinValue: number = 0;
+    private totalBet = 0;
+    private coinValue = 0;
     private isTurboMode = false;
     private tweenBigWin: Tween<Node> = null;
     private readonly Sound = {

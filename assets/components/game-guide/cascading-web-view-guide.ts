@@ -9,8 +9,8 @@ const { observer, render, handle } = Observer;
 
 @ccclass
 export class CascadingWebViewGuide extends WebViewGuide {
-    private level: number = 0;
-    private coin: number = 0;
+    private level = 0;
+    private coin = 0;
 
     @handle(gc.GameGuide.GameGuideHandlers.GetGuideURL)
     initUrl(specialDirection = "", scrollToId = "") {

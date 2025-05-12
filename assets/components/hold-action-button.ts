@@ -13,7 +13,7 @@ const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 @ccclass
 export class HoldActionButton extends ObserverComponent {
-    private spinButtonSound = "spin_button";
+    private readonly spinButtonSound = "spin_button";
 
     onBlur = () => {
         this.clearTriggerAction();

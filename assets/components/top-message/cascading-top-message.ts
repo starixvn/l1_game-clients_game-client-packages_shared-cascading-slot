@@ -53,7 +53,9 @@ export class CascadingTopMessage extends ObserverComponent {
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
     updateMaxWin(gameConfigs: any) {
-        if (!gameConfigs) return;
+        if (!gameConfigs) {
+            return;
+        }
         this.maxWinPerRound = gameConfigs.maxWinPerRound;
         this.renderMsg3();
     }

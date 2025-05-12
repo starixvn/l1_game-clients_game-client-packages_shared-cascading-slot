@@ -45,8 +45,5 @@ export class CascadingBottomArea extends ObserverComponent {
         });
 
         this.totalWinLabel.node.getComponent(Label).color = new Color().fromHEX(this.colorConfig.bottomAreaWinAmountColor);
-        // GameUtils.setColorAndOpacity(bgFrameColor, this.totalWinNode);
-        // GameUtils.setColorAndOpacity(bgFrameColor, this.autoSpinToggle.node.children[0]);
-        // GameUtils.setColorAndOpacity(bgFrameColor, this.turboToggle.node.children[0]);
     }
 }

@@ -33,13 +33,10 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     onButtonStateChanged(state: ButtonState) {
-        switch (state) {
-            case ButtonState.HOVER:
-                this.iconSpinSkeleton.setAnimation(SpineAnimationTrack.HOVER, "hover", true);
-                break;
-            default:
-                this.iconSpinSkeleton.clearAnimation(SpineAnimationTrack.HOVER);
-                break;
+        if (state === ButtonState.HOVER) {
+            this.iconSpinSkeleton.setAnimation(SpineAnimationTrack.HOVER, "hover", true);
+        } else {
+            this.iconSpinSkeleton.clearAnimation(SpineAnimationTrack.HOVER);
         }
     }
 

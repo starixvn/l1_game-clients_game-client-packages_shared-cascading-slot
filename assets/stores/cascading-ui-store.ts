@@ -22,7 +22,7 @@ export class CascadingUIStore {
         mobx.makeAutoObservable(this);
     }
 
-    totalWin: number = 0;
+    totalWin = 0;
     totalTumbleWin = 0;
     isActualWin = false;
 
@@ -129,11 +129,10 @@ export class CascadingUIStore {
     }
 
     get spinButtonState() {
-        switch (this.cascadingState) {
-            case CascadingSlotState.SPINNING:
-                return SpinButtonState.SPINNING;
-            default:
-                return SpinButtonState.IDLE;
+        if (this.cascadingState === CascadingSlotState.SPINNING) {
+            return SpinButtonState.SPINNING;
+        } else {
+            return SpinButtonState.IDLE;
         }
     }
 

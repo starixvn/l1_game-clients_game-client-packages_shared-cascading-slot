@@ -308,7 +308,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     flyWinLabelAnimation(node: Node) {
         node.scale = v3(0, 0, 0);
         node.getComponent(UIOpacity).opacity = 1;
-        const t = tween(node)
+        tween(node)
             .parallel(
                 tween(node.getComponent(UIOpacity))
                     .to(0.05, { opacity: 255 })

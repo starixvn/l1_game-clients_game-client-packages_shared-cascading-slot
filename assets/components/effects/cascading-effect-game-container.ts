@@ -100,7 +100,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     private async playEffectTransition() {
         if (!this.pfbEffectTransition) {
-            return null;
+            return;
         }
         const transition = instantiate(this.pfbEffectTransition);
         this.playSound(this.Sound.TRANSITION);

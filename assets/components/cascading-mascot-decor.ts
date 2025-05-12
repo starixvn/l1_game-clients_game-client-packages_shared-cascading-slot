@@ -34,7 +34,6 @@ export class CascadingMascotDecor extends Component {
             }
         } catch (err) {
             console.log(err);
-            return null;
         }
     }
 }

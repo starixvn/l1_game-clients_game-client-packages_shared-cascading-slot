@@ -11,8 +11,6 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     @property(Label)
     total: Label = null;
 
-    private isShowTotalMultiplierJoinGame = false;
-
     onLoad() {
         super.onLoad();
         this.showView(false, true);
