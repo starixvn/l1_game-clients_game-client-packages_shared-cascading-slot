@@ -42,4 +42,11 @@ export class CascadingMascot extends ObserverComponent {
         }
         haveBigWin && (await this.playAnimEventGame());
     }
+
+    @render(CascadingUIStore, (store) => store.showEventMascotMultiplier)
+    showEventMascotMultiplier(showEventMascotMultiplier: boolean) {
+        if (showEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
+            this.playAnimEventGame();
+        }
+    }
 }

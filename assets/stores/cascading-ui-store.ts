@@ -160,4 +160,8 @@ export class CascadingUIStore {
     get disabledOpenInputBet() {
         return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING;
     }
+
+    get showEventMascotMultiplier() {
+        return this.multiplier > 0;
+    }
 }
