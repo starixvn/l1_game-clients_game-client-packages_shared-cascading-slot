@@ -2,6 +2,7 @@ import { _decorator, instantiate, macro, Mask, Node, Prefab, ScrollView, SpriteA
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { WinIconDetail } from "../../cascading-slot-utils";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
 import { CascadingTumbleItem } from "./cascading-tumble-item";
 const { ccclass, property } = _decorator;
@@ -87,7 +88,7 @@ export class CascadingTumbleList extends ObserverComponent {
         Object.entries(icons).forEach(([key, value]) => {
             const tumbleNode = instantiate(this.tumbleItem);
             const control = this.getTumbleItemComp(tumbleNode);
-            const { count, win } = value as any;
+            const { count, win } = value as WinIconDetail;
             control.setData(+key, count, win);
             this.setAnimation(tumbleNode, this.content.children.length);
             this.content.addChild(tumbleNode);

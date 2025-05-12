@@ -19,7 +19,7 @@ export class CascadingBetHistoryTable extends ObserverComponent {
         return node.getComponent(CascadingHistoryItem);
     }
 
-    buildBodyRow(bodyItemPrefab: Prefab, betHistoryLog: gc.BetHistory.BetHistoryLog, index: number, fractionalOddsFormat?: boolean): Node {
+    buildBodyRow(bodyItemPrefab: Prefab, betHistoryLog: gc.BetHistory.BetHistoryLog, index: number, fractionalOddsFormat = false): Node {
         const bodyItem = instantiate(bodyItemPrefab);
         this.getHistoryItemComponent(bodyItem)?.setData({
             betHistoryLog,
