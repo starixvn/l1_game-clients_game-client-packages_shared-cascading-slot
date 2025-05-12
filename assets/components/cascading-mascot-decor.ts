@@ -11,7 +11,7 @@ export class CascadingMascotDecor extends Component {
     nodeMascotBlur: Node = null;
 
     private prfMascot = null;
-    private readonly FADE_IN_OUT_DURATION = 1.2;
+    private readonly FADE_IN_OUT_DURATION = 0.5;
 
     async onLoad() {
         this.nodeMascotBlur.active = true;
