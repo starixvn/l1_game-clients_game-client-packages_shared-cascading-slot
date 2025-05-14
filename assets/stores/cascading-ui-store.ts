@@ -62,6 +62,8 @@ export class CascadingUIStore {
     roundId = 0;
     triggerCancelAutoPlay = null;
 
+    showEventMascotMultiplier = false;
+
     get isTurboMode() {
         return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
@@ -159,9 +161,5 @@ export class CascadingUIStore {
 
     get disabledOpenInputBet() {
         return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING;
-    }
-
-    get showEventMascotMultiplier() {
-        return this.multiplier > 0;
     }
 }

@@ -235,6 +235,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.showReachMaxWin = show;
     }
 
+    showEventMascotMultiplier(show: boolean) {
+        this.uiStore.showEventMascotMultiplier = show;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

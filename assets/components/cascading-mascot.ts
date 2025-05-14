@@ -2,10 +2,11 @@ import { _decorator, JsonAsset, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
-const { render } = Observer;
+const { render, handle } = Observer;
 @ccclass
 export class CascadingMascot extends ObserverComponent {
     @property(sp.Skeleton)
@@ -47,6 +48,12 @@ export class CascadingMascot extends ObserverComponent {
     showEventMascotMultiplier(showEventMascotMultiplier: boolean) {
         if (showEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
             this.playAnimEventGame();
+            this.eventMascotMultiplier(false);
         }
+    }
+
+    @handle(CascadingUIHandler, (handler, show: boolean) => handler.showEventMascotMultiplier(show))
+    eventMascotMultiplier(show: boolean) {
+        return show;
     }
 }
