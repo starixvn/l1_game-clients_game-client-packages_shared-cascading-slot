@@ -48,7 +48,7 @@ export class CascadingMascot extends ObserverComponent {
     showEventMascotMultiplier(showEventMascotMultiplier: boolean) {
         if (showEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
             this.playAnimEventGame();
-            this.eventMascotMultiplier(false);
+            setTimeout(() => this.eventMascotMultiplier(false), 100);
         }
     }
 
