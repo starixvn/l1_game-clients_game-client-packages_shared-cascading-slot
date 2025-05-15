@@ -54,8 +54,8 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.triggerWinMultiplier, { fireImmediately: false })
-    showAnimMultiplier(triggerEventMascotMultiplier: any) {
-        if (triggerEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
+    showAnimMultiplier(triggerWinMultiplier: any) {
+        if (triggerWinMultiplier && this.gameConfig.turnOnEventMascot) {
             this.playAnimMultiplier();
         }
     }
