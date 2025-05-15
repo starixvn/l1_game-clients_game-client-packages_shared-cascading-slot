@@ -23,32 +23,42 @@ export class CascadingMascot extends ObserverComponent {
         super.onLoad();
     }
 
-    async playAnimEventGame() {
-        await AnimationUtils.playSpine(this.spineMascot, "event", false);
+    async playAnimFreespinMascot() {
+        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.freespinMascotAnimationName, false);
+        AnimationUtils.playSpine(this.spineMascot, "idle", true);
+    }
+
+    async playAnimBigwinMascot() {
+        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.bigWinMascotAnimationName, false);
+        AnimationUtils.playSpine(this.spineMascot, "idle", true);
+    }
+
+    async playAnimMultiplierMascot() {
+        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.multiplierMascotAnimationName, false);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
-    async showEventMascot(isShowFreeSpinEffect: boolean) {
+    async showAnimMascotFreeSpin(isShowFreeSpinEffect: boolean) {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
-        isShowFreeSpinEffect && (await this.playAnimEventGame());
+        isShowFreeSpinEffect && (await this.playAnimFreespinMascot());
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
-    async showEventMascotBigWin(haveBigWin: boolean) {
+    async showAnimMascotBigWin(haveBigWin: boolean) {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
-        haveBigWin && (await this.playAnimEventGame());
+        haveBigWin && (await this.playAnimBigwinMascot());
     }
 
     @render(CascadingUIStore, (store) => store.showEventMascotMultiplier)
     showEventMascotMultiplier(showEventMascotMultiplier: boolean) {
         if (showEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
-            this.playAnimEventGame();
-            setTimeout(() => this.eventMascotMultiplier(false), 100);
+            this.playAnimMultiplierMascot();
+            this.eventMascotMultiplier(false);
         }
     }
 
