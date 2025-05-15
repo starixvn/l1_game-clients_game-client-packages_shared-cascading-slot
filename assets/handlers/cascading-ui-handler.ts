@@ -235,8 +235,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.showReachMaxWin = show;
     }
 
-    handleTriggerWinMultiplier(trigger: any) {
-        this.uiStore.triggerWinMultiplier = trigger;
+    handleTriggerWinMultiplier() {
+        this.uiStore.triggerWinMultiplier = {};
     }
 
     eventHandleList = [

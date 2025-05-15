@@ -172,7 +172,7 @@ export class CascadingSlotGame extends GameComponentBase {
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
         await this.board.handleTumbles(tumbles);
         const winMultiplier = multiplier > 0 && win > 0;
-        winMultiplier && this.handleTriggerWinMultiplier(true);
+        winMultiplier && this.handleTriggerWinMultiplier();
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
         if (win > 0) {
             this.getBalance();
@@ -338,8 +338,6 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
     handleOnGameHide() {}
 
-    @handle(CascadingUIHandler, (handler, trigger: boolean) => handler.handleTriggerWinMultiplier(trigger))
-    handleTriggerWinMultiplier(trigger: any) {
-        return {};
-    }
+    @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
+    handleTriggerWinMultiplier() {}
 }
