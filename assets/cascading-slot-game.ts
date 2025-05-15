@@ -338,8 +338,8 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
     handleOnGameHide() {}
 
-    @handle(CascadingUIHandler, (handler, show: boolean) => handler.showEventMascotMultiplier(show))
-    eventMascotMultiplier(show: boolean) {
-        return show;
+    @handle(CascadingUIHandler, (handler, trigger: boolean) => handler.showEventMascotMultiplier(trigger))
+    eventMascotMultiplier(trigger: any) {
+        return {};
     }
 }

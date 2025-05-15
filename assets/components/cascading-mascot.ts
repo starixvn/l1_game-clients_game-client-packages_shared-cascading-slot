@@ -2,7 +2,6 @@ import { _decorator, JsonAsset, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
@@ -23,17 +22,17 @@ export class CascadingMascot extends ObserverComponent {
         super.onLoad();
     }
 
-    async playAnimFreespinMascot() {
+    async playAnimFreespin() {
         await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.freespinMascotAnimationName, false);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 
-    async playAnimBigwinMascot() {
+    async playAnimBigwin() {
         await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.bigWinMascotAnimationName, false);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 
-    async playAnimMultiplierMascot() {
+    async playAnimMultiplier() {
         await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.multiplierMascotAnimationName, false);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
@@ -43,7 +42,7 @@ export class CascadingMascot extends ObserverComponent {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
-        isShowFreeSpinEffect && (await this.playAnimFreespinMascot());
+        isShowFreeSpinEffect && (await this.playAnimFreespin());
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
@@ -51,19 +50,13 @@ export class CascadingMascot extends ObserverComponent {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
-        haveBigWin && (await this.playAnimBigwinMascot());
+        haveBigWin && (await this.playAnimBigwin());
     }
 
-    @render(CascadingUIStore, (store) => store.showEventMascotMultiplier)
-    showEventMascotMultiplier(showEventMascotMultiplier: boolean) {
-        if (showEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
-            this.playAnimMultiplierMascot();
-            this.eventMascotMultiplier(false);
+    @render(CascadingUIStore, (store) => store.triggerEventMascotMultiplier)
+    showEventMascotMultiplier(triggerEventMascotMultiplier: any) {
+        if (triggerEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
+            this.playAnimMultiplier();
         }
-    }
-
-    @handle(CascadingUIHandler, (handler, show: boolean) => handler.showEventMascotMultiplier(show))
-    eventMascotMultiplier(show: boolean) {
-        return show;
     }
 }

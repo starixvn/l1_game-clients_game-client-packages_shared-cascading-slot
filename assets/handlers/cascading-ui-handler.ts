@@ -235,8 +235,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.showReachMaxWin = show;
     }
 
-    showEventMascotMultiplier(show: boolean) {
-        this.uiStore.showEventMascotMultiplier = show;
+    showEventMascotMultiplier(trigger: any) {
+        this.uiStore.triggerEventMascotMultiplier = trigger;
     }
 
     eventHandleList = [
