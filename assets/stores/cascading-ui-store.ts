@@ -62,7 +62,7 @@ export class CascadingUIStore {
     roundId = 0;
     triggerCancelAutoPlay = null;
 
-    triggerEventMascotMultiplier = null;
+    triggerWinMultiplier = null;
 
     get isTurboMode() {
         return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);

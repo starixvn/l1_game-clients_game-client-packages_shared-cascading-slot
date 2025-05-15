@@ -38,7 +38,7 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
-    async showAnimMascotFreeSpin(isShowFreeSpinEffect: boolean) {
+    async showAnimFreeSpin(isShowFreeSpinEffect: boolean) {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
@@ -46,15 +46,15 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
-    async showAnimMascotBigWin(haveBigWin: boolean) {
+    async showAnimBigWin(haveBigWin: boolean) {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
         haveBigWin && (await this.playAnimBigwin());
     }
 
-    @render(CascadingUIStore, (store) => store.triggerEventMascotMultiplier, { fireImmediately: false })
-    showEventMascotMultiplier(triggerEventMascotMultiplier: any) {
+    @render(CascadingUIStore, (store) => store.triggerWinMultiplier, { fireImmediately: false })
+    showAnimMultiplier(triggerEventMascotMultiplier: any) {
         if (triggerEventMascotMultiplier && this.gameConfig.turnOnEventMascot) {
             this.playAnimMultiplier();
         }
