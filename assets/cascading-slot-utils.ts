@@ -22,6 +22,7 @@ export const SlotNotification = {
 export const SpinButtonState = {
     IDLE: "IDLE",
     SPINNING: "SPINNING",
+    WIN_TUMBLE_OR_EVENT: "WIN_TUMBLE_OR_EVENT",
 };
 
 export const convertBoardValue = (data: number[]): number[][] => {
