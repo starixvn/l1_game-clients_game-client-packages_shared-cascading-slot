@@ -1,4 +1,4 @@
-import { _decorator, Button, CCInteger, Node, sp, tween, Tween } from "cc";
+import { _decorator, Button, Node, sp, Tween, tween, UIOpacity } from "cc";
 import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
 import { ButtonState } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -24,18 +24,27 @@ export class CascadingSpinButton extends ObserverComponent {
     @property(Node)
     nodeCircle: Node = null;
 
-    @property(CCInteger)
-    degreePerSecond = 360;
+    @property(Node)
+    nodeCircleBlur: Node = null;
+
+    @property(Node)
+    nodeCircleStop: Node = null;
 
     private isTurbo = false;
     private button: Button = null;
 
     private isSpinning = false;
     private circleTween: Tween<Node> = null;
+    private circleBlurTween: Tween<Node> = null;
+    private circleStopTween: Tween<Node> = null;
+    private readonly FADE_CIRCLE_NODES_DURATION = 0.3;
 
     onLoad() {
         this.button = this.getComponent(Button);
         this.button.node.on(StateChangedEvent, this.onButtonStateChanged, this);
+        this.nodeCircle && (this.nodeCircle.getComponent(UIOpacity).opacity = 255);
+        this.nodeCircleBlur && (this.nodeCircleBlur.getComponent(UIOpacity).opacity = 0);
+        this.nodeCircleStop && (this.nodeCircleStop.getComponent(UIOpacity).opacity = 0);
         super.onLoad();
     }
 
@@ -48,20 +57,30 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpin() {
-        const degreePerSecond = -480;
-        this.rotateAnimation(degreePerSecond);
+        this.updateCircleVisibility([0, 255, 0]);
+        const degreePerSecond = -900;
+        this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
         this.iconSpinSkeleton.timeScale = 1;
     }
 
-    playAnimationIdle() {
+    async playAnimationIdle() {
+        AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
+        this.updateCircleVisibility([255, 0, 0]);
+        await AnimationUtils.delayTime(this.FADE_CIRCLE_NODES_DURATION);
         const degreePerSecond = -45;
-        this.rotateAnimation(degreePerSecond);
-        AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
-        this.iconSpinSkeleton.timeScale = 1;
+        this.animateCirclesRotation(degreePerSecond);
     }
 
-    stopCircleAnimation() {
+    stopCircleAnimations() {
+        if (this.circleStopTween) {
+            this.circleStopTween.stop();
+            this.circleStopTween = null;
+        }
+        if (this.circleBlurTween) {
+            this.circleBlurTween.stop();
+            this.circleBlurTween = null;
+        }
         if (this.circleTween) {
             this.circleTween.stop();
             this.circleTween = null;
@@ -69,10 +88,10 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpinTurbo() {
-        const degreePerSecond = -620;
-        this.rotateAnimation(degreePerSecond);
+        this.updateCircleVisibility([0, 255, 0]);
+        const degreePerSecond = -1080;
+        this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
-        this.iconSpinSkeleton.timeScale = 2;
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
@@ -101,7 +120,8 @@ export class CascadingSpinButton extends ObserverComponent {
         } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
             this.isSpinning = true;
             this.stopAnimationSpinExtra();
-            this.stopCircleAnimation();
+            this.updateCircleVisibility([0, 0, 255]);
+            this.stopCircleAnimations();
         } else if (state === SpinButtonState.IDLE) {
             this.isSpinning = false;
             this.stopAnimationSpinExtra();
@@ -127,8 +147,32 @@ export class CascadingSpinButton extends ObserverComponent {
         }, 100);
     }
 
-    rotateAnimation(degreePerSecond: number) {
-        this.stopCircleAnimation(); // Make sure to stop any existing animation before starting a new one
-        this.circleTween = tween(this.nodeCircle).by(1, { angle: degreePerSecond }).repeatForever().start();
+    animateCirclesRotation(degreePerSecond: number) {
+        this.stopCircleAnimations();
+        if (this.nodeCircleStop) {
+            this.circleStopTween = tween(this.nodeCircleStop).by(1, { angle: degreePerSecond }).repeatForever().start();
+        }
+
+        if (this.nodeCircleBlur) {
+            this.circleBlurTween = tween(this.nodeCircleBlur).by(1, { angle: degreePerSecond }).repeatForever().start();
+        }
+
+        if (this.nodeCircle) {
+            this.circleTween = tween(this.nodeCircle).by(1, { angle: degreePerSecond }).repeatForever().start();
+        }
+    }
+
+    updateCircleVisibility(opacityValues: number[]) {
+        if (this.nodeCircle) {
+            tween(this.nodeCircle.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[0] }).start();
+        }
+
+        if (this.nodeCircleBlur) {
+            tween(this.nodeCircleBlur.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[1] }).start();
+        }
+
+        if (this.nodeCircleStop) {
+            tween(this.nodeCircleStop.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[2] }).start();
+        }
     }
 }
