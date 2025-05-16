@@ -48,31 +48,38 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpin() {
-        //this.rotateAnimation(-480);
+        const degreePerSecond = -480;
+        this.rotateAnimation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
         this.iconSpinSkeleton.timeScale = 1;
     }
 
     playAnimationIdle() {
-        this.rotateAnimation(-60);
+        const degreePerSecond = -45;
+        this.rotateAnimation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
         this.iconSpinSkeleton.timeScale = 1;
     }
 
     stopCircleAnimation() {
-        this.circleTween?.stop();
+        if (this.circleTween) {
+            this.circleTween.stop();
+            this.circleTween = null;
+        }
     }
 
     playAnimationSpinTurbo() {
+        const degreePerSecond = -620;
+        this.rotateAnimation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
         this.iconSpinSkeleton.timeScale = 2;
     }
 
-    // @render(CascadingUIStore, (store) => store.isTurboMode)
-    // renderTurbo(isTurbo: boolean) {
-    //     this.isTurbo = isTurbo;
-    //     this.changeAnimationSpinning();
-    // }
+    @render(CascadingUIStore, (store) => store.isTurboMode)
+    renderTurbo(isTurbo: boolean) {
+        this.isTurbo = isTurbo;
+        this.changeAnimationSpinning();
+    }
 
     changeAnimationSpinning() {
         if (!this.isSpinning) {
@@ -88,17 +95,14 @@ export class CascadingSpinButton extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.spinButtonState)
     renderSpinButtonState(state: string) {
         if (state === SpinButtonState.SPINNING) {
-            console.log("spinning-----------");
             this.isSpinning = true;
             this.playAnimationSpinExtra();
             this.changeAnimationSpinning();
         } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
-            console.log("win tumble or event-----------");
-            this.stopCircleAnimation();
-            this.isSpinning = false;
+            this.isSpinning = true;
             this.stopAnimationSpinExtra();
+            this.stopCircleAnimation();
         } else if (state === SpinButtonState.IDLE) {
-            console.log("idle-----------");
             this.isSpinning = false;
             this.stopAnimationSpinExtra();
             this.playAnimationIdle();
@@ -124,6 +128,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     rotateAnimation(degreePerSecond: number) {
+        this.stopCircleAnimation(); // Make sure to stop any existing animation before starting a new one
         this.circleTween = tween(this.nodeCircle).by(1, { angle: degreePerSecond }).repeatForever().start();
     }
 }
