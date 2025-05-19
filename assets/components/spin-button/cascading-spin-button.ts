@@ -65,7 +65,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     async playAnimationIdle() {
-        AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
+        AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
         this.updateCircleVisibility([255, 0, 0]);
         await AnimationUtils.delayTime(this.FADE_CIRCLE_NODES_DURATION);
         const degreePerSecond = -45;
