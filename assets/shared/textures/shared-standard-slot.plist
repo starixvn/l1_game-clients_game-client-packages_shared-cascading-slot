@@ -528,7 +528,7 @@
             <key>size</key>
             <string>{256,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:bc650e81de102a41cdc713023ca6b2fb:a8193c59e8adca9ff05e51946057b60b:bcd64a82ad967b24690dbea56a38c271$</string>
+            <string>$TexturePacker:SmartUpdate:18327822ad3920ece9304d9876c04e28:b5e3f4b3026752f7ccaaa6b44b2a437c:bcd64a82ad967b24690dbea56a38c271$</string>
             <key>textureFileName</key>
             <string>shared-standard-slot.png</string>
         </dict>
