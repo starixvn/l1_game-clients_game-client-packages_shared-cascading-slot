@@ -22,7 +22,7 @@ export class CascadingSpinButton extends ObserverComponent {
     iconSpinSkeleton: sp.Skeleton = null;
 
     @property(Node)
-    nodeCircle: Node = null;
+    nodeCircleNormal: Node = null;
 
     @property(Node)
     nodeCircleBlur: Node = null;
@@ -30,19 +30,20 @@ export class CascadingSpinButton extends ObserverComponent {
     @property(Node)
     nodeCircleStop: Node = null;
 
+    @property(Node)
+    nodeCircle: Node = null;
+
     private isTurbo = false;
     private button: Button = null;
 
     private isSpinning = false;
     private circleTween: Tween<Node> = null;
-    private circleBlurTween: Tween<Node> = null;
-    private circleStopTween: Tween<Node> = null;
-    private readonly FADE_CIRCLE_NODES_DURATION = 0.3;
+    private readonly FADE_CIRCLE_NODES_DURATION = 0.2;
 
     onLoad() {
         this.button = this.getComponent(Button);
         this.button.node.on(StateChangedEvent, this.onButtonStateChanged, this);
-        this.nodeCircle && (this.nodeCircle.getComponent(UIOpacity).opacity = 255);
+        this.nodeCircleNormal && (this.nodeCircleNormal.getComponent(UIOpacity).opacity = 255);
         this.nodeCircleBlur && (this.nodeCircleBlur.getComponent(UIOpacity).opacity = 0);
         this.nodeCircleStop && (this.nodeCircleStop.getComponent(UIOpacity).opacity = 0);
         super.onLoad();
@@ -61,26 +62,16 @@ export class CascadingSpinButton extends ObserverComponent {
         const degreePerSecond = -900;
         this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
-        this.iconSpinSkeleton.timeScale = 1;
     }
 
     async playAnimationIdle() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
         this.updateCircleVisibility([255, 0, 0]);
-        await AnimationUtils.delayTime(this.FADE_CIRCLE_NODES_DURATION);
         const degreePerSecond = -45;
         this.animateCirclesRotation(degreePerSecond);
     }
 
     stopCircleAnimations() {
-        if (this.circleStopTween) {
-            this.circleStopTween.stop();
-            this.circleStopTween = null;
-        }
-        if (this.circleBlurTween) {
-            this.circleBlurTween.stop();
-            this.circleBlurTween = null;
-        }
         if (this.circleTween) {
             this.circleTween.stop();
             this.circleTween = null;
@@ -118,7 +109,7 @@ export class CascadingSpinButton extends ObserverComponent {
             this.playAnimationSpinExtra();
             this.changeAnimationSpinning();
         } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
-            this.isSpinning = true;
+            this.isSpinning = false;
             this.stopAnimationSpinExtra();
             this.updateCircleVisibility([0, 0, 255]);
             this.stopCircleAnimations();
@@ -149,30 +140,25 @@ export class CascadingSpinButton extends ObserverComponent {
 
     animateCirclesRotation(degreePerSecond: number) {
         this.stopCircleAnimations();
-        if (this.nodeCircleStop) {
-            this.circleStopTween = tween(this.nodeCircleStop).by(1, { angle: degreePerSecond }).repeatForever().start();
-        }
-
-        if (this.nodeCircleBlur) {
-            this.circleBlurTween = tween(this.nodeCircleBlur).by(1, { angle: degreePerSecond }).repeatForever().start();
-        }
-
-        if (this.nodeCircle) {
-            this.circleTween = tween(this.nodeCircle).by(1, { angle: degreePerSecond }).repeatForever().start();
-        }
+        this.circleTween = this.animateCircleNode(this.nodeCircle, degreePerSecond);
     }
 
     updateCircleVisibility(opacityValues: number[]) {
-        if (this.nodeCircle) {
-            tween(this.nodeCircle.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[0] }).start();
-        }
+        this.setOpacityCircleNode(this.nodeCircleNormal, opacityValues[0]);
+        this.setOpacityCircleNode(this.nodeCircleBlur, opacityValues[1]);
+        this.setOpacityCircleNode(this.nodeCircleStop, opacityValues[2]);
+    }
 
-        if (this.nodeCircleBlur) {
-            tween(this.nodeCircleBlur.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[1] }).start();
+    setOpacityCircleNode(node: Node, opacity: number) {
+        if (node) {
+            tween(node.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacity }).start();
         }
+    }
 
-        if (this.nodeCircleStop) {
-            tween(this.nodeCircleStop.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacityValues[2] }).start();
+    animateCircleNode(node: Node, degreePerSecond: number) {
+        if (node) {
+            return tween(node).by(1, { angle: degreePerSecond }).repeatForever().start();
         }
+        return null;
     }
 }
