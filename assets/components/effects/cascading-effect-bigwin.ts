@@ -36,7 +36,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     changeLevel: Node = null;
 
     @property(Node)
-    textBigWin: Node = null;
+    nodeBigWin: Node = null;
 
     winAmount = 0;
     private isChangeLevelSuper = true;
@@ -75,7 +75,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     showHideBigWinNode(show: boolean) {
-        this.textBigWin.active = show;
+        this.nodeBigWin.active = show;
     }
 
     async setAnimationChangeSuper() {
@@ -93,6 +93,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         const duration = skeleton.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
             await FunctionUtils.delay(0.1 * UNIT_SECOND_SPIN);
+            this.showHideBigWinNode(false);
         }
         const node = instantiate(levelPrefab);
         this.changeLevel.removeAllChildren();
