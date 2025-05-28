@@ -28,9 +28,6 @@ export class CascadingSpinButton extends ObserverComponent {
     nodeCircleBlur: Node = null;
 
     @property(Node)
-    nodeCircleStop: Node = null;
-
-    @property(Node)
     nodeCircle: Node = null;
 
     private isTurbo = false;
@@ -45,7 +42,6 @@ export class CascadingSpinButton extends ObserverComponent {
         this.button.node.on(StateChangedEvent, this.onButtonStateChanged, this);
         this.nodeCircleNormal && (this.nodeCircleNormal.getComponent(UIOpacity).opacity = 255);
         this.nodeCircleBlur && (this.nodeCircleBlur.getComponent(UIOpacity).opacity = 0);
-        this.nodeCircleStop && (this.nodeCircleStop.getComponent(UIOpacity).opacity = 0);
         super.onLoad();
     }
 
@@ -58,7 +54,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpin() {
-        this.updateCircleVisibility([0, 255, 0]);
+        this.updateCircleVisibility([0, 255]);
         const degreePerSecond = -900;
         this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
@@ -66,7 +62,7 @@ export class CascadingSpinButton extends ObserverComponent {
 
     async playAnimationIdle() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
-        this.updateCircleVisibility([255, 0, 0]);
+        this.updateCircleVisibility([255, 0]);
         const degreePerSecond = -45;
         this.animateCirclesRotation(degreePerSecond);
     }
@@ -79,7 +75,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpinTurbo() {
-        this.updateCircleVisibility([0, 255, 0]);
+        this.updateCircleVisibility([0, 255]);
         const degreePerSecond = -1080;
         this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
@@ -111,7 +107,7 @@ export class CascadingSpinButton extends ObserverComponent {
         } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
             this.isSpinning = false;
             this.stopAnimationSpinExtra();
-            this.updateCircleVisibility([0, 0, 255]);
+            this.updateCircleVisibility([255, 0]);
             this.stopCircleAnimations();
         } else if (state === SpinButtonState.IDLE) {
             this.isSpinning = false;
@@ -146,7 +142,6 @@ export class CascadingSpinButton extends ObserverComponent {
     updateCircleVisibility(opacityValues: number[]) {
         this.setOpacityCircleNode(this.nodeCircleNormal, opacityValues[0]);
         this.setOpacityCircleNode(this.nodeCircleBlur, opacityValues[1]);
-        this.setOpacityCircleNode(this.nodeCircleStop, opacityValues[2]);
     }
 
     setOpacityCircleNode(node: Node, opacity: number) {
