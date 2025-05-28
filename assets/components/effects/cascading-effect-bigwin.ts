@@ -53,6 +53,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         INCREMENT_END: "increment_stop",
     };
 
+    private skipClickCount = 0;
+
     setAmount(data: BigWinType) {
         const { amount } = data;
         const duration = data.duration ?? 0;
@@ -181,8 +183,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     skipTouchToContinue() {
-        this.tweenBigWin?.stop();
-        this.winAmountForNoAnim(this.winAmount);
+        this.skipClickCount++;
         this.setBigWinCompleted(true);
     }
 
@@ -214,6 +215,11 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     async setBigWinCompleted(completed: boolean) {
+        if (this.skipClickCount > 1) {
+            return completed;
+        }
+        this.tweenBigWin?.stop();
+        this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
         this.playSound(this.Sound.BIG_WIN_STOP);
         this.playSound(this.Sound.INCREMENT_END);
