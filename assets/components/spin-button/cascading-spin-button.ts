@@ -54,7 +54,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpin() {
-        this.updateCircleVisibility([0, 255]);
+        this.showBlurCircle();
         const degreePerSecond = -900;
         this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
@@ -62,7 +62,7 @@ export class CascadingSpinButton extends ObserverComponent {
 
     async playAnimationIdle() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
-        this.updateCircleVisibility([255, 0]);
+        this.showNormalCircle();
         const degreePerSecond = -45;
         this.animateCirclesRotation(degreePerSecond);
     }
@@ -75,7 +75,7 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpinTurbo() {
-        this.updateCircleVisibility([0, 255]);
+        this.showBlurCircle();
         const degreePerSecond = -1080;
         this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
@@ -107,7 +107,7 @@ export class CascadingSpinButton extends ObserverComponent {
         } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
             this.isSpinning = false;
             this.stopAnimationSpinExtra();
-            this.updateCircleVisibility([255, 0]);
+            this.showNormalCircle();
             this.stopCircleAnimations();
         } else if (state === SpinButtonState.IDLE) {
             this.isSpinning = false;
@@ -139,15 +139,14 @@ export class CascadingSpinButton extends ObserverComponent {
         this.circleTween = this.animateCircleNode(this.nodeCircle, degreePerSecond);
     }
 
-    updateCircleVisibility(opacityValues: number[]) {
-        this.setOpacityCircleNode(this.nodeCircleNormal, opacityValues[0]);
-        this.setOpacityCircleNode(this.nodeCircleBlur, opacityValues[1]);
+    showBlurCircle() {
+        AnimationUtils.fadeOut(this.nodeCircleNormal, this.FADE_CIRCLE_NODES_DURATION);
+        AnimationUtils.fadeIn(this.nodeCircleBlur, this.FADE_CIRCLE_NODES_DURATION);
     }
 
-    setOpacityCircleNode(node: Node, opacity: number) {
-        if (node) {
-            tween(node.getComponent(UIOpacity)).to(this.FADE_CIRCLE_NODES_DURATION, { opacity: opacity }).start();
-        }
+    showNormalCircle() {
+        AnimationUtils.fadeIn(this.nodeCircleNormal, this.FADE_CIRCLE_NODES_DURATION);
+        AnimationUtils.fadeOut(this.nodeCircleBlur, this.FADE_CIRCLE_NODES_DURATION);
     }
 
     animateCircleNode(node: Node, degreePerSecond: number) {
