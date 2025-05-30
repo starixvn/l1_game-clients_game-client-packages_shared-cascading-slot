@@ -51,6 +51,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         BIG_WIN_STOP: "big_win_stop",
         INCREMENT: "increment",
         INCREMENT_END: "increment_stop",
+        WINNING_LEVEL_UP: "winning-level-up",
     };
 
     private skipClickCount = 0;
@@ -91,6 +92,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
+        this.playSound(this.Sound.WINNING_LEVEL_UP);
         skeleton.setAnimation(0, animation, false);
         const duration = skeleton.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
