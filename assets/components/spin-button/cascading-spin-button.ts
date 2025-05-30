@@ -1,4 +1,4 @@
-import { _decorator, Button, sp } from "cc";
+import { _decorator, Button, Node, sp, Tween, tween, UIOpacity } from "cc";
 import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
 import { ButtonState } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -21,14 +21,27 @@ export class CascadingSpinButton extends ObserverComponent {
     @property(sp.Skeleton)
     iconSpinSkeleton: sp.Skeleton = null;
 
+    @property(Node)
+    nodeCircleNormal: Node = null;
+
+    @property(Node)
+    nodeCircleBlur: Node = null;
+
+    @property(Node)
+    nodeCircle: Node = null;
+
     private isTurbo = false;
     private button: Button = null;
 
     private isSpinning = false;
+    private circleTween: Tween<Node> = null;
+    private readonly FADE_CIRCLE_NODES_DURATION = 0.2;
 
     onLoad() {
         this.button = this.getComponent(Button);
         this.button.node.on(StateChangedEvent, this.onButtonStateChanged, this);
+        this.nodeCircleNormal && (this.nodeCircleNormal.getComponent(UIOpacity).opacity = 255);
+        this.nodeCircleBlur && (this.nodeCircleBlur.getComponent(UIOpacity).opacity = 0);
         super.onLoad();
     }
 
@@ -41,18 +54,31 @@ export class CascadingSpinButton extends ObserverComponent {
     }
 
     playAnimationSpin() {
+        this.showBlurCircle();
+        const degreePerSecond = -900;
+        this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
-        this.iconSpinSkeleton.timeScale = 1;
     }
 
-    playAnimationIdle() {
+    async playAnimationIdle() {
         AnimationUtils.playSpine(this.iconSpinSkeleton, "idle", true);
-        this.iconSpinSkeleton.timeScale = 1;
+        this.showNormalCircle();
+        const degreePerSecond = -45;
+        this.animateCirclesRotation(degreePerSecond);
+    }
+
+    stopCircleAnimations() {
+        if (this.circleTween) {
+            this.circleTween.stop();
+            this.circleTween = null;
+        }
     }
 
     playAnimationSpinTurbo() {
+        this.showBlurCircle();
+        const degreePerSecond = -1080;
+        this.animateCirclesRotation(degreePerSecond);
         AnimationUtils.playSpine(this.iconSpinSkeleton, "spin", true);
-        this.iconSpinSkeleton.timeScale = 2;
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
@@ -78,6 +104,11 @@ export class CascadingSpinButton extends ObserverComponent {
             this.isSpinning = true;
             this.playAnimationSpinExtra();
             this.changeAnimationSpinning();
+        } else if (state === SpinButtonState.WIN_TUMBLE_OR_EVENT) {
+            this.isSpinning = false;
+            this.stopAnimationSpinExtra();
+            this.showNormalCircle();
+            this.stopCircleAnimations();
         } else if (state === SpinButtonState.IDLE) {
             this.isSpinning = false;
             this.stopAnimationSpinExtra();
@@ -101,5 +132,27 @@ export class CascadingSpinButton extends ObserverComponent {
                 this.button.interactable = !disabledSpinButton;
             } catch (error) {}
         }, 100);
+    }
+
+    animateCirclesRotation(degreePerSecond: number) {
+        this.stopCircleAnimations();
+        this.circleTween = this.animateCircleNode(this.nodeCircle, degreePerSecond);
+    }
+
+    showBlurCircle() {
+        AnimationUtils.fadeOut(this.nodeCircleNormal, this.FADE_CIRCLE_NODES_DURATION);
+        AnimationUtils.fadeIn(this.nodeCircleBlur, this.FADE_CIRCLE_NODES_DURATION);
+    }
+
+    showNormalCircle() {
+        AnimationUtils.fadeIn(this.nodeCircleNormal, this.FADE_CIRCLE_NODES_DURATION);
+        AnimationUtils.fadeOut(this.nodeCircleBlur, this.FADE_CIRCLE_NODES_DURATION);
+    }
+
+    animateCircleNode(node: Node, degreePerSecond: number) {
+        if (node) {
+            return tween(node).by(1, { angle: degreePerSecond }).repeatForever().start();
+        }
+        return null;
     }
 }

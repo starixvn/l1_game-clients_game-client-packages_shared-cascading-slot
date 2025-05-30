@@ -36,7 +36,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     changeLevel: Node = null;
 
     @property(Node)
-    textBigWin: Node = null;
+    nodeBigWin: Node = null;
 
     winAmount = 0;
     private isChangeLevelSuper = true;
@@ -52,6 +52,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         INCREMENT: "increment",
         INCREMENT_END: "increment_stop",
     };
+
+    private skipClickCount = 0;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -75,7 +77,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     showHideBigWinNode(show: boolean) {
-        this.textBigWin.active = show;
+        this.nodeBigWin.active = show;
     }
 
     async setAnimationChangeSuper() {
@@ -93,6 +95,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         const duration = skeleton.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
             await FunctionUtils.delay(0.1 * UNIT_SECOND_SPIN);
+            this.showHideBigWinNode(false);
         }
         const node = instantiate(levelPrefab);
         this.changeLevel.removeAllChildren();
@@ -180,8 +183,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     skipTouchToContinue() {
-        this.tweenBigWin?.stop();
-        this.winAmountForNoAnim(this.winAmount);
+        this.skipClickCount++;
         this.setBigWinCompleted(true);
     }
 
@@ -213,6 +215,11 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     async setBigWinCompleted(completed: boolean) {
+        if (this.skipClickCount > 1) {
+            return completed;
+        }
+        this.tweenBigWin?.stop();
+        this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
         this.playSound(this.Sound.BIG_WIN_STOP);
         this.playSound(this.Sound.INCREMENT_END);
