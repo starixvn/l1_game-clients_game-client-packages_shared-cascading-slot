@@ -127,7 +127,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     async handleTumbles(tumbles: Tumble[]) {
-        if (!tumbles || tumbles.length <= 0) {
+        if (!tumbles || tumbles.length <= 1) {
             return;
         }
 

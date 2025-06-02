@@ -132,7 +132,7 @@ export class CascadingUIStore {
 
     get spinButtonState() {
         if (this.cascadingState === CascadingSlotState.SPINNING) {
-            if (this.haveBigWin || this.haveFreeSpin || this.tumblesStore.tumbles.length) {
+            if (this.haveBigWin || this.haveFreeSpin || this.tumblesStore.tumbles.length > 1) {
                 return SpinButtonState.WIN_TUMBLE_OR_EVENT;
             }
             return SpinButtonState.SPINNING;
