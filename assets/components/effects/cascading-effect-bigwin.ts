@@ -45,6 +45,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private coinValue = 0;
     private isTurboMode = false;
     private tweenBigWin: Tween<Node> = null;
+    private tweenDelay = null;
     private readonly Sound = {
         FREE_SPIN_SOUND: "free_spin",
         BIG_WIN_SOUND: "big_win",
@@ -139,7 +140,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             )
             .call(() => {
                 label.string = formatText(end);
-                this.setBigWinCompleted(true);
+                this.handleBigWinActions(true);
                 this.playSound(this.Sound.BIG_WIN_STOP);
                 this.playSound(this.Sound.INCREMENT_END);
                 this.stopSoundCoinIncrement();
@@ -190,7 +191,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         if (this.skipClickCount > this.MAX_SKIP_CLICK_COUNT) {
             return;
         }
-        this.setBigWinCompleted(true);
+        this.handleBigWinActions(true);
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
@@ -208,7 +209,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             this.winAmountForNoAnim(this.winAmount);
             const ratio = this.winAmount / this.totalBet;
             this.showHideBigWinNode(ratio < 3);
-            this.setBigWinCompleted(true);
+            this.handleBigWinActions(true);
         } else {
             this.floatNumberBigWin({
                 label: this.lblWinAmount,
@@ -220,9 +221,14 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
-    async setBigWinCompleted(completed: boolean) {
+    setBigWinCompleted(completed: boolean) {
+        return completed;
+    }
+
+    async handleBigWinActions(completed: boolean) {
         if (this.skipClickCount > 1) {
-            return completed;
+            this.tweenDelay?.stop();
+            return this.setBigWinCompleted(completed);
         }
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
@@ -230,8 +236,12 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.playSound(this.Sound.BIG_WIN_STOP);
         this.playSound(this.Sound.INCREMENT_END);
         const duration = getCustomDuration("bigWin", this.isTurboMode);
-        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
-        return completed;
+        this.tweenDelay = tween({})
+            .delay(duration)
+            .call(() => {
+                this.setBigWinCompleted(completed);
+            })
+            .start();
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))

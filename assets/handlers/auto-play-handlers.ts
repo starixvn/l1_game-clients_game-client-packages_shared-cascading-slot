@@ -180,8 +180,10 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
                 this.handleAutoPlaceBet();
             } else {
-                if (this.holdActionStore.isHolding) {
-                    this.handleAutoPlaceBet();
+                if (this.holdActionStore.triggerAction) {
+                    setTimeout(() => {
+                        this.handleAutoPlaceBet();
+                    }, 1000);
                 }
             }
         }
