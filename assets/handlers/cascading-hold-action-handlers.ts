@@ -17,16 +17,12 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     private timeoutHolding: NodeJS.Timeout;
     private readonly HOLDING_THRESHOLD = 1000;
-    private lastCallTime = 0;
-    private readonly DEBOUNCE_THRESHOLD = 100; // Prevent rapid calls within 100ms
     handle() {}
     callTriggerAction() {
-        const now = Date.now();
-        // Debounce rapid calls
-        if (now - this.lastCallTime < this.DEBOUNCE_THRESHOLD) {
+        if (this.cascadingUIStore.cascadingState === CascadingSlotState.SPINNING || this.autoPlayStore.isAutoplay) {
             return;
         }
-        this.lastCallTime = now;
+
         if (!this.holdActionStore.triggerAction) {
             const canBet =
                 this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET ||
