@@ -55,6 +55,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     };
 
     private skipClickCount = 0;
+    private readonly MAX_SKIP_CLICK_COUNT = 2;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -186,6 +187,9 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     skipTouchToContinue() {
         this.skipClickCount++;
+        if (this.skipClickCount > this.MAX_SKIP_CLICK_COUNT) {
+            return;
+        }
         this.setBigWinCompleted(true);
     }
 
