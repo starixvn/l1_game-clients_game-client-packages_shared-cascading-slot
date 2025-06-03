@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
@@ -42,6 +43,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             this.uiStore.isTrialMode
                 ? this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data)
                 : this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
+            this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiStore.changeUserBalance = true;
 
             this.retryGameHandler.handle();

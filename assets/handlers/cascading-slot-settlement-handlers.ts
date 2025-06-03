@@ -2,7 +2,6 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 const { injectable, inject } = inversify;
 
-import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
@@ -23,7 +22,6 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
 
     handleFinish(data: any) {
         const { roundId } = data;
-        this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
         this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
         this.settlementStore.finishData = data;
         this.uiStore.roundId = roundId;
