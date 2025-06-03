@@ -225,7 +225,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         return completed;
     }
 
-    async handleBigWinActions(completed: boolean) {
+    handleBigWinActions(completed: boolean) {
         if (this.skipClickCount > 1) {
             this.tweenDelay?.stop();
             return this.setBigWinCompleted(completed);
