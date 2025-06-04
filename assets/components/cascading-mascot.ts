@@ -6,6 +6,11 @@ import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
+
+enum AnimationNameMascot {
+    idle = "idle",
+}
+
 @ccclass
 export class CascadingMascot extends ObserverComponent {
     @property(sp.Skeleton)
@@ -19,7 +24,15 @@ export class CascadingMascot extends ObserverComponent {
     onLoad() {
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
         this.gameConfig = this.gameInfo.json;
+        this.settingMixDuration();
         super.onLoad();
+    }
+
+    private settingMixDuration() {
+        const mixDuration = 0.3;
+        this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.freespinMascotAnimationName, mixDuration);
+        this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.bigWinMascotAnimationName, mixDuration);
+        this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.multiplierMascotAnimationName, mixDuration);
     }
 
     async playAnimFreespin() {
