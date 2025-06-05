@@ -86,7 +86,7 @@ export class CascadingSlotReel extends Component {
 
     async highlightItem(index: number) {
         const item = this.items[index];
-        if (item && item.node && item.node.isValid) {
+        if (item) {
             ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
             await this.effectSpineSymbol(item, "highlight");
         }
@@ -97,16 +97,14 @@ export class CascadingSlotReel extends Component {
     }
 
     async shakeItem(item) {
-        if (item && item.node && item.node.isValid) {
-            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-            await this.effectSpineSymbol(item, "shake");
-            ComponentUtils.moveToOtherNode(item.node, this.node);
-        }
+        ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+        await this.effectSpineSymbol(item, "shake");
+        ComponentUtils.moveToOtherNode(item.node, this.node);
     }
 
     async removeItem(index: number) {
         const item = this.items[index];
-        if (item && item.node && item.node.isValid) {
+        if (item) {
             await this.effectSpineSymbol(item, "explode");
             item.node.destroy();
         }
@@ -118,9 +116,6 @@ export class CascadingSlotReel extends Component {
     }
 
     async effectSpineSymbol(item: CascadingSlotReelItem, animation: string) {
-        if (!item || !item.node || !item.node.isValid) {
-            return;
-        }
         const effectSpine = item.getComponentInChildren(sp.Skeleton);
         if (effectSpine) {
             effectSpine.setAnimation(0, animation, false);
@@ -152,9 +147,7 @@ export class CascadingSlotReel extends Component {
         const backDuration = 0.2;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
-            if (!item || !item.node || !item.node.isValid) {
-                continue;
-            }
+
             const posY = this.getItemPosY(i + offset);
             const distance = Math.abs(posY - item.node.position.y);
             if (distance < 1) {
@@ -167,11 +160,9 @@ export class CascadingSlotReel extends Component {
             }
             const isBottomItem = i === 0;
             if (isFallOut) {
-                if (item.node && item.node.isValid) {
-                    tween(item.node)
-                        .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
-                        .start();
-                }
+                tween(item.node)
+                    .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
+                    .start();
             } else {
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
@@ -185,7 +176,7 @@ export class CascadingSlotReel extends Component {
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
-        if (!item || !item.node || !item.node.isValid) {
+        if (!item.node) {
             return;
         }
 
@@ -206,9 +197,7 @@ export class CascadingSlotReel extends Component {
 
     setStartPositionForItems() {
         this.items.forEach((item, index) => {
-            if (item && item.node && item.node.isValid) {
-                item.node.position = v3(item.node.position.x, this.getItemPosY(this.itemDisplayCount + index), 0);
-            }
+            item.node.position = v3(item.node.position.x, this.getItemPosY(this.itemDisplayCount + index), 0);
         });
     }
 
