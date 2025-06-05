@@ -86,10 +86,8 @@ export class CascadingSlotReel extends Component {
 
     async highlightItem(index: number) {
         const item = this.items[index];
-        if (item) {
-            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-            await this.effectSpineSymbol(item, "highlight");
-        }
+        ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+        await this.effectSpineSymbol(item, "highlight");
     }
 
     async shakeItems() {
@@ -104,10 +102,8 @@ export class CascadingSlotReel extends Component {
 
     async removeItem(index: number) {
         const item = this.items[index];
-        if (item) {
-            await this.effectSpineSymbol(item, "explode");
-            item.node.destroy();
-        }
+        await this.effectSpineSymbol(item, "explode");
+        item.node.destroy();
     }
 
     async removeItemsByIndex(list: number[]) {
@@ -117,12 +113,10 @@ export class CascadingSlotReel extends Component {
 
     async effectSpineSymbol(item: CascadingSlotReelItem, animation: string) {
         const effectSpine = item.getComponentInChildren(sp.Skeleton);
-        if (effectSpine) {
-            effectSpine.setAnimation(0, animation, false);
-            const duration = effectSpine.findAnimation(animation)?.duration || 0;
-            if (duration > 0) {
-                await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
-            }
+        effectSpine.setAnimation(0, animation, false);
+        const duration = effectSpine.findAnimation(animation)?.duration || 0;
+        if (duration > 0) {
+            await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
         }
     }
 
@@ -147,7 +141,6 @@ export class CascadingSlotReel extends Component {
         const backDuration = 0.2;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
-
             const posY = this.getItemPosY(i + offset);
             const distance = Math.abs(posY - item.node.position.y);
             if (distance < 1) {
@@ -176,10 +169,6 @@ export class CascadingSlotReel extends Component {
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
-        if (!item.node) {
-            return;
-        }
-
         const backOffsetY = this.itemSize * 1.8;
         const backDuration = 0.2;
         const xNode = item.node.position.x;
