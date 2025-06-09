@@ -19,7 +19,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     private readonly HOLDING_THRESHOLD = 1000;
     handle() {}
     callTriggerAction() {
-        if (!this.holdActionStore.triggerAction) {
+        if (!this.holdActionStore.triggerAction && !this.autoPlayStore.isAutoplay) {
             const canBet =
                 this.cascadingUIStore.cascadingState === CascadingSlotState.READY_BET ||
                 this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED;
