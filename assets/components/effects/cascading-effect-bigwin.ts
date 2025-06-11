@@ -227,14 +227,18 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     handleBigWinActions(completed: boolean) {
         this.tweenDelay?.stop();
+
         if (this.skipClickCount > 1 || (this.skipClickCount === 1 && this.isTurboMode)) {
-            return this.setBigWinCompleted(completed);
+            this.setBigWinCompleted(completed);
+            return;
         }
+
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
         this.playSound(this.Sound.BIG_WIN_STOP);
         this.playSound(this.Sound.INCREMENT_END);
+
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         this.tweenDelay = tween({})
             .delay(duration)
