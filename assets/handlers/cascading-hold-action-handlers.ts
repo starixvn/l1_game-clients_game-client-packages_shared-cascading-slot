@@ -29,8 +29,6 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
                     this.timeoutHolding = setTimeout(() => {
                         this.holdActionStore.isHolding = true;
                     }, this.HOLDING_THRESHOLD);
-                } else {
-                    this.clearTriggerAction();
                 }
             }
         }

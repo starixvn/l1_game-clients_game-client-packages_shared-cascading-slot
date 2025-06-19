@@ -56,7 +56,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
@@ -180,7 +180,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
                 this.handleAutoPlaceBet();
             } else {
-                if (this.holdActionStore.triggerAction) {
+                if (this.holdActionStore.isHolding) {
                     setTimeout(() => {
                         this.handleAutoPlaceBet();
                     }, 1000);

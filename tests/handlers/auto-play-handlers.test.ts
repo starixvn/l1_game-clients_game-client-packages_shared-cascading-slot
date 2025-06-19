@@ -38,7 +38,7 @@ const mockRoundStore = {
 jest.mock("@sg/game-client-base", () => ({
     Bet: {
         BetStore: jest.fn(() => mockBetStore),
-        BetHandler: class MockBetHandler {},
+        BetHandler: class MockBetHandler { },
     },
     Notices: {
         NoticeStore: jest.fn(() => mockNoticeStore),
@@ -510,7 +510,7 @@ describe("AutoPlayHandler", () => {
         it("should handle delayed bet when trigger action exists", () => {
             mockCascadingUIStore.freeSpinsTotal = 0;
             mockAutoPlayStore.isAutoplay = false;
-            mockHoldActionStore.triggerAction = {};
+            mockHoldActionStore.isHolding = true;
             jest.spyOn(handler, "handleAutoPlaceBet");
 
             handler.checkSpinNextRound();
