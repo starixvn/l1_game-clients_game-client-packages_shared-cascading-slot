@@ -17,7 +17,7 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     private timeoutHolding: NodeJS.Timeout;
     private readonly HOLDING_THRESHOLD = 1000;
-    handle() {}
+    handle() { }
     callTriggerAction() {
         if (!this.holdActionStore.triggerAction && !this.autoPlayStore.isAutoplay) {
             const canBet =
@@ -25,9 +25,13 @@ export class CascadingHoldActionHandlers implements gc.Shared.IHandler<number> {
                 this.cascadingUIStore.cascadingState === CascadingSlotState.SETTLED;
             if (canBet && !this.cascadingUIStore.disabledSpinButton) {
                 this.holdActionStore.triggerAction = {};
-                this.timeoutHolding = setTimeout(() => {
-                    this.holdActionStore.isHolding = true;
-                }, this.HOLDING_THRESHOLD);
+                if (!this.cascadingUIStore.isTrialMode) {
+                    this.timeoutHolding = setTimeout(() => {
+                        this.holdActionStore.isHolding = true;
+                    }, this.HOLDING_THRESHOLD);
+                } else {
+                    this.clearTriggerAction();
+                }
             }
         }
     }
