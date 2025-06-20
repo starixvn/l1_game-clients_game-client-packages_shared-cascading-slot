@@ -2,6 +2,22 @@ import { Color, JsonAsset, RichText } from "cc";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
 import { CascadingBottomMessage } from "../../assets/components/bottom-message/cascading-bottom-message";
 
+// Mock _decorator
+jest.mock("cc", () => {
+    const originalModule = jest.requireActual("cc");
+    return {
+        ...originalModule,
+        _decorator: {
+            ccclass: jest.fn(),
+            property: jest.fn(),
+        },
+        sys: {
+            ...originalModule.sys,
+            isMobile: false,
+        },
+    };
+});
+
 // Mock external dependencies
 jest.mock("@sg/game-client-base", () => {
     const mockGc = {
@@ -62,13 +78,27 @@ jest.mock("@sg/game-client-base", () => {
     return mockGc;
 });
 
-jest.mock("../../assets/stores/auto-play-store");
-jest.mock("../../assets/stores/cascading-ui-store");
+jest.mock("../../assets/stores/auto-play-store", () => ({
+    AutoPlayStore: class {
+        roundsAutoplay = 0;
+    },
+}));
+
+jest.mock("../../assets/stores/cascading-ui-store", () => ({
+    CascadingUIStore: class {
+        bottomMessageState = "";
+        isTurboMode = false;
+        freespinCountMsgBottom = 0;
+        isTrialMode = false;
+    },
+}));
+
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
         onLoad() {}
     },
 }));
+
 jest.mock("observer", () => ({
     observer: jest.fn(),
     render: jest.fn((store, callback) => {
@@ -92,17 +122,18 @@ jest.mock("lodash-es", () => ({
     random: jest.fn(),
 }));
 
-// Mock sys object
-jest.mock("cc", () => {
-    const originalModule = jest.requireActual("cc");
-    return {
-        ...originalModule,
-        sys: {
-            ...originalModule.sys,
-            isMobile: false,
-        },
-    };
-});
+// Mock SlotNotification
+jest.mock("../../assets/cascading-slot-utils", () => ({
+    SlotNotification: {
+        BEFORE_SPIN: "before_spin",
+        BEFORE_SPIN_TRIAL: "before_spin_trial",
+        SPINNING: "spinning",
+        SETTLED: "settled",
+        TUMBLE_WIN: "tumble_win",
+        AUTO_SPIN: "auto_spin",
+        FREESPINS: "freespins",
+    },
+}));
 
 describe("CascadingBottomMessage", () => {
     let cascadingBottomMessage: CascadingBottomMessage;
