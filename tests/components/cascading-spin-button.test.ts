@@ -1,7 +1,6 @@
 import { Button, Node, sp, Tween, tween, UIOpacity } from "cc";
 import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
 import { ButtonState } from "db://shared-components/shared/common-components/button/status-button";
-import { SpinButtonState } from "../../assets/cascading-slot-utils";
 import { CascadingSpinButton } from "../../assets/components/spin-button/cascading-spin-button";
 
 // Mock external dependencies
@@ -54,6 +53,30 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
         onLoad() {}
     },
 }));
+jest.mock("db://shared-components/shared/common-components/button/custom-button", () => ({
+    StateChangedEvent: "state-changed",
+    ButtonStateEvent: "button-interactable-changed",
+    CustomButton: class extends Button {
+        protected _getButtonState() {
+            return ButtonState.NORMAL;
+        }
+        protected _applyTransition(state: any) {}
+        protected _updateState() {
+            const state = this._getButtonState();
+            this._applyTransition(state);
+            this.node.emit(StateChangedEvent, state);
+            this.node.emit("button-interactable-changed", this.interactable);
+        }
+    },
+}));
+jest.mock("db://shared-components/shared/common-components/button/status-button", () => ({
+    ButtonState: {
+        NORMAL: "normal",
+        HOVER: "hover",
+        PRESSED: "pressed",
+        DISABLED: "disabled",
+    },
+}));
 jest.mock("db://shared-components/shared/utils", () => ({
     AnimationUtils: {
         playSpine: jest.fn(),
@@ -91,6 +114,24 @@ jest.mock("cc", () => {
         })),
     };
 });
+
+// Mock CascadingUIStore
+jest.mock("../../assets/stores/cascading-ui-store", () => ({
+    CascadingUIStore: class {
+        isTurboMode = false;
+        spinButtonState = "idle";
+        disabledSpinButton = false;
+    },
+}));
+
+// Mock SpinButtonState
+jest.mock("../../assets/cascading-slot-utils", () => ({
+    SpinButtonState: {
+        SPINNING: "spinning",
+        WIN_TUMBLE_OR_EVENT: "win_tumble_or_event",
+        IDLE: "idle",
+    },
+}));
 
 describe("CascadingSpinButton", () => {
     let cascadingSpinButton: CascadingSpinButton;
@@ -178,12 +219,14 @@ describe("CascadingSpinButton", () => {
 
     describe("onButtonStateChanged", () => {
         it("should play hover animation when state is HOVER", () => {
+            const { ButtonState } = require("db://shared-components/shared/common-components/button/status-button");
             cascadingSpinButton.onButtonStateChanged(ButtonState.HOVER);
 
             expect(mockIconSpinSkeleton.setAnimation).toHaveBeenCalledWith(1, "hover", true);
         });
 
         it("should clear hover animation when state is not HOVER", () => {
+            const { ButtonState } = require("db://shared-components/shared/common-components/button/status-button");
             cascadingSpinButton.onButtonStateChanged(ButtonState.NORMAL);
 
             expect(mockIconSpinSkeleton.clearAnimation).toHaveBeenCalledWith(1);
@@ -295,6 +338,7 @@ describe("CascadingSpinButton", () => {
 
     describe("renderSpinButtonState", () => {
         it("should handle SPINNING state", () => {
+            const { SpinButtonState } = require("../../assets/cascading-slot-utils");
             cascadingSpinButton.playAnimationSpinExtra = jest.fn();
             cascadingSpinButton.changeAnimationSpinning = jest.fn();
 
@@ -306,6 +350,7 @@ describe("CascadingSpinButton", () => {
         });
 
         it("should handle WIN_TUMBLE_OR_EVENT state", () => {
+            const { SpinButtonState } = require("../../assets/cascading-slot-utils");
             cascadingSpinButton.stopAnimationSpinExtra = jest.fn();
             cascadingSpinButton.showNormalCircle = jest.fn();
             cascadingSpinButton.stopCircleAnimations = jest.fn();
@@ -319,6 +364,7 @@ describe("CascadingSpinButton", () => {
         });
 
         it("should handle IDLE state", () => {
+            const { SpinButtonState } = require("../../assets/cascading-slot-utils");
             cascadingSpinButton.stopAnimationSpinExtra = jest.fn();
             cascadingSpinButton.playAnimationIdle = jest.fn();
 
