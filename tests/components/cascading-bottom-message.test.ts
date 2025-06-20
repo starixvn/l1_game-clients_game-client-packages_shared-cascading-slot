@@ -1,4 +1,4 @@
-import { Color, JsonAsset, RichText, sys } from "cc";
+import { Color, JsonAsset, RichText } from "cc";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
 import { CascadingBottomMessage } from "../../assets/components/bottom-message/cascading-bottom-message";
 
@@ -92,6 +92,18 @@ jest.mock("lodash-es", () => ({
     random: jest.fn(),
 }));
 
+// Mock sys object
+jest.mock("cc", () => {
+    const originalModule = jest.requireActual("cc");
+    return {
+        ...originalModule,
+        sys: {
+            ...originalModule.sys,
+            isMobile: false,
+        },
+    };
+});
+
 describe("CascadingBottomMessage", () => {
     let cascadingBottomMessage: CascadingBottomMessage;
     let mockMsgRichText: RichText;
@@ -108,7 +120,7 @@ describe("CascadingBottomMessage", () => {
         mockMsgRichText = {
             string: "",
             fontColor: mockColor,
-        } as unknown as RichText;
+        } as any as RichText;
 
         // Create mock color info
         mockColorInfo = {
@@ -274,6 +286,7 @@ describe("CascadingBottomMessage", () => {
 
     describe("handleMessageBeforeSpin", () => {
         it("should show mobile message when on mobile device", () => {
+            const { sys } = require("cc");
             Object.defineProperty(sys, "isMobile", {
                 value: true,
                 writable: true,
@@ -286,6 +299,7 @@ describe("CascadingBottomMessage", () => {
         });
 
         it("should show desktop message when on desktop device", () => {
+            const { sys } = require("cc");
             Object.defineProperty(sys, "isMobile", {
                 value: false,
                 writable: true,
