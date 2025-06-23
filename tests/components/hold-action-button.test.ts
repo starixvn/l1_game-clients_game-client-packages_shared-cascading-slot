@@ -85,6 +85,8 @@ describe("HoldActionButton", () => {
         // Setup mock event touch
         mockEventTouch = {
             getUILocation: jest.fn().mockReturnValue(MOCK_TOUCH_LOCATION),
+            getLocation: jest.fn().mockReturnValue(MOCK_TOUCH_LOCATION),
+            windowId: MOCK_WINDOW_ID,
         } as unknown as EventTouch;
 
         // Setup mock game canvas
