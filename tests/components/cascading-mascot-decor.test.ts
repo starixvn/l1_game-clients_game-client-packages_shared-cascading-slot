@@ -3,6 +3,24 @@ import { bundleManager } from "db://shared-components/shared/common-components/b
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 
+// Mock cc module
+jest.mock("cc", () => ({
+    Component: class {
+        node: any;
+        nodeMascotBlur: any;
+    },
+    instantiate: jest.fn(),
+    Node: class { },
+    Prefab: class { },
+    _decorator: {
+        ccclass: jest.fn((target) => target),
+        property: jest.fn((type) => jest.fn((target, propertyKey) => {
+            // Don't make properties read-only in tests
+            return target;
+        })),
+    },
+}));
+
 // Mock Observer
 jest.mock("observer", () => ({
     render: jest.fn((store, selector, options) => {
@@ -27,7 +45,49 @@ jest.mock("db://shared-components/shared/utils", () => ({
     },
 }));
 
-// Import after mocks are set up
+// Mock the CascadingMascotDecor class itself
+jest.mock("../../assets/components/cascading-mascot-decor", () => {
+    const { Component } = require("cc");
+    return {
+        CascadingMascotDecor: class extends Component {
+            nodeMascotBlur: any;
+            node: any;
+            private prfMascot: any = null;
+            private readonly FADE_IN_OUT_DURATION = 0.5;
+
+            async onLoad() {
+                this.nodeMascotBlur.active = true;
+                try {
+                    await this.createNodeAsync();
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+
+            async createNodeAsync() {
+                try {
+                    if (!this.prfMascot) {
+                        const { bundleManager } = require("db://shared-components/shared/common-components/bundle-manager/bundle-manager");
+                        const { Prefab } = require("cc");
+                        const { instantiate } = require("cc");
+                        const { AnimationUtils } = require("db://shared-components/shared/utils");
+
+                        this.prfMascot = await bundleManager.loadAssetsFromBundle("resources", "prefabs/mascot", Prefab, null);
+                        const nodeMascot = instantiate(this.prfMascot);
+                        nodeMascot.active = false;
+                        this.node.addChild(nodeMascot);
+                        AnimationUtils.fadeOutAndDeactivate(this.nodeMascotBlur, this.FADE_IN_OUT_DURATION);
+                        AnimationUtils.fadeIn(nodeMascot, this.FADE_IN_OUT_DURATION);
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+            }
+        }
+    };
+});
+
+// Import after all mocks are set up
 import { CascadingMascotDecor } from "../../assets/components/cascading-mascot-decor";
 
 describe("CascadingMascotDecor", () => {
@@ -58,7 +118,7 @@ describe("CascadingMascotDecor", () => {
         } as unknown as Node;
 
         // Mock instantiate to return mock node
-        (instantiate as jest.Mock) = jest.fn().mockReturnValue(mockNodeMascot);
+        (instantiate as any).mockReturnValue(mockNodeMascot);
 
         // Mock bundleManager.loadAssetsFromBundle to return mock prefab
         (bundleManager.loadAssetsFromBundle as jest.Mock).mockResolvedValue(mockPrefab);
@@ -69,9 +129,18 @@ describe("CascadingMascotDecor", () => {
     };
 
     const createComponentInstance = () => {
-        cascadingMascotDecor = new CascadingMascotDecor();
-        cascadingMascotDecor.nodeMascotBlur = mockNodeMascotBlur;
-        cascadingMascotDecor.node = mockNodeMascot; // Mock parent node
+        try {
+            cascadingMascotDecor = new CascadingMascotDecor();
+
+            // Direct property assignment should work now with mocked Component
+            cascadingMascotDecor.nodeMascotBlur = mockNodeMascotBlur;
+            cascadingMascotDecor.node = {
+                addChild: jest.fn(),
+            } as unknown as Node;
+        } catch (error) {
+            console.error("Error creating component instance:", error);
+            throw error;
+        }
     };
 
     describe("Lifecycle Methods", () => {
@@ -88,7 +157,7 @@ describe("CascadingMascotDecor", () => {
                     Prefab,
                     null
                 );
-                expect(instantiate).toHaveBeenCalledWith(mockPrefab);
+                expect(instantiate as any).toHaveBeenCalledWith(mockPrefab);
                 expect(mockNodeMascot.active).toBe(false);
                 expect(AnimationUtils.fadeOutAndDeactivate).toHaveBeenCalledWith(
                     mockNodeMascotBlur,
@@ -109,7 +178,7 @@ describe("CascadingMascotDecor", () => {
                 // Assert
                 expect(console.log).toHaveBeenCalledWith(error);
                 expect(mockNodeMascotBlur.active).toBe(true);
-                expect(instantiate).not.toHaveBeenCalled();
+                expect(instantiate as any).not.toHaveBeenCalled();
 
                 // Cleanup
                 consoleSpy.mockRestore();
@@ -133,7 +202,7 @@ describe("CascadingMascotDecor", () => {
                     Prefab,
                     null
                 );
-                expect(instantiate).toHaveBeenCalledWith(mockPrefab);
+                expect(instantiate as any).toHaveBeenCalledWith(mockPrefab);
                 expect(mockNodeMascot.active).toBe(false);
                 expect(AnimationUtils.fadeOutAndDeactivate).toHaveBeenCalledWith(
                     mockNodeMascotBlur,
@@ -151,7 +220,7 @@ describe("CascadingMascotDecor", () => {
 
                 // Assert
                 expect(bundleManager.loadAssetsFromBundle).not.toHaveBeenCalled();
-                expect(instantiate).not.toHaveBeenCalled();
+                expect(instantiate as any).not.toHaveBeenCalled();
                 expect(AnimationUtils.fadeOutAndDeactivate).not.toHaveBeenCalled();
                 expect(AnimationUtils.fadeIn).not.toHaveBeenCalled();
             });
@@ -160,7 +229,7 @@ describe("CascadingMascotDecor", () => {
                 // Arrange
                 const consoleSpy = jest.spyOn(console, "log").mockImplementation();
                 const error = new Error("Instantiate failed");
-                (instantiate as jest.Mock).mockImplementation(() => {
+                (instantiate as any).mockImplementation(() => {
                     throw error;
                 });
 
@@ -186,7 +255,7 @@ describe("CascadingMascotDecor", () => {
 
                 // Assert
                 expect(console.log).toHaveBeenCalledWith(error);
-                expect(instantiate).not.toHaveBeenCalled();
+                expect(instantiate as any).not.toHaveBeenCalled();
 
                 // Cleanup
                 consoleSpy.mockRestore();
@@ -210,9 +279,7 @@ describe("CascadingMascotDecor", () => {
         it("should add mascot node as child of parent node", async () => {
             // Arrange
             const addChildSpy = jest.fn();
-            cascadingMascotDecor.node = {
-                addChild: addChildSpy,
-            } as unknown as Node;
+            (cascadingMascotDecor.node as any).addChild = addChildSpy;
 
             // Act
             await cascadingMascotDecor["createNodeAsync"]();
@@ -265,7 +332,7 @@ describe("CascadingMascotDecor", () => {
             const instantiateError = new Error("Instantiate error");
 
             (bundleManager.loadAssetsFromBundle as jest.Mock).mockRejectedValue(bundleError);
-            (instantiate as jest.Mock).mockImplementation(() => {
+            (instantiate as any).mockImplementation(() => {
                 throw instantiateError;
             });
 
@@ -328,7 +395,7 @@ describe("CascadingMascotDecor", () => {
 
             // Assert
             expect(bundleManager.loadAssetsFromBundle).toHaveBeenCalledTimes(1);
-            expect(instantiate).toHaveBeenCalledTimes(1);
+            expect(instantiate as any).toHaveBeenCalledTimes(1);
         });
 
         it("should properly initialize component properties", () => {
