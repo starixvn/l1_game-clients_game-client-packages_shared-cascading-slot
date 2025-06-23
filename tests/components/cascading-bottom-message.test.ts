@@ -1,6 +1,4 @@
 import { Color, JsonAsset, RichText } from "cc";
-import { SlotNotification } from "../../assets/cascading-slot-utils";
-import { CascadingBottomMessage } from "../../assets/components/bottom-message/cascading-bottom-message";
 
 // Mock _decorator
 jest.mock("cc", () => {
@@ -8,12 +6,23 @@ jest.mock("cc", () => {
     return {
         ...originalModule,
         _decorator: {
-            ccclass: jest.fn(),
-            property: jest.fn(),
+            ccclass: jest.fn((target: any) => target),
+            property: jest.fn((options?: any) => (target: any, propertyKey: string) => { }),
         },
         sys: {
             ...originalModule.sys,
             isMobile: false,
+            os: "Unknown",
+            OS: {
+                UNKNOWN: "Unknown",
+                IOS: "iOS",
+                ANDROID: "Android",
+                WINDOWS: "Windows",
+                LINUX: "Linux",
+                OSX: "OS X",
+                OHOS: "OHOS",
+                OPENHARMONY: "OpenHarmony",
+            },
         },
     };
 });
@@ -136,6 +145,10 @@ jest.mock("../../assets/cascading-slot-utils", () => ({
         FREESPINS: "freespins",
     },
 }));
+
+// Import after mocks are set up
+import { SlotNotification } from "../../assets/cascading-slot-utils";
+import { CascadingBottomMessage } from "../../assets/components/bottom-message/cascading-bottom-message";
 
 describe("CascadingBottomMessage", () => {
     let cascadingBottomMessage: CascadingBottomMessage;
@@ -315,10 +328,7 @@ describe("CascadingBottomMessage", () => {
     describe("handleMessageBeforeSpin", () => {
         it("should show mobile message when on mobile device", () => {
             const { sys } = require("cc");
-            Object.defineProperty(sys, "isMobile", {
-                value: true,
-                writable: true,
-            });
+            sys.os = sys.OS.IOS;
             cascadingBottomMessage.updateMessageContent = jest.fn();
 
             cascadingBottomMessage.handleMessageBeforeSpin();
@@ -328,10 +338,7 @@ describe("CascadingBottomMessage", () => {
 
         it("should show desktop message when on desktop device", () => {
             const { sys } = require("cc");
-            Object.defineProperty(sys, "isMobile", {
-                value: false,
-                writable: true,
-            });
+            sys.os = sys.OS.WINDOWS;
             cascadingBottomMessage.updateMessageContent = jest.fn();
 
             cascadingBottomMessage.handleMessageBeforeSpin();
