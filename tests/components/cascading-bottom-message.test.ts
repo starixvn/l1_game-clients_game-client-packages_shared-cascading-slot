@@ -100,7 +100,9 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
 }));
 
 jest.mock("observer", () => ({
-    observer: jest.fn(),
+    observer: jest.fn((target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        return descriptor;
+    }),
     render: jest.fn((store, callback) => {
         return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
             return descriptor;
