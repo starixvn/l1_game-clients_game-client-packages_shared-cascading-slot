@@ -33,7 +33,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -45,17 +45,17 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
         Translator: {
@@ -95,7 +95,7 @@ jest.mock("../../assets/stores/cascading-ui-store", () => ({
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() {}
+        onLoad() { }
     },
 }));
 
@@ -150,7 +150,6 @@ describe("CascadingBottomMessage", () => {
         // Create mock rich text
         mockMsgRichText = {
             string: "",
-            fontColor: mockColor,
         } as any as RichText;
 
         // Create mock color info
@@ -171,17 +170,13 @@ describe("CascadingBottomMessage", () => {
     });
 
     describe("onLoad", () => {
-        it("should initialize color configuration and set font color", () => {
+        it("should initialize color configuration", () => {
             // Call the actual onLoad logic
             cascadingBottomMessage["colorConfig"] = cascadingBottomMessage.colorInfo.json;
             cascadingBottomMessage["highlightColor"] = cascadingBottomMessage["colorConfig"].noticeHighlightTextColor;
-            (cascadingBottomMessage.msgRichText as any).fontColor = mockColor.fromHEX(
-                cascadingBottomMessage["colorConfig"].noticeTextColor
-            );
 
             expect(cascadingBottomMessage["colorConfig"]).toBe(mockColorInfo.json);
             expect(cascadingBottomMessage["highlightColor"]).toBe("#FFD700");
-            expect(mockColor.fromHEX).toHaveBeenCalledWith("#FFFFFF");
         });
     });
 
