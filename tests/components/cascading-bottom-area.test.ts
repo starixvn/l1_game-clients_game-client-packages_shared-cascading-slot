@@ -30,6 +30,11 @@ jest.mock("db://shared-components/shared/common-components/change-node-color", (
     },
 }));
 
+// Mock LocalizedLabel class
+const MockLocalizedLabel = class {
+    constructor() { }
+};
+
 // Mock cc module with proper Color class and decorators
 jest.mock("cc", () => ({
     Color: class {
@@ -303,7 +308,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[0];
-                    } else if (componentType === "LocalizedLabel") {
+                    } else if (componentType === MockLocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -313,7 +318,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[1];
-                    } else if (componentType === "LocalizedLabel") {
+                    } else if (componentType === MockLocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -350,7 +355,7 @@ describe("CascadingBottomArea", () => {
                 node: {
                     getComponent: jest.fn()
                         .mockReturnValueOnce(mockLabelComponents[0]) // First call returns Label
-                        .mockReturnValueOnce({}) // Second call returns LocalizedLabel
+                        .mockReturnValueOnce(new MockLocalizedLabel()) // Second call returns LocalizedLabel
                 },
                 updateColor: jest.fn()
             };
@@ -456,7 +461,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[0];
-                    } else if (componentType === "LocalizedLabel") {
+                    } else if (componentType === MockLocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -466,7 +471,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[1];
-                    } else if (componentType === "LocalizedLabel") {
+                    } else if (componentType === MockLocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
