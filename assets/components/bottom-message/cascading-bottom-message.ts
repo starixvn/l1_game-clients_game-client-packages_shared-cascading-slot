@@ -85,7 +85,9 @@ export class CascadingBottomMessage extends ObserverComponent {
     }
 
     handleMessageBeforeSpin() {
-        const deviceSuffix = sys.isMobile ? "phone" : "desktop";
+        // const deviceSuffix = sys.isMobile ? "phone" : "desktop";
+        const isMobile = sys.os === sys.OS.IOS || sys.os === sys.OS.ANDROID;
+        const deviceSuffix = isMobile ? "phone" : "desktop";
         this.updateMessageContent(gc.Translator.gameTranslate(`show_msg_when_spin_${deviceSuffix}`));
     }
 
