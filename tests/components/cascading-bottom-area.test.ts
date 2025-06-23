@@ -3,6 +3,7 @@ import { Color, JsonAsset, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
+import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
 
 jest.mock("observer", () => ({
     render: jest.fn((store, selector, options) => {
@@ -30,10 +31,12 @@ jest.mock("db://shared-components/shared/common-components/change-node-color", (
     },
 }));
 
-// Mock LocalizedLabel class
-const MockLocalizedLabel = class {
-    constructor() { }
-};
+// Mock LocalizedLabel
+jest.mock("../../../i18n/assets/LocalizedLabel", () => ({
+    LocalizedLabel: class {
+        constructor() { }
+    }
+}));
 
 // Mock cc module with proper Color class and decorators
 jest.mock("cc", () => ({
@@ -308,7 +311,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[0];
-                    } else if (componentType === MockLocalizedLabel) {
+                    } else if (componentType === LocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -318,7 +321,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[1];
-                    } else if (componentType === MockLocalizedLabel) {
+                    } else if (componentType === LocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -355,7 +358,7 @@ describe("CascadingBottomArea", () => {
                 node: {
                     getComponent: jest.fn()
                         .mockReturnValueOnce(mockLabelComponents[0]) // First call returns Label
-                        .mockReturnValueOnce(new MockLocalizedLabel()) // Second call returns LocalizedLabel
+                        .mockReturnValueOnce(new LocalizedLabel()) // Second call returns LocalizedLabel
                 },
                 updateColor: jest.fn()
             };
@@ -461,7 +464,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[0];
-                    } else if (componentType === MockLocalizedLabel) {
+                    } else if (componentType === LocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
@@ -471,7 +474,7 @@ describe("CascadingBottomArea", () => {
                 .mockImplementation((componentType) => {
                     if (componentType === Label) {
                         return mockLabelComponents[1];
-                    } else if (componentType === MockLocalizedLabel) {
+                    } else if (componentType === LocalizedLabel) {
                         return null; // No LocalizedLabel
                     }
                     return null;
