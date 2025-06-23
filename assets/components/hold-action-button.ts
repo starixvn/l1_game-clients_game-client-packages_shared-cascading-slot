@@ -45,10 +45,9 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     private handleTouchMove(event: EventTouch) {
-        const location = event.getUILocation();
+        const location = event.getLocation();
         const transform = ComponentUtils.getTransform(this.node);
-        const boundingBox = transform.getBoundingBox();
-        const hit = boundingBox.contains(location);
+        const hit = transform.hitTest(location, event.windowId);
         if (!hit) {
             this.clearTriggerAction();
         }
