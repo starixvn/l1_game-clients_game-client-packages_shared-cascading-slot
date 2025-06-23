@@ -45,9 +45,10 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     private handleTouchMove(event: EventTouch) {
-        const location = event.getLocation();
+        const location = event.getUILocation();
         const transform = ComponentUtils.getTransform(this.node);
-        const hit = transform.hitTest(location, event.windowId);
+        const boundingBox = transform.getBoundingBox();
+        const hit = boundingBox.contains(location);
         if (!hit) {
             this.clearTriggerAction();
         }
@@ -81,10 +82,10 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.callTriggerAction())
-    callTriggerAction() {}
+    callTriggerAction() { }
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.clearTriggerAction())
-    clearTriggerAction() {}
+    clearTriggerAction() { }
 
     @render(HoldActionStore, (store) => store.triggerAction, { fireImmediately: false })
     handlePressingKey(triggerAction: any) {
@@ -94,7 +95,7 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(AutoPlayHandler, (handler) => handler.placeBet())
-    placeBet() {}
+    placeBet() { }
 
     @render(AutoPlayStore, (store) => store.triggerBet)
     renderTriggerBet(triggerBet: any) {

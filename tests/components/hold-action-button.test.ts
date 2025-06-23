@@ -85,7 +85,6 @@ describe("HoldActionButton", () => {
         // Setup mock event touch
         mockEventTouch = {
             getUILocation: jest.fn().mockReturnValue(MOCK_TOUCH_LOCATION),
-            windowId: MOCK_WINDOW_ID,
         } as unknown as EventTouch;
 
         // Setup mock game canvas
@@ -338,11 +337,14 @@ describe("HoldActionButton", () => {
     };
 
     const createMockTransform = (hitTestResult: boolean) => ({
-        hitTest: jest.fn().mockReturnValue(hitTestResult),
+        getBoundingBox: jest.fn().mockReturnValue({
+            contains: jest.fn().mockReturnValue(hitTestResult),
+        }),
     });
 
     const verifyTransformHitTest = (mockTransform: any) => {
         expect(ComponentUtils.getTransform).toHaveBeenCalledWith(mockNode);
-        expect(mockTransform.hitTest).toHaveBeenCalledWith(MOCK_TOUCH_LOCATION, MOCK_WINDOW_ID);
+        expect(mockTransform.getBoundingBox).toHaveBeenCalled();
+        expect(mockTransform.getBoundingBox().contains).toHaveBeenCalledWith(MOCK_TOUCH_LOCATION);
     };
 });
