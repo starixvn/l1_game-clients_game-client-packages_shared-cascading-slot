@@ -328,7 +328,7 @@ describe("CascadingBottomMessage", () => {
     describe("handleMessageBeforeSpin", () => {
         it("should show mobile message when on mobile device", () => {
             const { sys } = require("cc");
-            sys.os = sys.OS.IOS;
+            sys.isMobile = true;
             cascadingBottomMessage.updateMessageContent = jest.fn();
 
             cascadingBottomMessage.handleMessageBeforeSpin();
@@ -338,7 +338,7 @@ describe("CascadingBottomMessage", () => {
 
         it("should show desktop message when on desktop device", () => {
             const { sys } = require("cc");
-            sys.os = sys.OS.WINDOWS;
+            sys.isMobile = false;
             cascadingBottomMessage.updateMessageContent = jest.fn();
 
             cascadingBottomMessage.handleMessageBeforeSpin();
