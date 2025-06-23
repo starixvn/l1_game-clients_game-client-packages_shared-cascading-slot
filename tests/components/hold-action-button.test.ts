@@ -338,15 +338,16 @@ describe("HoldActionButton", () => {
         expect(game.canvas.addEventListener).toHaveBeenCalledWith("blur", holdActionButton.onBlur);
     };
 
-    const createMockTransform = (hitTestResult: boolean) => ({
-        getBoundingBox: jest.fn().mockReturnValue({
-            contains: jest.fn().mockReturnValue(hitTestResult),
-        }),
-    });
+    const createMockTransform = (hitTestResult: boolean) => {
+        const mockTransform = {
+            hitTest: jest.fn().mockReturnValue(hitTestResult),
+        };
+        console.log('Created mock transform:', mockTransform); // Debug log
+        return mockTransform;
+    };
 
     const verifyTransformHitTest = (mockTransform: any) => {
         expect(ComponentUtils.getTransform).toHaveBeenCalledWith(mockNode);
-        expect(mockTransform.getBoundingBox).toHaveBeenCalled();
-        expect(mockTransform.getBoundingBox().contains).toHaveBeenCalledWith(MOCK_TOUCH_LOCATION);
+        expect(mockTransform.hitTest).toHaveBeenCalledWith(MOCK_TOUCH_LOCATION, MOCK_WINDOW_ID);
     };
 });
