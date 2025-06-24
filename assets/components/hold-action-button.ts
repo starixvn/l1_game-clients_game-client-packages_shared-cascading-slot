@@ -81,10 +81,10 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.callTriggerAction())
-    callTriggerAction() {}
+    callTriggerAction() { }
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.clearTriggerAction())
-    clearTriggerAction() {}
+    clearTriggerAction() { }
 
     @render(HoldActionStore, (store) => store.triggerAction, { fireImmediately: false })
     handlePressingKey(triggerAction: any) {
@@ -94,7 +94,7 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(AutoPlayHandler, (handler) => handler.placeBet())
-    placeBet() {}
+    placeBet() { }
 
     @render(AutoPlayStore, (store) => store.triggerBet)
     renderTriggerBet(triggerBet: any) {

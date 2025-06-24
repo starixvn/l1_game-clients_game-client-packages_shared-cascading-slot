@@ -5,6 +5,7 @@ import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;
@@ -37,7 +38,7 @@ export class CascadingBottomArea extends ObserverComponent {
             const labelComp = comp.node.getComponent(Label);
             if (labelComp) {
                 comp.updateColor(
-                    comp.node.getComponent("LocalizedLabel") ? this.colorConfig.bottomAreaTextColor : this.colorConfig.bottomAreaNumberColor
+                    comp.node.getComponent(LocalizedLabel) ? this.colorConfig.bottomAreaTextColor : this.colorConfig.bottomAreaNumberColor
                 );
             } else {
                 comp.updateColor(this.colorConfig.bottomAreaButtonBorderColor);
