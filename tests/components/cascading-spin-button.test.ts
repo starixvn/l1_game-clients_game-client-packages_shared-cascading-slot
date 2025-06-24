@@ -1,6 +1,5 @@
 import { Button, Node, sp, Tween, tween, UIOpacity } from "cc";
 import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
-import { ButtonState } from "db://shared-components/shared/common-components/button/status-button";
 import { CascadingSpinButton } from "../../assets/components/spin-button/cascading-spin-button";
 
 // Mock external dependencies
@@ -58,7 +57,7 @@ jest.mock("db://shared-components/shared/common-components/button/custom-button"
     ButtonStateEvent: "button-interactable-changed",
     CustomButton: class extends Button {
         protected _getButtonState() {
-            return ButtonState.NORMAL;
+            return 0;
         }
         protected _applyTransition(state: any) {}
         protected _updateState() {
