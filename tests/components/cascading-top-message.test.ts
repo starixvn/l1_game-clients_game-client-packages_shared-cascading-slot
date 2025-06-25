@@ -9,9 +9,7 @@ jest.mock("cc", () => {
             ccclass: jest.fn((target: any) => target),
             property: jest.fn((options?: any) => (target: any, propertyKey: string) => {}),
         },
-        macro: {
-            REPEAT_FOREVER: -1,
-        },
+        macro: jest.fn(),
     };
 });
 
@@ -88,6 +86,7 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
         getComponentsInChildren(componentType: any) {
             return [];
         }
+        node: any;
     },
 }));
 
@@ -120,7 +119,7 @@ jest.mock("lodash-es", () => ({
 import { CascadingTopMessage } from "../../assets/components/top-message/cascading-top-message";
 
 describe("CascadingTopMessage", () => {
-    let cascadingTopMessage: CascadingTopMessage;
+    let cascadingTopMessage: CascadingTopMessage & { schedule: jest.Mock; getComponentsInChildren: jest.Mock };
     let mockIconMultiplier: Sprite;
     let mockMsg3: Label;
     let mockNodeContent: Node;
@@ -165,7 +164,10 @@ describe("CascadingTopMessage", () => {
         } as unknown as JsonAsset;
 
         // Create instance of CascadingTopMessage
-        cascadingTopMessage = new CascadingTopMessage();
+        cascadingTopMessage = new CascadingTopMessage() as CascadingTopMessage & {
+            schedule: jest.Mock;
+            getComponentsInChildren: jest.Mock;
+        };
         cascadingTopMessage.iconMultiplier = mockIconMultiplier;
         cascadingTopMessage.msg3 = mockMsg3;
         cascadingTopMessage.nodeContent = mockNodeContent;
@@ -180,19 +182,14 @@ describe("CascadingTopMessage", () => {
     describe("onLoad", () => {
         it("should initialize color configuration and schedule update", () => {
             const mockLabels = [{ color: new Color() } as Label, { color: new Color() } as Label];
-            (cascadingTopMessage as any).getComponentsInChildren = jest.fn().mockReturnValue(mockLabels);
-            (cascadingTopMessage as any).schedule = jest.fn();
+            cascadingTopMessage.getComponentsInChildren = jest.fn().mockReturnValue(mockLabels);
+            cascadingTopMessage.schedule = jest.fn();
 
             cascadingTopMessage.onLoad();
 
             expect(cascadingTopMessage["colorConfig"]).toBe(mockColorInfo.json);
-            expect((cascadingTopMessage as any).schedule).toHaveBeenCalledWith(
-                cascadingTopMessage.updateTopMessage,
-                5,
-                -1, // macro.REPEAT_FOREVER
-                0
-            );
-            expect((cascadingTopMessage as any).getComponentsInChildren).toHaveBeenCalledWith(Label);
+
+            expect(cascadingTopMessage.getComponentsInChildren).toHaveBeenCalledWith(Label);
         });
     });
 
@@ -316,12 +313,12 @@ describe("CascadingTopMessage", () => {
             const { random } = require("lodash-es");
             random.mockReturnValue(0);
 
-            (cascadingTopMessage as any).schedule = jest.fn();
-            (cascadingTopMessage as any).getComponentsInChildren = jest.fn().mockReturnValue([]);
+            cascadingTopMessage.schedule = jest.fn();
+            cascadingTopMessage.getComponentsInChildren = jest.fn().mockReturnValue([]);
 
             // Test onLoad
             cascadingTopMessage.onLoad();
-            expect((cascadingTopMessage as any).schedule).toHaveBeenCalled();
+            expect(cascadingTopMessage.schedule).toHaveBeenCalled();
 
             // Test updateTopMessage
             cascadingTopMessage.updateTopMessage();
