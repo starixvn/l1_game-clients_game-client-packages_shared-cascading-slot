@@ -193,6 +193,7 @@ describe("CascadingTopMessage", () => {
         // Add required methods for testing
         cascadingTopMessage.schedule = jest.fn();
         cascadingTopMessage.getComponentsInChildren = jest.fn();
+        cascadingTopMessage.onLoad = jest.fn();
 
         // Initialize properties
         cascadingTopMessage.iconMultiplier = mockIconMultiplier;
