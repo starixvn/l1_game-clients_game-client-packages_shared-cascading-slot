@@ -1,4 +1,4 @@
-import { Color, JsonAsset, Label, Node, Sprite, SpriteAtlas, SpriteFrame } from "cc";
+import { Color, JsonAsset, Label, Node, Sprite, SpriteAtlas, SpriteFrame, macro } from "cc";
 
 // Mock _decorator
 jest.mock("cc", () => {
@@ -8,9 +8,6 @@ jest.mock("cc", () => {
         _decorator: {
             ccclass: jest.fn((target: any) => target),
             property: jest.fn((options?: any) => (target: any, propertyKey: string) => {}),
-        },
-        macro: {
-            REPEAT_FOREVER: -1,
         },
         Component: class {
             schedule(callback: Function, interval: number, repeat: number, delay: number) {
