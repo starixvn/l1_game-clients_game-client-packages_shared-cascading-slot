@@ -1,4 +1,4 @@
-import { Color, JsonAsset, Label, Node, Sprite, SpriteAtlas, SpriteFrame, macro } from "cc";
+import { Color, JsonAsset, Label, Node, Sprite, SpriteAtlas, SpriteFrame } from "cc";
 
 // Mock _decorator
 jest.mock("cc", () => {
@@ -104,6 +104,7 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
             onDestroy() {
                 super.onDestroy();
             }
+            schedule = jest.fn();
         },
     };
 });
@@ -181,7 +182,7 @@ describe("CascadingTopMessage", () => {
             },
         } as unknown as JsonAsset;
 
-        // Create instance of CascadingTopMessage with proper inheritance
+        // Create instance of CascadingTopMessage
         cascadingTopMessage = new CascadingTopMessage() as CascadingTopMessage & {
             schedule: jest.Mock;
             getComponentsInChildren: jest.Mock;
@@ -190,7 +191,6 @@ describe("CascadingTopMessage", () => {
         // Add required methods for testing
         cascadingTopMessage.schedule = jest.fn();
         cascadingTopMessage.getComponentsInChildren = jest.fn();
-        cascadingTopMessage.onLoad = jest.fn();
 
         // Initialize properties
         cascadingTopMessage.iconMultiplier = mockIconMultiplier;
