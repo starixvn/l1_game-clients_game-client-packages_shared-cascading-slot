@@ -48,3 +48,9 @@ export enum ConfigDurationEnum {
 }
 
 export const UNIT_SECOND_SPIN = 1000;
+
+export enum TrackingObject {
+    TrialMode = "TrialMode",
+    TurboMode = "TurboMode",
+    AutoSpin = "AutoSpin",
+}

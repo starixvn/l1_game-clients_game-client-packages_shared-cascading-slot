@@ -3,7 +3,8 @@ import { _decorator, Node, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { GAME_NAME } from "db://assets/game/scripts/game-settings";
+import { TrackingObject } from "../../cascading-slot-base-configs";
+import { trackEventButton } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -27,22 +28,15 @@ export default class TurboModeButton extends ObserverComponent {
     }
 
     trackOnLoadEvents() {
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: gc.Shared.utils.TrackingAction.Show,
-            object_name: "TurboMode",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(TrackingObject.TurboMode, gc.Shared.utils.TrackingAction.Show);
     }
 
     @handle(CascadingUIHandler, (handle, isTurboModeUI: boolean) => handle.handleTurboModeUI(isTurboModeUI))
     onTurboModeChanged() {
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: this.tglTurboMode.isChecked ? gc.Shared.utils.TrackingAction.ToggleOn : gc.Shared.utils.TrackingAction.ToggleOff,
-            object_name: "TurboMode",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(
+            TrackingObject.TurboMode,
+            this.tglTurboMode.isChecked ? gc.Shared.utils.TrackingAction.ToggleOn : gc.Shared.utils.TrackingAction.ToggleOff
+        );
         return this.tglTurboMode.isChecked;
     }
 

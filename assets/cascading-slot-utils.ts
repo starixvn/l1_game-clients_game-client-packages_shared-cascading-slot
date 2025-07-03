@@ -1,6 +1,10 @@
+import gc from "@sg/game-client-base";
 import { Node, tween, UIOpacity } from "cc";
+import { GAME_NAME } from "db://assets/game/scripts/game-settings";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
+const { Shared } = gc;
+const { utils } = Shared;
 
 export enum SpecialSymbol {
     SCATTER_SYMBOL = 9,
@@ -95,4 +99,13 @@ export const findIndex = (value: number, valueList: number[]) => {
 
 export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
     return +(level * coin * betMultiplier).toFixed(1);
+};
+
+export const trackEventButton = (objectName: string, actionName: string) => {
+    utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
+        location: GAME_NAME,
+        action: actionName,
+        object_name: objectName,
+        game_name: GAME_NAME,
+    });
 };

@@ -1,8 +1,9 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Node } from "cc";
-import { GAME_NAME } from "db://assets/game/scripts/game-settings";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { TrackingObject } from "../../cascading-slot-base-configs";
+import { trackEventButton } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -30,12 +31,7 @@ export class CascadingTrialMode extends ObserverComponent {
     }
 
     trackOnLoadEvents() {
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: gc.Shared.utils.TrackingAction.Show,
-            object_name: "TrialMode",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(TrackingObject.TrialMode, gc.Shared.utils.TrackingAction.Show);
     }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
@@ -53,12 +49,10 @@ export class CascadingTrialMode extends ObserverComponent {
         this.playSoundClick();
         this.handleSymbolPreviewVisiblity(false);
         this.handleChangeUserBalance(true);
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: this.isTrialMode ? gc.Shared.utils.TrackingAction.ToggleOn : gc.Shared.utils.TrackingAction.ToggleOff,
-            object_name: "TrialMode",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(
+            TrackingObject.TrialMode,
+            this.isTrialMode ? gc.Shared.utils.TrackingAction.ToggleOn : gc.Shared.utils.TrackingAction.ToggleOff
+        );
         return !this.isTrialMode;
     }
 

@@ -3,9 +3,9 @@ import inversify from "inversify";
 import mobx from "mobx";
 import { BetControlStore } from "./../stores/bet-control-store";
 
-import { GAME_NAME } from "db://assets/game/scripts/game-settings";
+import { TrackingObject } from "../cascading-slot-base-configs";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification } from "../cascading-slot-utils";
+import { SlotNotification, trackEventButton } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -95,12 +95,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     clickAutoPlay() {
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: this.autoPlayStore.isAutoplay ? gc.Shared.utils.TrackingAction.ToggleOn : gc.Shared.utils.TrackingAction.ToggleOff,
-            object_name: "AutoSpin",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(TrackingObject.AutoSpin, gc.Shared.utils.TrackingAction.Click);
         if (!this.autoPlayStore.isAutoplay && this.isValidBet()) {
             this.openAutoPlayPopup();
         } else {

@@ -3,7 +3,8 @@ import { _decorator, Node, Sprite } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { GAME_NAME } from "db://assets/game/scripts/game-settings";
+import { TrackingObject } from "../../cascading-slot-base-configs";
+import { trackEventButton } from "../../cascading-slot-utils";
 import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
@@ -32,12 +33,7 @@ export default class AutoPlayButton extends ObserverComponent {
     }
 
     trackOnLoadEvents() {
-        utils.AnalyticsManager.trackEvent(gc.Shared.utils.TrackingEvent.Button, {
-            location: GAME_NAME,
-            action: gc.Shared.utils.TrackingAction.Show,
-            object_name: "AutoSpin",
-            game_name: GAME_NAME,
-        });
+        trackEventButton(TrackingObject.AutoSpin, gc.Shared.utils.TrackingAction.Show);
     }
 
     @handle(AutoPlayHandler, (handle) => handle.clickAutoPlay())
