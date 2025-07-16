@@ -1,6 +1,6 @@
-import { _decorator, Component, instantiate, Node, Prefab, sp, tween, v3 } from "cc";
-import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
-import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
+import { _decorator, Component, instantiate, log, Node, Prefab, sp, tween, v3 } from "cc";
+import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
+import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
@@ -21,6 +21,7 @@ export class CascadingSlotReel extends Component {
     itemDisplayCount = CascadingSlotConfig.reelItemCount;
     protected items: CascadingSlotReelItem[] = [];
     public readonly pixelPerSecond = 145 * 15;
+    public peekEffect = false;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -116,7 +117,7 @@ export class CascadingSlotReel extends Component {
         effectSpine.setAnimation(0, animation, false);
         const duration = effectSpine.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
-            await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(duration);
         }
     }
 
@@ -130,7 +131,23 @@ export class CascadingSlotReel extends Component {
 
     protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
         const baseSpeed = isFallOut ? 1.3 * this.pixelPerSecond : this.pixelPerSecond;
-        return isTurbo ? baseSpeed * 1.5 : baseSpeed;
+
+        if (isTurbo) {
+            return baseSpeed * 1.5;
+        }
+
+        if (this.peekEffect) {
+            return baseSpeed * 0.7;
+        }
+
+        return baseSpeed;
+    }
+
+    protected delayFallingEachItem(duration: any) {
+        if (this.peekEffect) {
+            return duration + 0.2;
+        }
+        return 0.08 * duration;
     }
 
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
@@ -138,7 +155,6 @@ export class CascadingSlotReel extends Component {
         const speed = this.getSpeed(isTurbo, isFallOut);
         let duration;
 
-        const backDuration = 0.2;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
@@ -147,25 +163,27 @@ export class CascadingSlotReel extends Component {
                 continue;
             }
             duration = distance / speed;
-            const delay = 0.08 * duration;
+            const delay = this.delayFallingEachItem(duration);
             if (!isTurbo) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delay);
             }
             const isBottomItem = i === 0;
             if (isFallOut) {
                 tween(item.node)
-                    .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
+                    .to(
+                        duration,
+                        { position: v3(item.node.position.x, posY, 0) },
+                        {
+                            easing: "sineIn",
+                        }
+                    )
                     .start();
             } else {
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
 
-        await FunctionUtils.delay(this.getDelayTimeAfterFall(isFallOut, duration, backDuration));
-    }
-
-    protected getDelayTimeAfterFall(isFallOut: boolean, duration: number, backDuration: number): number {
-        return isFallOut ? duration * UNIT_SECOND_SPIN : (duration + backDuration) * UNIT_SECOND_SPIN;
+        await AnimationUtils.delayTime(duration);
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
@@ -180,7 +198,13 @@ export class CascadingSlotReel extends Component {
                     onBottomItemEnded && onBottomItemEnded();
                 }
             })
-            .to(backDuration, { position: v3(xNode, posY, 0) }, { easing: "backOut" })
+            .to(
+                backDuration,
+                { position: v3(xNode, posY, 0) },
+                {
+                    easing: "backOut",
+                }
+            )
             .start();
     }
 
@@ -204,6 +228,27 @@ export class CascadingSlotReel extends Component {
         this.items.forEach((item) => ComponentUtils.moveToOtherNode(item.node, this.effectContainer));
         const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
         await Promise.all(scatterSymbols.map((item) => item.highlightScatterItem()));
+        this.moveItemsBackToReelNode();
+    }
+
+    public moveItemsBackToReelNode() {
         this.items.forEach((item) => ComponentUtils.moveToOtherNode(item.node, this.node));
+    }
+
+    async peekEffectScatterItems() {
+        const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
+        scatterSymbols.map((item) => {
+            // ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+            if (item.node.parent === this.effectContainer) {
+                return;
+            }
+            log("wpos x ", item.node.worldPosition.x);
+            const wPos = v3(item.node.worldPosition.x, item.node.worldPosition.y, 0);
+            item.node.parent = this.effectContainer;
+            item.node.worldPosition = wPos;
+
+            log("wpos x ", item.node.worldPosition.x);
+            item.highlightScatterItem();
+        });
     }
 }

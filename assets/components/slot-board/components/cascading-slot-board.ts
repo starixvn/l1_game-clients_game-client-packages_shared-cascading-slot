@@ -1,12 +1,13 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Node, Prefab, tween, UIOpacity, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Label, log, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
+import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../../cascading-slot-base-configs";
-import { convertBoardValue, SlotNotification, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
+import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
+import { convertBoardValue, SlotNotification, SpecialSymbol, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
@@ -31,6 +32,16 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @property(CascadingPreviewOddsPopup)
     previewPopup: CascadingPreviewOddsPopup = null;
+
+    @property(Node)
+    peekEffectOverlay: Node = null;
+
+    @property(Node)
+    peekEffectContainer: Node = null;
+
+    peekEffectPrefab: Prefab = null;
+
+    protected peekEffectPool: NodePool = new NodePool();
 
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
@@ -115,7 +126,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     protected async fallOut(isTurbo: boolean, delay: number) {
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delay);
             }
 
             if (i < this.reels.length - 1) {
@@ -199,17 +210,36 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.playSound(soundArray[index]);
             }
         };
+        log("spinResult", symbols);
+        const peekEffect = this.checkPeekEffect(symbols);
+        const hasPeekEffect = peekEffect !== null;
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delay);
             }
-
-            if (i < this.reels.length - 1) {
-                this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
+            const reelSymbols = symbols[i];
+            log(`reelSymbols ${i} `, reelSymbols);
+            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+            if (i < awaitReelIndex) {
+                this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
+            } else if (i === awaitReelIndex) {
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
             } else {
-                await this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
+                if (hasPeekEffect) {
+                    this.reels.forEach((reel, index) => {
+                        if (index < i) {
+                            reel.peekEffectScatterItems();
+                        }
+                    });
+                }
+                this.reels[i].peekEffect = hasPeekEffect;
+                this.showPeekEffect(i);
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
+                this.hidePeekEffectAtIndex(i);
+                this.reels[i].peekEffect = false;
             }
         }
+        this.hidePeekEffect();
     }
 
     getRandomWinItem(data: number[][], winIcon: number): Node {
@@ -362,7 +392,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.setMultiplierValue(mItem.multiplier);
             }
 
-            await FunctionUtils.delay(tumbleWinView.mulitiplierEffectDuration * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(tumbleWinView.mulitiplierEffectDuration);
         }
     }
 
@@ -449,5 +479,105 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
     changeCascadingState(state: string) {
         return state;
+    }
+
+    onLoad() {
+        super.onLoad();
+        this.loadPeekEffectPrefab().then(() => {
+            this.initPeekEffectPool();
+        });
+    }
+
+    async loadPeekEffectPrefab() {
+        this.peekEffectPrefab = await bundleManager.loadResourcesAsset("prefabs/peek-effect", Prefab);
+    }
+
+    protected initPeekEffectPool() {
+        // Pre-instantiate a few nodes for the pool
+        for (let i = 0; i < 2; i++) {
+            const node = instantiate(this.peekEffectPrefab);
+            this.peekEffectPool.put(node);
+        }
+    }
+
+    showPeekEffect(reelIndex: number) {
+        this.peekEffectOverlay.active = true;
+        this.peekEffectContainer.active = true;
+
+        const peekEffectNode = this.peekEffectPool.get();
+        if (!peekEffectNode) {
+            return;
+        }
+        peekEffectNode.active = true;
+
+        const position = this.reels[reelIndex].node.position;
+        peekEffectNode.setPosition(v3(position.x, 0));
+        peekEffectNode.name = reelIndex.toString();
+        this.peekEffectContainer.addChild(peekEffectNode);
+        AnimationUtils.fadeIn(peekEffectNode, 0.3);
+        const spine = peekEffectNode.getComponentInChildren(sp.Skeleton);
+        spine.setAnimation(0, "show", true);
+    }
+
+    async hidePeekEffectAtIndex(reelIndex: number) {
+        log("hidePeekEffectAtIndex", reelIndex);
+        const node = this.peekEffectContainer.getChildByName(`${reelIndex}`);
+        if (node) {
+            await AnimationUtils.fadeOut(node, 0.3);
+            this.peekEffectPool.put(node);
+        }
+    }
+
+    hidePeekEffect() {
+        this.peekEffectOverlay.active = false;
+        this.peekEffectContainer.active = false;
+
+        // Return all peek effect nodes to the pool
+        const peekEffectNodes = this.peekEffectContainer.children.slice(); // Create a copy to avoid modification during iteration
+        peekEffectNodes.forEach((node) => {
+            this.peekEffectPool.put(node);
+        });
+
+        this.reels.forEach((reel) => {
+            reel.moveItemsBackToReelNode();
+        });
+    }
+
+    checkPeekEffect(symbols: number[][]) {
+        const result: {
+            peekIndex?: number;
+        } = {};
+        const SCATTER_SYMBOL = SpecialSymbol.SCATTER_SYMBOL;
+
+        let peekReelIndex = -1;
+        // Count scatters in each reel up to current index
+        for (let reelIndex = 1; reelIndex < symbols.length; reelIndex++) {
+            let scatterCount = 0;
+
+            // Check all previous reels
+            for (let prevReel = 0; prevReel < reelIndex; prevReel++) {
+                // Count scatters in this previous reel
+                scatterCount += symbols[prevReel].filter((symbol) => symbol === SCATTER_SYMBOL).length;
+            }
+
+            // If we found 4 scatters in previous reels, this is our peek column
+            if (scatterCount >= 4) {
+                peekReelIndex = reelIndex;
+                break;
+            }
+        }
+
+        const maxPeekIndex = symbols.length - 1;
+        if (peekReelIndex > -1 && peekReelIndex < maxPeekIndex) {
+            result.peekIndex = peekReelIndex + 1;
+            return result;
+        }
+
+        //TODO: remove test code
+        return {
+            peekIndex: 2,
+        };
+
+        return null;
     }
 }

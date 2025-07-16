@@ -22,6 +22,7 @@ export class CascadingSlotReelItem extends Component {
     }
 
     get isScatterSymbol(): boolean {
+        return this.index === 0;
         return this.index === SpecialSymbol.SCATTER_SYMBOL;
     }
 
