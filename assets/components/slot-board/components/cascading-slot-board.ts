@@ -459,6 +459,12 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.previewPopup.odds = gameConfigs.odds;
     }
 
+    @render(CascadingUIStore, (store) => store.minPeekScatterCount)
+    getMinPeekScatterCount(minPeekScatterCount: number) {
+        log("render minPeekScatterCount ", minPeekScatterCount);
+        this.minPeekScatterCount = minPeekScatterCount;
+    }
+
     @render(BetControlStore, (store) => store.betLevel)
     setBetLevel(betLevel: number) {
         if (!this.previewPopup) {

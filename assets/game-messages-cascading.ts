@@ -18,13 +18,33 @@ export namespace GameServiceMessageCascading {
         reachMaxWin: boolean;
         static eventName = "finish";
     }
+
+    interface FreeSpinOddsDetail {
+        count: number;
+        odds: number;
+    }
+
+    interface FreeSpinOdds {
+        initialOdds: Array<FreeSpinOddsDetail>;
+        additionalOdds: Array<FreeSpinOddsDetail>;
+    }
+
+    interface Odd {
+        from: number;
+        to: number;
+        odds: number;
+    }
+
     export class CascadingSlotConfigsMsg {
         defaultCoinValue: number;
         betLevels: number[];
         betMultiplier: number;
         coinValues: number[];
         maxWinPerRound: number;
-        odds: any;
+        odds: {
+            freeSpins: FreeSpinOdds;
+            symbols: Record<string, Array<Odd>>;
+        };
         totalMultiplier: number;
 
         static eventName = "gameConfigs";

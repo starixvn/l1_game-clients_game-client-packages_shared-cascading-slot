@@ -64,6 +64,17 @@ export class CascadingUIStore {
 
     triggerWinMultiplier = null;
 
+    get minPeekScatterCount() {
+        if (!this.configsStore.gameConfigs) {
+            return 1000; // default value
+        }
+        const freeSpinOdds = this.configsStore.gameConfigs.odds.freeSpins;
+
+        const odds = this.isFreeSpins ? freeSpinOdds.additionalOdds : freeSpinOdds.initialOdds;
+        const minOdd = odds.filter((odd) => odd.odds > 0).sort((a, b) => a.count - b.count)[0];
+        return minOdd.count - 1;
+    }
+
     get isTurboMode() {
         return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
