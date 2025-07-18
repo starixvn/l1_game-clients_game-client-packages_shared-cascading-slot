@@ -34,6 +34,10 @@ export class CascadingSlotReel extends Component {
         return this.items;
     }
 
+    getItemsData() {
+        return this.items.map((item) => item.index);
+    }
+
     getItemPosY(index: number) {
         const start = this.spacing + this.itemSize * 0.5;
         return start + index * (this.spacing + this.itemSize);
@@ -153,8 +157,8 @@ export class CascadingSlotReel extends Component {
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
-        let duration;
-
+        let duration = 0;
+        console.log(" fall ", this.node.name);
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
@@ -183,7 +187,7 @@ export class CascadingSlotReel extends Component {
             }
         }
 
-        await AnimationUtils.delayTime(duration);
+        duration > 0 && (await AnimationUtils.delayTime(duration));
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {

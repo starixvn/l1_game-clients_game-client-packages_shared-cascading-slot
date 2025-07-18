@@ -59,6 +59,8 @@ export class CascadingSlotBoard extends ObserverComponent {
         TUMBLE_WIN_SOUND: "tumble_win",
     };
 
+    public minPeekScatterCount = 3;
+
     public createReels() {
         if (this.reels.length > 0) {
             return;
@@ -172,10 +174,17 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i);
-
+            const remains = this.reels.map((reel) => reel.getItemsData());
+            console.log("================remain ==================== ", remains);
+            const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
+            if (hasPeekEffect) {
+                this.showPeekEffectInTumbles(newItems);
+            }
+            console.log("================addItems==================== ", newItems);
             this.addItems(newItems);
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(false);
+            this.hidePeekEffect();
         }
     }
 
@@ -500,7 +509,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    showPeekEffect(reelIndex: number) {
+    showPeekEffect(reelIndex: number, row = 0) {
         this.peekEffectOverlay.active = true;
         this.peekEffectContainer.active = true;
 
@@ -510,8 +519,10 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
         peekEffectNode.active = true;
 
-        const position = this.reels[reelIndex].node.position;
-        peekEffectNode.setPosition(v3(position.x, 0));
+        const reel = this.reels[reelIndex];
+        const position = reel.node.position;
+        const y = row * (reel.itemSize + reel.spacing);
+        peekEffectNode.setPosition(v3(position.x, y));
         peekEffectNode.name = reelIndex.toString();
         this.peekEffectContainer.addChild(peekEffectNode);
         AnimationUtils.fadeIn(peekEffectNode, 0.3);
@@ -560,8 +571,8 @@ export class CascadingSlotBoard extends ObserverComponent {
                 scatterCount += symbols[prevReel].filter((symbol) => symbol === SCATTER_SYMBOL).length;
             }
 
-            // If we found 4 scatters in previous reels, this is our peek column
-            if (scatterCount >= 4) {
+            // If we found this.minPeekScatterCount scatters in previous reels, this is our peek column
+            if (scatterCount >= this.minPeekScatterCount) {
                 peekReelIndex = reelIndex;
                 break;
             }
@@ -573,11 +584,35 @@ export class CascadingSlotBoard extends ObserverComponent {
             return result;
         }
 
-        //TODO: remove test code
         return {
             peekIndex: 2,
         };
 
         return null;
+    }
+
+    checkPeekEffectInTumbles(symbols: number[][]) {
+        const SCATTER_SYMBOL = SpecialSymbol.SCATTER_SYMBOL;
+
+        const scatterCount = symbols.flat().reduce((acc, symbol) => {
+            return acc + (symbol === SCATTER_SYMBOL ? 1 : 0);
+        }, 0);
+
+        return scatterCount >= this.minPeekScatterCount;
+    }
+
+    showPeekEffectInTumbles(symbols: number[][]) {
+        const reels = symbols.map((symbol, index) => {
+            return symbol.findIndex((value) => {
+                return value !== -1;
+            });
+        });
+
+        for (let i = 0; i < reels.length; i++) {
+            const row = reels[i];
+            if (row > -1) {
+                this.showPeekEffect(i, row);
+            }
+        }
     }
 }
