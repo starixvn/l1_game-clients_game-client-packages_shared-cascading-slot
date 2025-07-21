@@ -61,6 +61,8 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public minPeekScatterCount = 3;
 
+    protected readonly PEEK_EFFECT_DURATION = 1;
+
     public createReels() {
         if (this.reels.length > 0) {
             return;
@@ -242,9 +244,10 @@ export class CascadingSlotBoard extends ObserverComponent {
                     });
                 }
                 this.reels[i].peekEffect = hasPeekEffect;
-                this.showPeekEffect(i);
+                this.showPeekEffect(true, i);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
-                this.hidePeekEffectAtIndex(i);
+                // this.hidePeekEffectAtIndex(i);
                 this.reels[i].peekEffect = false;
             }
         }
@@ -515,23 +518,37 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    showPeekEffect(reelIndex: number, row = 0) {
+    showPeekEffect(shiftAnimation: boolean, reelIndex: number, row = 0) {
         this.peekEffectOverlay.active = true;
         this.peekEffectContainer.active = true;
 
-        const peekEffectNode = this.peekEffectPool.get();
+        const previous = shiftAnimation ? this.peekEffectContainer.getChildByName(`${reelIndex - 1}`) : null;
+        const peekEffectNode = previous ?? this.peekEffectPool.get();
         if (!peekEffectNode) {
             return;
         }
+
+        if (!previous) {
+            console.log("get node from pool", reelIndex);
+            this.peekEffectContainer.addChild(peekEffectNode);
+        }
+
+        peekEffectNode.name = reelIndex.toString();
         peekEffectNode.active = true;
 
         const reel = this.reels[reelIndex];
         const position = reel.node.position;
         const y = row * (reel.itemSize + reel.spacing);
-        peekEffectNode.setPosition(v3(position.x, y));
-        peekEffectNode.name = reelIndex.toString();
-        this.peekEffectContainer.addChild(peekEffectNode);
-        AnimationUtils.fadeIn(peekEffectNode, 0.3);
+        const duration = 0.4;
+        if (!previous) {
+            peekEffectNode.setPosition(v3(position.x, y));
+            AnimationUtils.fadeIn(peekEffectNode, duration);
+        } else {
+            tween(peekEffectNode)
+                .to(duration, { position: v3(position.x, y) }, { easing: "sineInOut" })
+                .start();
+        }
+
         const spine = peekEffectNode.getComponentInChildren(sp.Skeleton);
         spine.setAnimation(0, "show", true);
     }
@@ -552,6 +569,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         // Return all peek effect nodes to the pool
         const peekEffectNodes = this.peekEffectContainer.children.slice(); // Create a copy to avoid modification during iteration
         peekEffectNodes.forEach((node) => {
+            node.name = "";
             this.peekEffectPool.put(node);
         });
 
@@ -590,10 +608,6 @@ export class CascadingSlotBoard extends ObserverComponent {
             return result;
         }
 
-        return {
-            peekIndex: 2,
-        };
-
         return null;
     }
 
@@ -617,7 +631,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         for (let i = 0; i < reels.length; i++) {
             const row = reels[i];
             if (row > -1) {
-                this.showPeekEffect(i, row);
+                this.showPeekEffect(false, i, row);
             }
         }
     }
