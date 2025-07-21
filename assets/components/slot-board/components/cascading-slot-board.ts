@@ -181,6 +181,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
             if (hasPeekEffect) {
                 this.showPeekEffectInTumbles(newItems);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
             console.log("================addItems==================== ", newItems);
             this.addItems(newItems);
