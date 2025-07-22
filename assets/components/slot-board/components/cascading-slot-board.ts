@@ -176,6 +176,8 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i);
+            await this.fallIn(false);
+
             const remains = this.reels.map((reel) => reel.getItemsData());
             console.log("================remain ==================== ", remains);
             const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
@@ -513,7 +515,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     protected initPeekEffectPool() {
         // Pre-instantiate a few nodes for the pool
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 6; i++) {
             const node = instantiate(this.peekEffectPrefab);
             this.peekEffectPool.put(node);
         }
