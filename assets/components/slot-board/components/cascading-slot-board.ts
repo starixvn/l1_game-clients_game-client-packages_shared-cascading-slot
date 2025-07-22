@@ -7,7 +7,7 @@ import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/ut
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
-import { convertBoardValue, SlotNotification, SpecialSymbol, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
+import { BoardSize, convertBoardValue, SlotNotification, SpecialSymbol, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
@@ -515,7 +515,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     protected initPeekEffectPool() {
         // Pre-instantiate a few nodes for the pool
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < BoardSize.COLUMN; i++) {
             const node = instantiate(this.peekEffectPrefab);
             this.peekEffectPool.put(node);
         }
