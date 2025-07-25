@@ -23,6 +23,8 @@ export class CascadingSlotReel extends Component {
     public readonly pixelPerSecond = 145 * 15;
     public peekEffect = false;
 
+    private readonly MIN_DURATION_FALL_IN = 0.25;
+
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
             const item = this.addItem();
@@ -134,14 +136,14 @@ export class CascadingSlotReel extends Component {
     }
 
     protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
-        const baseSpeed = isFallOut ? 1.3 * this.pixelPerSecond : this.pixelPerSecond;
+        const baseSpeed = isFallOut ? 2800 : 1800;
 
         if (isTurbo) {
             return baseSpeed * 1.5;
         }
 
         if (this.peekEffect) {
-            return baseSpeed * 0.7;
+            return 2500;
         }
 
         return baseSpeed;
@@ -149,7 +151,7 @@ export class CascadingSlotReel extends Component {
 
     protected delayFallingEachItem(duration: any) {
         if (this.peekEffect) {
-            return duration + 0.2;
+            return 0.3;
         }
         return 0.08 * duration;
     }
@@ -158,7 +160,6 @@ export class CascadingSlotReel extends Component {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
         let duration = 0;
-        console.log(" fall ", this.node.name);
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
@@ -167,6 +168,7 @@ export class CascadingSlotReel extends Component {
                 continue;
             }
             duration = distance / speed;
+            duration = Math.max(duration, this.MIN_DURATION_FALL_IN);
             const delay = this.delayFallingEachItem(duration);
             if (!isTurbo) {
                 await AnimationUtils.delayTime(delay);
@@ -183,6 +185,7 @@ export class CascadingSlotReel extends Component {
                     )
                     .start();
             } else {
+                log(`fallInWithOffset `, duration);
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
@@ -191,12 +194,12 @@ export class CascadingSlotReel extends Component {
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
-        const backOffsetY = this.itemSize * 1.8;
-        const backDuration = 0.2;
+        const backOffsetY = 25;
+        const backDuration = 0.13;
         const xNode = item.node.position.x;
 
         tween(item.node)
-            .to(duration - backDuration, { position: v3(xNode, posY + backOffsetY, 0) })
+            .to(duration - backDuration, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "circOut" })
             .call(() => {
                 if (isBottomItem) {
                     onBottomItemEnded && onBottomItemEnded();
@@ -206,7 +209,7 @@ export class CascadingSlotReel extends Component {
                 backDuration,
                 { position: v3(xNode, posY, 0) },
                 {
-                    easing: "backOut",
+                    easing: "sineOut",
                 }
             )
             .start();
@@ -246,12 +249,10 @@ export class CascadingSlotReel extends Component {
             if (item.node.parent === this.effectContainer) {
                 return;
             }
-            log("wpos x ", item.node.worldPosition.x);
             const wPos = v3(item.node.worldPosition.x, item.node.worldPosition.y, 0);
             item.node.parent = this.effectContainer;
             item.node.worldPosition = wPos;
 
-            log("wpos x ", item.node.worldPosition.x);
             item.highlightScatterItem();
         });
     }

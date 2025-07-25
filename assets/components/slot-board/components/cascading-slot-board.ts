@@ -200,7 +200,8 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
         const duration = (5 * 145) / this.reels[0].pixelPerSecond;
-        const delay = 0.25 * duration;
+        const delayEachReelFallOut = 0.25 * duration;
+        const delayEachReel = 0.33; //0.25 * duration;
         const { symbols, multipliers } = symbolsBoard;
 
         if (isTurbo) {
@@ -209,7 +210,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.playSound(this.Sound.SPINNING_NORMAL);
         }
 
-        await this.fallOut(isTurbo, delay);
+        await this.fallOut(isTurbo, delayEachReelFallOut);
 
         const soundArray = [
             this.Sound.REEL_STOP_1_SOUND,
@@ -229,7 +230,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         const hasPeekEffect = peekEffect !== null;
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await AnimationUtils.delayTime(delay);
+                await AnimationUtils.delayTime(delayEachReelFallOut);
             }
             const reelSymbols = symbols[i];
             log(`reelSymbols ${i} `, reelSymbols);
@@ -610,6 +611,10 @@ export class CascadingSlotBoard extends ObserverComponent {
             result.peekIndex = peekReelIndex + 1;
             return result;
         }
+
+        return {
+            peekIndex: 2,
+        };
 
         return null;
     }
