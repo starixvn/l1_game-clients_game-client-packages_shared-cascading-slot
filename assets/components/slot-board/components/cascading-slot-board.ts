@@ -194,7 +194,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(hasPeekEffect, false);
         }
-        this.hidePeekEffect();
+        this.hidePeekEffects();
     }
 
     @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWin({ win: tumbleWin, isActualWin: false }))
@@ -257,7 +257,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
             }
         }
-        this.hidePeekEffect();
+        this.hidePeekEffects();
     }
 
     getRandomWinItem(data: number[][], winIcon: number): Node {
@@ -301,8 +301,12 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public async fallIn(peekEffect: boolean, isTurbo: boolean) {
         if (peekEffect) {
-            for (const reel of this.reels) {
+            for (let i = 0; i < this.reels.length; i++) {
+                const reel = this.reels[i];
                 await reel.fallIn(isTurbo, null);
+                reel.moveItemsBackToReelNode();
+                reel.peekEffectScatterItems();
+                this.hidePeekEffectAtIndex(i);
             }
         } else {
             await Promise.all(
@@ -539,7 +543,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
         const shouldShiftAnimation = !inTumble ? this.peekEffectNode.active : false;
 
-        const nodeName = `reel-${reelIndex}`;
+        const nodeName = this.getNamePeekEffectNode(reelIndex);
         const peekEffectNode = !inTumble
             ? this.peekEffectNode
             : this.peekEffectContainer.getChildByName(nodeName) ?? this.peekEffectTumblePool.get();
@@ -567,7 +571,19 @@ export class CascadingSlotBoard extends ObserverComponent {
         spine.setAnimation(0, "show", true);
     }
 
-    hidePeekEffect() {
+    getNamePeekEffectNode(reelIndex: number) {
+        return `reel-${reelIndex}`;
+    }
+
+    async hidePeekEffectAtIndex(reelIndex: number) {
+        const node = this.peekEffectContainer.getChildByName(this.getNamePeekEffectNode(reelIndex));
+        if (node) {
+            await AnimationUtils.fadeOut(node, 0.3);
+            this.peekEffectTumblePool.put(node);
+        }
+    }
+
+    hidePeekEffects() {
         this.peekEffectOverlay.active = false;
         this.peekEffectContainer.active = false;
 
