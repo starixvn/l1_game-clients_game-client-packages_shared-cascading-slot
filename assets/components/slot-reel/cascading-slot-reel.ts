@@ -1,4 +1,6 @@
 import { _decorator, Component, instantiate, log, Node, Prefab, sp, tween, v3 } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
@@ -206,6 +208,7 @@ export class CascadingSlotReel extends Component {
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
+        this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;

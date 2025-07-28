@@ -1,6 +1,8 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, log, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
@@ -181,14 +183,13 @@ export class CascadingSlotBoard extends ObserverComponent {
             await this.fallIn(false, false);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
-            console.log("================remain ==================== ", remains);
             const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
+                AudioUtils.playSFX(AudioIds.PEEK_EFFECT_REEL);
                 this.showPeekEffectInTumbles(newItems);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
-            console.log("================addItems==================== ", newItems);
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(hasPeekEffect, false);
@@ -249,6 +250,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                         }
                     });
                 }
+                AudioUtils.playSFX(AudioIds.PEEK_EFFECT_REEL);
                 this.showPeekEffect(false, i);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
                 this.reels[i].peekEffectHighlightAllItems();
@@ -552,6 +554,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         const y = row * (reel.itemSize + reel.spacing);
         const duration = 0.4;
         if (shouldShiftAnimation) {
+            AudioUtils.playSFX(AudioIds.PEEK_EFFECT_SHIFT);
             tween(peekEffectNode)
                 .to(duration, { position: v3(position.x, y) }, { easing: "sineInOut" })
                 .start();
