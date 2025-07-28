@@ -151,7 +151,7 @@ export class CascadingSlotReel extends Component {
 
     protected delayFallingEachItem(duration: any) {
         if (this.peekEffect) {
-            return 0.3;
+            return 0.33;
         }
         return 0.08 * duration;
     }
@@ -245,15 +245,25 @@ export class CascadingSlotReel extends Component {
     async peekEffectScatterItems() {
         const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
         scatterSymbols.map((item) => {
-            // ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
             if (item.node.parent === this.effectContainer) {
                 return;
             }
-            const wPos = v3(item.node.worldPosition.x, item.node.worldPosition.y, 0);
-            item.node.parent = this.effectContainer;
-            item.node.worldPosition = wPos;
+            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
 
             item.highlightScatterItem();
+        });
+    }
+
+    peekEffectHighlightAllItems() {
+        this.peekEffectHighlightItems(this.items);
+    }
+
+    peekEffectHighlightItems(items: CascadingSlotReelItem[]) {
+        items.forEach((item) => {
+            if (item.node.parent === this.effectContainer) {
+                return;
+            }
+            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
         });
     }
 }

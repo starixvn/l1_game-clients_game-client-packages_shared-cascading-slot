@@ -39,9 +39,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     @property(Node)
     peekEffectContainer: Node = null;
 
-    peekEffectPrefab: Prefab = null;
+    peekEffectTumblePrefab: Prefab = null;
+    peekEffectNode: Node = null;
 
-    protected peekEffectPool: NodePool = new NodePool();
+    protected peekEffectTumblePool: NodePool = new NodePool();
 
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
@@ -77,10 +78,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 
-    public addItems(data: number[][]) {
+    public addItems(data: number[][], peekEffect: boolean) {
         this.reels.forEach((reel, index) => {
             const items = data[index];
             const reelItems = reel.addItems(items);
+            peekEffect && reel.peekEffectHighlightItems(reelItems);
             const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
             reelItems.forEach((item) => {
                 this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
@@ -176,21 +178,22 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i);
-            await this.fallIn(false);
+            await this.fallIn(false, false);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             console.log("================remain ==================== ", remains);
             const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
             if (hasPeekEffect) {
+                this.reels.forEach((reel) => reel.peekEffectScatterItems());
                 this.showPeekEffectInTumbles(newItems);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
             console.log("================addItems==================== ", newItems);
-            this.addItems(newItems);
+            this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(false);
-            this.hidePeekEffect();
+            await this.fallIn(hasPeekEffect, false);
         }
+        this.hidePeekEffect();
     }
 
     @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWin({ win: tumbleWin, isActualWin: false }))
@@ -243,16 +246,15 @@ export class CascadingSlotBoard extends ObserverComponent {
                 if (hasPeekEffect) {
                     this.reels.forEach((reel, index) => {
                         if (index < i) {
+                            reel.moveItemsBackToReelNode();
                             reel.peekEffectScatterItems();
                         }
                     });
                 }
-                this.reels[i].peekEffect = hasPeekEffect;
-                this.showPeekEffect(true, i);
+                this.showPeekEffect(false, i);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                this.reels[i].peekEffectHighlightAllItems();
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
-                // this.hidePeekEffectAtIndex(i);
-                this.reels[i].peekEffect = false;
             }
         }
         this.hidePeekEffect();
@@ -297,12 +299,18 @@ export class CascadingSlotBoard extends ObserverComponent {
         );
     }
 
-    public async fallIn(isTurbo: boolean) {
-        await Promise.all(
-            this.reels.map(async (reel) => {
+    public async fallIn(peekEffect: boolean, isTurbo: boolean) {
+        if (peekEffect) {
+            for (const reel of this.reels) {
                 await reel.fallIn(isTurbo, null);
-            })
-        );
+            }
+        } else {
+            await Promise.all(
+                this.reels.map((reel) => {
+                    return reel.fallIn(isTurbo, null);
+                })
+            );
+        }
     }
 
     public async shakeItems() {
@@ -511,59 +519,51 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     async loadPeekEffectPrefab() {
-        this.peekEffectPrefab = await bundleManager.loadResourcesAsset("prefabs/peek-effect", Prefab);
+        const prefab = await bundleManager.loadResourcesAsset<Prefab>("prefabs/peek-effect", Prefab);
+        this.peekEffectNode = instantiate(prefab);
+        this.peekEffectNode.active = false;
+        this.peekEffectTumblePrefab = await bundleManager.loadResourcesAsset("prefabs/peek-effect-tumble", Prefab);
     }
 
     protected initPeekEffectPool() {
         // Pre-instantiate a few nodes for the pool
         for (let i = 0; i < BoardSize.COLUMN; i++) {
-            const node = instantiate(this.peekEffectPrefab);
-            this.peekEffectPool.put(node);
+            const node = instantiate(this.peekEffectTumblePrefab);
+            this.peekEffectTumblePool.put(node);
         }
     }
 
-    showPeekEffect(shiftAnimation: boolean, reelIndex: number, row = 0) {
+    showPeekEffect(inTumble: boolean, reelIndex: number, row = 0) {
         this.peekEffectOverlay.active = true;
         this.peekEffectContainer.active = true;
 
-        const previous = shiftAnimation ? this.peekEffectContainer.getChildByName(`${reelIndex - 1}`) : null;
-        const peekEffectNode = previous ?? this.peekEffectPool.get();
-        if (!peekEffectNode) {
-            return;
-        }
+        const shouldShiftAnimation = !inTumble ? this.peekEffectNode.active : false;
 
-        if (!previous) {
-            console.log("get node from pool", reelIndex);
-            this.peekEffectContainer.addChild(peekEffectNode);
-        }
+        const nodeName = `reel-${reelIndex}`;
+        const peekEffectNode = !inTumble
+            ? this.peekEffectNode
+            : this.peekEffectContainer.getChildByName(nodeName) ?? this.peekEffectTumblePool.get();
 
-        peekEffectNode.name = reelIndex.toString();
+        peekEffectNode.parent = this.peekEffectContainer;
+        peekEffectNode.name = nodeName;
         peekEffectNode.active = true;
 
         const reel = this.reels[reelIndex];
+        reel.peekEffect = true;
         const position = reel.node.position;
         const y = row * (reel.itemSize + reel.spacing);
         const duration = 0.4;
-        if (!previous) {
-            peekEffectNode.setPosition(v3(position.x, y));
-            AnimationUtils.fadeIn(peekEffectNode, duration);
-        } else {
+        if (shouldShiftAnimation) {
             tween(peekEffectNode)
                 .to(duration, { position: v3(position.x, y) }, { easing: "sineInOut" })
                 .start();
+        } else {
+            peekEffectNode.setPosition(v3(position.x, y));
+            AnimationUtils.fadeIn(peekEffectNode, duration);
         }
 
         const spine = peekEffectNode.getComponentInChildren(sp.Skeleton);
         spine.setAnimation(0, "show", true);
-    }
-
-    async hidePeekEffectAtIndex(reelIndex: number) {
-        log("hidePeekEffectAtIndex", reelIndex);
-        const node = this.peekEffectContainer.getChildByName(`${reelIndex}`);
-        if (node) {
-            await AnimationUtils.fadeOut(node, 0.3);
-            this.peekEffectPool.put(node);
-        }
     }
 
     hidePeekEffect() {
@@ -574,10 +574,15 @@ export class CascadingSlotBoard extends ObserverComponent {
         const peekEffectNodes = this.peekEffectContainer.children.slice(); // Create a copy to avoid modification during iteration
         peekEffectNodes.forEach((node) => {
             node.name = "";
-            this.peekEffectPool.put(node);
+            if (node !== this.peekEffectNode) {
+                this.peekEffectTumblePool.put(node);
+            } else {
+                this.peekEffectNode.active = false;
+            }
         });
 
         this.reels.forEach((reel) => {
+            reel.peekEffect = false;
             reel.moveItemsBackToReelNode();
         });
     }
@@ -594,7 +599,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             let scatterCount = 0;
 
             // Check all previous reels
-            for (let prevReel = 0; prevReel < reelIndex; prevReel++) {
+            for (let prevReel = 0; prevReel <= reelIndex; prevReel++) {
                 // Count scatters in this previous reel
                 scatterCount += symbols[prevReel].filter((symbol) => symbol === SCATTER_SYMBOL).length;
             }
@@ -608,13 +613,9 @@ export class CascadingSlotBoard extends ObserverComponent {
 
         const maxPeekIndex = symbols.length - 1;
         if (peekReelIndex > -1 && peekReelIndex < maxPeekIndex) {
-            result.peekIndex = peekReelIndex + 1;
+            result.peekIndex = peekReelIndex;
             return result;
         }
-
-        return {
-            peekIndex: 2,
-        };
 
         return null;
     }
@@ -639,7 +640,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         for (let i = 0; i < reels.length; i++) {
             const row = reels[i];
             if (row > -1) {
-                this.showPeekEffect(false, i, row);
+                this.showPeekEffect(true, i, row);
             }
         }
     }
