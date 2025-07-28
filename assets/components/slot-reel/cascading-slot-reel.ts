@@ -20,11 +20,20 @@ export class CascadingSlotReel extends Component {
 
     itemDisplayCount = CascadingSlotConfig.reelItemCount;
     protected items: CascadingSlotReelItem[] = [];
-    public readonly pixelPerSecond = 145 * 15;
     public peekEffect = false;
 
     private readonly MIN_DURATION_FALL_IN = 0.25;
     private readonly MIN_DURATION_FALL_IN_TURBO = 0.1;
+
+    private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
+
+    private readonly ITEM_BACK_DURATION = 0.13;
+    private readonly ITEM_BACK_OFFSET_Y = 25;
+
+    public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
+    private readonly FALL_OUT_SPEED = 2800;
+    private readonly FALL_IN_NORMAL_SPEED = 1800;
+    private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -137,14 +146,14 @@ export class CascadingSlotReel extends Component {
     }
 
     protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
-        const baseSpeed = isFallOut ? 2800 : 1800;
+        const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
 
         if (isTurbo) {
             return baseSpeed * 1.5;
         }
 
         if (this.peekEffect) {
-            return 2500;
+            return this.FALL_IN_PEEK_EFFECT_SPEED;
         }
 
         return baseSpeed;
@@ -152,7 +161,7 @@ export class CascadingSlotReel extends Component {
 
     protected delayFallingEachItem(duration: any) {
         if (this.peekEffect) {
-            return 0.33;
+            return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
         return 0.08 * duration;
     }
@@ -197,8 +206,8 @@ export class CascadingSlotReel extends Component {
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
-        const backOffsetY = 25;
-        const backDuration = 0.13;
+        const backOffsetY = this.ITEM_BACK_OFFSET_Y;
+        const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
 
         tween(item.node)

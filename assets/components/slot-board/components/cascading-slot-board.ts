@@ -202,8 +202,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
-        const duration = (5 * 145) / this.reels[0].pixelPerSecond;
-        const delayEachReelFallOut = 0.25 * duration;
+        const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
         if (isTurbo) {
