@@ -24,6 +24,7 @@ export class CascadingSlotReel extends Component {
     public peekEffect = false;
 
     private readonly MIN_DURATION_FALL_IN = 0.25;
+    private readonly MIN_DURATION_FALL_IN_TURBO = 0.1;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -159,6 +160,8 @@ export class CascadingSlotReel extends Component {
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
+        const minDuration = isTurbo ? this.MIN_DURATION_FALL_IN_TURBO : this.MIN_DURATION_FALL_IN;
+
         let duration = 0;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
@@ -168,7 +171,7 @@ export class CascadingSlotReel extends Component {
                 continue;
             }
             duration = distance / speed;
-            duration = Math.max(duration, this.MIN_DURATION_FALL_IN);
+            duration = Math.max(duration, minDuration);
             const delay = this.delayFallingEachItem(duration);
             if (!isTurbo) {
                 await AnimationUtils.delayTime(delay);

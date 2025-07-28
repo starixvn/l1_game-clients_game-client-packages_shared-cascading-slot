@@ -143,7 +143,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    async handleTumbles(tumbles: Tumble[]) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -182,7 +182,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             console.log("================remain ==================== ", remains);
-            const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
+            const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
                 this.showPeekEffectInTumbles(newItems);
@@ -204,7 +204,6 @@ export class CascadingSlotBoard extends ObserverComponent {
     public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
         const duration = (5 * 145) / this.reels[0].pixelPerSecond;
         const delayEachReelFallOut = 0.25 * duration;
-        const delayEachReel = 0.33; //0.25 * duration;
         const { symbols, multipliers } = symbolsBoard;
 
         if (isTurbo) {
@@ -229,7 +228,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
         };
         log("spinResult", symbols);
-        const peekEffect = this.checkPeekEffect(symbols);
+        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
         const hasPeekEffect = peekEffect !== null;
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
