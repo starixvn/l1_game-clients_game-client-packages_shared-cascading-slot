@@ -193,7 +193,11 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(hasPeekEffect, false);
+            if (hasPeekEffect && i === tumbles.length - 2) {
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+            }
         }
+
         this.hidePeekEffects();
     }
 
