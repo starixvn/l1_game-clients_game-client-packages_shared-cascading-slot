@@ -586,6 +586,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     async hidePeekEffectAtIndex(reelIndex: number) {
+        this.reels[reelIndex].peekEffect = false;
         const node = this.peekEffectContainer.getChildByName(this.getNamePeekEffectNode(reelIndex));
         if (node) {
             await AnimationUtils.fadeOut(node, 0.3);
