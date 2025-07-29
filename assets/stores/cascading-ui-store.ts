@@ -39,6 +39,7 @@ export class CascadingUIStore {
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
     _spinButtonState = SpinButtonState.IDLE;
 
+    activePeekEffect = false;
     haveBigWin = false;
     bigWinAmount = 0;
     isBigWinCompleted = false;

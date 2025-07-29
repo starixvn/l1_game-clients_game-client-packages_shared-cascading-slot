@@ -100,6 +100,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
+        this.uiStore.activePeekEffect = false;
         this.handleSymbolPreviewVisiblity(false);
     }
 
@@ -154,17 +155,22 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.totalMultiplier = totalMultiplier;
     }
 
+    setPeekEffect(show: boolean) {
+        this.uiStore.activePeekEffect = show;
+    }
+
     handleHaveBigWin(bigwin: boolean) {
         if (!this.settlementStore.finishData) {
             return;
         }
-        const { freeSpins, bigWin } = this.settlementStore.finishData;
-        if (freeSpins <= 0 && !bigWin) {
-            this.handleFreeSpinEffectCompleted(true);
-            return;
+        const { bigWin, freeSpins } = this.settlementStore.finishData;
+
+        const isPeekEffectSuccess = freeSpins > 0 && this.uiStore.activePeekEffect;
+        if (bigWin && !isPeekEffectSuccess) {
+            this.uiStore.haveBigWin = bigwin;
+        } else {
+            this.uiStore.isBigWinCompleted = true;
         }
-        this.uiStore.haveBigWin = bigwin;
-        !bigwin && (this.uiStore.isBigWinCompleted = true);
     }
 
     handleBigWinAmount(win: number) {

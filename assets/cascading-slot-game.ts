@@ -199,6 +199,15 @@ export class CascadingSlotGame extends GameComponentBase {
         this.setFreeSpinsByRound(freeSpins);
         this.setFreeSpinsTotal(totalFreeSpins);
         this.handleHaveFreeSpin(freeSpins > 0);
+
+        if (freeSpins <= 0 && !bigWin) {
+            this.handleFreeSpinEffectCompleted(true);
+        }
+    }
+
+    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
+    handleFreeSpinEffectCompleted(completed: boolean) {
+        return completed;
     }
 
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)

@@ -541,7 +541,13 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
+    @handle(CascadingUIHandler, (handler, show: boolean) => handler.setPeekEffect(show))
+    setPeekEffect(show: boolean) {
+        return show;
+    }
+
     showPeekEffect(inTumble: boolean, reelIndex: number, row = 0) {
+        this.setPeekEffect(true);
         this.peekEffectOverlay.active = true;
         this.peekEffectContainer.active = true;
 
