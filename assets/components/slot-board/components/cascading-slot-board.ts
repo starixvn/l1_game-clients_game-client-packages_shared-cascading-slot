@@ -186,13 +186,15 @@ export class CascadingSlotBoard extends ObserverComponent {
             const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
-                AudioUtils.playSFX(AudioIds.PEEK_EFFECT_REEL);
+                AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+
                 this.showPeekEffectInTumbles(newItems);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(hasPeekEffect, false);
+            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
@@ -253,14 +255,17 @@ export class CascadingSlotBoard extends ObserverComponent {
                             reel.peekEffectScatterItems();
                         }
                     });
+
+                    const begin = i === awaitReelIndex + 1;
+                    begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
                 }
-                AudioUtils.playSFX(AudioIds.PEEK_EFFECT_REEL);
                 this.showPeekEffect(false, i);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
                 this.reels[i].peekEffectHighlightAllItems();
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
             }
         }
+        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
         this.hidePeekEffects();
     }
 
