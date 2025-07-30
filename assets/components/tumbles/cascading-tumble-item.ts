@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import { _decorator, Component, Label, Sprite, SpriteAtlas } from "cc";
 import { SpecialSymbol } from "db://shared-cascading-slot/cascading-slot-utils";
 import Observer from "observer";
+import { FreeSpinData } from "../bet-history/bet-details/cascading-ticket-detail-item";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -16,6 +17,9 @@ export class CascadingTumbleItem extends Component {
     @property(Label)
     winningValue: Label = null;
 
+    @property(Label)
+    scatterPayout: Label = null;
+
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
@@ -27,10 +31,11 @@ export class CascadingTumbleItem extends Component {
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${icon}`);
     }
 
-    setDataForFreeSpinTumble(count: number, win: number, freeSpin: boolean) {
-        const freeSpinTxt = freeSpin ? "extra_free_spin" : "free_spin";
-        this.numberIcon.string = count.toString();
-        this.winningValue.string = win.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
+    setDataForFreeSpinTumble(data: FreeSpinData) {
+        this.scatterPayout.string = gc.FormatUtils.numberWithCommas(data.win, 2, false);
+        const freeSpinTxt = data.extraFreeSpin ? "extra_free_spin" : "free_spin";
+        this.numberIcon.string = data.count.toString();
+        this.winningValue.string = data.odds.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${SpecialSymbol.SCATTER_SYMBOL}`);
     }
 }
