@@ -575,7 +575,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (shouldShiftAnimation) {
             AudioUtils.playSFX(AudioIds.PEEK_EFFECT_SHIFT);
             tween(peekEffectNode)
-                .to(duration, { position: v3(position.x, y) }, { easing: "sineInOut" })
+                .to(duration, { position: v3(position.x, y) })
                 .start();
         } else {
             peekEffectNode.setPosition(v3(position.x, y));
