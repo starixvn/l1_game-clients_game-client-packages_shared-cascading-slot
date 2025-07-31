@@ -12,7 +12,7 @@ import { bundleManager } from "db://shared-components/shared/common-components/b
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
-import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
+import { ColorJson, convertData, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
@@ -55,13 +55,22 @@ export class CascadingSlotGame extends GameComponentBase {
     @property(JsonAsset)
     colorInfo: JsonAsset = null;
 
+    @property(JsonAsset)
+    gameFeatureInfo: JsonAsset = null;
+
     public isTurboMode = false;
 
     onLoad() {
+        this.initConfig();
         this.registerEventShowHideGame();
         this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
+    }
+
+    initConfig() {
+        resourcesCache.colorJson = this.colorInfo.json as ColorJson;
+        resourcesCache.gameFeatures = this.gameFeatureInfo.json as GameFeatureJson;
     }
 
     start() {

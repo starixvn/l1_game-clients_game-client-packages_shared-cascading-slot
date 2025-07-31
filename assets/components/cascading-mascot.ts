@@ -1,7 +1,8 @@
-import { _decorator, JsonAsset, sp } from "cc";
+import { _decorator, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { resourcesCache } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
@@ -16,14 +17,11 @@ export class CascadingMascot extends ObserverComponent {
     @property(sp.Skeleton)
     spineMascot: sp.Skeleton = null;
 
-    @property(JsonAsset)
-    gameInfo: JsonAsset = null;
-
     private gameConfig: any;
 
     onLoad() {
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
-        this.gameConfig = this.gameInfo.json;
+        this.gameConfig = resourcesCache.gameFeatures;
         this.settingMixDuration();
         super.onLoad();
     }

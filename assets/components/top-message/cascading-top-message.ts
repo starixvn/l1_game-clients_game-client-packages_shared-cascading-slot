@@ -1,8 +1,9 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, JsonAsset, Label, macro, Node, Sprite, SpriteAtlas } from "cc";
+import { _decorator, Color, Label, macro, Node, Sprite, SpriteAtlas } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
+import { resourcesCache } from "../../cascading-slot-utils";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -22,13 +23,12 @@ export class CascadingTopMessage extends ObserverComponent {
 
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
-    @property(JsonAsset)
-    colorInfo: JsonAsset = null;
+
     private colorConfig: any;
     private maxWinPerRound: any;
 
     onLoad() {
-        this.colorConfig = this.colorInfo.json;
+        this.colorConfig = resourcesCache.colorJson;
         this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
         super.onLoad();
         this.getComponentsInChildren(Label).forEach((comp) => {

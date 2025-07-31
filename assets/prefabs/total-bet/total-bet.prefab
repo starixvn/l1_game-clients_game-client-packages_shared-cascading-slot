@@ -1901,10 +1901,6 @@
     "disabled": {
       "__id__": 71
     },
-    "colorInfo": {
-      "__uuid__": "16a16ff8-6eab-4042-860b-fd558b7725db",
-      "__expectedType__": "cc.JsonAsset"
-    },
     "betControl": null,
     "_id": ""
   },

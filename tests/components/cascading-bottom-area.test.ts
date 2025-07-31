@@ -1,8 +1,8 @@
-import Observer from "observer";
-import { Color, JsonAsset, Label } from "cc";
+import { Color, Label } from "cc";
+import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
+import Observer from "observer";
 import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
 
 jest.mock("observer", () => ({
@@ -15,7 +15,7 @@ jest.mock("observer", () => ({
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() { }
+        onLoad() {}
     },
 }));
 
@@ -27,15 +27,15 @@ jest.mock("db://shared-components/shared/utils", () => ({
 
 jest.mock("db://shared-components/shared/common-components/change-node-color", () => ({
     ChangeNodeColor: class {
-        updateColor(color: string) { }
+        updateColor(color: string) {}
     },
 }));
 
 // Mock LocalizedLabel
 jest.mock("../../../i18n/assets/LocalizedLabel", () => ({
     LocalizedLabel: class {
-        constructor() { }
-    }
+        constructor() {}
+    },
 }));
 
 // Mock cc module with proper Color class and decorators
@@ -45,8 +45,8 @@ jest.mock("cc", () => ({
             return this;
         }
     },
-    JsonAsset: class { },
-    Label: class { },
+    JsonAsset: class {},
+    Label: class {},
     _decorator: {
         ccclass: function () {
             return function (target: any) {
@@ -59,12 +59,12 @@ jest.mock("cc", () => ({
                 Object.defineProperty(target, propertyKey, {
                     writable: true,
                     configurable: true,
-                    enumerable: true
+                    enumerable: true,
                 });
                 return target;
             };
-        }
-    }
+        },
+    },
 }));
 
 import { CascadingBottomArea } from "../../assets/components/cascading-bottom-area";
@@ -88,14 +88,14 @@ describe("CascadingBottomArea", () => {
 
         // Create a proper mock Label component with color property
         mockLabelComponent = {
-            color: new Color()
+            color: new Color(),
         };
 
         mockTotalWinLabel = {
             string: "0",
             node: {
-                getComponent: jest.fn().mockReturnValue(mockLabelComponent)
-            }
+                getComponent: jest.fn().mockReturnValue(mockLabelComponent),
+            },
         };
 
         mockColorInfo = {
@@ -103,41 +103,38 @@ describe("CascadingBottomArea", () => {
                 bottomAreaTextColor: "#FFFFFF",
                 bottomAreaNumberColor: "#FFD700",
                 bottomAreaButtonBorderColor: "#FF0000",
-                bottomAreaWinAmountColor: "#00FF00"
-            }
+                bottomAreaWinAmountColor: "#00FF00",
+            },
         };
 
-        mockLabelComponents = [
-            { string: "Label 1" },
-            { string: "Label 2" }
-        ];
+        mockLabelComponents = [{ string: "Label 1" }, { string: "Label 2" }];
 
         mockChangeNodeColorComponents = [
             {
                 node: {
                     getComponent: jest.fn().mockReturnValue(mockLabelComponents[0]),
-                    getComponentInChildren: jest.fn()
+                    getComponentInChildren: jest.fn(),
                 },
-                updateColor: jest.fn()
+                updateColor: jest.fn(),
             },
             {
                 node: {
                     getComponent: jest.fn().mockReturnValue(mockLabelComponents[1]),
-                    getComponentInChildren: jest.fn()
+                    getComponentInChildren: jest.fn(),
                 },
-                updateColor: jest.fn()
+                updateColor: jest.fn(),
             },
             {
                 node: {
                     getComponent: jest.fn().mockReturnValue(null), // No Label component
-                    getComponentInChildren: jest.fn()
+                    getComponentInChildren: jest.fn(),
                 },
-                updateColor: jest.fn()
-            }
+                updateColor: jest.fn(),
+            },
         ];
 
         mockNode = {
-            getComponentsInChildren: jest.fn().mockReturnValue(mockChangeNodeColorComponents)
+            getComponentsInChildren: jest.fn().mockReturnValue(mockChangeNodeColorComponents),
         };
     };
 
@@ -145,25 +142,25 @@ describe("CascadingBottomArea", () => {
         cascadingBottomArea = new CascadingBottomArea();
 
         // Use Object.defineProperty to set the properties
-        Object.defineProperty(cascadingBottomArea, 'totalWinLabel', {
+        Object.defineProperty(cascadingBottomArea, "totalWinLabel", {
             value: mockTotalWinLabel,
             writable: true,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         });
 
-        Object.defineProperty(cascadingBottomArea, 'colorInfo', {
+        Object.defineProperty(cascadingBottomArea, "colorInfo", {
             value: mockColorInfo,
             writable: true,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         });
 
-        Object.defineProperty(cascadingBottomArea, 'node', {
+        Object.defineProperty(cascadingBottomArea, "node", {
             value: mockNode,
             writable: true,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         });
     };
 
@@ -175,11 +172,6 @@ describe("CascadingBottomArea", () => {
         it("should have totalWinLabel property", () => {
             expect(cascadingBottomArea.totalWinLabel).toBeDefined();
             expect(cascadingBottomArea.totalWinLabel).toBe(mockTotalWinLabel);
-        });
-
-        it("should have colorInfo property", () => {
-            expect(cascadingBottomArea.colorInfo).toBeDefined();
-            expect(cascadingBottomArea.colorInfo).toBe(mockColorInfo);
         });
 
         it("should have colorConfig property", () => {
@@ -211,11 +203,11 @@ describe("CascadingBottomArea", () => {
         });
 
         it("should handle missing colorInfo gracefully", () => {
-            Object.defineProperty(cascadingBottomArea, 'colorInfo', {
+            Object.defineProperty(cascadingBottomArea, "colorInfo", {
                 value: null,
                 writable: true,
                 configurable: true,
-                enumerable: true
+                enumerable: true,
             });
 
             expect(() => {
@@ -246,7 +238,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
 
@@ -259,7 +251,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
 
@@ -272,7 +264,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
 
@@ -285,7 +277,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
     });
@@ -307,42 +299,34 @@ describe("CascadingBottomArea", () => {
 
         it("should update colors for components with Label", () => {
             // Mock components without LocalizedLabel to get bottomAreaNumberColor
-            mockChangeNodeColorComponents[0].node.getComponent
-                .mockImplementation((componentType) => {
-                    if (componentType === Label) {
-                        return mockLabelComponents[0];
-                    } else if (componentType === LocalizedLabel) {
-                        return null; // No LocalizedLabel
-                    }
-                    return null;
-                });
+            mockChangeNodeColorComponents[0].node.getComponent.mockImplementation((componentType) => {
+                if (componentType === Label) {
+                    return mockLabelComponents[0];
+                } else if (componentType === LocalizedLabel) {
+                    return null; // No LocalizedLabel
+                }
+                return null;
+            });
 
-            mockChangeNodeColorComponents[1].node.getComponent
-                .mockImplementation((componentType) => {
-                    if (componentType === Label) {
-                        return mockLabelComponents[1];
-                    } else if (componentType === LocalizedLabel) {
-                        return null; // No LocalizedLabel
-                    }
-                    return null;
-                });
+            mockChangeNodeColorComponents[1].node.getComponent.mockImplementation((componentType) => {
+                if (componentType === Label) {
+                    return mockLabelComponents[1];
+                } else if (componentType === LocalizedLabel) {
+                    return null; // No LocalizedLabel
+                }
+                return null;
+            });
 
             cascadingBottomArea.updateColor();
 
-            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaNumberColor
-            );
-            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaNumberColor
-            );
+            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
         });
 
         it("should update colors for components without Label", () => {
             cascadingBottomArea.updateColor();
 
-            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaButtonBorderColor
-            );
+            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaButtonBorderColor);
         });
 
         it("should update totalWinLabel color", () => {
@@ -356,20 +340,19 @@ describe("CascadingBottomArea", () => {
             // Mock a component that has LocalizedLabel
             const mockLocalizedLabelComponent = {
                 node: {
-                    getComponent: jest.fn()
+                    getComponent: jest
+                        .fn()
                         .mockReturnValueOnce(mockLabelComponents[0]) // First call returns Label
-                        .mockReturnValueOnce(new LocalizedLabel()) // Second call returns LocalizedLabel
+                        .mockReturnValueOnce(new LocalizedLabel()), // Second call returns LocalizedLabel
                 },
-                updateColor: jest.fn()
+                updateColor: jest.fn(),
             };
 
             mockNode.getComponentsInChildren.mockReturnValue([mockLocalizedLabelComponent]);
 
             cascadingBottomArea.updateColor();
 
-            expect(mockLocalizedLabelComponent.updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaTextColor
-            );
+            expect(mockLocalizedLabelComponent.updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaTextColor);
         });
 
         it("should handle missing colorConfig gracefully", () => {
@@ -451,7 +434,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: 1000,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
 
@@ -460,37 +443,29 @@ describe("CascadingBottomArea", () => {
             jest.clearAllMocks();
 
             // Mock components without LocalizedLabel to get bottomAreaNumberColor
-            mockChangeNodeColorComponents[0].node.getComponent
-                .mockImplementation((componentType) => {
-                    if (componentType === Label) {
-                        return mockLabelComponents[0];
-                    } else if (componentType === LocalizedLabel) {
-                        return null; // No LocalizedLabel
-                    }
-                    return null;
-                });
+            mockChangeNodeColorComponents[0].node.getComponent.mockImplementation((componentType) => {
+                if (componentType === Label) {
+                    return mockLabelComponents[0];
+                } else if (componentType === LocalizedLabel) {
+                    return null; // No LocalizedLabel
+                }
+                return null;
+            });
 
-            mockChangeNodeColorComponents[1].node.getComponent
-                .mockImplementation((componentType) => {
-                    if (componentType === Label) {
-                        return mockLabelComponents[1];
-                    } else if (componentType === LocalizedLabel) {
-                        return null; // No LocalizedLabel
-                    }
-                    return null;
-                });
+            mockChangeNodeColorComponents[1].node.getComponent.mockImplementation((componentType) => {
+                if (componentType === Label) {
+                    return mockLabelComponents[1];
+                } else if (componentType === LocalizedLabel) {
+                    return null; // No LocalizedLabel
+                }
+                return null;
+            });
 
             cascadingBottomArea.onLoad();
 
-            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaNumberColor
-            );
-            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaNumberColor
-            );
-            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(
-                mockColorInfo.json.bottomAreaButtonBorderColor
-            );
+            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaButtonBorderColor);
         });
     });
 
@@ -504,7 +479,7 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: largeValue,
                 duration: 0.5,
-                noZeroSuffix: false
+                noZeroSuffix: false,
             });
         });
 
@@ -520,14 +495,14 @@ describe("CascadingBottomArea", () => {
     describe("Decorators", () => {
         it("should have observer decorators properly configured", () => {
             expect(Observer.render).toBeDefined();
-            expect(typeof Observer.render).toBe('function');
+            expect(typeof Observer.render).toBe("function");
         });
 
         it("should have render decorator on handleSettlement method", () => {
             // The decorator is applied at class definition time, so we need to check if it was called
             // We'll verify the decorator function exists and can be called
             expect(Observer.render).toBeDefined();
-            expect(typeof Observer.render).toBe('function');
+            expect(typeof Observer.render).toBe("function");
         });
     });
 });

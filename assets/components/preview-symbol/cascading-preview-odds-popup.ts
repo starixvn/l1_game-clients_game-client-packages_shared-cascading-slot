@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, JsonAsset, Node, Prefab, UITransform, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Node, Prefab, UITransform, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
@@ -23,9 +23,6 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     @property(Prefab)
     prfPreviewSymbolRight: Prefab = null;
 
-    @property(JsonAsset)
-    colorInfo: JsonAsset = null;
-
     private currentPreviewItem: Node = null;
     public odds: any;
     public betLevel = 0;
@@ -34,7 +31,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     private cascadingState = "";
 
     onLoad() {
-        this.colorConfig = this.colorInfo.json;
+        this.colorConfig = resourcesCache.colorJson;
         super.onLoad();
     }
 

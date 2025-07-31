@@ -7,7 +7,7 @@ jest.mock("cc", () => {
         ...originalModule,
         _decorator: {
             ccclass: jest.fn((target: any) => target),
-            property: jest.fn((options?: any) => (target: any, propertyKey: string) => { }),
+            property: jest.fn((options?: any) => (target: any, propertyKey: string) => {}),
         },
         sys: {
             ...originalModule.sys,
@@ -42,7 +42,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class { },
+            BetHandler: class {},
         },
         Notices: {
             NoticeStore: {},
@@ -54,17 +54,17 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class { },
-            IMultipleHandlers: class { },
+            IHandler: class {},
+            IMultipleHandlers: class {},
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() { }
+                handle() {}
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() { }
+                handle() {}
             },
         },
         Translator: {
@@ -104,7 +104,7 @@ jest.mock("../../assets/stores/cascading-ui-store", () => ({
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() { }
+        onLoad() {}
     },
 }));
 
@@ -178,7 +178,6 @@ describe("CascadingBottomMessage", () => {
         // Create instance of CascadingBottomMessage
         cascadingBottomMessage = new CascadingBottomMessage();
         cascadingBottomMessage.msgRichText = mockMsgRichText;
-        cascadingBottomMessage.colorInfo = mockColorInfo;
 
         // Initialize highlightColor
         cascadingBottomMessage["highlightColor"] = "#FFD700";
@@ -187,7 +186,6 @@ describe("CascadingBottomMessage", () => {
     describe("onLoad", () => {
         it("should initialize color configuration", () => {
             // Call the actual onLoad logic
-            cascadingBottomMessage["colorConfig"] = cascadingBottomMessage.colorInfo.json;
             cascadingBottomMessage["highlightColor"] = cascadingBottomMessage["colorConfig"].noticeHighlightTextColor;
 
             expect(cascadingBottomMessage["colorConfig"]).toBe(mockColorInfo.json);

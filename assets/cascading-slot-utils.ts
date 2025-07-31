@@ -56,7 +56,36 @@ export const convertData = (value: string) => {
     return convertBoardValue(convertStringToArray(value));
 };
 
-export const resourcesCache = {
+export interface GameFeatureJson {
+    turnOnEventMascot: boolean;
+    turnOnMultiplierMascot: boolean;
+    multiplierMascotAnimationName: string;
+    bigWinMascotAnimationName: string;
+    freespinMascotAnimationName: string;
+    enablePeekEffect: boolean;
+}
+
+export interface ColorJson {
+    bottomAreaTextColor: string;
+    bottomAreaNumberColor: string;
+    bottomAreaButtonBorderColor: string;
+    bottomAreaButtonBackgroundColor: string;
+    bottomAreaWinAmountColor: string;
+    previewOddsBorderColor: string;
+    previewOddsSymbolNumberColor: string;
+    previewOddsWinValueColor: string;
+    noticeTextColor: string;
+    noticeHighlightTextColor: string;
+    topMessageTextColor: string;
+}
+
+interface ResourceCaches {
+    slotSymbols?: any;
+    gameFeatures?: GameFeatureJson;
+    colorJson?: ColorJson;
+}
+
+export const resourcesCache: ResourceCaches = {
     slotSymbols: {},
 };
 

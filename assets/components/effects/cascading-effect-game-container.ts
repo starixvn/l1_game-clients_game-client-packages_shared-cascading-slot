@@ -1,10 +1,10 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, JsonAsset, Prefab } from "cc";
+import { _decorator, instantiate, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import Observer from "observer";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { getCustomDuration } from "../../cascading-slot-utils";
+import { getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -21,9 +21,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @property(Prefab)
     pfbEffectTransition: Prefab = null;
 
-    @property(JsonAsset)
-    gameInfo: JsonAsset = null;
-
     private isTurboMode = false;
     private gameConfig: any;
 
@@ -37,7 +34,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     onLoad() {
         super.onLoad();
-        this.gameConfig = this.gameInfo.json;
+        this.gameConfig = resourcesCache.gameFeatures;
         this.node.destroyAllChildren();
     }
 

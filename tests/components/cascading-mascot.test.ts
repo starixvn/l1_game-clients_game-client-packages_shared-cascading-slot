@@ -1,7 +1,5 @@
 import { JsonAsset, sp } from "cc";
-import Observer from "observer";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
 
 // Mock Observer
 jest.mock("observer", () => ({
@@ -27,7 +25,7 @@ jest.mock("db://shared-components/shared/utils", () => ({
 // Mock ObserverComponent
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() { }
+        onLoad() {}
     },
 }));
 
@@ -74,7 +72,6 @@ describe("CascadingMascot", () => {
     const createComponentInstance = () => {
         cascadingMascot = new CascadingMascot();
         cascadingMascot.spineMascot = mockSpineMascot;
-        cascadingMascot.gameInfo = mockGameInfo;
         // Initialize gameConfig by calling onLoad
         cascadingMascot.onLoad();
     };
@@ -138,14 +135,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.freespinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.freespinMascotAnimationName,
+                    false
+                );
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
             });
 
@@ -156,14 +157,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.freespinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.freespinMascotAnimationName,
+                    false
+                );
             });
 
             it("should not play animation when mascot is disabled", async () => {
@@ -173,14 +178,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: false,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.freespinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.freespinMascotAnimationName,
+                    false
+                );
             });
         });
 
@@ -192,7 +201,7 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
@@ -210,14 +219,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.bigWinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.bigWinMascotAnimationName,
+                    false
+                );
             });
 
             it("should not play animation when mascot is disabled", async () => {
@@ -227,14 +240,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: false,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.bigWinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.bigWinMascotAnimationName,
+                    false
+                );
             });
         });
 
@@ -246,14 +263,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.multiplierMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.multiplierMascotAnimationName,
+                    false
+                );
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
             });
 
@@ -264,14 +285,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: true,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.multiplierMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.multiplierMascotAnimationName,
+                    false
+                );
             });
 
             it("should not play animation when mascot is disabled", () => {
@@ -281,14 +306,18 @@ describe("CascadingMascot", () => {
                     turnOnEventMascot: false,
                     freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
                     bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName
+                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
                 };
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.multiplierMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    mockGameInfo.json.multiplierMascotAnimationName,
+                    false
+                );
             });
         });
     });
