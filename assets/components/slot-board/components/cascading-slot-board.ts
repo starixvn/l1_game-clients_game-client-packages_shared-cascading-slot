@@ -9,7 +9,15 @@ import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/ut
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
-import { BoardSize, convertBoardValue, SlotNotification, SpecialSymbol, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
+import {
+    BoardSize,
+    convertBoardValue,
+    resourcesCache,
+    SlotNotification,
+    SpecialSymbol,
+    SymbolBoard,
+    WinIconDetail,
+} from "../../../cascading-slot-utils";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
@@ -618,6 +626,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     checkPeekEffect(symbols: number[][]) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return null;
+        }
+
         const result: {
             peekIndex?: number;
         } = {};
@@ -651,6 +663,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     checkPeekEffectInTumbles(symbols: number[][]) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return false;
+        }
         const SCATTER_SYMBOL = SpecialSymbol.SCATTER_SYMBOL;
 
         const scatterCount = symbols.flat().reduce((acc, symbol) => {
