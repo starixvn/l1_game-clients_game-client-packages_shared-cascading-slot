@@ -5,8 +5,6 @@ import { Tumble } from "./game-messages-cascading";
 export enum SpecialSymbol {
     SCATTER_SYMBOL = 9,
     MULTIPLIER_SYMBOL = 10,
-    FREESPIN = 11,
-    BONUS = 12,
 }
 
 export const SlotNotification = {

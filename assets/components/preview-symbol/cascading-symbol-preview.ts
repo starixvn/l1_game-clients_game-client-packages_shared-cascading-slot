@@ -36,6 +36,12 @@ export class CascadingSymbolPreview extends Component {
     @property(Node)
     content: Node = null;
 
+    @property(Label)
+    scatterLabel: Label = null;
+
+    protected isLowestRow = false;
+    protected readonly LOWEST_ROW_Y = -200;
+
     hidePreview() {
         this.node.parent.active = false;
         this.node.destroy();
@@ -63,34 +69,27 @@ export class CascadingSymbolPreview extends Component {
     }
 
     setInfo(info: CascadingSymbolPreviewType) {
+        this.isLowestRow = this.node.position.y <= this.LOWEST_ROW_Y;
         const nodeTmp = instantiate(info.symbolItem.content.children[0]);
         this.content.addChild(nodeTmp);
         const skeleton = nodeTmp.getComponent(sp.Skeleton);
         skeleton.setAnimation(0, "highlight", false);
         this.border.getComponent(UIRenderer).color = new Color().fromHEX(info.borderColor);
         this.renderInfo(info);
-        this.checkShowSpecialSymbol(info);
     }
 
     renderNormalSymbol(info: CascadingSymbolPreviewType) {
         const { odds, colorList, coinValue, betLevel, symbolItem, freespin } = info;
         let firstLabelWidth = 0;
+        const isScatter = symbolItem.index === SpecialSymbol.SCATTER_SYMBOL;
+        this.updateScatterLabel(isScatter, info.freespin[0]);
 
         this.infoNode.children.forEach((node, index) => {
-            let values;
-            let show;
-
-            if (symbolItem.index === SpecialSymbol.SCATTER_SYMBOL) {
-                show = index < freespin.length && freespin[index].odds > 0;
-                const count = freespin[index].count >= 6 ? `≥${freespin[index].count}` : `${freespin[index].count}`;
-                values = [count, `${freespin[index].odds}`];
-            } else {
-                show = index < odds.length && odds[index].odds > 0;
-                values = [
-                    `${odds[index].from}-${odds[index].to}`,
-                    `${gc.FormatUtils.numberWithCommas(odds[index].odds * coinValue * betLevel, 3)}`,
-                ];
-            }
+            const values = [];
+            const show = index < odds.length && odds[index].odds > 0;
+            const isLast = index === odds.length - 1;
+            const quantity = isScatter ? `${isLast ? "≥" : ""}${odds[index].from}` : `${odds[index].from}-${odds[index].to}`;
+            values.push(...[quantity, `${gc.FormatUtils.numberWithCommas(odds[index].odds * coinValue * betLevel, 3)}`]);
 
             if (!show) {
                 return;
@@ -124,28 +123,15 @@ export class CascadingSymbolPreview extends Component {
         });
     }
 
-    checkShowSpecialSymbol(info) {
-        const index = info.symbolItem.index;
-        if (index === 9) {
-            this.textImages.active = true;
-            this.textImages.children.forEach((node) => {
-                const lbl = node.getComponent(Label);
-                lbl.color = new Color().fromHEX(info.colorList[1]);
-            });
+    updateScatterLabel(isScatter: boolean, data: { count: number; odds: number }) {
+        if (this.scatterLabel) {
+            if (isScatter) {
+                this.scatterLabel.string = gc.Translator.translate("cascadingslot.scatter_odds_preview", {
+                    numOfScatter: data.count,
+                    numOfSpins: data.odds,
+                });
+            }
+            this.scatterLabel.node.active = isScatter;
         }
-    }
-
-    getSymbolName(symbolNumber: number): string {
-        let symbolName = "";
-        switch (symbolNumber) {
-            case SpecialSymbol.FREESPIN:
-                symbolName = "freespins";
-                break;
-            case SpecialSymbol.BONUS:
-                symbolName = "bonus";
-                break;
-        }
-
-        return symbolName;
     }
 }

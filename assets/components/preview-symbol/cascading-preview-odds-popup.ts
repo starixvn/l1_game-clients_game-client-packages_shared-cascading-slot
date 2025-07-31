@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Node, Prefab, UITransform, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Node, Prefab, v3, Vec3 } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
@@ -56,7 +56,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
                 return;
             }
             this.currentPreviewItem = item.node;
-            const worldPosition = item.node.getComponent(UITransform).convertToWorldSpaceAR(v3());
+            const worldPosition = v3(item.node.worldPosition);
             this.onSymbolTouched(item, worldPosition, isInfoOnLeft);
         });
     }
@@ -65,7 +65,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
         this.hideOtherPreview();
         this.previewOverlay.addChild(previewNode);
 
-        previewNode.position = this.previewOverlay.getComponent(UITransform).convertToNodeSpaceAR(worldPosition);
+        previewNode.worldPosition = worldPosition;
 
         showNode(previewNode);
     }
