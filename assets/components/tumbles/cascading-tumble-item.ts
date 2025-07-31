@@ -32,6 +32,7 @@ export class CascadingTumbleItem extends Component {
     }
 
     setDataForFreeSpinTumble(data: FreeSpinData) {
+        this.scatterPayout.node.active = true;
         this.scatterPayout.string = gc.FormatUtils.numberWithCommas(data.win, 2, false);
         const freeSpinTxt = data.extraFreeSpin ? "extra_free_spin" : "free_spin";
         this.numberIcon.string = data.count.toString();
