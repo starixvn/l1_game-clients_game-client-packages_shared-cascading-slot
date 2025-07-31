@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, log, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Label, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -233,7 +233,6 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.playSound(soundArray[index]);
             }
         };
-        log("spinResult", symbols);
         const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
         const hasPeekEffect = peekEffect !== null;
         for (let i = 0; i < this.reels.length; i++) {
@@ -241,7 +240,6 @@ export class CascadingSlotBoard extends ObserverComponent {
                 await AnimationUtils.delayTime(delayEachReelFallOut);
             }
             const reelSymbols = symbols[i];
-            log(`reelSymbols ${i} `, reelSymbols);
             const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
             if (i < awaitReelIndex) {
                 this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
@@ -489,7 +487,6 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.minPeekScatterCount)
     getMinPeekScatterCount(minPeekScatterCount: number) {
-        log("render minPeekScatterCount ", minPeekScatterCount);
         this.minPeekScatterCount = minPeekScatterCount;
     }
 

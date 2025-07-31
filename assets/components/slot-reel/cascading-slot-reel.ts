@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, log, Node, Prefab, sp, tween, v3 } from "cc";
+import { _decorator, Component, instantiate, Node, Prefab, sp, tween, v3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
@@ -199,7 +199,6 @@ export class CascadingSlotReel extends Component {
                     )
                     .start();
             } else {
-                log(`fallInWithOffset `, duration);
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
