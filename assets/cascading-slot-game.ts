@@ -21,6 +21,7 @@ import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handl
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
+import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/fsb-promotion-ui-manager";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -66,6 +67,8 @@ export class CascadingSlotGame extends GameComponentBase {
         this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
+        const fsbPromotionManager = new FSBPromotionUIManager(this);
+        fsbPromotionManager.init();
     }
 
     initConfig() {
