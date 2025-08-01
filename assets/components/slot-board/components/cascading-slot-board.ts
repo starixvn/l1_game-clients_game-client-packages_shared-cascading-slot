@@ -531,9 +531,12 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     onLoad() {
         super.onLoad();
-        this.loadPeekEffectPrefab().then(() => {
-            this.initPeekEffectPool();
-        });
+
+        if (resourcesCache.gameFeatures?.enablePeekEffect) {
+            this.loadPeekEffectPrefab().then(() => {
+                this.initPeekEffectPool();
+            });
+        }
     }
 
     async loadPeekEffectPrefab() {
@@ -557,6 +560,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     showPeekEffect(inTumble: boolean, reelIndex: number, row = 0) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
         this.setPeekEffect(true);
         this.peekEffectOverlay.active = true;
         this.peekEffectContainer.active = true;
@@ -596,6 +602,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     async hidePeekEffectAtIndex(reelIndex: number) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
         this.reels[reelIndex].peekEffect = false;
         const node = this.peekEffectContainer.getChildByName(this.getNamePeekEffectNode(reelIndex));
         if (node) {
@@ -605,6 +614,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     hidePeekEffects() {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
         this.peekEffectOverlay.active = false;
         this.peekEffectContainer.active = false;
 
