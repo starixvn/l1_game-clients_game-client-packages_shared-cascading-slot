@@ -63,9 +63,9 @@ export class CascadingTicketDetail extends ObserverComponent {
         let currWinTumble = 0;
 
         const freeSpinsWin = this.data.settlementResult.freeSpins?.win;
-        let isShowNextRow = true;
-        if (!freeSpinsWin) {
-            isShowNextRow = !isReachMaxWin;
+        let isShowNextRow = !isReachMaxWin;
+        if (freeSpinsWin) {
+            isShowNextRow = true;
         }
         tumbles.forEach((tumble, index) => {
             const detailItem = this.loadDetailItem();

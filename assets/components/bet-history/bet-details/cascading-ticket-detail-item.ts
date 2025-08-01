@@ -11,7 +11,7 @@ const { handle } = Observer;
 export type FreeSpinData = {
     count: number;
     odds: number;
-    win: number;
+    win?: number;
     index: number;
     currWinTumble: number;
     extraFreeSpin: boolean;
@@ -53,7 +53,7 @@ export class CascadingTicketDetailItem extends Component {
         let numberOfIcon = 0;
         let tumbleNode: Node;
         const freeSpins = data.settlementResult.freeSpins;
-        const isFreeSpin = freeSpins?.count > 0 || freeSpins?.win > 0;
+        const isFreeSpin = freeSpins?.odds > 0 || freeSpins?.win > 0;
         const freeSpin = data.freeSpin;
         if (index === data.settlementResult.tumbles.length - 1 && isFreeSpin) {
             this.setDataHaveFreeSpin({
