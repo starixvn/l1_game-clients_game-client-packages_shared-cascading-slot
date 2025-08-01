@@ -25,11 +25,16 @@ export const SpinButtonState = {
     WIN_TUMBLE_OR_EVENT: "WIN_TUMBLE_OR_EVENT",
 };
 
+export enum BoardSize {
+    COLUMN = 6,
+    ROW = 5,
+}
+
 export const convertBoardValue = (data: number[]): number[][] => {
     const result: number[][] = [];
 
-    const column = 6;
-    const row = 5;
+    const column = BoardSize.COLUMN;
+    const row = BoardSize.ROW;
 
     for (let i = 0; i < column; i++) {
         result.push([]);
@@ -51,7 +56,36 @@ export const convertData = (value: string) => {
     return convertBoardValue(convertStringToArray(value));
 };
 
-export const resourcesCache = {
+export interface GameFeatureJson {
+    turnOnEventMascot: boolean;
+    turnOnMultiplierMascot: boolean;
+    multiplierMascotAnimationName: string;
+    bigWinMascotAnimationName: string;
+    freespinMascotAnimationName: string;
+    enablePeekEffect: boolean;
+}
+
+export interface ColorJson {
+    bottomAreaTextColor: string;
+    bottomAreaNumberColor: string;
+    bottomAreaButtonBorderColor: string;
+    bottomAreaButtonBackgroundColor: string;
+    bottomAreaWinAmountColor: string;
+    previewOddsBorderColor: string;
+    previewOddsSymbolNumberColor: string;
+    previewOddsWinValueColor: string;
+    noticeTextColor: string;
+    noticeHighlightTextColor: string;
+    topMessageTextColor: string;
+}
+
+interface ResourceCaches {
+    slotSymbols?: any;
+    gameFeatures?: GameFeatureJson;
+    colorJson?: ColorJson;
+}
+
+export const resourcesCache: ResourceCaches = {
     slotSymbols: {},
 };
 

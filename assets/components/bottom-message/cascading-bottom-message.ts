@@ -1,9 +1,9 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, JsonAsset, RichText, sys } from "cc";
+import { _decorator, Color, RichText, sys } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { SlotNotification } from "../../cascading-slot-utils";
+import { resourcesCache, SlotNotification } from "../../cascading-slot-utils";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -14,8 +14,6 @@ export class CascadingBottomMessage extends ObserverComponent {
     @property(RichText)
     msgRichText: RichText = null;
 
-    @property(JsonAsset)
-    colorInfo: JsonAsset = null;
     highlightColor: string;
     private isTurboMode = false;
     private isTrialMode = false;
@@ -24,7 +22,7 @@ export class CascadingBottomMessage extends ObserverComponent {
     private roundsAutoplay = 0;
     private freespinCountMsgBottom = 0;
     onLoad() {
-        this.colorConfig = this.colorInfo.json;
+        this.colorConfig = resourcesCache.colorJson;
         this.highlightColor = this.colorConfig.noticeHighlightTextColor;
         this.msgRichText.fontColor = new Color().fromHEX(this.colorConfig.noticeTextColor);
         super.onLoad();

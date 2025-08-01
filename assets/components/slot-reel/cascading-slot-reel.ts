@@ -1,6 +1,8 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp, tween, v3 } from "cc";
-import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
-import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
+import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
+import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
@@ -20,7 +22,20 @@ export class CascadingSlotReel extends Component {
 
     itemDisplayCount = CascadingSlotConfig.reelItemCount;
     protected items: CascadingSlotReelItem[] = [];
-    public readonly pixelPerSecond = 145 * 15;
+    public peekEffect = false;
+
+    private readonly MIN_DURATION_FALL_IN = 0.25;
+    private readonly MIN_DURATION_FALL_IN_TURBO = 0.1;
+
+    private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
+
+    private readonly ITEM_BACK_DURATION = 0.13;
+    private readonly ITEM_BACK_OFFSET_Y = 25;
+
+    public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
+    private readonly FALL_OUT_SPEED = 2800;
+    private readonly FALL_IN_NORMAL_SPEED = 1800;
+    private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -31,6 +46,10 @@ export class CascadingSlotReel extends Component {
 
     getItems() {
         return this.items;
+    }
+
+    getItemsData() {
+        return this.items.map((item) => item.index);
     }
 
     getItemPosY(index: number) {
@@ -116,7 +135,7 @@ export class CascadingSlotReel extends Component {
         effectSpine.setAnimation(0, animation, false);
         const duration = effectSpine.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
-            await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(duration);
         }
     }
 
@@ -129,16 +148,32 @@ export class CascadingSlotReel extends Component {
     }
 
     protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
-        const baseSpeed = isFallOut ? 1.3 * this.pixelPerSecond : this.pixelPerSecond;
-        return isTurbo ? baseSpeed * 1.5 : baseSpeed;
+        const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
+
+        if (isTurbo) {
+            return baseSpeed * 1.5;
+        }
+
+        if (this.peekEffect) {
+            return this.FALL_IN_PEEK_EFFECT_SPEED;
+        }
+
+        return baseSpeed;
+    }
+
+    protected delayFallingEachItem(duration: any) {
+        if (this.peekEffect) {
+            return this.DELAY_EACH_ITEM_PEEK_EFFECT;
+        }
+        return 0.08 * duration;
     }
 
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
-        let duration;
+        const minDuration = isTurbo ? this.MIN_DURATION_FALL_IN_TURBO : this.MIN_DURATION_FALL_IN;
 
-        const backDuration = 0.2;
+        let duration = 0;
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
@@ -147,40 +182,50 @@ export class CascadingSlotReel extends Component {
                 continue;
             }
             duration = distance / speed;
-            const delay = 0.08 * duration;
+            duration = Math.max(duration, minDuration);
+            const delay = this.delayFallingEachItem(duration);
             if (!isTurbo) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delay);
             }
             const isBottomItem = i === 0;
             if (isFallOut) {
                 tween(item.node)
-                    .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
+                    .to(
+                        duration,
+                        { position: v3(item.node.position.x, posY, 0) },
+                        {
+                            easing: "sineIn",
+                        }
+                    )
                     .start();
             } else {
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
 
-        await FunctionUtils.delay(this.getDelayTimeAfterFall(isFallOut, duration, backDuration));
-    }
-
-    protected getDelayTimeAfterFall(isFallOut: boolean, duration: number, backDuration: number): number {
-        return isFallOut ? duration * UNIT_SECOND_SPIN : (duration + backDuration) * UNIT_SECOND_SPIN;
+        duration > 0 && (await AnimationUtils.delayTime(duration));
     }
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
-        const backOffsetY = this.itemSize * 1.8;
-        const backDuration = 0.2;
+        this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
+        const backOffsetY = this.ITEM_BACK_OFFSET_Y;
+        const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
 
         tween(item.node)
-            .to(duration - backDuration, { position: v3(xNode, posY + backOffsetY, 0) })
+            .to(duration - backDuration, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "circOut" })
             .call(() => {
                 if (isBottomItem) {
                     onBottomItemEnded && onBottomItemEnded();
                 }
             })
-            .to(backDuration, { position: v3(xNode, posY, 0) }, { easing: "backOut" })
+            .to(
+                backDuration,
+                { position: v3(xNode, posY, 0) },
+                {
+                    easing: "sineOut",
+                }
+            )
             .start();
     }
 
@@ -204,6 +249,35 @@ export class CascadingSlotReel extends Component {
         this.items.forEach((item) => ComponentUtils.moveToOtherNode(item.node, this.effectContainer));
         const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
         await Promise.all(scatterSymbols.map((item) => item.highlightScatterItem()));
+        this.moveItemsBackToReelNode();
+    }
+
+    public moveItemsBackToReelNode() {
         this.items.forEach((item) => ComponentUtils.moveToOtherNode(item.node, this.node));
+    }
+
+    async peekEffectScatterItems() {
+        const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
+        scatterSymbols.map((item) => {
+            if (item.node.parent === this.effectContainer) {
+                return;
+            }
+            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+
+            item.highlightScatterItem();
+        });
+    }
+
+    peekEffectHighlightAllItems() {
+        this.peekEffectHighlightItems(this.items);
+    }
+
+    peekEffectHighlightItems(items: CascadingSlotReelItem[]) {
+        items.forEach((item) => {
+            if (item.node.parent === this.effectContainer) {
+                return;
+            }
+            ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+        });
     }
 }

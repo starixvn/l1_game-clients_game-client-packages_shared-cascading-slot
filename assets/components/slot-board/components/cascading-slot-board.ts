@@ -1,12 +1,23 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Node, Prefab, tween, UIOpacity, v3, Vec3 } from "cc";
+import { _decorator, instantiate, Label, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
+import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { ComponentUtils, FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "../../../cascading-slot-base-configs";
-import { convertBoardValue, SlotNotification, SymbolBoard, WinIconDetail } from "../../../cascading-slot-utils";
+import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
+import {
+    BoardSize,
+    convertBoardValue,
+    resourcesCache,
+    SlotNotification,
+    SpecialSymbol,
+    SymbolBoard,
+    WinIconDetail,
+} from "../../../cascading-slot-utils";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
@@ -32,6 +43,17 @@ export class CascadingSlotBoard extends ObserverComponent {
     @property(CascadingPreviewOddsPopup)
     previewPopup: CascadingPreviewOddsPopup = null;
 
+    @property(Node)
+    peekEffectOverlay: Node = null;
+
+    @property(Node)
+    peekEffectContainer: Node = null;
+
+    peekEffectTumblePrefab: Prefab = null;
+    peekEffectNode: Node = null;
+
+    protected peekEffectTumblePool: NodePool = new NodePool();
+
     protected readonly reels: CascadingSlotReel[] = [];
     public currentTotalMultiplier = 0;
     public colorInfo: any;
@@ -48,6 +70,10 @@ export class CascadingSlotBoard extends ObserverComponent {
         TUMBLE_WIN_SOUND: "tumble_win",
     };
 
+    public minPeekScatterCount = 3;
+
+    protected readonly PEEK_EFFECT_DURATION = 1;
+
     public createReels() {
         if (this.reels.length > 0) {
             return;
@@ -62,10 +88,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 
-    public addItems(data: number[][]) {
+    public addItems(data: number[][], peekEffect: boolean) {
         this.reels.forEach((reel, index) => {
             const items = data[index];
             const reelItems = reel.addItems(items);
+            peekEffect && reel.peekEffectHighlightItems(reelItems);
             const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
             reelItems.forEach((item) => {
                 this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
@@ -115,7 +142,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     protected async fallOut(isTurbo: boolean, delay: number) {
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delay);
             }
 
             if (i < this.reels.length - 1) {
@@ -126,7 +153,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    async handleTumbles(tumbles: Tumble[]) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -161,11 +188,27 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i);
+            await this.fallIn(false, false);
 
-            this.addItems(newItems);
+            const remains = this.reels.map((reel) => reel.getItemsData());
+            const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
+            if (hasPeekEffect) {
+                this.reels.forEach((reel) => reel.peekEffectScatterItems());
+                AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+
+                this.showPeekEffectInTumbles(newItems);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+            }
+            this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(false);
+            await this.fallIn(hasPeekEffect, false);
+            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+            if (hasPeekEffect && i === tumbles.length - 2) {
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+            }
         }
+
+        this.hidePeekEffects();
     }
 
     @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWin({ win: tumbleWin, isActualWin: false }))
@@ -174,8 +217,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
-        const duration = (5 * 145) / this.reels[0].pixelPerSecond;
-        const delay = 0.25 * duration;
+        const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
         if (isTurbo) {
@@ -184,7 +226,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.playSound(this.Sound.SPINNING_NORMAL);
         }
 
-        await this.fallOut(isTurbo, delay);
+        await this.fallOut(isTurbo, delayEachReelFallOut);
 
         const soundArray = [
             this.Sound.REEL_STOP_1_SOUND,
@@ -199,17 +241,38 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.playSound(soundArray[index]);
             }
         };
+        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
+        const hasPeekEffect = peekEffect !== null;
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await FunctionUtils.delay(delay * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(delayEachReelFallOut);
             }
-
-            if (i < this.reels.length - 1) {
-                this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
+            const reelSymbols = symbols[i];
+            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+            if (i < awaitReelIndex) {
+                this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
+            } else if (i === awaitReelIndex) {
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
             } else {
-                await this.reels[i].spin(symbols[i], multipliers, isTurbo, playSoundOnBottomItem(i));
+                if (hasPeekEffect) {
+                    this.reels.forEach((reel, index) => {
+                        if (index < i) {
+                            reel.moveItemsBackToReelNode();
+                            reel.peekEffectScatterItems();
+                        }
+                    });
+
+                    const begin = i === awaitReelIndex + 1;
+                    begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+                }
+                this.showPeekEffect(false, i);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                this.reels[i].peekEffectHighlightAllItems();
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
             }
         }
+        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+        this.hidePeekEffects();
     }
 
     getRandomWinItem(data: number[][], winIcon: number): Node {
@@ -251,12 +314,22 @@ export class CascadingSlotBoard extends ObserverComponent {
         );
     }
 
-    public async fallIn(isTurbo: boolean) {
-        await Promise.all(
-            this.reels.map(async (reel) => {
+    public async fallIn(peekEffect: boolean, isTurbo: boolean) {
+        if (peekEffect) {
+            for (let i = 0; i < this.reels.length; i++) {
+                const reel = this.reels[i];
                 await reel.fallIn(isTurbo, null);
-            })
-        );
+                reel.moveItemsBackToReelNode();
+                reel.peekEffectScatterItems();
+                this.hidePeekEffectAtIndex(i);
+            }
+        } else {
+            await Promise.all(
+                this.reels.map((reel) => {
+                    return reel.fallIn(isTurbo, null);
+                })
+            );
+        }
     }
 
     public async shakeItems() {
@@ -362,7 +435,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.setMultiplierValue(mItem.multiplier);
             }
 
-            await FunctionUtils.delay(tumbleWinView.mulitiplierEffectDuration * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(tumbleWinView.mulitiplierEffectDuration);
         }
     }
 
@@ -420,6 +493,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.previewPopup.odds = gameConfigs.odds;
     }
 
+    @render(CascadingUIStore, (store) => store.minPeekScatterCount)
+    getMinPeekScatterCount(minPeekScatterCount: number) {
+        this.minPeekScatterCount = minPeekScatterCount;
+    }
+
     @render(BetControlStore, (store) => store.betLevel)
     setBetLevel(betLevel: number) {
         if (!this.previewPopup) {
@@ -449,5 +527,178 @@ export class CascadingSlotBoard extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, state: string) => handler.changeCascadingState(state))
     changeCascadingState(state: string) {
         return state;
+    }
+
+    onLoad() {
+        super.onLoad();
+
+        if (resourcesCache.gameFeatures?.enablePeekEffect) {
+            this.loadPeekEffectPrefab().then(() => {
+                this.initPeekEffectPool();
+            });
+        }
+    }
+
+    async loadPeekEffectPrefab() {
+        const prefab = await bundleManager.loadResourcesAsset<Prefab>("prefabs/peek-effect", Prefab);
+        this.peekEffectNode = instantiate(prefab);
+        this.peekEffectNode.active = false;
+        this.peekEffectTumblePrefab = await bundleManager.loadResourcesAsset("prefabs/peek-effect-tumble", Prefab);
+    }
+
+    protected initPeekEffectPool() {
+        // Pre-instantiate a few nodes for the pool
+        for (let i = 0; i < BoardSize.COLUMN; i++) {
+            const node = instantiate(this.peekEffectTumblePrefab);
+            this.peekEffectTumblePool.put(node);
+        }
+    }
+
+    @handle(CascadingUIHandler, (handler, show: boolean) => handler.setPeekEffect(show))
+    setPeekEffect(show: boolean) {
+        return show;
+    }
+
+    showPeekEffect(inTumble: boolean, reelIndex: number, row = 0) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
+        this.setPeekEffect(true);
+        this.peekEffectOverlay.active = true;
+        this.peekEffectContainer.active = true;
+
+        const shouldShiftAnimation = !inTumble ? this.peekEffectNode.active : false;
+
+        const nodeName = this.getNamePeekEffectNode(reelIndex);
+        const peekEffectNode = !inTumble
+            ? this.peekEffectNode
+            : this.peekEffectContainer.getChildByName(nodeName) ?? this.peekEffectTumblePool.get();
+
+        peekEffectNode.parent = this.peekEffectContainer;
+        peekEffectNode.name = nodeName;
+        peekEffectNode.active = true;
+
+        const reel = this.reels[reelIndex];
+        reel.peekEffect = true;
+        const position = reel.node.position;
+        const y = row * (reel.itemSize + reel.spacing);
+        const duration = 0.4;
+        if (shouldShiftAnimation) {
+            AudioUtils.playSFX(AudioIds.PEEK_EFFECT_SHIFT);
+            tween(peekEffectNode)
+                .to(duration, { position: v3(position.x, y) })
+                .start();
+        } else {
+            peekEffectNode.setPosition(v3(position.x, y));
+            AnimationUtils.fadeIn(peekEffectNode, duration);
+        }
+
+        const spine = peekEffectNode.getComponentInChildren(sp.Skeleton);
+        spine.setAnimation(0, "show", true);
+    }
+
+    getNamePeekEffectNode(reelIndex: number) {
+        return `reel-${reelIndex}`;
+    }
+
+    async hidePeekEffectAtIndex(reelIndex: number) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
+        this.reels[reelIndex].peekEffect = false;
+        const node = this.peekEffectContainer.getChildByName(this.getNamePeekEffectNode(reelIndex));
+        if (node) {
+            await AnimationUtils.fadeOut(node, 0.3);
+            this.peekEffectTumblePool.put(node);
+        }
+    }
+
+    hidePeekEffects() {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return;
+        }
+        this.peekEffectOverlay.active = false;
+        this.peekEffectContainer.active = false;
+
+        // Return all peek effect nodes to the pool
+        const peekEffectNodes = this.peekEffectContainer.children.slice(); // Create a copy to avoid modification during iteration
+        peekEffectNodes.forEach((node) => {
+            node.name = "";
+            if (node !== this.peekEffectNode) {
+                this.peekEffectTumblePool.put(node);
+            } else {
+                this.peekEffectNode.active = false;
+            }
+        });
+
+        this.reels.forEach((reel) => {
+            reel.peekEffect = false;
+            reel.moveItemsBackToReelNode();
+        });
+    }
+
+    checkPeekEffect(symbols: number[][]) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return null;
+        }
+
+        const result: {
+            peekIndex?: number;
+        } = {};
+        const SCATTER_SYMBOL = SpecialSymbol.SCATTER_SYMBOL;
+
+        let peekReelIndex = -1;
+        // Count scatters in each reel up to current index
+        for (let reelIndex = 1; reelIndex < symbols.length; reelIndex++) {
+            let scatterCount = 0;
+
+            // Check all previous reels
+            for (let prevReel = 0; prevReel <= reelIndex; prevReel++) {
+                // Count scatters in this previous reel
+                scatterCount += symbols[prevReel].filter((symbol) => symbol === SCATTER_SYMBOL).length;
+            }
+
+            // If we found this.minPeekScatterCount scatters in previous reels, this is our peek column
+            if (scatterCount >= this.minPeekScatterCount) {
+                peekReelIndex = reelIndex;
+                break;
+            }
+        }
+
+        const maxPeekIndex = symbols.length - 1;
+        if (peekReelIndex > -1 && peekReelIndex < maxPeekIndex) {
+            result.peekIndex = peekReelIndex;
+            return result;
+        }
+
+        return null;
+    }
+
+    checkPeekEffectInTumbles(symbols: number[][]) {
+        if (!resourcesCache.gameFeatures?.enablePeekEffect) {
+            return false;
+        }
+        const SCATTER_SYMBOL = SpecialSymbol.SCATTER_SYMBOL;
+
+        const scatterCount = symbols.flat().reduce((acc, symbol) => {
+            return acc + (symbol === SCATTER_SYMBOL ? 1 : 0);
+        }, 0);
+
+        return scatterCount >= this.minPeekScatterCount;
+    }
+
+    showPeekEffectInTumbles(symbols: number[][]) {
+        const reels = symbols.map((symbol, index) => {
+            return symbol.findIndex((value) => {
+                return value !== -1;
+            });
+        });
+
+        for (let i = 0; i < reels.length; i++) {
+            const row = reels[i];
+            if (row > -1) {
+                this.showPeekEffect(true, i, row);
+            }
+        }
     }
 }

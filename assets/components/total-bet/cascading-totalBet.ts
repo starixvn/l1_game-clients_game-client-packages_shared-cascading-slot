@@ -1,9 +1,10 @@
-import { _decorator, JsonAsset, Label, Node } from "cc";
+import { _decorator, Label, Node } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
+import { resourcesCache } from "../../cascading-slot-utils";
 import { CascadingTotalBetHandlers } from "../../handlers/cascading-total-bet-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
@@ -27,9 +28,6 @@ export class CascadingTotalBet extends ObserverComponent {
     @property(Node)
     disabled: Node = null;
 
-    @property(JsonAsset)
-    colorInfo: JsonAsset = null;
-
     private colorConfig: any;
 
     @property(CascadingBetControl)
@@ -38,7 +36,7 @@ export class CascadingTotalBet extends ObserverComponent {
     protected decreaseButtonStatus = true;
 
     onLoad() {
-        this.colorConfig = this.colorInfo.json;
+        this.colorConfig = resourcesCache.colorJson;
         this.updateColor();
         super.onLoad();
     }

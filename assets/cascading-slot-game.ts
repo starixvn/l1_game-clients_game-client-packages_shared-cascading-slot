@@ -12,7 +12,7 @@ import { bundleManager } from "db://shared-components/shared/common-components/b
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
-import { convertData, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
+import { ColorJson, convertData, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
@@ -55,13 +55,22 @@ export class CascadingSlotGame extends GameComponentBase {
     @property(JsonAsset)
     colorInfo: JsonAsset = null;
 
+    @property(JsonAsset)
+    gameFeatureInfo: JsonAsset = null;
+
     public isTurboMode = false;
 
     onLoad() {
+        this.initConfig();
         this.registerEventShowHideGame();
         this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
+    }
+
+    initConfig() {
+        resourcesCache.colorJson = this.colorInfo.json as ColorJson;
+        resourcesCache.gameFeatures = this.gameFeatureInfo.json as GameFeatureJson;
     }
 
     start() {
@@ -170,7 +179,7 @@ export class CascadingSlotGame extends GameComponentBase {
         } = finishData;
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
-        await this.board.handleTumbles(tumbles);
+        await this.board.handleTumbles(tumbles, this.isTurboMode);
         const winMultiplier = multiplier > 0 && win > 0;
         winMultiplier && this.handleTriggerWinMultiplier();
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
@@ -199,6 +208,15 @@ export class CascadingSlotGame extends GameComponentBase {
         this.setFreeSpinsByRound(freeSpins);
         this.setFreeSpinsTotal(totalFreeSpins);
         this.handleHaveFreeSpin(freeSpins > 0);
+
+        if (freeSpins <= 0 && !bigWin) {
+            this.handleFreeSpinEffectCompleted(true);
+        }
+    }
+
+    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
+    handleFreeSpinEffectCompleted(completed: boolean) {
+        return completed;
     }
 
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)

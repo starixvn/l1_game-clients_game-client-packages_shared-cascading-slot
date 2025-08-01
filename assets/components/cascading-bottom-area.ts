@@ -1,11 +1,12 @@
-import { _decorator, Color, JsonAsset, Label } from "cc";
+import { _decorator, Color, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
+import { resourcesCache } from "../cascading-slot-utils";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;
@@ -14,13 +15,10 @@ export class CascadingBottomArea extends ObserverComponent {
     @property(Label)
     totalWinLabel: Label = null;
 
-    @property(JsonAsset)
-    colorInfo: JsonAsset = null;
-
     private colorConfig: any;
 
     onLoad(): void {
-        this.colorConfig = this.colorInfo.json;
+        this.colorConfig = resourcesCache.colorJson;
         this.updateColor();
         super.onLoad();
     }

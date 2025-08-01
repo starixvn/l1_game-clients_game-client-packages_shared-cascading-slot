@@ -39,6 +39,7 @@ export class CascadingUIStore {
     _bottomMessageState = SlotNotification.BEFORE_SPIN;
     _spinButtonState = SpinButtonState.IDLE;
 
+    activePeekEffect = false;
     haveBigWin = false;
     bigWinAmount = 0;
     isBigWinCompleted = false;
@@ -63,6 +64,17 @@ export class CascadingUIStore {
     triggerCancelAutoPlay = null;
 
     triggerWinMultiplier = null;
+
+    get minPeekScatterCount() {
+        if (!this.configsStore.gameConfigs) {
+            return 1000; // default value
+        }
+        const freeSpinOdds = this.configsStore.gameConfigs.odds.freeSpins;
+
+        const odds = this.isFreeSpins ? freeSpinOdds.additionalOdds : freeSpinOdds.initialOdds;
+        const minOdd = odds.filter((odd) => odd.odds > 0).sort((a, b) => a.count - b.count)[0];
+        return minOdd.count - 1;
+    }
 
     get isTurboMode() {
         return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
