@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, instantiate, Label, Node, sp, UIRenderer, UITransform } from "cc";
+import { _decorator, Color, Component, instantiate, Label, Layout, Node, sp, UIRenderer, UITransform, Widget } from "cc";
+import { ComponentUtils } from "db://shared-components/shared/utils";
 import { SpecialSymbol } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
@@ -39,8 +40,16 @@ export class CascadingSymbolPreview extends Component {
     @property(Label)
     scatterLabel: Label = null;
 
+    @property
+    padding = 10;
+
     protected isLowestRow = false;
     protected readonly LOWEST_ROW_Y = -200;
+    private bg: Node = null;
+
+    protected onLoad(): void {
+        this.bg = this.node.getChildByName("bg");
+    }
 
     hidePreview() {
         this.node.parent.active = false;
@@ -76,10 +85,56 @@ export class CascadingSymbolPreview extends Component {
         skeleton.setAnimation(0, "highlight", false);
         this.border.getComponent(UIRenderer).color = new Color().fromHEX(info.borderColor);
         this.renderInfo(info);
+        this.updateBackground();
+    }
+
+    updateBackground() {
+        if (!this.bg) {
+            return;
+        }
+
+        const layouts = this.getComponentsInChildren(Layout);
+        const verticalLayout = layouts.find((layout) => layout.node.name === "vertical");
+        verticalLayout.verticalDirection = this.isLowestRow
+            ? Layout.VerticalDirection.TOP_TO_BOTTOM
+            : Layout.VerticalDirection.BOTTOM_TO_TOP;
+        verticalLayout.updateLayout();
+
+        const horizontalLayout = layouts.find((layout) => layout.node.name === "horizon");
+        horizontalLayout.updateLayout();
+
+        const widthScatterLabel = this.scatterLabel.node.getComponent(UITransform).getBoundingBox().width;
+        const horizonWidth = horizontalLayout.getComponent(UITransform).width + 2 * this.padding;
+
+        const width = Math.max(horizonWidth, widthScatterLabel);
+        const height = verticalLayout.getComponent(UITransform).height;
+        ComponentUtils.setNodeTransform(this.bg, {
+            width,
+            height,
+        });
+        const bgChildWidget = this.bg.getComponentInChildren(Widget);
+        bgChildWidget.updateAlignment();
+
+        const bgWidget = this.bg.getComponent(Widget);
+        const verticalWidget = verticalLayout.node.getComponent(Widget);
+        const widgets = [bgWidget, verticalWidget];
+        widgets.forEach((widget) => {
+            const offset = 0;
+            if (this.isLowestRow) {
+                widget.bottom = offset;
+                widget.isAlignBottom = true;
+                widget.isAlignTop = false;
+            } else {
+                widget.top = offset;
+                widget.isAlignTop = true;
+                widget.isAlignBottom = false;
+            }
+            widget.updateAlignment();
+        });
     }
 
     renderNormalSymbol(info: CascadingSymbolPreviewType) {
-        const { odds, colorList, coinValue, betLevel, symbolItem, freespin } = info;
+        const { odds, colorList, coinValue, betLevel, symbolItem } = info;
         let firstLabelWidth = 0;
         const isScatter = symbolItem.index === SpecialSymbol.SCATTER_SYMBOL;
         this.updateScatterLabel(isScatter, info.freespin[0]);
@@ -127,7 +182,7 @@ export class CascadingSymbolPreview extends Component {
         if (this.scatterLabel) {
             if (isScatter) {
                 this.scatterLabel.string = gc.Translator.translate("cascadingslot.scatter_odds_preview", {
-                    numOfScatter: data.count,
+                    numOfScatters: data.count,
                     numOfSpins: data.odds,
                 });
             }
