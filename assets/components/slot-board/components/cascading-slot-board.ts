@@ -491,6 +491,9 @@ export class CascadingSlotBoard extends ObserverComponent {
             return;
         }
         this.previewPopup.odds = gameConfigs.odds;
+        if (gameConfigs.odds.symbols[SpecialSymbol.SCATTER_SYMBOL]) {
+            resourcesCache.newMultiplierRange = true;
+        }
     }
 
     @render(CascadingUIStore, (store) => store.minPeekScatterCount)

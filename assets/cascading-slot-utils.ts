@@ -81,10 +81,12 @@ interface ResourceCaches {
     slotSymbols?: any;
     gameFeatures?: GameFeatureJson;
     colorJson?: ColorJson;
+    newMultiplierRange: boolean;
 }
 
 export const resourcesCache: ResourceCaches = {
     slotSymbols: {},
+    newMultiplierRange: false,
 };
 
 export interface SymbolBoard {

@@ -54,7 +54,7 @@ export class MultiplierItem extends Component {
     protected updateColor(value: number) {
         const level = [10, 11, 12, 13];
         let i = 0;
-        const range = [5, 10, 15];
+        const range = resourcesCache.newMultiplierRange ? [5, 15, 50] : [5, 10, 15];
         for (; i < range.length; i++) {
             if (value <= range[i]) {
                 break;
