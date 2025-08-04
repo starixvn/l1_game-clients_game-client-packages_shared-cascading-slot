@@ -29,10 +29,15 @@ export namespace GameServiceMessageCascading {
         additionalOdds: Array<FreeSpinOddsDetail>;
     }
 
-    interface Odd {
+    export interface Odd {
         from: number;
         to: number;
         odds: number;
+    }
+
+    export interface OddsConfig {
+        freeSpins: FreeSpinOdds;
+        symbols: Record<string, Array<Odd>>;
     }
 
     export class CascadingSlotConfigsMsg {
@@ -41,10 +46,7 @@ export namespace GameServiceMessageCascading {
         betMultiplier: number;
         coinValues: number[];
         maxWinPerRound: number;
-        odds: {
-            freeSpins: FreeSpinOdds;
-            symbols: Record<string, Array<Odd>>;
-        };
+        odds: OddsConfig;
         totalMultiplier: number;
 
         static eventName = "gameConfigs";

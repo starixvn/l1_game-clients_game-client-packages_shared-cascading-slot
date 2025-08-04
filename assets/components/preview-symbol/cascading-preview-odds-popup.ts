@@ -4,6 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
 import { hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
+import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
@@ -24,7 +25,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
     prfPreviewSymbolRight: Prefab = null;
 
     private currentPreviewItem: Node = null;
-    public odds: any;
+    public odds: GameServiceMessageCascading.OddsConfig;
     public betLevel = 0;
     public coinValue = 0;
     public colorConfig: any;

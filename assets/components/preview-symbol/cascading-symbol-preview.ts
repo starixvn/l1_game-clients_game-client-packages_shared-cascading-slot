@@ -1,14 +1,15 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, instantiate, Label, Layout, Node, sp, UIRenderer, UITransform, Widget } from "cc";
+import { _decorator, Color, Component, instantiate, Label, Layout, log, Node, sp, UIRenderer, UITransform, Widget } from "cc";
 import { ComponentUtils } from "db://shared-components/shared/utils";
 import { SpecialSymbol } from "../../cascading-slot-utils";
+import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
 export interface CascadingSymbolPreviewType {
     symbol?: any;
     spine: sp.SkeletonData;
-    odds: any;
+    odds: GameServiceMessageCascading.Odd[];
     colorList: [string, string];
     borderColor: string;
     coinValue?: number;
@@ -80,7 +81,8 @@ export class CascadingSymbolPreview extends Component {
     }
 
     setInfo(info: CascadingSymbolPreviewType) {
-        this.hasSymbolOdds = !!info.odds;
+        this.hasSymbolOdds = !!info.odds && Object.values(info.odds).some((value) => value.odds > 0);
+        log(`hasSymbolOdds `, this.hasSymbolOdds);
         this.isLowestRow = this.node.position.y <= this.LOWEST_ROW_Y;
         const nodeTmp = instantiate(info.symbolItem.content.children[0]);
         this.content.addChild(nodeTmp);

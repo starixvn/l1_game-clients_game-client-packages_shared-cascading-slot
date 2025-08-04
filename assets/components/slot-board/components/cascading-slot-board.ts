@@ -492,7 +492,8 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
         this.previewPopup.odds = gameConfigs.odds;
         if (gameConfigs.odds.symbols[SpecialSymbol.SCATTER_SYMBOL]) {
-            resourcesCache.newMultiplierRange = true;
+            const values = Object.values(gameConfigs.odds.symbols[SpecialSymbol.SCATTER_SYMBOL]);
+            resourcesCache.newMultiplierRange = values.some((value) => value.odds > 0);
         }
     }
 
