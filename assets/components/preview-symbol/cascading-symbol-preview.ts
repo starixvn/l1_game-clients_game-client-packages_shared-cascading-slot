@@ -49,6 +49,7 @@ export class CascadingSymbolPreview extends Component {
 
     protected onLoad(): void {
         this.bg = this.node.getChildByName("bg");
+        this.scatterLabel && (this.scatterLabel.node.active = false);
     }
 
     hidePreview() {
@@ -85,7 +86,7 @@ export class CascadingSymbolPreview extends Component {
         skeleton.setAnimation(0, "highlight", false);
         this.border.getComponent(UIRenderer).color = new Color().fromHEX(info.borderColor);
         this.renderInfo(info);
-        this.updateBackground();
+        this.scheduleOnce(this.updateBackground, 0); //trick, delay to wait labels update width
     }
 
     updateBackground() {
@@ -103,10 +104,12 @@ export class CascadingSymbolPreview extends Component {
         const horizontalLayout = layouts.find((layout) => layout.node.name === "horizon");
         horizontalLayout.updateLayout();
 
-        const widthScatterLabel = this.scatterLabel.node.getComponent(UITransform).getBoundingBox().width;
-        const horizonWidth = horizontalLayout.getComponent(UITransform).width + 2 * this.padding;
+        const widthScatterLabel = this.scatterLabel?.node?.active
+            ? this.scatterLabel.node.getComponent(UITransform)?.getBoundingBox().width
+            : 0;
+        const horizonWidth = horizontalLayout.getComponent(UITransform).width;
 
-        const width = Math.max(horizonWidth, widthScatterLabel);
+        const width = Math.max(horizonWidth, widthScatterLabel) + 2 * this.padding;
         const height = verticalLayout.getComponent(UITransform).height;
         ComponentUtils.setNodeTransform(this.bg, {
             width,
@@ -120,15 +123,11 @@ export class CascadingSymbolPreview extends Component {
         const widgets = [bgWidget, verticalWidget];
         widgets.forEach((widget) => {
             const offset = 0;
-            if (this.isLowestRow) {
-                widget.bottom = offset;
-                widget.isAlignBottom = true;
-                widget.isAlignTop = false;
-            } else {
-                widget.top = offset;
-                widget.isAlignTop = true;
-                widget.isAlignBottom = false;
-            }
+            widget.bottom = offset;
+            widget.top = offset;
+            widget.isAlignBottom = this.isLowestRow;
+            widget.isAlignTop = !this.isLowestRow;
+
             widget.updateAlignment();
         });
     }
