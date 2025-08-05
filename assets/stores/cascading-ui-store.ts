@@ -177,4 +177,8 @@ export class CascadingUIStore {
     get disabledOpenInputBet() {
         return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING;
     }
+
+    get isUsedFSBPromotionBonus() {
+        return this.freeSpinsByRound <= 0 && this.isFreeSpinEffectCompleted;
+    }
 }
