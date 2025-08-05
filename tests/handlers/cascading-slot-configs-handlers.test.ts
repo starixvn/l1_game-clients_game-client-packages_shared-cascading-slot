@@ -66,7 +66,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.2, 0.5, 1.0, 2.0],
                 maxWinPerRound: 1000000,
-                odds: { symbol1: 100, symbol2: 200 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 1,
             };
         });
@@ -85,17 +91,11 @@ describe("CascadingSlotConfigsHandlers", () => {
                 coinValues: [0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0],
                 maxWinPerRound: 5000000,
                 odds: {
-                    scatter: 500,
-                    wild: 1000,
-                    symbols: {
-                        high: [100, 200, 300],
-                        medium: [50, 75, 100],
-                        low: [10, 20, 30],
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
                     },
-                    bonusFeatures: {
-                        freeSpins: 200,
-                        multiplier: 150,
-                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 5,
             };
@@ -112,7 +112,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10,
                 coinValues: [],
                 maxWinPerRound: 1000000,
-                odds: {},
+                odds: {
+                    freeSpins: {
+                        initialOdds: [],
+                        additionalOdds: [],
+                    },
+                    symbols: {},
+                },
                 totalMultiplier: 1,
             };
 
@@ -128,7 +134,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 0,
                 coinValues: [0, 0.1, 0.2],
                 maxWinPerRound: 0,
-                odds: { symbol1: 0 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [],
+                        additionalOdds: [],
+                    },
+                    symbols: {},
+                },
                 totalMultiplier: 0,
             };
 
@@ -144,7 +156,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 1000,
                 coinValues: [0.01, 1.0, 10.0, 100.0, 1000.0],
                 maxWinPerRound: 999999999,
-                odds: { jackpot: 1000000 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 100,
             };
 
@@ -160,7 +178,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 12.5,
                 coinValues: [0.01, 0.05, 0.123, 0.456, 0.789],
                 maxWinPerRound: 123456.789,
-                odds: { symbol1: 99.99, symbol2: 150.25 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 3.14159,
             };
 
@@ -278,7 +302,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.5, 1.0],
                 maxWinPerRound: 500000,
-                odds: { symbol1: 100 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 1,
             };
 
@@ -302,7 +332,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 15,
                 coinValues: [0.1, 0.2, 0.5, 1.0, 2.0],
                 maxWinPerRound: 750000,
-                odds: { symbol1: 150, symbol2: 250 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 2,
             };
 
@@ -326,7 +362,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.5],
                 maxWinPerRound: 100000,
-                odds: { test: 50 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 1,
             };
 
@@ -336,7 +378,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 20,
                 coinValues: [0.1, 0.2, 0.5, 1.0, 2.0],
                 maxWinPerRound: 500000,
-                odds: { test: 100 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 2,
             };
 
@@ -372,7 +420,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10 + i,
                 coinValues: [0.1, 0.5],
                 maxWinPerRound: 100000 + i * 10000,
-                odds: { symbol: 100 + i * 10 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 1 + i,
             }));
 
@@ -482,7 +536,13 @@ describe("CascadingSlotConfigsHandlers", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.5],
                 maxWinPerRound: 100000,
-                odds: { test: 100 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 1,
             };
 

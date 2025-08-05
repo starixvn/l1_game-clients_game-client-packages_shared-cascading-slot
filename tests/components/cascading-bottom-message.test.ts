@@ -144,10 +144,20 @@ jest.mock("../../assets/cascading-slot-utils", () => ({
         AUTO_SPIN: "auto_spin",
         FREESPINS: "freespins",
     },
+
+    resourcesCache: {
+        gameFeatures: {
+            turnOnEventMascot: true,
+        },
+        colorJson: {
+            noticeHighlightTextColor: "#FFD700",
+            noticeTextColor: "#FFFFFF",
+        },
+    },
 }));
 
 // Import after mocks are set up
-import { SlotNotification } from "../../assets/cascading-slot-utils";
+import { resourcesCache, SlotNotification } from "../../assets/cascading-slot-utils";
 import { CascadingBottomMessage } from "../../assets/components/bottom-message/cascading-bottom-message";
 
 describe("CascadingBottomMessage", () => {
@@ -185,10 +195,10 @@ describe("CascadingBottomMessage", () => {
 
     describe("onLoad", () => {
         it("should initialize color configuration", () => {
+            cascadingBottomMessage.onLoad();
             // Call the actual onLoad logic
-            cascadingBottomMessage["highlightColor"] = cascadingBottomMessage["colorConfig"].noticeHighlightTextColor;
 
-            expect(cascadingBottomMessage["colorConfig"]).toBe(mockColorInfo.json);
+            expect(cascadingBottomMessage["colorConfig"]).toBe(resourcesCache.colorJson);
             expect(cascadingBottomMessage["highlightColor"]).toBe("#FFD700");
         });
     });

@@ -67,12 +67,26 @@ jest.mock("cc", () => ({
     },
 }));
 
+jest.mock("../../assets/cascading-slot-utils", () => ({
+    resourcesCache: {
+        gameFeatures: {
+            turnOnEventMascot: true,
+        },
+        colorJson: {
+            bottomAreaTextColor: "#FFFFFF",
+            bottomAreaNumberColor: "#FFD700",
+            bottomAreaButtonBorderColor: "#FF0000",
+            bottomAreaWinAmountColor: "#00FF00",
+        },
+    },
+}));
+
+import { resourcesCache } from "../../assets/cascading-slot-utils";
 import { CascadingBottomArea } from "../../assets/components/cascading-bottom-area";
 
 describe("CascadingBottomArea", () => {
     let cascadingBottomArea: CascadingBottomArea;
     let mockTotalWinLabel: any;
-    let mockColorInfo: any;
     let mockNode: any;
     let mockChangeNodeColorComponents: any[];
     let mockLabelComponents: any[];
@@ -95,15 +109,6 @@ describe("CascadingBottomArea", () => {
             string: "0",
             node: {
                 getComponent: jest.fn().mockReturnValue(mockLabelComponent),
-            },
-        };
-
-        mockColorInfo = {
-            json: {
-                bottomAreaTextColor: "#FFFFFF",
-                bottomAreaNumberColor: "#FFD700",
-                bottomAreaButtonBorderColor: "#FF0000",
-                bottomAreaWinAmountColor: "#00FF00",
             },
         };
 
@@ -149,13 +154,6 @@ describe("CascadingBottomArea", () => {
             enumerable: true,
         });
 
-        Object.defineProperty(cascadingBottomArea, "colorInfo", {
-            value: mockColorInfo,
-            writable: true,
-            configurable: true,
-            enumerable: true,
-        });
-
         Object.defineProperty(cascadingBottomArea, "node", {
             value: mockNode,
             writable: true,
@@ -183,7 +181,7 @@ describe("CascadingBottomArea", () => {
         it("should set colorConfig from colorInfo.json", () => {
             cascadingBottomArea.onLoad();
 
-            expect(cascadingBottomArea["colorConfig"]).toBe(mockColorInfo.json);
+            expect(cascadingBottomArea["colorConfig"]).toBe(resourcesCache.colorJson);
         });
 
         it("should call updateColor method", () => {
@@ -200,19 +198,6 @@ describe("CascadingBottomArea", () => {
             cascadingBottomArea.onLoad();
 
             expect(superOnLoadSpy).toHaveBeenCalledTimes(1);
-        });
-
-        it("should handle missing colorInfo gracefully", () => {
-            Object.defineProperty(cascadingBottomArea, "colorInfo", {
-                value: null,
-                writable: true,
-                configurable: true,
-                enumerable: true,
-            });
-
-            expect(() => {
-                cascadingBottomArea.onLoad();
-            }).toThrow("Cannot read properties of null (reading 'json')");
         });
     });
 
@@ -284,11 +269,11 @@ describe("CascadingBottomArea", () => {
 
     describe("updateColor Method", () => {
         beforeEach(() => {
-            cascadingBottomArea["colorConfig"] = mockColorInfo.json;
             // Reset mocks to ensure clean state
             jest.clearAllMocks();
             // Re-setup the node mock
             mockNode.getComponentsInChildren.mockReturnValue(mockChangeNodeColorComponents);
+            cascadingBottomArea.onLoad();
         });
 
         it("should call getComponentsInChildren with ChangeNodeColor", () => {
@@ -319,14 +304,14 @@ describe("CascadingBottomArea", () => {
 
             cascadingBottomArea.updateColor();
 
-            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
-            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaNumberColor);
         });
 
         it("should update colors for components without Label", () => {
             cascadingBottomArea.updateColor();
 
-            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaButtonBorderColor);
+            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaButtonBorderColor);
         });
 
         it("should update totalWinLabel color", () => {
@@ -352,7 +337,7 @@ describe("CascadingBottomArea", () => {
 
             cascadingBottomArea.updateColor();
 
-            expect(mockLocalizedLabelComponent.updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaTextColor);
+            expect(mockLocalizedLabelComponent.updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaTextColor);
         });
 
         it("should handle missing colorConfig gracefully", () => {
@@ -416,12 +401,12 @@ describe("CascadingBottomArea", () => {
 
             cascadingBottomArea.onLoad();
 
-            expect(cascadingBottomArea["colorConfig"]).toBe(mockColorInfo.json);
+            expect(cascadingBottomArea["colorConfig"]).toBe(resourcesCache.colorJson);
             expect(updateColorSpy).toHaveBeenCalledTimes(1);
         });
 
         it("should handle settlement flow correctly", async () => {
-            cascadingBottomArea["colorConfig"] = mockColorInfo.json;
+            cascadingBottomArea["colorConfig"] = resourcesCache.colorJson;
 
             // Test zero win
             await cascadingBottomArea.handleSettlement(0);
@@ -463,9 +448,9 @@ describe("CascadingBottomArea", () => {
 
             cascadingBottomArea.onLoad();
 
-            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
-            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaNumberColor);
-            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(mockColorInfo.json.bottomAreaButtonBorderColor);
+            expect(mockChangeNodeColorComponents[0].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[1].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaNumberColor);
+            expect(mockChangeNodeColorComponents[2].updateColor).toHaveBeenCalledWith(resourcesCache.colorJson.bottomAreaButtonBorderColor);
         });
     });
 

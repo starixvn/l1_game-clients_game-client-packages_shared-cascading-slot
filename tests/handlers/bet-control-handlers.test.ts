@@ -334,7 +334,13 @@ describe("BetControlHandlers", () => {
                 betMultiplier: 20,
                 defaultCoinValue: 0.05,
                 maxWinPerRound: 1000,
-                odds: [],
+                odds: {
+                    freeSpins: {
+                        initialOdds: [],
+                        additionalOdds: [],
+                    },
+                    symbols: {},
+                },
                 totalMultiplier: 1,
             };
 

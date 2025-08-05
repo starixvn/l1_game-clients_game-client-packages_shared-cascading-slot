@@ -1,4 +1,4 @@
-import { Color, JsonAsset, Label, Node, Sprite, SpriteAtlas, SpriteFrame } from "cc";
+import { Color, Label, Node, Sprite, SpriteAtlas, SpriteFrame } from "cc";
 
 // Mock _decorator
 jest.mock("cc", () => {
@@ -136,6 +136,7 @@ jest.mock("lodash-es", () => ({
 
 // Import after mocks are set up
 import { CascadingTopMessage } from "../../assets/components/top-message/cascading-top-message";
+import { GameServiceMessageCascading } from "../../assets/game-messages-cascading";
 
 describe("CascadingTopMessage", () => {
     let cascadingTopMessage: CascadingTopMessage & { schedule: jest.Mock; getComponentsInChildren: jest.Mock };
@@ -143,7 +144,6 @@ describe("CascadingTopMessage", () => {
     let mockMsg3: Label;
     let mockNodeContent: Node;
     let mockMainAtlas: SpriteAtlas;
-    let mockColorInfo: JsonAsset;
     let mockSpriteFrame: SpriteFrame;
     let mockChildNodes: Node[];
 
@@ -175,13 +175,6 @@ describe("CascadingTopMessage", () => {
             getSpriteFrame: jest.fn().mockReturnValue(mockSpriteFrame),
         } as unknown as SpriteAtlas;
 
-        // Create mock color info
-        mockColorInfo = {
-            json: {
-                topMessageTextColor: "#FFFFFF",
-            },
-        } as unknown as JsonAsset;
-
         // Create instance of CascadingTopMessage
         cascadingTopMessage = new CascadingTopMessage() as CascadingTopMessage & {
             schedule: jest.Mock;
@@ -197,11 +190,9 @@ describe("CascadingTopMessage", () => {
         cascadingTopMessage.msg3 = mockMsg3;
         cascadingTopMessage.nodeContent = mockNodeContent;
         cascadingTopMessage.mainAtlas = mockMainAtlas;
-        cascadingTopMessage.colorInfo = mockColorInfo;
 
         // Initialize private properties
-        cascadingTopMessage["colorConfig"] = mockColorInfo.json;
-        cascadingTopMessage["maxWinPerRound"] = "1000000";
+        cascadingTopMessage["maxWinPerRound"] = 1000000;
     });
 
     describe("topMessageVisibility", () => {
@@ -258,12 +249,12 @@ describe("CascadingTopMessage", () => {
 
     describe("updateMaxWin", () => {
         it("should update maxWinPerRound and call renderMsg3 when gameConfigs exists", () => {
-            const gameConfigs = { maxWinPerRound: "5000000" };
+            const gameConfigs = { maxWinPerRound: 5000000 } as GameServiceMessageCascading.CascadingSlotConfigsMsg;
             cascadingTopMessage.renderMsg3 = jest.fn();
 
             cascadingTopMessage.updateMaxWin(gameConfigs);
 
-            expect(cascadingTopMessage["maxWinPerRound"]).toBe("5000000");
+            expect(cascadingTopMessage["maxWinPerRound"]).toBe(5000000);
             expect(cascadingTopMessage.renderMsg3).toHaveBeenCalled();
         });
 
@@ -291,7 +282,7 @@ describe("CascadingTopMessage", () => {
     describe("renderMsg3", () => {
         it("should update msg3 with translated text and maxWin value", () => {
             const { Translator } = require("@sg/game-client-base");
-            cascadingTopMessage["maxWinPerRound"] = "2000000";
+            cascadingTopMessage["maxWinPerRound"] = 2000000;
 
             cascadingTopMessage.renderMsg3();
 
@@ -301,7 +292,7 @@ describe("CascadingTopMessage", () => {
 
         it("should handle different maxWin values", () => {
             const { Translator } = require("@sg/game-client-base");
-            cascadingTopMessage["maxWinPerRound"] = "10000000";
+            cascadingTopMessage["maxWinPerRound"] = 10000000;
 
             cascadingTopMessage.renderMsg3();
 
@@ -311,7 +302,7 @@ describe("CascadingTopMessage", () => {
         it("should handle case insensitive replacement", () => {
             const { Translator } = require("@sg/game-client-base");
             Translator.gameTranslate.mockReturnValue("MAX WIN: %{MAXWIN}");
-            cascadingTopMessage["maxWinPerRound"] = "5000000";
+            cascadingTopMessage["maxWinPerRound"] = 5000000;
 
             cascadingTopMessage.renderMsg3();
 

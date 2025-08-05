@@ -36,7 +36,16 @@ describe("CascadingSlotConfigsStore", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.2, 0.5, 1.0, 2.0],
                 maxWinPerRound: 1000000,
-                odds: { symbol1: 100, symbol2: 200 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: {
+                        symbol1: [{ from: 1, to: 10, odds: 100 }],
+                        symbol2: [{ from: 11, to: 20, odds: 200 }],
+                    },
+                },
                 totalMultiplier: 1,
             };
         });
@@ -56,7 +65,7 @@ describe("CascadingSlotConfigsStore", () => {
             expect(configsStore.gameConfigs.betMultiplier).toBe(10);
             expect(configsStore.gameConfigs.coinValues).toEqual([0.1, 0.2, 0.5, 1.0, 2.0]);
             expect(configsStore.gameConfigs.maxWinPerRound).toBe(1000000);
-            expect(configsStore.gameConfigs.odds).toEqual({ symbol1: 100, symbol2: 200 });
+            expect(configsStore.gameConfigs.odds).toEqual(mockGameConfigs.odds);
             expect(configsStore.gameConfigs.totalMultiplier).toBe(1);
         });
 
@@ -105,33 +114,6 @@ describe("CascadingSlotConfigsStore", () => {
             expect(configsStore.gameConfigs.betMultiplier).toBe(0);
             expect(configsStore.gameConfigs.maxWinPerRound).toBe(0);
             expect(configsStore.gameConfigs.totalMultiplier).toBe(0);
-        });
-
-        it("should handle complex odds object", () => {
-            const complexOdds = {
-                scatter: 500,
-                wild: 1000,
-                symbols: {
-                    high: [100, 200, 300],
-                    medium: [50, 75, 100],
-                    low: [10, 20, 30],
-                },
-                bonusFeatures: {
-                    freeSpins: 200,
-                    multiplier: 150,
-                },
-            };
-
-            const configWithComplexOdds = {
-                ...mockGameConfigs,
-                odds: complexOdds,
-            };
-
-            configsStore.gameConfigs = configWithComplexOdds;
-
-            expect(configsStore.gameConfigs.odds).toStrictEqual(complexOdds);
-            expect(configsStore.gameConfigs.odds.scatter).toBe(500);
-            expect(configsStore.gameConfigs.odds.symbols.high).toEqual([100, 200, 300]);
         });
     });
 
@@ -215,7 +197,16 @@ describe("CascadingSlotConfigsStore", () => {
                 betMultiplier: 10,
                 coinValues: [0.1, 0.5, 1.0],
                 maxWinPerRound: 500000,
-                odds: { test: 100 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: {
+                        symbol1: [{ from: 1, to: 10, odds: 100 }],
+                        symbol2: [{ from: 11, to: 20, odds: 200 }],
+                    },
+                },
                 totalMultiplier: 1,
             };
 
@@ -239,7 +230,13 @@ describe("CascadingSlotConfigsStore", () => {
                 betMultiplier: 5,
                 coinValues: [0.2, 1.0],
                 maxWinPerRound: 250000,
-                odds: { symbol: 50 },
+                odds: {
+                    freeSpins: {
+                        initialOdds: [{ count: 1, odds: 100 }],
+                        additionalOdds: [{ count: 2, odds: 200 }],
+                    },
+                    symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
+                },
                 totalMultiplier: 2,
             };
 

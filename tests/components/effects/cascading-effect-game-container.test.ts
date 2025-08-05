@@ -1,4 +1,5 @@
 import { instantiate, JsonAsset, Prefab } from "cc";
+import { resourcesCache } from "../../../assets/cascading-slot-utils";
 import { CascadingEffectGameContainer } from "../../../assets/components/effects/cascading-effect-game-container";
 
 // Mock external dependencies
@@ -96,6 +97,12 @@ jest.mock("../../../assets/cascading-slot-utils", () => ({
         };
         return durations[key] || 1.0;
     }),
+
+    resourcesCache: {
+        gameFeatures: {
+            turnOnEventMascot: true,
+        },
+    },
 }));
 
 describe("CascadingEffectGameContainer", () => {
@@ -130,7 +137,6 @@ describe("CascadingEffectGameContainer", () => {
         cascadingEffectGameContainer.pfbEffectFreespin = mockPfbEffectFreespin;
         cascadingEffectGameContainer.pfbEffectBigWin = mockPfbEffectBigWin;
         cascadingEffectGameContainer.pfbEffectTransition = mockPfbEffectTransition;
-        cascadingEffectGameContainer.gameInfo = mockGameInfo;
         cascadingEffectGameContainer.node = mockNode;
     });
 
@@ -138,7 +144,7 @@ describe("CascadingEffectGameContainer", () => {
         it("should initialize game config and destroy all children", () => {
             cascadingEffectGameContainer.onLoad();
 
-            expect(cascadingEffectGameContainer["gameConfig"]).toBe(mockGameInfo.json);
+            expect(cascadingEffectGameContainer["gameConfig"]).toBe(resourcesCache.gameFeatures);
             expect(mockNode.destroyAllChildren).toHaveBeenCalled();
         });
     });

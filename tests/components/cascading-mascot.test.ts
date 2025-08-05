@@ -1,4 +1,4 @@
-import { JsonAsset, sp } from "cc";
+import { sp } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 
 // Mock Observer
@@ -34,13 +34,30 @@ jest.mock("../../assets/stores/cascading-ui-store", () => ({
     CascadingUIStore: jest.fn(),
 }));
 
+jest.mock("../../assets/cascading-slot-utils", () => ({
+    resourcesCache: {
+        gameFeatures: {
+            turnOnEventMascot: true,
+            freespinMascotAnimationName: "freespin_anim",
+            bigWinMascotAnimationName: "bigwin_anim",
+            multiplierMascotAnimationName: "multiplier_anim",
+        },
+        colorJson: {
+            bottomAreaTextColor: "#FFFFFF",
+            bottomAreaNumberColor: "#FFD700",
+            bottomAreaButtonBorderColor: "#FF0000",
+            bottomAreaWinAmountColor: "#00FF00",
+        },
+    },
+}));
+
 // Import after mocks are set up
+import { resourcesCache } from "../../assets/cascading-slot-utils";
 import { CascadingMascot } from "../../assets/components/cascading-mascot";
 
 describe("CascadingMascot", () => {
     let cascadingMascot: CascadingMascot;
     let mockSpineMascot: sp.Skeleton;
-    let mockGameInfo: JsonAsset;
 
     beforeEach(() => {
         setupMocks();
@@ -54,16 +71,6 @@ describe("CascadingMascot", () => {
         mockSpineMascot = {
             setMix: jest.fn(),
         } as unknown as sp.Skeleton;
-
-        // Create mock game info
-        mockGameInfo = {
-            json: {
-                turnOnEventMascot: true,
-                freespinMascotAnimationName: "freespin_anim",
-                bigWinMascotAnimationName: "bigwin_anim",
-                multiplierMascotAnimationName: "multiplier_anim",
-            },
-        } as unknown as JsonAsset;
 
         // Mock AnimationUtils.playSpine to return a resolved promise
         (AnimationUtils.playSpine as jest.Mock).mockResolvedValue(undefined);
@@ -131,12 +138,7 @@ describe("CascadingMascot", () => {
             it("should play freespin animation when isShowFreeSpinEffect is true and mascot is enabled", async () => {
                 // Arrange
                 const isShowFreeSpinEffect = true;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
@@ -144,7 +146,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.freespinMascotAnimationName,
+                    resourcesCache.gameFeatures.freespinMascotAnimationName,
                     false
                 );
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
@@ -155,9 +157,9 @@ describe("CascadingMascot", () => {
                 const isShowFreeSpinEffect = false;
                 cascadingMascot["gameConfig"] = {
                     turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
+                    freespinMascotAnimationName: resourcesCache.gameFeatures.freespinMascotAnimationName,
+                    bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
+                    multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
 
                 // Act
@@ -166,7 +168,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.freespinMascotAnimationName,
+                    resourcesCache.gameFeatures.freespinMascotAnimationName,
                     false
                 );
             });
@@ -174,12 +176,8 @@ describe("CascadingMascot", () => {
             it("should not play animation when mascot is disabled", async () => {
                 // Arrange
                 const isShowFreeSpinEffect = true;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: false,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                resourcesCache.gameFeatures.turnOnEventMascot = false;
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
@@ -187,7 +185,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.freespinMascotAnimationName,
+                    resourcesCache.gameFeatures.freespinMascotAnimationName,
                     false
                 );
             });
@@ -199,28 +197,27 @@ describe("CascadingMascot", () => {
                 const haveBigWin = true;
                 cascadingMascot["gameConfig"] = {
                     turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
+                    freespinMascotAnimationName: resourcesCache.gameFeatures.freespinMascotAnimationName,
+                    bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
+                    multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, mockGameInfo.json.bigWinMascotAnimationName, false);
+                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
+                    mockSpineMascot,
+                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
+                    false
+                );
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
             });
 
             it("should not play animation when haveBigWin is false", async () => {
                 // Arrange
                 const haveBigWin = false;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
@@ -228,7 +225,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.bigWinMascotAnimationName,
+                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
                     false
                 );
             });
@@ -238,9 +235,9 @@ describe("CascadingMascot", () => {
                 const haveBigWin = true;
                 cascadingMascot["gameConfig"] = {
                     turnOnEventMascot: false,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
+                    freespinMascotAnimationName: resourcesCache.gameFeatures.freespinMascotAnimationName,
+                    bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
+                    multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
 
                 // Act
@@ -249,7 +246,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.bigWinMascotAnimationName,
+                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
                     false
                 );
             });
@@ -259,12 +256,8 @@ describe("CascadingMascot", () => {
             it("should play multiplier animation when triggerWinMultiplier is true and mascot is enabled", () => {
                 // Arrange
                 const triggerWinMultiplier = true;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                resourcesCache.gameFeatures.turnOnEventMascot = true;
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
@@ -272,7 +265,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.multiplierMascotAnimationName,
+                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
                     false
                 );
                 expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
@@ -281,12 +274,7 @@ describe("CascadingMascot", () => {
             it("should not play animation when triggerWinMultiplier is false", () => {
                 // Arrange
                 const triggerWinMultiplier = false;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: true,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
@@ -294,7 +282,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.multiplierMascotAnimationName,
+                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
                     false
                 );
             });
@@ -302,12 +290,8 @@ describe("CascadingMascot", () => {
             it("should not play animation when mascot is disabled", () => {
                 // Arrange
                 const triggerWinMultiplier = true;
-                cascadingMascot["gameConfig"] = {
-                    turnOnEventMascot: false,
-                    freespinMascotAnimationName: mockGameInfo.json.freespinMascotAnimationName,
-                    bigWinMascotAnimationName: mockGameInfo.json.bigWinMascotAnimationName,
-                    multiplierMascotAnimationName: mockGameInfo.json.multiplierMascotAnimationName,
-                };
+                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                resourcesCache.gameFeatures.turnOnEventMascot = false;
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
@@ -315,7 +299,7 @@ describe("CascadingMascot", () => {
                 // Assert
                 expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
                     mockSpineMascot,
-                    mockGameInfo.json.multiplierMascotAnimationName,
+                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
                     false
                 );
             });
@@ -342,7 +326,7 @@ describe("CascadingMascot", () => {
             cascadingMascot.onLoad();
 
             // Assert
-            expect(cascadingMascot["gameConfig"]).toBe(mockGameInfo.json);
+            expect(cascadingMascot["gameConfig"]).toBe(resourcesCache.gameFeatures);
         });
     });
 
@@ -353,7 +337,7 @@ describe("CascadingMascot", () => {
             (AnimationUtils.playSpine as jest.Mock).mockRejectedValue(error);
 
             // Ensure gameConfig is properly set up
-            cascadingMascot["gameConfig"] = mockGameInfo.json;
+            cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
 
             // Act & Assert
             await expect(cascadingMascot.playAnimFreespin()).rejects.toThrow("Animation failed");

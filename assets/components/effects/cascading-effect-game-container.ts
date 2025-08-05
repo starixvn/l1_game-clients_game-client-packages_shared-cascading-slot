@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import Observer from "observer";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -22,7 +22,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     pfbEffectTransition: Prefab = null;
 
     private isTurboMode = false;
-    private gameConfig: any;
+    private gameConfig: GameFeatureJson;
 
     private readonly Sound = {
         FREE_SPIN_SOUND: "free_spin",

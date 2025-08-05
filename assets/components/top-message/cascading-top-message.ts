@@ -3,7 +3,8 @@ import { _decorator, Color, Label, macro, Node, Sprite, SpriteAtlas } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
-import { resourcesCache } from "../../cascading-slot-utils";
+import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
+import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -24,8 +25,8 @@ export class CascadingTopMessage extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    private colorConfig: any;
-    private maxWinPerRound: any;
+    private colorConfig: ColorJson;
+    private maxWinPerRound: number;
 
     onLoad() {
         this.colorConfig = resourcesCache.colorJson;
@@ -52,7 +53,7 @@ export class CascadingTopMessage extends ObserverComponent {
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
-    updateMaxWin(gameConfigs: any) {
+    updateMaxWin(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
         if (!gameConfigs) {
             return;
         }
