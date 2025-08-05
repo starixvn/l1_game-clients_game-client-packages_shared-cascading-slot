@@ -582,7 +582,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 79.29595947265625,
+      "width": 79.29597473144531,
       "height": 55.44
     },
     "_anchorPoint": {
@@ -857,7 +857,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 119.2799072265625,
+      "width": 119.27992248535156,
       "height": 35.28
     },
     "_anchorPoint": {
@@ -1051,12 +1051,12 @@
       "a": 255
     },
     "_string": "COIN VALUE",
-    "_horizontalAlign": 0,
+    "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
     "_fontSize": 21,
     "_fontFamily": "Arial",
-    "_lineHeight": 44,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -1133,7 +1133,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 133.3079071044922,
-      "height": 55.44
+      "height": 35.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1158,7 +1158,7 @@
     "__prefab": {
       "__id__": 59
     },
-    "key": "cascadingslot.coin_value",
+    "key": "cascadingslot.coin_value_shorten",
     "format": 1,
     "prefix": "",
     "suffix": "",
@@ -1325,7 +1325,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "CASCADINGSLOT.TOTAL_BET_SHORTEN",
+    "_string": "TOTAL BET",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 21,
@@ -1407,7 +1407,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 439.59259033203125,
+      "width": 121.12789916992188,
       "height": 35.28
     },
     "_anchorPoint": {
