@@ -53,7 +53,8 @@ export class CascadingTicketDetailItem extends Component {
         let numberOfIcon = 0;
         let tumbleNode: Node;
         const freeSpins = data.settlementResult.freeSpins;
-        const isFreeSpin = freeSpins?.odds > 0 || freeSpins?.win > 0;
+        const winFreeSpinOnlyCash = freeSpins?.odds === 0 && freeSpins?.win > 0;
+        const isFreeSpin = freeSpins?.odds > 0 || winFreeSpinOnlyCash;
         const freeSpin = data.freeSpin;
         if (index === data.settlementResult.tumbles.length - 1 && isFreeSpin) {
             this.setDataHaveFreeSpin({

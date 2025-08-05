@@ -38,11 +38,8 @@ export class CascadingTumbleItem extends Component {
         }
         const freeSpinTxt = data.extraFreeSpin ? "extra_free_spin" : "free_spin";
         this.numberIcon.string = data.count.toString();
-        if (data.odds > 0) {
-            this.winningValue.string = data.odds.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
-        } else {
-            this.winningValue.node.active = false;
-        }
+        this.winningValue.string = data.odds.toString() + ` ${gc.Translator.gameTranslate(freeSpinTxt)}`;
+        this.winningValue.node.active = data.odds > 0;
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${SpecialSymbol.SCATTER_SYMBOL}`);
     }
 }
