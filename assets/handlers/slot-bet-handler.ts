@@ -7,6 +7,7 @@ import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { injectable, inject } = inversify;
 
@@ -18,6 +19,9 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
+
+    @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
+
     handle() {
         const betData = this.slotBetData();
         return this.handleBetData(betData);
@@ -29,7 +33,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             coinValue: this.betControlStore.coinValue,
             betLevel: this.betControlStore.betLevel,
             totalBet: this.betControlStore.totalBet,
-            freeSpin: this.uiStore.isFreeSpins,
+            freeSpin: this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress(),
             clientSentTime: new Date(),
         };
     }
@@ -61,7 +65,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             return false;
         }
 
-        if (this.uiStore.isFreeSpins) {
+        if (this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress()) {
             return true;
         }
 

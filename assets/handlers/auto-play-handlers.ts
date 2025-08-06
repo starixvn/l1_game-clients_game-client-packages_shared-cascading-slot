@@ -10,6 +10,7 @@ import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { injectable, inject } = inversify;
 
@@ -25,6 +26,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
+    @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -168,7 +170,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
-        if (this.cascadingUIStore.freeSpinsTotal > 0) {
+        if (this.cascadingUIStore.freeSpinsTotal > 0 || this.fsbPromotionUIStore.isFSBPromotionInProgress()) {
             this.placeBet();
         } else {
             this.betControlStore.resumeLastBet = false;

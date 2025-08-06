@@ -179,6 +179,6 @@ export class CascadingUIStore {
     }
 
     get isUsedFSBPromotionBonus() {
-        return this.freeSpinsByRound <= 0 && this.isFreeSpinEffectCompleted;
+        return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
     }
 }
