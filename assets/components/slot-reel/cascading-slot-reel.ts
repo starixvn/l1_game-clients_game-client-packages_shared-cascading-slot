@@ -258,7 +258,7 @@ export class CascadingSlotReel extends Component {
 
     async peekEffectScatterItems() {
         const scatterSymbols = this.items.filter((item) => item.isScatterSymbol);
-        scatterSymbols.map((item) => {
+        scatterSymbols.forEach((item) => {
             if (item.node.parent === this.effectContainer) {
                 return;
             }

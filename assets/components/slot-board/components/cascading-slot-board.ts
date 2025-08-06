@@ -259,6 +259,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     private playSoundOnBottomItem(index: number) {
+        if (index % 2 === 0) {
+            return null;
+        }
+
         const soundArray = [
             this.Sound.REEL_STOP_1_SOUND,
             this.Sound.REEL_STOP_2_SOUND,
@@ -268,10 +272,9 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.Sound.REEL_STOP_5_SOUND,
         ];
         const sound = soundArray[index];
-        const callback = () => {
-            index % 2 === 1 && this.playSound(sound);
+        return () => {
+            this.playSound(sound);
         };
-        return callback;
     }
 
     private playSpinAudio(isTurbo: boolean) {

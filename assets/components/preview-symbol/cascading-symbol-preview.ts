@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, Component, instantiate, Label, Layout, log, Node, sp, UIRenderer, UITransform, Widget } from "cc";
+import { _decorator, Component, instantiate, Label, Layout, log, Node, sp, UITransform, Widget } from "cc";
 import { ComponentUtils } from "db://shared-components/shared/utils";
 import { SpecialSymbol } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
@@ -72,7 +72,7 @@ export class CascadingSymbolPreview extends Component {
 
     renderMultiplierSymbol(info: CascadingSymbolPreviewType) {
         const { colorList } = info;
-        this.multiplierLabel.node.getComponent(UIRenderer).color = new Color().fromHEX(colorList[1]);
+        ComponentUtils.setNodeColor(this.multiplierLabel.node, colorList[1]);
     }
 
     showInfoNode(status: boolean) {
@@ -88,7 +88,8 @@ export class CascadingSymbolPreview extends Component {
         this.content.addChild(nodeTmp);
         const skeleton = nodeTmp.getComponent(sp.Skeleton);
         skeleton.setAnimation(0, "highlight", false);
-        this.border.getComponent(UIRenderer).color = new Color().fromHEX(info.borderColor);
+
+        ComponentUtils.setNodeColor(this.border, info.borderColor);
         this.renderInfo(info);
         this.scheduleOnce(this.updateBackground, 0); //trick, delay to wait labels update width
     }
@@ -154,22 +155,8 @@ export class CascadingSymbolPreview extends Component {
             const values = [];
             const show = index < infoOdds.length && infoOdds[index].odds > 0;
             const isLast = index === infoOdds.length - 1;
-            let quantity = "";
-
-            if (isScatter) {
-                if (this.hasSymbolOdds) {
-                    quantity = `${isLast ? "≥" : ""}${infoOdds[index].from}`;
-                } else {
-                    quantity = `${isLast ? "≥" : ""}${freespin[index].count}`;
-                }
-            } else {
-                quantity = `${infoOdds[index].from}-${infoOdds[index].to}`;
-            }
-
-            const value =
-                isScatter && !this.hasSymbolOdds
-                    ? `${freespin[index].odds}`
-                    : `${gc.FormatUtils.numberWithCommas(infoOdds[index].odds * coinValue * betLevel, 3)}`;
+            const quantity = this.createQuantityString({ isScatter, isLast, infoOdds, index, freespin });
+            const value = this.createValueString({ isScatter, freespin, index, infoOdds, coinValue, betLevel });
             values.push(...[quantity, value]);
 
             if (!show) {
@@ -179,7 +166,7 @@ export class CascadingSymbolPreview extends Component {
             node.children.forEach((child, childIndex) => {
                 const label = child.getComponent(Label);
                 label.string = values[childIndex];
-                child.getComponent(UIRenderer).color = new Color().fromHEX(colorList[childIndex]);
+                ComponentUtils.setNodeColor(child, colorList[childIndex]);
                 label.updateRenderData();
             });
 
@@ -188,11 +175,40 @@ export class CascadingSymbolPreview extends Component {
         this.updateLabelWidth(firstLabelWidth);
     }
 
+    private createValueString(data: {
+        isScatter: boolean;
+        freespin: any;
+        index: number;
+        infoOdds: any;
+        coinValue: number;
+        betLevel: number;
+    }) {
+        const { isScatter, freespin, index, infoOdds, coinValue, betLevel } = data;
+        return isScatter && !this.hasSymbolOdds
+            ? `${freespin[index].odds}`
+            : `${gc.FormatUtils.numberWithCommas(infoOdds[index].odds * coinValue * betLevel, 3)}`;
+    }
+
+    private createQuantityString(data: { isScatter: boolean; isLast: boolean; infoOdds: any; index: number; freespin: any }) {
+        const { isScatter, isLast, infoOdds, index, freespin } = data;
+        let quantity = "";
+
+        if (isScatter) {
+            if (this.hasSymbolOdds) {
+                quantity = `${isLast ? "≥" : ""}${infoOdds[index].from}`;
+            } else {
+                quantity = `${isLast ? "≥" : ""}${freespin[index].count}`;
+            }
+        } else {
+            quantity = `${infoOdds[index].from}-${infoOdds[index].to}`;
+        }
+        return quantity;
+    }
+
     updateFreespinImages(info) {
         this.textImages.active = true;
         this.textImages.children.forEach((node) => {
-            const lbl = node.getComponent(Label);
-            lbl.color = new Color().fromHEX(info.colorList[1]);
+            ComponentUtils.setNodeColor(node, info.colorList[1]);
         });
     }
 
