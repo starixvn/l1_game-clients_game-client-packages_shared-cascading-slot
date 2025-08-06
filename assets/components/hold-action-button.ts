@@ -8,6 +8,7 @@ import { AutoPlayHandler } from "../handlers/auto-play-handlers";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { HoldActionStore } from "../stores/hold-action-store";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -89,9 +90,13 @@ export class HoldActionButton extends ObserverComponent {
     @render(HoldActionStore, (store) => store.triggerAction, { fireImmediately: false })
     handlePressingKey(triggerAction: any) {
         if (triggerAction) {
+            this.triggerFSBManual();
             this.placeBet();
         }
     }
+
+    @handle(FSBPromotionUIHandler, (handler) => handler.triggerFSBManual())
+    triggerFSBManual() { }
 
     @handle(AutoPlayHandler, (handler) => handler.placeBet())
     placeBet() { }
