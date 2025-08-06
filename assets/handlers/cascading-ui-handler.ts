@@ -11,6 +11,8 @@ import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlemen
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { BetControlHandlers } from "./bet-control-handlers";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
+
 const { injectable, inject } = inversify;
 
 @injectable()
@@ -21,6 +23,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
+    @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     @inject(gc.UserSettings.UserSettingHandlers) protected readonly userSettingHandlers: gc.UserSettings.UserSettingHandlers;
     @inject(gc.GameUserSettings.GameUserSettingHandler)
     protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
@@ -128,6 +131,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreespinsJoinGame(freespins: any) {
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
+            if (freespins.promotionId) {
+                this.fsbPromotionUIStore.resumedFSBPromotion = true;
+            }
             if (this.betControlStore.lastSetting) {
                 const { betLevel, coinValue } = this.betControlStore.lastSetting;
                 this.betControlHandlers.init(coinValue, betLevel);

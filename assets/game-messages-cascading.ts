@@ -62,6 +62,7 @@ export namespace GameServiceMessageCascading {
         betLevel: number;
         coinValue: number;
         betMultiplier: number;
+        promotionId: string;
         static eventName = "freeSpins";
     }
 
