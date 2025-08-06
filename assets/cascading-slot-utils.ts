@@ -1,4 +1,4 @@
-import { Node, tween, UIOpacity } from "cc";
+import { EventTarget, Node, tween, UIOpacity } from "cc";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
 
@@ -61,6 +61,7 @@ export interface GameFeatureJson {
     bigWinMascotAnimationName: string;
     freespinMascotAnimationName: string;
     enablePeekEffect: boolean;
+    effectIntroMultiplier: boolean;
 }
 
 export interface ColorJson {
@@ -88,6 +89,12 @@ export const resourcesCache: ResourceCaches = {
     slotSymbols: {},
     newMultiplierRange: false,
 };
+
+export const globalEmitter = new EventTarget();
+
+export enum SlotClientEvent {
+    EFFECT_INTRO_MULTIPLIER = "effectIntroMultiplier",
+}
 
 export interface SymbolBoard {
     symbols: number[][];

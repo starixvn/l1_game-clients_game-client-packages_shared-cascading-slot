@@ -15,6 +15,7 @@ export class CascadingSlotReelItem extends Component {
     content: Node = null;
 
     public index = -1;
+    private _effectSpine: sp.Skeleton = null;
 
     setItem(index: number) {
         this.replaceItem(index);
@@ -23,6 +24,14 @@ export class CascadingSlotReelItem extends Component {
 
     get isScatterSymbol(): boolean {
         return this.index === SpecialSymbol.SCATTER_SYMBOL;
+    }
+
+    get isMultiplierSymbol(): boolean {
+        return this.index >= SpecialSymbol.MULTIPLIER_SYMBOL;
+    }
+
+    get multiplierLevel() {
+        return this.index - SpecialSymbol.MULTIPLIER_SYMBOL;
     }
 
     protected replaceItem(index: number) {
@@ -48,11 +57,27 @@ export class CascadingSlotReelItem extends Component {
     }
 
     async highlightScatterItem() {
-        const effectSpine = this.content.getComponentInChildren(sp.Skeleton);
+        if (!this.effectSpine) {
+            return;
+        }
         const anim = "highlight";
-        effectSpine.skeletonData = resourcesCache.slotSymbols[SpecialSymbol.SCATTER_SYMBOL];
-        effectSpine.setAnimation(0, anim, true);
-        const original = effectSpine.findAnimation(anim).duration;
+        this.effectSpine.skeletonData = resourcesCache.slotSymbols[SpecialSymbol.SCATTER_SYMBOL];
+        this.effectSpine.setAnimation(0, anim, true);
+        const original = this.effectSpine.findAnimation(anim).duration;
         await FunctionUtils.delay(original * UNIT_SECOND_SPIN);
+    }
+
+    playIntroAnimation() {
+        if (!this.effectSpine) {
+            return;
+        }
+        this.effectSpine.setAnimation(0, "intro", false);
+    }
+
+    get effectSpine(): sp.Skeleton {
+        if (!this._effectSpine) {
+            this._effectSpine = this.content.getComponentInChildren(sp.Skeleton);
+        }
+        return this._effectSpine;
     }
 }

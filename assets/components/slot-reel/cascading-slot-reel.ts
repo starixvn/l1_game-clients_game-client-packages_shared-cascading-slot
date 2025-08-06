@@ -3,6 +3,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
+import { globalEmitter, resourcesCache, SlotClientEvent } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
@@ -212,6 +213,11 @@ export class CascadingSlotReel extends Component {
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
 
+        const delta = v3(v3(item.node.position.x, posY, 0)).subtract(item.node.position);
+        const destWorldPosition = v3(item.node.worldPosition).add(delta);
+
+        const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol;
+
         tween(item.node)
             .to(duration - backDuration, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "circOut" })
             .call(() => {
@@ -219,13 +225,25 @@ export class CascadingSlotReel extends Component {
                     onBottomItemEnded && onBottomItemEnded();
                 }
             })
-            .to(
-                backDuration,
-                { position: v3(xNode, posY, 0) },
-                {
-                    easing: "sineOut",
-                }
+            .parallel(
+                tween().call(() => {
+                    effectIntroMultiplier &&
+                        globalEmitter.emit(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, {
+                            worldPosition: destWorldPosition,
+                            level: item.multiplierLevel,
+                        });
+                }),
+                tween().to(
+                    backDuration,
+                    { position: v3(xNode, posY, 0) },
+                    {
+                        easing: "sineOut",
+                    }
+                )
             )
+            .call(() => {
+                effectIntroMultiplier && item.playIntroAnimation();
+            })
             .start();
     }
 

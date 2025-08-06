@@ -12,7 +12,9 @@ import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
 import {
     BoardSize,
     convertBoardValue,
+    globalEmitter,
     resourcesCache,
+    SlotClientEvent,
     SlotNotification,
     SpecialSymbol,
     SymbolBoard,
@@ -49,6 +51,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     @property(Node)
     peekEffectContainer: Node = null;
 
+    effectMultiplierPrefab: Prefab = null;
     peekEffectTumblePrefab: Prefab = null;
     peekEffectNode: Node = null;
 
@@ -546,11 +549,20 @@ export class CascadingSlotBoard extends ObserverComponent {
     onLoad() {
         super.onLoad();
 
+        if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
+            this.loadEffectMultiplierPrefab();
+            globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
+        }
+
         if (resourcesCache.gameFeatures?.enablePeekEffect) {
             this.loadPeekEffectPrefab().then(() => {
                 this.initPeekEffectPool();
             });
         }
+    }
+
+    async loadEffectMultiplierPrefab() {
+        this.effectMultiplierPrefab = await bundleManager.loadResourcesAsset("prefabs/effect-multiplier", Prefab);
     }
 
     async loadPeekEffectPrefab() {
@@ -714,5 +726,21 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.showPeekEffect(true, i, row);
             }
         }
+    }
+
+    playEffectIntroMultiplier(data: { worldPosition: Vec3; level: number }) {
+        if (!this.effectMultiplierPrefab) {
+            return;
+        }
+        const { worldPosition, level } = data;
+        const node = instantiate(this.effectMultiplierPrefab);
+        this.effectContainer.addChild(node);
+        node.worldPosition = worldPosition;
+        node.active = true;
+
+        const spine = node.getComponentInChildren(sp.Skeleton);
+        AnimationUtils.playSpine(spine, `level${level}`).then(() => {
+            node.destroy();
+        });
     }
 }
