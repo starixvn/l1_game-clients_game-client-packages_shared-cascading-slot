@@ -166,7 +166,7 @@ export class CascadingSymbolPreview extends Component {
                 quantity = `${infoOdds[index].from}-${infoOdds[index].to}`;
             }
 
-            let value =
+            const value =
                 isScatter && !this.hasSymbolOdds
                     ? `${freespin[index].odds}`
                     : `${gc.FormatUtils.numberWithCommas(infoOdds[index].odds * coinValue * betLevel, 3)}`;

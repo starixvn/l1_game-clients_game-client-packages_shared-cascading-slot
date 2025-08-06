@@ -220,14 +220,45 @@ export class CascadingSlotBoard extends ObserverComponent {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
-        if (isTurbo) {
-            this.playSound(this.Sound.SPINNING_TURBO);
-        } else {
-            this.playSound(this.Sound.SPINNING_NORMAL);
-        }
+        this.playSpinAudio(isTurbo);
 
         await this.fallOut(isTurbo, delayEachReelFallOut);
 
+        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
+        for (let i = 0; i < this.reels.length; i++) {
+            if (!isTurbo && i > 0) {
+                await AnimationUtils.delayTime(delayEachReelFallOut);
+            }
+            const reelSymbols = symbols[i];
+            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+            if (i < awaitReelIndex) {
+                this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+            } else if (i === awaitReelIndex) {
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+            } else {
+                this.showScattersOnPreviousReels(i);
+                const begin = i === awaitReelIndex + 1;
+                begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+                this.showPeekEffect(false, i);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                this.reels[i].peekEffectHighlightAllItems();
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+            }
+        }
+        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+        this.hidePeekEffects();
+    }
+
+    private showScattersOnPreviousReels(i: number) {
+        this.reels.forEach((reel, index) => {
+            if (index < i) {
+                reel.moveItemsBackToReelNode();
+                reel.peekEffectScatterItems();
+            }
+        });
+    }
+
+    private playSoundOnBottomItem(index: number) {
         const soundArray = [
             this.Sound.REEL_STOP_1_SOUND,
             this.Sound.REEL_STOP_2_SOUND,
@@ -236,43 +267,19 @@ export class CascadingSlotBoard extends ObserverComponent {
             this.Sound.REEL_STOP_5_SOUND,
             this.Sound.REEL_STOP_5_SOUND,
         ];
-        const playSoundOnBottomItem = (index: number) => () => {
-            if (index % 2 === 1) {
-                this.playSound(soundArray[index]);
-            }
+        const sound = soundArray[index];
+        const callback = () => {
+            index % 2 === 1 && this.playSound(sound);
         };
-        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
-        const hasPeekEffect = peekEffect !== null;
-        for (let i = 0; i < this.reels.length; i++) {
-            if (!isTurbo && i > 0) {
-                await AnimationUtils.delayTime(delayEachReelFallOut);
-            }
-            const reelSymbols = symbols[i];
-            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
-            if (i < awaitReelIndex) {
-                this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
-            } else if (i === awaitReelIndex) {
-                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
-            } else {
-                if (hasPeekEffect) {
-                    this.reels.forEach((reel, index) => {
-                        if (index < i) {
-                            reel.moveItemsBackToReelNode();
-                            reel.peekEffectScatterItems();
-                        }
-                    });
+        return callback;
+    }
 
-                    const begin = i === awaitReelIndex + 1;
-                    begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
-                }
-                this.showPeekEffect(false, i);
-                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-                this.reels[i].peekEffectHighlightAllItems();
-                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, playSoundOnBottomItem(i));
-            }
+    private playSpinAudio(isTurbo: boolean) {
+        if (isTurbo) {
+            this.playSound(this.Sound.SPINNING_TURBO);
+        } else {
+            this.playSound(this.Sound.SPINNING_NORMAL);
         }
-        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
-        this.hidePeekEffects();
     }
 
     getRandomWinItem(data: number[][], winIcon: number): Node {
