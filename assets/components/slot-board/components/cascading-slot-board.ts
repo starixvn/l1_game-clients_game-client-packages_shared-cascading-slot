@@ -549,16 +549,22 @@ export class CascadingSlotBoard extends ObserverComponent {
     onLoad() {
         super.onLoad();
 
-        if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
-            this.loadEffectMultiplierPrefab();
-            globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
-        }
+        if (this.effectContainer) {
+            if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
+                this.loadEffectMultiplierPrefab();
+                globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
+            }
 
-        if (resourcesCache.gameFeatures?.enablePeekEffect) {
-            this.loadPeekEffectPrefab().then(() => {
-                this.initPeekEffectPool();
-            });
+            if (resourcesCache.gameFeatures?.enablePeekEffect) {
+                this.loadPeekEffectPrefab().then(() => {
+                    this.initPeekEffectPool();
+                });
+            }
         }
+    }
+
+    onDestroy(): void {
+        globalEmitter.targetOff(this);
     }
 
     async loadEffectMultiplierPrefab() {
