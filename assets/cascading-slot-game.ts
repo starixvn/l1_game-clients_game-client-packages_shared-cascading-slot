@@ -180,7 +180,7 @@ export class CascadingSlotGame extends GameComponentBase {
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
         await this.board.handleTumbles(tumbles, this.isTurboMode);
-        const winMultiplier = multiplier > 0 && win > 0;
+        const winMultiplier = multiplier > 0 && tumbles.length > 1;
         winMultiplier && this.handleTriggerWinMultiplier();
         await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
         if (win > 0) {
