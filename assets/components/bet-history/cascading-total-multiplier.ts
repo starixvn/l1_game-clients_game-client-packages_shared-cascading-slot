@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Component, instantiate, Node, Prefab } from "cc";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
+import { FunctionUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingTotalMultiplierItem } from "./cascading-total-multiplier-item";
 const { ccclass, property } = _decorator;
@@ -16,11 +17,13 @@ export class CascadingTotalMultiplier extends Component {
 
     setData(data: any) {
         const rounds = data.totalMultipliers.rounds;
-        rounds.forEach((round, index) => {
-            const itemNode = instantiate(this.totalMultiplierItemPrefab);
-            const itemControl = itemNode.getComponent(CascadingTotalMultiplierItem);
-            itemControl.setData(round, index + 1);
-            this.content.addChild(itemNode);
+        FunctionUtils.delay(0.5).then(() => {
+            rounds.forEach((round, index) => {
+                const itemNode = instantiate(this.totalMultiplierItemPrefab);
+                const itemControl = itemNode.getComponent(CascadingTotalMultiplierItem);
+                itemControl.setData(round, index + 1);
+                this.content.addChild(itemNode);
+            });
         });
     }
 
