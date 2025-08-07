@@ -58,6 +58,10 @@ export class CascadingSlotReel extends Component {
         return start + index * (this.spacing + this.itemSize);
     }
 
+    get reelHeight() {
+        return this.itemSize * this.itemDisplayCount + this.spacing * (this.itemDisplayCount - 1);
+    }
+
     addItem() {
         const node = this.createReelItem();
         const item = node.getComponent(CascadingSlotReelItem);
@@ -212,11 +216,11 @@ export class CascadingSlotReel extends Component {
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
-
+        const fromOutSide = item.node.position.y >= this.reelHeight;
         const delta = v3(v3(item.node.position.x, posY, 0)).subtract(item.node.position);
         const destWorldPosition = v3(item.node.worldPosition).add(delta);
 
-        const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol;
+        const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
         tween(item.node)
             .to(duration - backDuration, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "circOut" })
