@@ -33,7 +33,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             coinValue: this.betControlStore.coinValue,
             betLevel: this.betControlStore.betLevel,
             totalBet: this.betControlStore.totalBet,
-            freeSpin: this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress(),
+            freeSpin: this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress,
             clientSentTime: new Date(),
         };
     }
@@ -65,7 +65,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
             return false;
         }
 
-        if (this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress()) {
+        if (this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress) {
             return true;
         }
 

@@ -131,9 +131,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreespinsJoinGame(freespins: any) {
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
-            if (freespins.promotionId) {
-                this.fsbPromotionUIStore.resumedFSBPromotion = true;
-            }
             if (this.betControlStore.lastSetting) {
                 const { betLevel, coinValue } = this.betControlStore.lastSetting;
                 this.betControlHandlers.init(coinValue, betLevel);
@@ -149,6 +146,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
+        if (freespins.promotionId) {
+            this.fsbPromotionUIStore.resumedFSBPromotion = true;
+        }
     }
 
     protected clearFreeSpins() {

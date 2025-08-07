@@ -170,7 +170,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
-        if (this.cascadingUIStore.freeSpinsTotal > 0 || this.fsbPromotionUIStore.isFSBPromotionInProgress()) {
+        if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
         } else {
             this.betControlStore.resumeLastBet = false;
@@ -187,7 +187,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                         this.handleAutoPlaceBet();
                     }, 1000);
                 }
-                this.fsbPromotionUIStore.addPendingUIEvent(FreeSpinsPromotionEvents.SHOW_PROMOTION_INFO_AFTER_FREE_SPIN_IN_GAME);
+                if (!this.fsbPromotionUIStore.isFSBPromotionInProgress) {
+                    this.fsbPromotionUIStore.addPendingUIEvent(FreeSpinsPromotionEvents.SHOW_PROMOTION_INFO_AFTER_FREE_SPIN_IN_GAME);
+                }
             }
         }
     }
