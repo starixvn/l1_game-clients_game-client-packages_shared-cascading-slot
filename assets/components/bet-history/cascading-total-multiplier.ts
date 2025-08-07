@@ -17,7 +17,7 @@ export class CascadingTotalMultiplier extends Component {
 
     setData(data: any) {
         const rounds = data.totalMultipliers.rounds;
-        FunctionUtils.delay(0.5).then(() => {
+        FunctionUtils.delay(200).then(() => {
             rounds.forEach((round, index) => {
                 const itemNode = instantiate(this.totalMultiplierItemPrefab);
                 const itemControl = itemNode.getComponent(CascadingTotalMultiplierItem);
