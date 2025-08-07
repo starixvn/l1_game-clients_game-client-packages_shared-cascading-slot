@@ -1,6 +1,5 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp } from "cc";
-import { FunctionUtils } from "db://shared-components/shared/utils";
-import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
@@ -63,8 +62,8 @@ export class CascadingSlotReelItem extends Component {
         const anim = "highlight";
         this.effectSpine.skeletonData = resourcesCache.slotSymbols[SpecialSymbol.SCATTER_SYMBOL];
         this.effectSpine.setAnimation(0, anim, true);
-        const original = this.effectSpine.findAnimation(anim).duration;
-        await FunctionUtils.delay(original * UNIT_SECOND_SPIN);
+        const originalDuration = this.effectSpine.findAnimation(anim).duration;
+        await AnimationUtils.delayTime(originalDuration);
     }
 
     playIntroAnimation() {
@@ -79,5 +78,12 @@ export class CascadingSlotReelItem extends Component {
             this._effectSpine = this.content.getComponentInChildren(sp.Skeleton);
         }
         return this._effectSpine;
+    }
+
+    async playEffect(animation: string) {
+        if (!this.effectSpine) {
+            return;
+        }
+        await AnimationUtils.playSpine(this.effectSpine, animation);
     }
 }

@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, sp, tween, v3 } from "cc";
+import { _decorator, Component, instantiate, Node, Prefab, tween, v3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
@@ -111,37 +111,28 @@ export class CascadingSlotReel extends Component {
     async highlightItem(index: number) {
         const item = this.items[index];
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await this.effectSpineSymbol(item, "highlight");
+        await item.playEffect("highlight");
     }
 
     async shakeItems() {
         await Promise.all(this.items.map((item) => this.shakeItem(item)));
     }
 
-    async shakeItem(item) {
+    async shakeItem(item: CascadingSlotReelItem) {
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await this.effectSpineSymbol(item, "shake");
+        await item.playEffect("shake");
         ComponentUtils.moveToOtherNode(item.node, this.node);
     }
 
     async removeItem(index: number) {
         const item = this.items[index];
-        await this.effectSpineSymbol(item, "explode");
+        await item.playEffect("explode");
         item.node.destroy();
     }
 
     async removeItemsByIndex(list: number[]) {
         await Promise.all(list.map((index) => this.removeItem(index)));
         this.items = this.items.filter((item, index) => !list.includes(index));
-    }
-
-    async effectSpineSymbol(item: CascadingSlotReelItem, animation: string) {
-        const effectSpine = item.getComponentInChildren(sp.Skeleton);
-        effectSpine.setAnimation(0, animation, false);
-        const duration = effectSpine.findAnimation(animation)?.duration || 0;
-        if (duration > 0) {
-            await AnimationUtils.delayTime(duration);
-        }
     }
 
     async fallOut(isTurbo: boolean) {
