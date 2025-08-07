@@ -1,7 +1,7 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
 import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
 import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
-import { resourcesCache } from "../../cascading-slot-utils";
+import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -15,6 +15,7 @@ export class MultiplierItem extends Component {
     private _multiplierValue = 1;
 
     gameId: number;
+    multiplierRange = 0;
     private spine: sp.Skeleton;
 
     get multiplier() {
@@ -43,6 +44,7 @@ export class MultiplierItem extends Component {
     setValue(value: number) {
         this._multiplierValue = value;
         this.value.string = `x${value}`;
+        this.updateMultiplierRange(value);
         this.updateColor(value);
     }
 
@@ -52,7 +54,13 @@ export class MultiplierItem extends Component {
     }
 
     protected updateColor(value: number) {
-        const level = [10, 11, 12, 13];
+        const index = SpecialSymbol.MULTIPLIER_SYMBOL + this.multiplierRange;
+        const anim = "idle";
+        this.spine.skeletonData = resourcesCache.slotSymbols[index];
+        this.spine.setAnimation(0, anim, true);
+    }
+
+    private updateMultiplierRange(value: number) {
         let i = 0;
         const range = resourcesCache.newMultiplierRange ? [5, 15, 50] : [5, 10, 15];
         for (; i < range.length; i++) {
@@ -60,8 +68,6 @@ export class MultiplierItem extends Component {
                 break;
             }
         }
-        const anim = "idle";
-        this.spine.skeletonData = resourcesCache.slotSymbols[level[i]];
-        this.spine.setAnimation(0, anim, true);
+        this.multiplierRange = i;
     }
 }
