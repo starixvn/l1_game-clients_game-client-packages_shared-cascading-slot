@@ -126,8 +126,15 @@ export class CascadingSlotReel extends Component {
 
     async removeItem(index: number) {
         const item = this.items[index];
-        await item.playEffect("explode");
-        item.node.destroy();
+        if (resourcesCache.gameFeatures?.fixedExplodeDuration) {
+            item.playEffect("explode").then(() => {
+                item.node.destroy();
+            });
+            await AnimationUtils.delayTime(resourcesCache.gameFeatures.fixedExplodeDuration);
+        } else {
+            await item.playEffect("explode");
+            item.node.destroy();
+        }
     }
 
     async removeItemsByIndex(list: number[]) {

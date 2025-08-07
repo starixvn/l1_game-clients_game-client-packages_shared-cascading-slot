@@ -62,6 +62,7 @@ export interface GameFeatureJson {
     freespinMascotAnimationName: string;
     enablePeekEffect: boolean;
     effectIntroMultiplier: boolean;
+    fixedExplodeDuration: number;
 }
 
 export interface ColorJson {
