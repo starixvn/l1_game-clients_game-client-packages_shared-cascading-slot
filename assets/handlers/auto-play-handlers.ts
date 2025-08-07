@@ -10,7 +10,7 @@ import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
-import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/index";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { injectable, inject } = inversify;
 
@@ -186,9 +186,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     setTimeout(() => {
                         this.handleAutoPlaceBet();
                     }, 1000);
-                }
-                if (!this.fsbPromotionUIStore.isFSBPromotionInProgress) {
-                    this.fsbPromotionUIStore.addPendingUIEvent(FreeSpinsPromotionEvents.SHOW_PROMOTION_INFO_AFTER_FREE_SPIN_IN_GAME);
                 }
             }
         }
