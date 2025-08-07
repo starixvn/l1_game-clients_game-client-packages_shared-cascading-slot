@@ -728,19 +728,19 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    playEffectIntroMultiplier(data: { worldPosition: Vec3; level: number }) {
+    playEffectIntroMultiplier(data: { worldPosition: Vec3; level: number; node: Node; position: Vec3 }) {
         if (!this.effectMultiplierPrefab) {
             return;
         }
-        const { worldPosition, level } = data;
-        const node = instantiate(this.effectMultiplierPrefab);
-        this.effectContainer.addChild(node);
-        node.worldPosition = worldPosition;
-        node.active = true;
+        const { level, node, position } = data;
+        const effectNode = instantiate(this.effectMultiplierPrefab);
+        this.effectContainer.addChild(effectNode);
+        effectNode.position = ComponentUtils.convertPosition(this.effectContainer, node.parent, position);
+        effectNode.active = true;
 
-        const spine = node.getComponentInChildren(sp.Skeleton);
+        const spine = effectNode.getComponentInChildren(sp.Skeleton);
         AnimationUtils.playSpine(spine, `level${level}`).then(() => {
-            node.destroy();
+            effectNode.destroy();
         });
     }
 }

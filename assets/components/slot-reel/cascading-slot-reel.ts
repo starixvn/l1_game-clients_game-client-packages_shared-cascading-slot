@@ -217,8 +217,7 @@ export class CascadingSlotReel extends Component {
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
-        const delta = v3(v3(item.node.position.x, posY, 0)).subtract(item.node.position);
-        const destWorldPosition = v3(item.node.worldPosition).add(delta);
+        const destPosition = v3(item.node.position.x, posY, 0);
 
         const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
@@ -233,7 +232,8 @@ export class CascadingSlotReel extends Component {
                 tween().call(() => {
                     effectIntroMultiplier &&
                         globalEmitter.emit(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, {
-                            worldPosition: destWorldPosition,
+                            postition: destPosition,
+                            node: item.node,
                             level: item.multiplierLevel,
                         });
                 }),
