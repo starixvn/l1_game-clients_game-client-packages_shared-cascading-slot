@@ -56,8 +56,8 @@ export class CascadingSlotBoard extends ObserverComponent {
     peekEffectNode: Node = null;
 
     protected peekEffectTumblePool: NodePool = new NodePool();
-
     protected readonly reels: CascadingSlotReel[] = [];
+    public renderFromStore = true;
     public currentTotalMultiplier = 0;
     public colorInfo: any;
     private readonly Sound = {
@@ -354,7 +354,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.isShowHighlightScatters)
-    async highlightScatterItems(highlightScatters: boolean) {
+    private async highlightScatterItems(highlightScatters: boolean) {
+        if (!this.renderFromStore) {
+            return;
+        }
         if (!highlightScatters) {
             return;
         }
@@ -419,7 +422,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.totalMultiplier)
-    getTotalMultiplier(totalMultiplier: number) {
+    private getTotalMultiplier(totalMultiplier: number) {
+        if (!this.renderFromStore) {
+            return;
+        }
         this.currentTotalMultiplier = totalMultiplier;
     }
 
@@ -499,7 +505,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
-    getOdds(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+    private getOdds(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+        if (!this.renderFromStore) {
+            return;
+        }
         if (!gameConfigs) {
             return;
         }
@@ -511,12 +520,18 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @render(CascadingUIStore, (store) => store.minPeekScatterCount)
-    getMinPeekScatterCount(minPeekScatterCount: number) {
+    private getMinPeekScatterCount(minPeekScatterCount: number) {
+        if (!this.renderFromStore) {
+            return;
+        }
         this.minPeekScatterCount = minPeekScatterCount;
     }
 
     @render(BetControlStore, (store) => store.betLevel)
-    setBetLevel(betLevel: number) {
+    private setBetLevel(betLevel: number) {
+        if (!this.renderFromStore) {
+            return;
+        }
         if (!this.previewPopup) {
             return;
         }
@@ -524,7 +539,10 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     @render(BetControlStore, (store) => store.coinValue)
-    setCoinValue(coinValue: number) {
+    private setCoinValue(coinValue: number) {
+        if (!this.renderFromStore) {
+            return;
+        }
         if (!this.previewPopup) {
             return;
         }

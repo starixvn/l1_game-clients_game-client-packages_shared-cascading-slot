@@ -46,7 +46,10 @@ export class CascadingTicketDetailItem extends Component {
     private readonly HEIGHT_ROW_MOBILE = 125;
 
     onLoad() {
-        this.resultBoard && this.resultBoard.createReels();
+        if (this.resultBoard) {
+            this.resultBoard.renderFromStore = false;
+            this.resultBoard.createReels();
+        }
     }
 
     setData(tumble: any, index: number, data: any, currWinTumble: number) {
