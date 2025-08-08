@@ -42,7 +42,3 @@ export interface CascadingSlotConfigDuration {
     transition?: number;
     eventMascot?: number;
 }
-
-export enum ConfigDurationEnum {
-    highlightWinItemsDuration = "highlightWinItemsDuration",
-}

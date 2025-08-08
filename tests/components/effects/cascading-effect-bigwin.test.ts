@@ -61,9 +61,7 @@ jest.mock("db://shared-components/shared/utils", () => ({
         floatToNumber: jest.fn(),
         fadeOut: jest.fn(),
         fadeIn: jest.fn(),
-    },
-    FunctionUtils: {
-        delay: jest.fn().mockResolvedValue(undefined),
+        delayTime: jest.fn().mockResolvedValue(undefined),
     },
 }));
 jest.mock("observer", () => ({
@@ -273,7 +271,6 @@ describe("CascadingEffectBigwin", () => {
 
     describe("changeLevelAnimation", () => {
         it("should perform level change animation", async () => {
-            const { FunctionUtils } = require("db://shared-components/shared/utils");
             cascadingEffectBigwin.playSound = jest.fn();
 
             await cascadingEffectBigwin.changeLevelAnimation(mockMainSpine, "hide", mockMegaWinPrefab);

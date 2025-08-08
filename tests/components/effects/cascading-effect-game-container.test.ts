@@ -1,4 +1,5 @@
 import { instantiate, JsonAsset, Prefab } from "cc";
+import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import { resourcesCache } from "../../../assets/cascading-slot-utils";
 import { CascadingEffectGameContainer } from "../../../assets/components/effects/cascading-effect-game-container";
 
@@ -53,9 +54,9 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
         onLoad() {}
     },
 }));
-jest.mock("db://shared-components/shared/utils/function-utils", () => ({
-    FunctionUtils: {
-        delay: jest.fn().mockResolvedValue(undefined),
+jest.mock("db://shared-components/shared/utils/utils", () => ({
+    AnimationUtils: {
+        delayTime: jest.fn().mockResolvedValue(undefined),
     },
 }));
 jest.mock("observer", () => ({
@@ -166,9 +167,6 @@ describe("CascadingEffectGameContainer", () => {
         });
 
         it("should play free spin effect when visible", async () => {
-            const { FunctionUtils } = require("db://shared-components/shared/utils/function-utils");
-            const { getCustomDuration } = require("../../../assets/cascading-slot-utils");
-
             await cascadingEffectGameContainer.freeSpinEffectVisibility(true);
 
             expect(cascadingEffectGameContainer.delayMascotEvent).toHaveBeenCalled();
@@ -176,17 +174,16 @@ describe("CascadingEffectGameContainer", () => {
             expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith("free_spin");
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectFreespin);
             expect(mockNode.addChild).toHaveBeenCalled();
-            expect(FunctionUtils.delay).toHaveBeenCalledWith(2000);
+            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(2);
             expect(cascadingEffectGameContainer.setFreeSpinEffectCompleted).toHaveBeenCalledWith(true);
         });
 
         it("should use turbo mode duration when turbo mode is enabled", async () => {
             cascadingEffectGameContainer["isTurboMode"] = true;
-            const { FunctionUtils } = require("db://shared-components/shared/utils/function-utils");
 
             await cascadingEffectGameContainer.freeSpinEffectVisibility(true);
 
-            expect(FunctionUtils.delay).toHaveBeenCalledWith(1000);
+            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(1);
         });
     });
 
@@ -290,24 +287,20 @@ describe("CascadingEffectGameContainer", () => {
         });
 
         it("should play transition effect when prefab exists", async () => {
-            const { FunctionUtils } = require("db://shared-components/shared/utils/function-utils");
-            const { getCustomDuration } = require("../../../assets/cascading-slot-utils");
-
             await cascadingEffectGameContainer["playEffectTransition"]();
 
             expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith("transition");
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectTransition);
             expect(mockNode.addChild).toHaveBeenCalled();
-            expect(FunctionUtils.delay).toHaveBeenCalledWith(1000);
+            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(1);
         });
 
         it("should use turbo mode duration when turbo mode is enabled", async () => {
             cascadingEffectGameContainer["isTurboMode"] = true;
-            const { FunctionUtils } = require("db://shared-components/shared/utils/function-utils");
 
             await cascadingEffectGameContainer["playEffectTransition"]();
 
-            expect(FunctionUtils.delay).toHaveBeenCalledWith(500);
+            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(0.5);
         });
 
         it("should return early when transition prefab is null", async () => {
