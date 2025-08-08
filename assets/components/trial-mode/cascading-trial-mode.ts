@@ -4,6 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { FSBPromotionStore } from "db://shared-common-slot/index";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -80,5 +81,10 @@ export class CascadingTrialMode extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))
     handleChangeUserBalance(changed: boolean) {
         return changed;
+    }
+
+    @render(FSBPromotionStore, (store) => store.isClaimed)
+    disableTrialModeOnPromo(isClaimed: boolean) {
+        this.nodeDisabled.active = isClaimed;
     }
 }

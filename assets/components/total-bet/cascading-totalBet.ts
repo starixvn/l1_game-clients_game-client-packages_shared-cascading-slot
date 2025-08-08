@@ -10,6 +10,7 @@ import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingBetControl } from "./cascading-bet-control";
+import { FSBPromotionStore } from "db://shared-common-slot/index";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -88,5 +89,10 @@ export class CascadingTotalBet extends ObserverComponent {
                 comp.updateColor(this.colorConfig.bottomAreaButtonBorderColor);
             }
         });
+    }
+
+    @render(FSBPromotionStore, (store) => store.isClaimed)
+    disableBetOnPromo(isClaimed: boolean) {
+        this.disabled.active = isClaimed;
     }
 }
