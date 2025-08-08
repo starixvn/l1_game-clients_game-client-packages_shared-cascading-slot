@@ -31,7 +31,9 @@ export class CascadingSlotReelItem extends Component {
     }
 
     protected replaceItem(index: number) {
-        this.content.removeAllChildren();
+        this.content.destroyAllChildren();
+        this._effectSpine = null;
+
         if (index < 0) {
             console.error("replaceItem wrong index: " + index);
             return;
@@ -47,9 +49,11 @@ export class CascadingSlotReelItem extends Component {
     updateMultiplierItem(multiplier: number[]) {
         if (this.index >= SpecialSymbol.MULTIPLIER_SYMBOL && multiplier.length > 0) {
             const m = multiplier.shift();
-            const multiplierItem = this.content.children[0].getComponent(MultiplierItem);
-            multiplierItem?.setValue(m);
-            this.multiplierRange = multiplierItem.multiplierRange;
+            const multiplierItem = this.content.getComponentInChildren(MultiplierItem);
+            if (multiplierItem) {
+                multiplierItem.setValue(m);
+                this.multiplierRange = multiplierItem.multiplierRange;
+            }
         }
     }
 
