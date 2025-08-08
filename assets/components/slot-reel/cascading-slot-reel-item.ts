@@ -41,7 +41,7 @@ export class CascadingSlotReelItem extends Component {
         this.content.addChild(node);
         const reelSymbol = node.getComponent(CascadingSlotReelSymbol);
 
-        reelSymbol.setAminamtion(resourcesCache.slotSymbols[index]);
+        reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
     }
 
     updateMultiplierItem(multiplier: number[]) {

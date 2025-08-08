@@ -9,7 +9,7 @@ export class CascadingSlotReelSymbol extends Component {
     @property
     premultipliedAlpha = false;
 
-    setAminamtion(spine: any) {
+    setAnimation(spine: any) {
         const anim = "idle";
         this.effectSpine.skeletonData = spine;
         this.effectSpine.premultipliedAlpha = this.premultipliedAlpha;

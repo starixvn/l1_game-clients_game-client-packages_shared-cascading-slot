@@ -118,7 +118,8 @@ export class CascadingTumbleList extends ObserverComponent {
                 .to(0.4, { position: v3(0, this.itemHeight / 2, 0) }, { easing: "sineOut" })
                 .call(() => resolve())
                 .start();
-            tween(node.getComponent(UIOpacity))
+            const uiOpacity = node.getComponent(UIOpacity) ?? node.addComponent(UIOpacity);
+            tween(uiOpacity)
                 .to(0.4, { opacity: 0 }, { easing: "sineOut" })
                 .call(() => resolve())
                 .start();
