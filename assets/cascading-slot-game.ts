@@ -3,7 +3,7 @@ import { _decorator, Game, game, JsonAsset, Label, Node } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
-import { FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
@@ -11,7 +11,7 @@ import { GameComponentBase } from "db://shared-components/game/scripts/component
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
-import { CascadingSlotConfig, UNIT_SECOND_SPIN } from "./cascading-slot-base-configs";
+import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { ColorJson, convertData, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
@@ -223,7 +223,7 @@ export class CascadingSlotGame extends GameComponentBase {
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
         if (isFreeSpinEffectCompleted) {
             const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
-            await FunctionUtils.delay(delayForNextSpin * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(delayForNextSpin);
 
             // Enable autoplay when free spin effect is completed
             this.enableAutoPlayOnFreeSpinCompleted();

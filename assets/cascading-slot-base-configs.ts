@@ -46,5 +46,3 @@ export interface CascadingSlotConfigDuration {
 export enum ConfigDurationEnum {
     highlightWinItemsDuration = "highlightWinItemsDuration",
 }
-
-export const UNIT_SECOND_SPIN = 1000;

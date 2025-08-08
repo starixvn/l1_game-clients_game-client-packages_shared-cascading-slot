@@ -1,9 +1,8 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
@@ -98,7 +97,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         skeleton.setAnimation(0, animation, false);
         const duration = skeleton.findAnimation(animation)?.duration || 0;
         if (duration > 0) {
-            await FunctionUtils.delay(0.1 * UNIT_SECOND_SPIN);
+            await AnimationUtils.delayTime(0.1);
             this.showHideBigWinNode(false);
         }
         const node = instantiate(levelPrefab);

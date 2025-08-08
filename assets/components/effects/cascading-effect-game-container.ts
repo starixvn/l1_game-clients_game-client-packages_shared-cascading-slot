@@ -1,9 +1,8 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
+import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
-import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
 import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -50,7 +49,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
         const duration = getCustomDuration("freeSpin", this.isTurboMode);
-        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+        await AnimationUtils.delayTime(duration);
         freespin.destroy();
         this.setFreeSpinEffectCompleted(true);
     }
@@ -103,7 +102,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         this.playSound(this.Sound.TRANSITION);
         this.node.addChild(transition);
         const duration = getCustomDuration("transition", this.isTurboMode);
-        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+        await AnimationUtils.delayTime(duration);
         transition.destroy();
     }
 
@@ -112,6 +111,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             return;
         }
         const duration = getCustomDuration("eventMascot", this.isTurboMode);
-        await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+        await AnimationUtils.delayTime(duration);
     }
 }

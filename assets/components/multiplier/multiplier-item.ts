@@ -1,6 +1,5 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
-import { AnimationUtils, FunctionUtils } from "db://shared-components/shared/utils";
-import { UNIT_SECOND_SPIN } from "../../cascading-slot-base-configs";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
@@ -33,7 +32,7 @@ export class MultiplierItem extends Component {
             const duration = this.spine.findAnimation(anim)?.duration || 0;
             AnimationUtils.updateSpineDuration(this.spine, anim, duration);
             if (duration > 0) {
-                await FunctionUtils.delay(duration * UNIT_SECOND_SPIN);
+                await AnimationUtils.delayTime(duration);
             }
             this.hideMultiplier();
         } catch (e) {
