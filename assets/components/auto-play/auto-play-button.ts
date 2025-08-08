@@ -7,7 +7,6 @@ import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
-import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;
@@ -49,10 +48,5 @@ export default class AutoPlayButton extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
     handleSymbolPreviewVisiblity(isVisible: boolean) {
         return isVisible;
-    }
-
-    @render(FSBPromotionUIStore, (store) => store.isButtonDisabled)
-    disableAutoPlayOnPromotion(isButtonDisabled: boolean) {
-        this.nodeDisabled.active = isButtonDisabled;
     }
 }

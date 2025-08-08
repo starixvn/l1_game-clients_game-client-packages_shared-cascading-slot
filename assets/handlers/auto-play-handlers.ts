@@ -177,7 +177,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.cascadingUIStore.bottomMessageState = this.autoPlayStore.isAutoplay
                 ? SlotNotification.AUTO_SPIN
                 : SlotNotification.SETTLED;
-            this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);
+            if (!this.fsbPromotionUIStore.isFSBPromotionInProgress) {
+                this.cascadingUIHandler.changeCascadingState(CascadingSlotState.SETTLED);
+            }
             if (this.autoPlayStore.isAutoplay) {
                 this.updateAutoPlayRounds(this.autoPlayStore.roundsAutoplay - 1);
                 this.handleAutoPlaceBet();

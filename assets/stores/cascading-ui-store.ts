@@ -8,6 +8,7 @@ import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { injectable, inject } = inversify;
 
@@ -64,6 +65,9 @@ export class CascadingUIStore {
     triggerCancelAutoPlay = null;
 
     triggerWinMultiplier = null;
+
+    fsbPromotionInProgress = false;
+
 
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
@@ -157,12 +161,14 @@ export class CascadingUIStore {
         return (
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.cascadingState === CascadingSlotState.NOT_READY_BET ||
-            this.holdActionStore.triggerAction
+            this.holdActionStore.triggerAction 
         );
     }
 
     get disabledChangeTrialMode() {
-        return this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode);
+        return (
+            this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode) || this.fsbPromotionInProgress
+        );
     }
 
     get disabledAutoPlay() {
@@ -170,12 +176,16 @@ export class CascadingUIStore {
             return false;
         }
         return (
-            this.holdActionStore.isHolding || this.isFreeSpins || this.isTrialMode || this.cascadingState === CascadingSlotState.SPINNING
+            this.holdActionStore.isHolding ||
+            this.isFreeSpins ||
+            this.isTrialMode ||
+            this.cascadingState === CascadingSlotState.SPINNING ||
+            this.fsbPromotionInProgress
         );
     }
 
     get disabledOpenInputBet() {
-        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING;
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionInProgress;
     }
 
     get isUsedFSBPromotionBonus() {
