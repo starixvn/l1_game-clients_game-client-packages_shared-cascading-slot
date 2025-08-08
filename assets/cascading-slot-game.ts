@@ -22,6 +22,7 @@ import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/index";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -190,6 +191,7 @@ export class CascadingSlotGame extends GameComponentBase {
             this.handleChangeUserBalance(true);
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
             this.handleTotalWin({ win: win, isActualWin: true });
+            this.updateTotalWinPromo({ win, totalFreeSpins });
         }
 
         const needShowTotalMultiplier = totalMultiplier > 0;
@@ -360,4 +362,9 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
     handleTriggerWinMultiplier() {}
+
+    @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
+    updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {
+        return payload;
+    }
 }
