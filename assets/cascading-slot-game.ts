@@ -191,9 +191,8 @@ export class CascadingSlotGame extends GameComponentBase {
             this.handleChangeUserBalance(true);
             await this.tumbleWinView.setTotalWinValue(actualBetwin);
             this.handleTotalWin({ win: win, isActualWin: true });
-            this.updateTotalWinPromo({ win, totalFreeSpins });
         }
-
+        this.updateTotalWinPromo({ win, totalFreeSpins });
         const needShowTotalMultiplier = totalMultiplier > 0;
         if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
             await this.totalMultiplierView.showView(true);
