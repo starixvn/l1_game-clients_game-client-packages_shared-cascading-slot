@@ -140,6 +140,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
+        this.handleTrialModeWithPromo(isTrialMode);
         if (!isTrialMode) {
             this.inGame();
         }
@@ -147,6 +148,11 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
     inGame() {}
+
+    @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
+    handleTrialModeWithPromo(isTrialMode: boolean) {
+        return isTrialMode;
+    }
 
     loadSlotSymbols() {
         const cache = resourcesCache.slotSymbols || {};
@@ -235,8 +241,12 @@ export class CascadingSlotGame extends GameComponentBase {
             // by automatically spinning
             this.handleEndGameApiError();
             this.checkSpinNextRound();
+            this.tryShowPromotionEndedPopup();
         }
     }
+
+    @handle(FSBPromotionUIHandler, (handler) => handler.tryShowEndedPopup())
+    tryShowPromotionEndedPopup() {}
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
     handleEndGameApiError() {}

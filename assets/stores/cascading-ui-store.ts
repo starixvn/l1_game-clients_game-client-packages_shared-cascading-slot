@@ -8,7 +8,6 @@ import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
-import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 
 const { injectable, inject } = inversify;
 
