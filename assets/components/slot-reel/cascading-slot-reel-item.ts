@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, sp } from "cc";
+import { _decorator, Component, instantiate, Node, Prefab, sp, warn } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
@@ -31,7 +31,7 @@ export class CascadingSlotReelItem extends Component {
     }
 
     protected replaceItem(index: number) {
-        this.content.destroyAllChildren();
+        this.content.children.forEach((child) => child.destroy());
         this._effectSpine = null;
 
         if (index < 0) {
@@ -46,10 +46,22 @@ export class CascadingSlotReelItem extends Component {
         reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
     }
 
+    getMultiplierItem() {
+        const validChildren = this.content.children.filter((child) => child.isValid);
+        const items = validChildren.map((child) => child.getComponent(MultiplierItem)).filter((item) => item !== null);
+        if (items.length > 0) {
+            if (items.length > 1) {
+                warn("Wrong here, should not have more than 1 multiplier item !!!!!");
+            }
+            return items[0];
+        }
+        return null;
+    }
+
     updateMultiplierItem(multiplier: number[]) {
         if (this.index >= SpecialSymbol.MULTIPLIER_SYMBOL && multiplier.length > 0) {
             const m = multiplier.shift();
-            const multiplierItem = this.content.getComponentInChildren(MultiplierItem);
+            const multiplierItem = this.getMultiplierItem();
             if (multiplierItem) {
                 multiplierItem.setValue(m);
                 this.multiplierRange = multiplierItem.multiplierRange;

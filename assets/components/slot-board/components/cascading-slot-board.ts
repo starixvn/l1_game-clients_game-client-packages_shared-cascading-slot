@@ -379,7 +379,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     public getMultiplierItems() {
         const items = this.reels.flatMap((reel) => [...reel.getItems()].reverse());
         return items.flatMap((item) => {
-            const comp = item.content.getComponentInChildren(MultiplierItem);
+            const comp = item.getMultiplierItem();
             return comp ? [comp] : [];
         });
     }
