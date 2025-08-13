@@ -7,6 +7,7 @@ import { AutoPlayStore } from "../../assets/stores/auto-play-store";
 import { BetControlStore } from "../../assets/stores/bet-control-store";
 import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
 import { HoldActionStore } from "../../assets/stores/hold-action-store";
+import mobx from "mobx";
 
 // Mock the dependencies
 jest.mock("../../assets/stores/auto-play-store");
@@ -15,6 +16,9 @@ jest.mock("../../assets/stores/cascading-ui-store");
 jest.mock("../../assets/stores/hold-action-store");
 jest.mock("../../assets/handlers/cascading-ui-handler");
 jest.mock("../../assets/handlers/slot-bet-handler");
+
+// Provide a harmless implementation for makeAutoObservable in tests
+(mobx.makeAutoObservable as jest.Mock) = jest.fn(() => undefined);
 
 // Mock the gc module
 const mockBetStore = {
@@ -142,6 +146,7 @@ describe("AutoPlayHandler", () => {
         (handler as any).noticeStore = mockNoticeStore;
         (handler as any).errorStore = mockErrorStore;
         (handler as any).roundStore = mockRoundStore;
+        (handler as any).fsbPromotionUIStore = { isFSBPromotionInProgress: false } as any;
     });
 
     afterEach(() => {

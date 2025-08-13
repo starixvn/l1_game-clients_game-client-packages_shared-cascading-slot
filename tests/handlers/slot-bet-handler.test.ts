@@ -52,6 +52,7 @@ const mockUIStore = {
 
 const mockHoldActionStore = {};
 const mockAutoPlayStore = {};
+const mockFSBPromotionUIStore = { isFSBPromotionInProgress: false } as any;
 
 const mockUIHandler = {
     changeCascadingState: jest.fn(),
@@ -105,6 +106,7 @@ describe("SlotBetHandler", () => {
         mockUIStore.userBalance = 1000;
 
         mockBetStore.isProcessingBet = false;
+        mockFSBPromotionUIStore.isFSBPromotionInProgress = false;
 
         // Set mock stores directly on the prototype
         (SlotBetHandler.prototype as any).betControlStore = mockBetControlStore;
@@ -113,6 +115,7 @@ describe("SlotBetHandler", () => {
         (SlotBetHandler.prototype as any).uiStore = mockUIStore;
         (SlotBetHandler.prototype as any).holdActionStore = mockHoldActionStore;
         (SlotBetHandler.prototype as any).autoPlayStore = mockAutoPlayStore;
+        (SlotBetHandler.prototype as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
 
         // Mock inherited properties
         (SlotBetHandler.prototype as any).orientationStore = mockOrientationStore;
