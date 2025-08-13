@@ -47,7 +47,7 @@ export class CascadingSlotReelItem extends Component {
     }
 
     getMultiplierItem() {
-        const validChildren = this.content.children.filter((child) => child.isValid);
+        const validChildren = this.content.children.filter((child) => child.isValid && child.activeInHierarchy);
         const items = validChildren.map((child) => child.getComponent(MultiplierItem)).filter((item) => item !== null);
         if (items.length > 0) {
             if (items.length > 1) {
