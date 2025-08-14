@@ -38,7 +38,7 @@ export class BuyFreespinsHandler implements gc.Shared.IMultipleHandlers {
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.SHOW };
     }
 
-    closeBuyFsTotalWin() {
+    closeCongratulation() {
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.HIDE };
     }
 
