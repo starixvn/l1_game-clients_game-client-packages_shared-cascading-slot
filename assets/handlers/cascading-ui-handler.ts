@@ -99,7 +99,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.showReachMaxWin = false;
         this.uiStore.isShowTotalMultiplierJoinGame = false;
         this.uiStore.multiplier = 0;
-        if (!this.uiStore.isFreeSpins) {
+        if (!this.uiStore.isFreeSpins && !this.uiStore.fsbPromotionInProgress) {
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
