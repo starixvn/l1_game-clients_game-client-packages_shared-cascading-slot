@@ -241,7 +241,6 @@ export class CascadingSlotGame extends GameComponentBase {
             // by automatically spinning
             this.handleEndGameApiError();
             this.checkSpinNextRound();
-            this.tryShowPromotionEndedPopup();
         }
     }
 
