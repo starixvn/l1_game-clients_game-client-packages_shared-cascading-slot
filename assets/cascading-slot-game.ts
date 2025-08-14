@@ -244,9 +244,6 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-    @handle(FSBPromotionUIHandler, (handler) => handler.tryShowEndedPopup())
-    tryShowPromotionEndedPopup() {}
-
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
     handleEndGameApiError() {}
 
