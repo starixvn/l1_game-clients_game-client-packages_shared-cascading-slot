@@ -25,7 +25,7 @@ export class BuyFreespinsHandler implements gc.Shared.IMultipleHandlers {
         //call bet
     }
 
-    cancelBuyFreespins() {
+    hideBuyFreespins() {
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_CONFIRMATION, event: BuyFsPopupEvent.HIDE };
     }
 
@@ -43,6 +43,6 @@ export class BuyFreespinsHandler implements gc.Shared.IMultipleHandlers {
     }
 
     sendRequestBuyFreespins() {
-        this.slotBetHandler.buyFreespins(this.buyFsStore.fsMultiplier);
+        this.slotBetHandler.buyFreespins(this.buyFsStore.totalBet);
     }
 }

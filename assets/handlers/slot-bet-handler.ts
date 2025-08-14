@@ -27,10 +27,9 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
         return this.handleBetDataWithAmount(betData, betData.totalBet);
     }
 
-    buyFreespins(multiplier: number) {
+    buyFreespins(amount: number) {
         const betData = this.slotBetData();
         Object.assign(betData, { buyFreespin: true });
-        const amount = betData.totalBet * multiplier;
         return this.handleBetDataWithAmount(betData, amount);
     }
 

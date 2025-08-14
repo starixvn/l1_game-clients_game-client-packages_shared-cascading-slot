@@ -10,7 +10,7 @@ const { render, handle } = Observer;
 
 @ccclass
 export class BuyFreespinsButton extends ObserverComponent {
-    @handle(BuyFreespinsHandler, (handler) => handler.sendRequestBuyFreespins())
+    @handle(BuyFreespinsHandler, (handler) => handler.showBuyFsConfirmation())
     onClickBuy() {
         AudioUtils.playClick();
     }
