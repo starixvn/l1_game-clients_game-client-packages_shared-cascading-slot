@@ -272,7 +272,7 @@ describe("SlotBetHandler", () => {
         });
     });
 
-    describe("handleBetData", () => {
+    describe("handleBetDataWithAmount", () => {
         it("should successfully process valid bet in normal mode", () => {
             const betData = {
                 totalBet: 0.25,
@@ -280,7 +280,7 @@ describe("SlotBetHandler", () => {
                 username: "testPlayer",
             };
 
-            const result = slotBetHandler.handleBetData(betData);
+            const result = slotBetHandler.handleBetDataWithAmount(betData, betData.totalBet);
 
             expect(result).toBe(true);
             expect(mockUIStore.changeUserBalance).toBe(true);
@@ -298,7 +298,7 @@ describe("SlotBetHandler", () => {
                 username: "testPlayer",
             };
 
-            const result = slotBetHandler.handleBetData(betData);
+            const result = slotBetHandler.handleBetDataWithAmount(betData, betData.totalBet);
 
             expect(result).toBe(true);
             expect(mockConnectionTrialStore.send).toHaveBeenCalledWith(gc.GameClientEmitMessage.Bet.eventName, betData);
@@ -311,7 +311,7 @@ describe("SlotBetHandler", () => {
                 totalBet: 0.25,
             };
 
-            const result = slotBetHandler.handleBetData(betData);
+            const result = slotBetHandler.handleBetDataWithAmount(betData, betData.totalBet);
 
             expect(result).toBe(false);
             expect(mockUIHandler.resetProcessingBet).toHaveBeenCalled();
@@ -322,7 +322,7 @@ describe("SlotBetHandler", () => {
         it("should set proper state sequence for valid bet", () => {
             const betData = { totalBet: 0.25 };
 
-            slotBetHandler.handleBetData(betData);
+            slotBetHandler.handleBetDataWithAmount(betData, betData.totalBet);
 
             // Verify state changes in correct order
             expect(mockUIStore.changeUserBalance).toBe(true);
@@ -334,7 +334,7 @@ describe("SlotBetHandler", () => {
     describe("handle", () => {
         it("should create bet data and handle it", () => {
             const spy = jest.spyOn(slotBetHandler, "slotBetData");
-            const handleSpy = jest.spyOn(slotBetHandler, "handleBetData");
+            const handleSpy = jest.spyOn(slotBetHandler, "handleBetDataWithAmount");
 
             const result = slotBetHandler.handle();
 

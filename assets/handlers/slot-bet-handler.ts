@@ -24,8 +24,16 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
 
     handle() {
         const betData = this.slotBetData();
-        return this.handleBetData(betData);
+        return this.handleBetDataWithAmount(betData, betData.totalBet);
     }
+
+    buyFreespins(multiplier: number) {
+        const betData = this.slotBetData();
+        Object.assign(betData, { buyFreespin: true });
+        const amount = betData.totalBet * multiplier;
+        return this.handleBetDataWithAmount(betData, amount);
+    }
+
     slotBetData() {
         return {
             m: this.orientationStore.m,
@@ -38,9 +46,8 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
         };
     }
 
-    handleBetData(data: any) {
+    handleBetDataWithAmount(data: any, amount: number) {
         let success = false;
-        const amount = data.totalBet;
         if (this.isValidBet(amount)) {
             this.uiStore.changeUserBalance = false;
             this.betStore.isProcessingBet = true;

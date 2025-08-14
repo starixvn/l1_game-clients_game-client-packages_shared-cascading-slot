@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
+import { SlotBetHandler } from "../../handlers/slot-bet-handler";
 import { BuyFreespinsStore, BuyFsPopupEvent, BuyFsPopupName } from "./buy-freespins-store";
 
 const { injectable, inject } = inversify;
@@ -8,6 +9,7 @@ const { injectable, inject } = inversify;
 @injectable()
 export class BuyFreespinsHandler implements gc.Shared.IMultipleHandlers {
     @inject(BuyFreespinsStore) private readonly buyFsStore: BuyFreespinsStore;
+    @inject(SlotBetHandler) private readonly slotBetHandler: SlotBetHandler;
 
     constructor() {
         mobx.makeAutoObservable(this);
@@ -38,5 +40,9 @@ export class BuyFreespinsHandler implements gc.Shared.IMultipleHandlers {
 
     closeBuyFsTotalWin() {
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.HIDE };
+    }
+
+    sendRequestBuyFreespins() {
+        this.slotBetHandler.buyFreespins(this.buyFsStore.fsMultiplier);
     }
 }
