@@ -19,7 +19,9 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     @render(CascadingUIStore, (store) => store.totalMultiplier)
     setValue(totalMultiplier: number, animated = true) {
         if (totalMultiplier === 0) {
-            this.showView(false);
+            this.showView(false).then(() => {
+                this.total.string = "";
+            });
             return;
         }
 
