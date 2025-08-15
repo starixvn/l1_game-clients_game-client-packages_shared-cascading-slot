@@ -14,4 +14,7 @@ export * from "./stores/cascading-slot-settlement-store";
 export * from "./stores/cascading-slot-tumbles-store";
 export * from "./stores/cascading-ui-store";
 
+export * from "./buy-freespins/handler/buy-freespins-handlers";
+export * from "./buy-freespins/handler/buy-freespins-store";
+
 export const FEATURE_NAME = "cascading-slot";
