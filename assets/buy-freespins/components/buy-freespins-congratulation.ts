@@ -14,10 +14,10 @@ const { render, handle } = Observer;
 @ccclass
 export class BuyFreespinsCongratulation extends ObserverComponent {
     @property(Label)
-    private labelTotalWin: Label = null;
+    private readonly labelTotalWin: Label = null;
 
     @property(Label)
-    private labelTotalFreespins: Label = null;
+    private readonly labelTotalFreespins: Label = null;
 
     onLoad(): void {
         super.onLoad();
