@@ -1,4 +1,5 @@
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { BuyFreespinsHandler } from "../../assets/buy-freespins/handler/buy-freespins-handlers";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
 import { AutoPlayHandler } from "../../assets/handlers/auto-play-handlers";
@@ -116,6 +117,7 @@ describe("AutoPlayHandler", () => {
     let mockCascadingUIHandler: jest.Mocked<CascadingUIHandler>;
     let mockSlotBetHandler: jest.Mocked<SlotBetHandler>;
     let mockFSBPromotionUIStore: jest.Mocked<FSBPromotionUIStore>;
+    let mockBuyFsHandler: jest.Mocked<BuyFreespinsHandler>;
 
     beforeEach(() => {
         // Reset all mocks
@@ -164,6 +166,10 @@ describe("AutoPlayHandler", () => {
             handle: jest.fn().mockReturnValue(true),
         } as any;
 
+        mockBuyFsHandler = {
+            showBuyFsCongratulation: jest.fn(),
+        } as any;
+
         // Create handler instance
         handler = new AutoPlayHandler();
 
@@ -175,6 +181,7 @@ describe("AutoPlayHandler", () => {
         (handler as any).cascadingUIHandler = mockCascadingUIHandler;
         (handler as any).slotBetHandler = mockSlotBetHandler;
         (handler as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
+        (handler as any).buyFsHandler = mockBuyFsHandler;
         (handler as any).betStore = mockBetStore;
         (handler as any).noticeStore = mockNoticeStore;
         (handler as any).errorStore = mockErrorStore;
@@ -516,6 +523,12 @@ describe("AutoPlayHandler", () => {
             handler.checkSpinNextRound();
 
             expect(handler.placeBet).toHaveBeenCalled();
+        });
+
+        it("should show buy fs congratulation ", () => {
+            handler.checkSpinNextRound();
+
+            expect(mockBuyFsHandler.showBuyFsCongratulation).toHaveBeenCalled();
         });
 
         it("should handle autoplay logic when no free spins and autoplay active", () => {
