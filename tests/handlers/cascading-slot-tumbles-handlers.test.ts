@@ -27,8 +27,8 @@ describe("CascadingSlotTumblesHandlers", () => {
         (CascadingSlotTumblesHandlers.prototype as any).tumblesStore = mockTumblesStore;
 
         // Mock inversify decorators
-        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
+        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
+        (inversify.inject as jest.Mock).mockImplementation(() => (target: any, propertyKey: string) => {});
 
         tumblesHandlers = new CascadingSlotTumblesHandlers();
     });

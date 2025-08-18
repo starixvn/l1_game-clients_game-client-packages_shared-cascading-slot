@@ -18,7 +18,7 @@ jest.mock("../../assets/handlers/cascading-ui-handler");
 jest.mock("../../assets/handlers/slot-bet-handler");
 
 // Provide a harmless implementation for makeAutoObservable in tests
-(mobx.makeAutoObservable as jest.Mock) = jest.fn(() => undefined);
+(mobx.makeAutoObservable as jest.Mock).mockImplementation(() => undefined);
 
 // Mock the gc module
 const mockBetStore = {

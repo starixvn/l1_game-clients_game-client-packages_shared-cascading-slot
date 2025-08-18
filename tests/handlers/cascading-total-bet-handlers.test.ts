@@ -34,8 +34,8 @@ describe("CascadingTotalBetHandlers", () => {
         (CascadingTotalBetHandlers.prototype as any).betControlStore = mockBetControlStore;
 
         // Mock inversify decorators
-        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
+        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
+        (inversify.inject as jest.Mock).mockImplementation(() => (target: any, propertyKey: string) => {});
 
         totalBetHandlers = new CascadingTotalBetHandlers();
     });

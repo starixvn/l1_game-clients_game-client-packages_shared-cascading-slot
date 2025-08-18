@@ -123,7 +123,7 @@ describe("CascadingUIHandler", () => {
         });
 
         // Mock mobx.reaction
-        (mobx.reaction as jest.Mock) = jest.fn();
+        (mobx.reaction as jest.Mock).mockImplementation(() => {});
 
         // Set mock stores directly on the prototype
         (CascadingUIHandler.prototype as any).uiStore = mockUIStore;
@@ -136,8 +136,8 @@ describe("CascadingUIHandler", () => {
         (CascadingUIHandler.prototype as any).gameUserSettingHandler = mockGameUserSettingHandler;
 
         // Mock inversify decorators
-        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
+        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
+        (inversify.inject as jest.Mock).mockImplementation(() => (target: any, propertyKey: string) => {});
 
         uiHandler = new CascadingUIHandler();
     });
