@@ -1,16 +1,16 @@
 import gc from "@sg/game-client-base";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
-import { BetControlStore } from "./../stores/bet-control-store";
-
+import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
+import { BetControlStore } from "./../stores/bet-control-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -27,6 +27,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
+    @inject(BuyFreespinsHandler) protected readonly buyFsHandler: BuyFreespinsHandler;
+
     constructor() {
         mobx.makeAutoObservable(this);
         setTimeout(() => {
@@ -58,7 +60,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
@@ -170,6 +172,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
+        this.buyFsHandler.showBuyFsCongratulation();
+
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
         } else {

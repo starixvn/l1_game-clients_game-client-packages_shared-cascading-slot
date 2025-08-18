@@ -5,8 +5,9 @@ import Observer from "observer";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { BuyFsResult } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
-import { BuyFreespinsStore, TotalWin } from "../handler/buy-freespins-store";
+import { BuyFreespinsStore } from "../handler/buy-freespins-store";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -29,14 +30,14 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
         }
     }
 
-    @render(BuyFreespinsStore, (store) => store.totalWin)
-    renderTotalWin(total: TotalWin) {
+    @render(BuyFreespinsStore, (store) => store.buyFsResult)
+    renderTotalWin(total: BuyFsResult) {
         if (!total) {
             return;
         }
 
-        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.amount, 2);
-        this.labelTotalFreespins.string = total.fsCount.toString();
+        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin, 2);
+        this.labelTotalFreespins.string = total.numberOfFreeSpins.toString();
     }
 
     @handle(BuyFreespinsHandler, (handler) => handler.closeCongratulation())
