@@ -109,6 +109,7 @@ describe("AutoPlayHandler", () => {
             freeSpinsTotal: 0,
             bottomMessageState: SlotNotification.BEFORE_SPIN,
             triggerCancelAutoPlay: null,
+            fsbPromotionInProgress: false,
         } as any;
 
         mockBetControlStore = {

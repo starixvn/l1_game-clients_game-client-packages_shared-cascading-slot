@@ -17,6 +17,7 @@ const mockGameUserSettingStore = {
 const mockCascadingUIStore = {
     isTrialMode: false,
     isTurboModeUI: false,
+    fsbPromotionInProgress: false,
 };
 
 const mockBetControlStore = {

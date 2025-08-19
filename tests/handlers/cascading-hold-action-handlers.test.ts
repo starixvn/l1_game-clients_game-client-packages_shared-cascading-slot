@@ -34,6 +34,7 @@ describe("CascadingHoldActionHandlers", () => {
 
         mockCascadingUIStore = {
             cascadingState: CascadingSlotState.READY_BET,
+            fsbPromotionInProgress: false,
             get disabledSpinButton() {
                 return (
                     this.cascadingState === CascadingSlotState.SPINNING ||

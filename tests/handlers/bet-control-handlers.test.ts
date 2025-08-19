@@ -41,6 +41,7 @@ describe("BetControlHandlers", () => {
 
         mockCascadingUIStore = {
             isTrialMode: false,
+            fsbPromotionInProgress: false,
         } as any;
 
         mockConfigStore = {
