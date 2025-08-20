@@ -1,5 +1,6 @@
-import { _decorator, Component, instantiate, Node, Prefab } from "cc";
+import { _decorator, instantiate, Node, Prefab } from "cc";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
+import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { resourcesCache } from "../cascading-slot-utils";
@@ -8,7 +9,7 @@ const { ccclass, property } = _decorator;
 const { render } = Observer;
 
 @ccclass
-export class CascadingBackgroundGame extends Component {
+export class CascadingBackgroundGame extends ObserverComponent {
     @property(Node)
     bgNormal: Node = null;
 
@@ -17,16 +18,17 @@ export class CascadingBackgroundGame extends Component {
     private readonly FADE_IN_OUT_DURATION = 0.5;
 
     onLoad() {
+        super.onLoad();
         this.bgNormal.active = true;
         this.bgFreeSpin.active = false;
     }
 
-    @render(CascadingUIStore, (store) => store.isInFreeSpinMode)
+    @render(CascadingUIStore, (store) => store.isFreeSpins)
     async handleBackgroundGame(isInFreeSpinMode: boolean) {
         if (resourcesCache.gameFeatures?.allowBackgroundChangeOnFreeSpins) {
             if (isInFreeSpinMode) {
                 try {
-                    const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/effect-multiplier", Prefab);
+                    const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/bg-freespins", Prefab);
                     const bgFreespin = instantiate(prefabBgFreespin);
                     this.bgFreeSpin.addChild(bgFreespin);
                     AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
