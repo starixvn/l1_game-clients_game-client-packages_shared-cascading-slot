@@ -190,4 +190,8 @@ export class CascadingUIStore {
     get isUsedFSBPromotionBonus() {
         return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
     }
+
+    get isInFreeSpinMode() {
+        return this.isFreeSpins;
+    }
 }

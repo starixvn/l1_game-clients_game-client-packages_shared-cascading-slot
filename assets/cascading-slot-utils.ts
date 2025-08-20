@@ -63,6 +63,7 @@ export interface GameFeatureJson {
     enablePeekEffect: boolean;
     effectIntroMultiplier: boolean;
     fixedExplodeDuration: number;
+    allowBackgroundChangeOnFreeSpins: boolean;
 }
 
 export interface ColorJson {
