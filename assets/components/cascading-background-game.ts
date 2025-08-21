@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Node, Prefab } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
@@ -5,7 +6,6 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { resourcesCache } from "../cascading-slot-utils";
-import { CascadingAudioHandlers } from "../handlers/cascading-audio-handlers";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingAudioContainer } from "./cascading-audio-container";
 const { ccclass, property } = _decorator;
@@ -55,12 +55,12 @@ export class CascadingBackgroundGame extends ObserverComponent {
         }
     }
 
-    @handle(CascadingAudioHandlers, (handler, id: string) => handler.playStoppableSFX(id))
+    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.playStoppableSFX(id))
     playSound(id: string) {
         return id;
     }
 
-    @handle(CascadingAudioHandlers, (handler, id: string) => handler.stopStoppableSFX(id))
+    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.stopStoppableSFX(id))
     stopSound(id: string) {
         return id;
     }

@@ -10,40 +10,85 @@ export class CascadingAudioContainer extends AudioContainer {
     @property({ type: AudioSource })
     listStoppableSFXSource: AudioSource[] = [];
 
-    private countStoppableSFX = 0;
     private activeAudioSources: Map<string, number> = new Map(); // Map audioId to source index
-
-    // @render(CascadingAudioStore, (store) => store.stoppableSFXList)
-    // handleStoppableSFXList(data: gc.Audios.AudioData[]) {
-    //     data.forEach((item, index) => {
-    //         if (item.action === gc.Audios.AudioAction.PLAY && this.isUserGesture) {
-    //             this.playStoppableSFX(item.id, this.listStoppableSFXSource[index]);
-    //         } else {
-    //             this.stopAudio(this.listStoppableSFXSource[index]);
-    //         }
-    //     });
-    // }
+    private availableSourceIndices: number[] = [];
 
     @render(gc.Audios.AudioStore, (store) => store.stoppableSFX)
     handleStoppableSFX(data: gc.Audios.AudioData) {
         if (!data) return;
 
-        if (data.action === gc.Audios.AudioAction.PLAY && this.isUserGesture) {
-            // Find available audio source index
-            let audioIndex = this.activeAudioSources.get(data.id);
-
-            if (!audioIndex && this.listStoppableSFXSource.length >= this.countStoppableSFX) {
-                audioIndex = this.countStoppableSFX;
-                this.activeAudioSources.set(data.id, audioIndex);
-                this.playStoppableSFX(data.id, this.listStoppableSFXSource[audioIndex]);
-                this.countStoppableSFX++;
-            }
-        } else {
-            // Find and stop the audio source for this audioId
-            const audioIndex = this.activeAudioSources.get(data.id);
-            this.stopAudio(this.listStoppableSFXSource[audioIndex]);
-            this.activeAudioSources.delete(data.id);
+        switch (data.action) {
+            case gc.Audios.AudioAction.PLAY:
+                this.handlePlayAction(data);
+                break;
+            case gc.Audios.AudioAction.STOP:
+                this.handleStopAction(data);
+                break;
         }
+    }
+
+    private handlePlayAction(data: gc.Audios.AudioData) {
+        if (!this.isUserGesture) return;
+
+        // Check if audio is already playing
+        if (this.isAudioPlaying(data.id)) {
+            return;
+        }
+
+        // Get available source and play
+        const sourceIndex = this.getAvailableSourceIndex();
+        if (sourceIndex === -1) {
+            console.warn(`No available audio source for stoppable SFX: ${data.id}`);
+            return;
+        }
+
+        this.playAudioWithSource(data.id, sourceIndex);
+    }
+
+    private handleStopAction(data: gc.Audios.AudioData) {
+        const sourceIndex = this.activeAudioSources.get(data.id);
+        if (sourceIndex !== undefined) {
+            this.stopAudioWithSource(data.id, sourceIndex);
+        }
+    }
+
+    private isAudioPlaying(audioId: string): boolean {
+        return this.activeAudioSources.has(audioId);
+    }
+
+    private getAvailableSourceIndex(): number {
+        // First try to get from pool
+        if (this.availableSourceIndices.length > 0) {
+            return this.availableSourceIndices.pop()!;
+        }
+
+        // Then find unused index
+        if (this.activeAudioSources.size < this.listStoppableSFXSource.length) {
+            return this.findFirstUnusedSourceIndex();
+        }
+
+        return -1; // No available sources
+    }
+
+    private playAudioWithSource(audioId: string, sourceIndex: number) {
+        this.activeAudioSources.set(audioId, sourceIndex);
+        this.playStoppableSFX(audioId, this.listStoppableSFXSource[sourceIndex]);
+    }
+
+    private stopAudioWithSource(audioId: string, sourceIndex: number) {
+        this.stopAudio(this.listStoppableSFXSource[sourceIndex]);
+        this.activeAudioSources.delete(audioId);
+        this.availableSourceIndices.push(sourceIndex);
+    }
+
+    private findFirstUnusedSourceIndex(): number {
+        const usedIndices = new Set(this.activeAudioSources.values());
+        for (let i = 0; i < this.listStoppableSFXSource.length; i++) {
+            if (!usedIndices.has(i)) {
+                return i;
+            }
+        }
+        return -1; // No unused index found
     }
 
     async playStoppableSFX(id: string, audioSource: AudioSource) {
