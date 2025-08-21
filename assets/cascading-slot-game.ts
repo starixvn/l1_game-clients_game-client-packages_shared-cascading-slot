@@ -22,7 +22,7 @@ import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
-import { FSBPromotionUIHandler } from "db://shared-common-slot/index";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;

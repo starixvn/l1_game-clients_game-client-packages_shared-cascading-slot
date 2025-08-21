@@ -7,7 +7,7 @@ import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
-import { FSBPromotionUIStore } from "db://shared-common-slot/index";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 

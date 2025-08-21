@@ -11,7 +11,7 @@ import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlemen
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { BetControlHandlers } from "./bet-control-handlers";
-import { FSBPromotionUIStore } from "db://shared-common-slot/index";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 

@@ -16,6 +16,7 @@ jest.mock("../../assets/stores/cascading-ui-store");
 jest.mock("../../assets/stores/hold-action-store");
 jest.mock("../../assets/handlers/cascading-ui-handler");
 jest.mock("../../assets/handlers/slot-bet-handler");
+jest.mock("db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store");
 
 // Mock the gc module
 const mockBetStore = {
@@ -173,6 +174,7 @@ describe("AutoPlayHandler", () => {
         (handler as any).holdActionStore = mockHoldActionStore;
         (handler as any).cascadingUIHandler = mockCascadingUIHandler;
         (handler as any).slotBetHandler = mockSlotBetHandler;
+        (handler as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
         (handler as any).betStore = mockBetStore;
         (handler as any).noticeStore = mockNoticeStore;
         (handler as any).errorStore = mockErrorStore;
