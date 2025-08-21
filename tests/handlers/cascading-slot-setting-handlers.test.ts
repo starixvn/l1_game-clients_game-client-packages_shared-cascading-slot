@@ -57,11 +57,8 @@ describe("CascadingSlotSettingHandlers", () => {
         });
 
         // Setup mocks
-        mockReaction = jest.fn((getter, callback) => callback) as unknown as jest.Mock;
-        (mobx.reaction as jest.Mock).mockImplementation((getter, callback) => {
-            mockReaction(getter, callback);
-            return callback;
-        });
+        mockReaction = jest.fn((getter, callback) => callback);
+        (mobx.reaction as jest.Mock) = mockReaction;
 
         // Mock gc modules
         (gc as any).GameUserSettings = {
@@ -79,7 +76,7 @@ describe("CascadingSlotSettingHandlers", () => {
         (CascadingSlotSettingHandlers.prototype as any).betControlStore = mockBetControlStore;
 
         // Mock injectable decorator
-        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
+        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
     });
 
     afterEach(() => {

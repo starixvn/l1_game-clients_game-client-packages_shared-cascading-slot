@@ -45,8 +45,8 @@ describe("CascadingSlotSettlementHandlers", () => {
         (CascadingSlotSettlementHandlers.prototype as any).uiHandler = mockUiHandler;
 
         // Mock inversify decorators
-        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
-        (inversify.inject as jest.Mock).mockImplementation(() => (target: any, propertyKey: string) => {});
+        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
+        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
 
         settlementHandlers = new CascadingSlotSettlementHandlers();
     });

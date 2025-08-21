@@ -15,6 +15,19 @@ jest.mock("@sg/game-client-base", () => {
                 CLICK: "click_sound",
             },
         },
+        Auth: {
+            AuthStore: jest.fn(() => ({
+                session: "test_session",
+                username: "test_username",
+                language: "en",
+            })),
+            AuthHandlers: {
+                GetBalance: jest.fn(() => ({})),
+            },
+        },
+        Configs: {
+            SiteConfigs: jest.fn(),
+        },
         Player: {
             MainPlayerStore: jest.fn(() => mockMainPlayerStore),
         },
@@ -24,6 +37,9 @@ jest.mock("@sg/game-client-base", () => {
         },
         Notices: {
             NoticeStore: {},
+            NoticeErrorsHandlers: {
+                AutoSignOutHandler: jest.fn(() => ({})),
+            },
         },
         Error: {
             ErrorStore: {},
@@ -44,6 +60,13 @@ jest.mock("@sg/game-client-base", () => {
             GameUserSettingHandler: class {
                 handle() {}
             },
+        },
+        Notification: {
+            NotificationStore: jest.fn(() => ({
+                connection: {
+                    on: jest.fn(),
+                },
+            })),
         },
     };
     return mockGc;

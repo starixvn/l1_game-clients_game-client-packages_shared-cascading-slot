@@ -20,6 +20,23 @@ jest.mock("@sg/game-client-base", () => ({
     Audios: {
         AudioHandler: jest.fn(),
     },
+    Configs: {
+        SiteConfigs: jest.fn(),
+    },
+    Player: {
+        MainPlayerStore: jest.fn(),
+    },
+    Connection: {
+        ConnectionStore: jest.fn(),
+    },
+    Auth: {
+        AuthStore: jest.fn(),
+    },
+    Notices: {
+        NoticeErrorsHandlers: {
+            AutoSignOutHandler: jest.fn(() => ({})),
+        },
+    },
 }));
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({

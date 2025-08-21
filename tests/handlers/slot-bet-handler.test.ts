@@ -14,6 +14,36 @@ jest.mock("@sg/game-client-base", () => ({
     GameClientEmitMessage: {
         Bet: { eventName: "bet" },
     },
+    Notification: {
+        NotificationStore: jest.fn(() => ({
+            connection: {
+                on: jest.fn(),
+            },
+        })),
+    },
+    Auth: {
+        AuthStore: jest.fn(() => ({
+            session: "test_session",
+            username: "test_username",
+            language: "en",
+        })),
+        AuthHandlers: {
+            GetBalance: jest.fn(() => ({})),
+        },
+    },
+    Configs: {
+        SiteConfigs: jest.fn(),
+    },
+    Audios: {
+        AudioHandler: jest.fn(() => ({
+            playSFX: jest.fn(),
+        })),
+    },
+    Notices: {
+        NoticeErrorsHandlers: {
+            AutoSignOutHandler: jest.fn(() => ({})),
+        },
+    },
     Connection: {
         ConnectionTrialStore: jest.fn(),
     },
@@ -130,8 +160,8 @@ describe("SlotBetHandler", () => {
         (SlotBetHandler.prototype as any).showNoticePlaceBetFailure = jest.fn();
 
         // Mock inversify decorators
-        (inversify.injectable as jest.Mock).mockImplementation(() => (target: any) => target);
-        (inversify.inject as jest.Mock).mockImplementation(() => (target: any, propertyKey: string) => {});
+        (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
+        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
 
         // Mock parent class constructor
         (gc.Bet.BetHandler as any) = jest.fn().mockImplementation(() => ({}));

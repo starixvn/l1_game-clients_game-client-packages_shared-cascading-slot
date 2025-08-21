@@ -1,3 +1,4 @@
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
 import { AutoPlayHandler } from "../../assets/handlers/auto-play-handlers";
@@ -7,7 +8,6 @@ import { AutoPlayStore } from "../../assets/stores/auto-play-store";
 import { BetControlStore } from "../../assets/stores/bet-control-store";
 import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
 import { HoldActionStore } from "../../assets/stores/hold-action-store";
-import mobx from "mobx";
 
 // Mock the dependencies
 jest.mock("../../assets/stores/auto-play-store");
@@ -16,9 +16,6 @@ jest.mock("../../assets/stores/cascading-ui-store");
 jest.mock("../../assets/stores/hold-action-store");
 jest.mock("../../assets/handlers/cascading-ui-handler");
 jest.mock("../../assets/handlers/slot-bet-handler");
-
-// Provide a harmless implementation for makeAutoObservable in tests
-(mobx.makeAutoObservable as jest.Mock).mockImplementation(() => undefined);
 
 // Mock the gc module
 const mockBetStore = {
@@ -44,11 +41,32 @@ jest.mock("@sg/game-client-base", () => ({
         BetStore: jest.fn(() => mockBetStore),
         BetHandler: class MockBetHandler { },
     },
+    Configs: {
+        SiteConfigs: jest.fn(),
+    },
     Notices: {
         NoticeStore: jest.fn(() => mockNoticeStore),
+        NoticeErrorsHandlers: {
+            AutoSignOutHandler: jest.fn(() => ({})),
+        },
+    },
+    Audios: {
+        AudioHandler: jest.fn(() => ({
+            playSFX: jest.fn(),
+        })),
     },
     Error: {
         ErrorStore: jest.fn(() => mockErrorStore),
+    },
+    Auth: {
+        AuthStore: jest.fn(() => ({
+            session: "test_session",
+            username: "test_username",
+            language: "en",
+        })),
+        AuthHandlers: {
+            GetBalance: jest.fn(() => ({})),
+        },
     },
     Rounds: {
         RoundStore: jest.fn(() => mockRoundStore),
@@ -76,6 +94,13 @@ jest.mock("@sg/game-client-base", () => ({
             return key;
         }),
     },
+    Notification: {
+        NotificationStore: jest.fn(() => ({
+            connection: {
+                on: jest.fn(),
+            },
+        })),
+    },
 }));
 
 // Mock setTimeout to avoid actual delays in tests
@@ -89,6 +114,7 @@ describe("AutoPlayHandler", () => {
     let mockHoldActionStore: jest.Mocked<HoldActionStore>;
     let mockCascadingUIHandler: jest.Mocked<CascadingUIHandler>;
     let mockSlotBetHandler: jest.Mocked<SlotBetHandler>;
+    let mockFSBPromotionUIStore: jest.Mocked<FSBPromotionUIStore>;
 
     beforeEach(() => {
         // Reset all mocks
@@ -103,6 +129,10 @@ describe("AutoPlayHandler", () => {
             selectedRoundOnPopup: 10,
             roundsList: [10, 30, 50, 100],
             triggerBet: null,
+        } as any;
+
+        mockFSBPromotionUIStore = {
+            isFSBPromotionInProgress: false,
         } as any;
 
         mockCascadingUIStore = {
@@ -147,7 +177,7 @@ describe("AutoPlayHandler", () => {
         (handler as any).noticeStore = mockNoticeStore;
         (handler as any).errorStore = mockErrorStore;
         (handler as any).roundStore = mockRoundStore;
-        (handler as any).fsbPromotionUIStore = { isFSBPromotionInProgress: false } as any;
+        (handler as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
     });
 
     afterEach(() => {
@@ -517,6 +547,7 @@ describe("AutoPlayHandler", () => {
             mockCascadingUIStore.freeSpinsTotal = 0;
             mockAutoPlayStore.isAutoplay = false;
             mockHoldActionStore.isHolding = true;
+
             jest.spyOn(handler, "handleAutoPlaceBet");
 
             handler.checkSpinNextRound();

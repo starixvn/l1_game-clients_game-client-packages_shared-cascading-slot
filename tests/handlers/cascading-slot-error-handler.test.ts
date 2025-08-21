@@ -19,6 +19,21 @@ jest.mock("@sg/game-client-base", () => ({
             eventName: "apiError",
         },
     },
+    Auth: {
+        AuthStore: jest.fn(() => ({
+            session: "test_session",
+            username: "test_username",
+            language: "en",
+        })),
+        AuthHandlers: {
+            GetBalance: jest.fn(() => ({})),
+        },
+    },
+    Configs: {
+        SiteConfigs: {
+            systemType: ""
+        },
+    },
     Error: {
         ErrorHandlers: jest.fn().mockImplementation(function () {
             this.handleApiError = jest.fn();
@@ -42,10 +57,25 @@ jest.mock("@sg/game-client-base", () => ({
         NoticeStore: jest.fn(() => ({
             addWarning: jest.fn(),
         })),
+        NoticeErrorsHandlers: {
+            AutoSignOutHandler: jest.fn(() => ({})),
+        },
+    },
+    Notification: {
+        NotificationStore: jest.fn(() => ({
+            connection: {
+                on: jest.fn(),
+            },
+        })),
     },
     Rounds: {
         RoundStore: jest.fn(() => ({
             minBet: 1,
+        })),
+    },
+    Audios: {
+        AudioHandler: jest.fn(() => ({
+            playSFX: jest.fn(),
         })),
     },
 }));
