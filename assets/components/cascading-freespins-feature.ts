@@ -12,7 +12,7 @@ const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
 @ccclass
-export class CascadingBackgroundGame extends ObserverComponent {
+export class CascadingFreespinsFeature extends ObserverComponent {
     @property(Node)
     bgNormal: Node = null;
 
