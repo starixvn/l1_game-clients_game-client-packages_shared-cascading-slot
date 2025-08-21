@@ -19,7 +19,7 @@ export class CascadingAudioContainer extends AudioContainer {
 
     private initializeAudioSourceStates() {
         this.audioSourceStates.length = 0;
-        for (let i = 0; i < this.listStoppableSFXSource.length; i++) {
+        for (const _ of this.listStoppableSFXSource) {
             this.audioSourceStates.push({ audioId: null, isAvailable: true });
         }
     }
