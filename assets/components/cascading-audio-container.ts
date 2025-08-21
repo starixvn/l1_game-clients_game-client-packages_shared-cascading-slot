@@ -10,12 +10,14 @@ export class CascadingAudioContainer extends AudioContainer {
     @property({ type: AudioSource })
     listStoppableSFXSource: AudioSource[] = [];
 
-    private activeAudioSources: Map<string, number> = new Map(); // Map audioId to source index
-    private availableSourceIndices: number[] = [];
+    private readonly activeAudioSources: Map<string, number> = new Map(); // Map audioId to source index
+    private readonly availableSourceIndices: number[] = [];
 
     @render(gc.Audios.AudioStore, (store) => store.stoppableSFX)
     handleStoppableSFX(data: gc.Audios.AudioData) {
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         switch (data.action) {
             case gc.Audios.AudioAction.PLAY:
@@ -28,7 +30,9 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private handlePlayAction(data: gc.Audios.AudioData) {
-        if (!this.isUserGesture) return;
+        if (!this.isUserGesture) {
+            return;
+        }
 
         // Check if audio is already playing
         if (this.isAudioPlaying(data.id)) {
@@ -59,7 +63,7 @@ export class CascadingAudioContainer extends AudioContainer {
     private getAvailableSourceIndex(): number {
         // First try to get from pool
         if (this.availableSourceIndices.length > 0) {
-            return this.availableSourceIndices.pop()!;
+            return this.availableSourceIndices.pop();
         }
 
         // Then find unused index
