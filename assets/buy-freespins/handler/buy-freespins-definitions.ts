@@ -1,6 +1,6 @@
 export enum BuyFsPopupName {
-    BUY_CONFIRMATION = "buy_confirmation",
-    BUY_FS_CONGRATULATION = "buy_fs_congratulation",
+    BUY_CONFIRMATION = "buy-fs-confirmation",
+    BUY_FS_CONGRATULATION = "buy-fs-congratulation",
 }
 
 export enum BuyFsPopupEvent {

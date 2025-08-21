@@ -2,7 +2,7 @@ import { _decorator } from "cc";
 import Observer from "observer";
 
 import { MultipleNodeContainer } from "db://shared-components/shared/common-components/node-container/multiple-node-container";
-import { BuyFsPopupEvent, BuyFsPopupName, IBuyFreespinsPopupEvent } from "../handler/buy-freespins-definitions";
+import { BuyFsPopupEvent, IBuyFreespinsPopupEvent } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
 
 const { ccclass, property } = _decorator;
@@ -17,12 +17,7 @@ export class BuyFreespinsContainer extends MultipleNodeContainer {
         }
 
         if (popupEvent.event === BuyFsPopupEvent.SHOW) {
-            const map = {
-                [BuyFsPopupName.BUY_CONFIRMATION]: "confirmation",
-                [BuyFsPopupName.BUY_FS_CONGRATULATION]: "total",
-            };
-
-            this.showNode(map[popupEvent.name]);
+            this.showNode(popupEvent.name);
 
             return;
         }

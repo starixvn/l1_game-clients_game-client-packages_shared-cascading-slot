@@ -199,4 +199,8 @@ export class CascadingUIStore {
     get turnOffBGM() {
         return this.haveBigWin || this.isShowFreeSpinEffect;
     }
+
+    get disableBuyFreespins() {
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.autoPlayStore.isAutoplay;
+    }
 }

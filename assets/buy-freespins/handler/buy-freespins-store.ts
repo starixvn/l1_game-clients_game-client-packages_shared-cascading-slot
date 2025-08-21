@@ -16,6 +16,7 @@ export class BuyFreespinsStore {
     popupEvent: IBuyFreespinsPopupEvent = null;
     fsMultiplier = 100;
     buyFsResult: BuyFsResult = null;
+    isActive = false;
 
     get totalBet() {
         return this.betControlStore.totalBet * this.fsMultiplier;

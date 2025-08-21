@@ -16,9 +16,6 @@ export class BuyFreespinsConfirmation extends ObserverComponent {
     @property(Label)
     private readonly labelTotalBet: Label = null;
 
-    @property(Label)
-    private readonly labelMinBet: Label = null;
-
     onLoad(): void {
         super.onLoad();
         const dialogs = this.node.getComponentsInChildren(Dialog);
@@ -32,11 +29,6 @@ export class BuyFreespinsConfirmation extends ObserverComponent {
     @render(BuyFreespinsStore, (store) => store.totalBet)
     renderTotalBet(totalBet: number) {
         this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2);
-    }
-
-    // @render(BetControlStore, (store) => store.minBet)
-    renderMinBet(minBet: number) {
-        this.labelMinBet.string = gc.FormatUtils.numberWithCommas(minBet, 2);
     }
 
     @handle(BuyFreespinsHandler, (handler) => handler.sendRequestBuyFreespins())
