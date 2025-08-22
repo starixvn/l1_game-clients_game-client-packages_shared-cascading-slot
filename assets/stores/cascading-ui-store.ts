@@ -67,6 +67,7 @@ export class CascadingUIStore {
 
     fsbPromotionInProgress = false;
 
+    triggerDuringFreeSpinBonus = null;
 
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
@@ -189,9 +190,5 @@ export class CascadingUIStore {
 
     get isUsedFSBPromotionBonus() {
         return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
-    }
-
-    get isInFreeSpinMode() {
-        return this.isFreeSpins;
     }
 }

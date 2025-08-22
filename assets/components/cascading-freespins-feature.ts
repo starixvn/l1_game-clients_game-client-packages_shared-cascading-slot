@@ -30,17 +30,17 @@ export class CascadingFreespinsFeature extends ObserverComponent {
         this.bgFreeSpin.active = false;
     }
 
-    @render(CascadingUIStore, (store) => store.isFreeSpins)
-    async handleBackgroundGame(isInFreeSpinMode: boolean) {
+    @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
+    async handleBackgroundGame(triggerDuringFreeSpinBonus: boolean) {
         if (resourcesCache.gameFeatures?.allowBackgroundChangeOnFreeSpins) {
-            if (isInFreeSpinMode) {
+            if (triggerDuringFreeSpinBonus) {
                 try {
                     const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/bg-freespins", Prefab);
                     const bgFreespin = instantiate(prefabBgFreespin);
                     this.bgFreeSpin.addChild(bgFreespin);
                     AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
                     AnimationUtils.fadeIn(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
-                    this.audioContainer.updateVolumeMusicSource(0.1, 2);
+                    this.audioContainer.updateVolumeMusicSource(0.1, 1);
                     this.playSound(AudioIds.TRANSFORM_FREESPINS);
                 } catch (err) {
                     console.log(err);
@@ -48,7 +48,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
             } else {
                 AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
                 AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
-                this.audioContainer.updateVolumeMusicSource(1, 2);
+                this.audioContainer.updateVolumeMusicSource(1, 1);
                 this.stopSound(AudioIds.TRANSFORM_FREESPINS);
                 this.bgFreeSpin.removeAllChildren();
             }

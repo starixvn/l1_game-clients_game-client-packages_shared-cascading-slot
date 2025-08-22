@@ -52,6 +52,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         await AnimationUtils.delayTime(duration);
         freespin.destroy();
         this.setFreeSpinEffectCompleted(true);
+        this.handleTriggerDuringFreeSpinBonus();
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
@@ -77,6 +78,11 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
         return completed;
+    }
+
+    @handle(CascadingUIHandler, (handler, trigger: any) => handler.handleTriggerDuringFreeSpinBonus(trigger))
+    handleTriggerDuringFreeSpinBonus() {
+        return {};
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))

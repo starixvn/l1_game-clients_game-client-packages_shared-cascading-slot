@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import mobx from "mobx";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet, SlotNotification } from "../cascading-slot-utils";
@@ -11,7 +12,6 @@ import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlemen
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { BetControlHandlers } from "./bet-control-handlers";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -58,6 +58,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreeSpinsTotal(freeSpinsTotal: number) {
         this.uiStore.freeSpinsTotal = freeSpinsTotal;
+        if (freeSpinsTotal === 0) {
+            this.handleTriggerDuringFreeSpinBonus(null);
+        }
     }
 
     handleFreeSpinsByRound(freeSpins: number) {
@@ -143,6 +146,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.handleFreeSpinsTotal(total);
         this.updateFreespinCountMsgBottom(total);
+        this.handleTriggerDuringFreeSpinBonus({});
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
@@ -249,6 +253,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleTriggerWinMultiplier() {
         this.uiStore.triggerWinMultiplier = {};
+    }
+
+    handleTriggerDuringFreeSpinBonus(trigger: any) {
+        this.uiStore.triggerDuringFreeSpinBonus = trigger;
     }
 
     eventHandleList = [
