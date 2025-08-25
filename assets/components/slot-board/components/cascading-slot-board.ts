@@ -201,7 +201,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.hidePeekEffects();
     }
 
-    @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWin({ win: tumbleWin, isActualWin: false }))
+    @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWinTumble(tumbleWin))
     handleTotalWinTumble(tumbleWin: number) {
         return tumbleWin;
     }

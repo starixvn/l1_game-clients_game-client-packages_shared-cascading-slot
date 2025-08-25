@@ -58,6 +58,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
     }
 
+    handleTotalWinTumble(tumberWin: number) {
+        this.tumblesStore.isShowTumbleWinFrame = true;
+        this.handleTotalWin({ win: tumberWin, isActualWin: false });
+    }
+
     handleFreeSpinsTotal(freeSpinsTotal: number) {
         this.uiStore.freeSpinsTotal = freeSpinsTotal;
         if (freeSpinsTotal === 0) {
@@ -96,6 +101,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleNewRound() {
         this.tumblesStore.tumbles = [];
+        this.tumblesStore.isShowTumbleWinFrame = false;
         this.uiStore.totalTumbleWin = 0;
         this.settlementStore.finishData = null;
         this.uiStore.isFreeSpinEffectCompleted = false;

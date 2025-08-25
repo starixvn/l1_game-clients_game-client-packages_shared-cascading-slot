@@ -10,6 +10,7 @@ export class CascadingSlotTumblesStore {
     }
     private _tumbles = [];
     public tumble = null;
+    public isShowTumbleWinFrame = false;
 
     set tumbles(tumbles: Tumble[]) {
         this._tumbles = tumbles;
@@ -17,9 +18,5 @@ export class CascadingSlotTumblesStore {
 
     get tumbles() {
         return this._tumbles;
-    }
-
-    get isShowTumbleWinFrame() {
-        return this.tumbles.length > 1;
     }
 }

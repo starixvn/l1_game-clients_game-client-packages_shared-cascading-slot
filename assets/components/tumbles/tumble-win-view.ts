@@ -52,7 +52,11 @@ export class TumbleWinWiew extends FadeAppearanceNode {
     }
 
     @render(CascadingUIStore, (store) => store.totalWin, { fireImmediately: false })
-    setTumbleWinValuewin(totalTumbleWin: any) {
+    setTumbleWinValuewin(totalTumbleWin: number) {
+        if (totalTumbleWin === 0) {
+            this.tumbleLabel.string = "";
+            return;
+        }
         AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
     }
 
