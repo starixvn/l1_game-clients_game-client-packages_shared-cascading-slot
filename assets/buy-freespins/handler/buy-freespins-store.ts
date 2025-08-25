@@ -14,7 +14,7 @@ export class BuyFreespinsStore {
     }
 
     popupEvent: IBuyFreespinsPopupEvent = null;
-    fsMultiplier = 100;
+    fsMultiplier = 0;
     buyFsResult: BuyFsResult = null;
     isActive = false;
 

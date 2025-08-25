@@ -28,6 +28,10 @@ export class BuyFreespinsButton extends ObserverComponent {
 
     @render(BuyFreespinsStore, (store) => store.totalBet)
     renderTotalBet(totalBet: number) {
+        if (totalBet === 0) {
+            this.labelTotalBet.string = "";
+            return;
+        }
         this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2);
     }
 
