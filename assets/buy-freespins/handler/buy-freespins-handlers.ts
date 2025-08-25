@@ -11,6 +11,8 @@ export class BuyFreespinsHandler {
     @inject(BuyFreespinsStore) private readonly buyFsStore: BuyFreespinsStore;
     @inject(SlotBetHandler) private readonly slotBetHandler: SlotBetHandler;
 
+    private processing = false;
+
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -19,6 +21,10 @@ export class BuyFreespinsHandler {
         {
             name: BuyFsFeatureMessage.Result,
             handle: this.receiveBuyFsTotalWin,
+        },
+        {
+            name: "finish",
+            handle: this.handleBuyFsSuccess,
         },
     ];
 
@@ -41,6 +47,7 @@ export class BuyFreespinsHandler {
     showBuyFsCongratulation() {
         if (this.buyFsStore.buyFsResult) {
             this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.SHOW };
+            this.buyFsStore.isActive = false;
         }
     }
 
@@ -50,6 +57,13 @@ export class BuyFreespinsHandler {
     }
 
     sendRequestBuyFreespins() {
-        this.slotBetHandler.buyFreespins(this.buyFsStore.totalBet);
+        this.processing = this.slotBetHandler.buyFreespins(this.buyFsStore.totalBet);
+    }
+
+    handleBuyFsSuccess() {
+        if (this.processing) {
+            this.processing = false;
+            this.buyFsStore.isActive = true;
+        }
     }
 }
