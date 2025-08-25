@@ -3,6 +3,7 @@ export * from "./handlers/auto-play-handlers";
 export * from "./handlers/cascading-slot-board-handlers";
 export * from "./handlers/cascading-slot-configs-handlers";
 export * from "./handlers/cascading-slot-error-handler";
+export * from "./handlers/cascading-slot-features-handlers";
 export * from "./handlers/cascading-slot-setting-handlers";
 export * from "./handlers/cascading-slot-settlement-handlers";
 export * from "./handlers/cascading-slot-tumbles-handlers";

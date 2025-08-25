@@ -17,3 +17,8 @@ export interface BuyFsResult {
     totalWin: number;
     numberOfFreeSpins: number;
 }
+
+export enum BuyFsFeatureMessage {
+    Feature_Name = "buyFreeSpins",
+    Result = "buyFreeSpinResult",
+}

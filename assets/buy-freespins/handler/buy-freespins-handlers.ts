@@ -1,7 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
 import { SlotBetHandler } from "../../handlers/slot-bet-handler";
-import { BuyFsPopupEvent, BuyFsPopupName, BuyFsResult } from "./buy-freespins-definitions";
+import { BuyFsFeatureMessage, BuyFsPopupEvent, BuyFsPopupName, BuyFsResult } from "./buy-freespins-definitions";
 import { BuyFreespinsStore } from "./buy-freespins-store";
 
 const { injectable, inject } = inversify;
@@ -17,7 +17,7 @@ export class BuyFreespinsHandler {
 
     eventHandleList = [
         {
-            name: "buyFreeSpinResult",
+            name: BuyFsFeatureMessage.Result,
             handle: this.receiveBuyFsTotalWin,
         },
     ];
