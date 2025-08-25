@@ -156,8 +156,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.fsbPromotionUIStore.resumedFSBPromotion = true;
         }
 
-        if (freespins?.buyFreeSpin && total > 0) {
+        if (freespins?.buyFreeSpin) {
             this.buyFsStore.isActive = true;
+        }
+        if (total > 0) {
             this.buyFsStore.triggerAutoPlay = {};
         }
     }
