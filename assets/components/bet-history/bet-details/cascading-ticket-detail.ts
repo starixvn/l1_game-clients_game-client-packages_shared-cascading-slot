@@ -55,8 +55,15 @@ export class CascadingTicketDetail extends ObserverComponent {
             return;
         }
         this.data = betHistoryLog;
-        const freeSpin = betHistoryLog.freeSpin || false;
-        this.roundId.string = freeSpin ? `${betHistoryLog.id} (Free Spin)` : `${betHistoryLog.id}`;
+        const freeSpin = betHistoryLog.freeSpin ?? false;
+        const buyFreeSpin = betHistoryLog.buyFreeSpin ?? false;
+        let roundIdText = `${betHistoryLog.id}`;
+        if (buyFreeSpin) {
+            roundIdText += ` (${gc.Translator.gameTranslate("buy_free_spins")})`;
+        } else if (freeSpin) {
+            roundIdText += ` (Free Spin)`;
+        }
+        this.roundId.string = roundIdText;
         const tumbles = betHistoryLog.settlementResult.tumbles;
         const isReachMaxWin = betHistoryLog.reachMaxWin;
 
