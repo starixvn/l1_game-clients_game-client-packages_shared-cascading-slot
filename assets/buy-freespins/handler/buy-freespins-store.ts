@@ -19,6 +19,7 @@ export class BuyFreespinsStore {
     fsMultiplier = 0;
     buyFsResult: BuyFsResult = null;
     isActive = false;
+    triggerAutoPlay = null;
 
     get totalBet() {
         return this.betControlStore.totalBet * this.fsMultiplier;

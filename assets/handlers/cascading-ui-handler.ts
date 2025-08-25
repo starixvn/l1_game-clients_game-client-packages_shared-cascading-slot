@@ -3,6 +3,7 @@ import inversify from "inversify";
 
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import mobx from "mobx";
+import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
@@ -27,6 +28,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(gc.UserSettings.UserSettingHandlers) protected readonly userSettingHandlers: gc.UserSettings.UserSettingHandlers;
     @inject(gc.GameUserSettings.GameUserSettingHandler)
     protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
+    @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
 
     constructor() {
         setTimeout(() => {
@@ -45,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -152,6 +154,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
         if (freespins.promotionId) {
             this.fsbPromotionUIStore.resumedFSBPromotion = true;
+        }
+
+        if (freespins?.buyFreeSpin && total > 0) {
+            this.buyFsStore.isActive = true;
+            this.buyFsStore.triggerAutoPlay = {};
         }
     }
 

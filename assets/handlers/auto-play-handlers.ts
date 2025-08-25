@@ -3,6 +3,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import inversify from "inversify";
 import mobx from "mobx";
 import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
+import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
@@ -28,6 +29,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     @inject(BuyFreespinsHandler) protected readonly buyFsHandler: BuyFreespinsHandler;
+    @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
 
     constructor() {
         mobx.makeAutoObservable(this);
@@ -40,7 +42,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }
                 }
             );
-
             mobx.reaction(
                 () => this.betStore.lastReceivedBet,
                 (lastReceivedBet) => {
@@ -54,6 +55,14 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 (triggerCancelAutoPlay) => {
                     if (triggerCancelAutoPlay) {
                         this.cancelAutoPlay();
+                    }
+                }
+            );
+            mobx.reaction(
+                () => this.buyFsStore.triggerAutoPlay,
+                (triggerAutoPlay) => {
+                    if (triggerAutoPlay) {
+                        this.placeBet();
                     }
                 }
             );
