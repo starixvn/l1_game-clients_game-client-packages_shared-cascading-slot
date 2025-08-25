@@ -4,7 +4,6 @@ import Observer from "observer";
 
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
 
@@ -46,7 +45,7 @@ export class BuyFreespinsButton extends ObserverComponent {
         this.labelTotalBet.node.active = !isActive;
     }
 
-    @render(CascadingUIStore, (store) => store.disableBuyFreespins)
+    @render(BuyFreespinsStore, (store) => store.disableBuyFs)
     renderDisableBuyFreespins(disableBuyFreespins: boolean) {
         this.button.interactable = !disableBuyFreespins;
     }
