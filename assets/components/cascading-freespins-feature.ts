@@ -41,7 +41,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
                     AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
                     AnimationUtils.fadeIn(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
                     this.audioContainer.updateVolumeMusicSource(0.1, 1);
-                    this.playSound(AudioIds.TRANSFORM_FREESPINS);
+                    this.playSound(AudioIds.FREESPINS_BONUS);
                 } catch (err) {
                     console.log(err);
                 }
@@ -49,7 +49,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
                 AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
                 AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
                 this.audioContainer.updateVolumeMusicSource(1, 1);
-                this.stopSound(AudioIds.TRANSFORM_FREESPINS);
+                this.stopSound(AudioIds.FREESPINS_BONUS);
                 this.bgFreeSpin.removeAllChildren();
             }
         }

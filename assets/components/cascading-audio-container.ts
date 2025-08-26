@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, AudioSource } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
 const { ccclass, property } = _decorator;
@@ -41,7 +42,7 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private handlePlayAction(data: gc.Audios.AudioData) {
-        if (!this.isUserGesture && data.id !== "transform-freespins") {
+        if (!this.isUserGesture && data.id !== AudioIds.FREESPINS_BONUS) {
             return;
         }
 
