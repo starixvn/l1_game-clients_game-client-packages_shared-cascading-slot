@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { BuyFreespinsStore } from "db://shared-cascading-slot/buy-freespins/handler/buy-freespins-store";
 import inversify from "inversify";
+import { stub } from "jest-auto-stub";
 import mobx from "mobx";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
@@ -128,6 +130,7 @@ describe("CascadingUIHandler", () => {
         // Set mock stores directly on the prototype
         (CascadingUIHandler.prototype as any).uiStore = mockUIStore;
         (CascadingUIHandler.prototype as any).tumblesStore = mockTumblesStore;
+        (CascadingUIHandler.prototype as any).buyFsStore = stub<BuyFreespinsStore>();
         (CascadingUIHandler.prototype as any).settlementStore = mockSettlementStore;
         (CascadingUIHandler.prototype as any).betControlStore = mockBetControlStore;
         (CascadingUIHandler.prototype as any).configsStore = mockConfigsStore;
