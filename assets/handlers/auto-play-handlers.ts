@@ -12,6 +12,8 @@ import { HoldActionStore } from "../stores/hold-action-store";
 import { BetControlStore } from "./../stores/bet-control-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
+import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 
 const { injectable, inject } = inversify;
 
@@ -29,6 +31,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     @inject(BuyFreespinsHandler) protected readonly buyFsHandler: BuyFreespinsHandler;
+    @inject(FSBPromotionUIHandler) protected readonly fsbPromotionUIHandler: FSBPromotionUIHandler;
     @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
 
     constructor() {
@@ -201,6 +204,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     setTimeout(() => {
                         this.handleAutoPlaceBet();
                     }, 1000);
+                }
+                if (this.fsbPromotionUIStore.isShowFreeSpinMessage) {
+                    this.fsbPromotionUIHandler.changeUIPendingEvent(FreeSpinsPromotionEvents.OPEN_PROMOTION_INFO);
                 }
             }
         }

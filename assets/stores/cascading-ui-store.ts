@@ -8,6 +8,7 @@ import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
+simport { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -18,6 +19,7 @@ export class CascadingUIStore {
     @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
+    @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -66,8 +68,6 @@ export class CascadingUIStore {
     triggerCancelAutoPlay = null;
 
     triggerWinMultiplier = null;
-
-    fsbPromotionInProgress = false;
 
     triggerDuringFreeSpinBonus = null;
 
@@ -169,7 +169,7 @@ export class CascadingUIStore {
 
     get disabledChangeTrialMode() {
         return (
-            this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode) || this.fsbPromotionInProgress
+            this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode) || this.fsbPromotionUIStore.fsbPromotionInProgress
         );
     }
 
@@ -182,12 +182,12 @@ export class CascadingUIStore {
             this.isFreeSpins ||
             this.isTrialMode ||
             this.cascadingState === CascadingSlotState.SPINNING ||
-            this.fsbPromotionInProgress
+            this.fsbPromotionUIStore.fsbPromotionInProgress
         );
     }
 
     get disabledOpenInputBet() {
-        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionInProgress;
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionUIStore.fsbPromotionInProgress;
     }
 
     get isUsedFSBPromotionBonus() {

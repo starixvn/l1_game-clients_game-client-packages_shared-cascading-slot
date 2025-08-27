@@ -23,6 +23,7 @@ import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
+import { FreeSpinSignal, FreeSpinSource } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -152,6 +153,21 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
     handleTrialModeWithPromo(isTrialMode: boolean) {
         return isTrialMode;
+    }
+
+    @render(CascadingUIStore, (store) => store.isFreeSpins)
+    notifyFreeSpinFromGame(isActive: boolean) {
+        this.notifyFreeSpin({ source: FreeSpinSource.GAME, active: isActive });
+    }
+
+    @render(CascadingUIStore, (store) => store.isUsedFSBPromotionBonus)
+    notifyFreeSpinFromPromotion(isActive: boolean) {
+        this.notifyFreeSpin({ source: FreeSpinSource.PROMOTION, active: isActive });
+    }
+
+    @handle(FSBPromotionUIHandler, (handler, signal: FreeSpinSignal) => handler.handleFreeSpin(signal))
+    public notifyFreeSpin(signal: FreeSpinSignal) {
+        return signal;
     }
 
     loadSlotSymbols() {
