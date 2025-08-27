@@ -756,6 +756,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (!this.effectMultiplierPrefab) {
             return;
         }
+        AudioUtils.playSFX(AudioIds.MULTIPLIER_SHOW);
         const { level, node, position } = data;
         const effectNode = instantiate(this.effectMultiplierPrefab);
         this.effectContainer.addChild(effectNode);

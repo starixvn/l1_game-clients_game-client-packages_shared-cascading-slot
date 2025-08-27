@@ -2,7 +2,7 @@ import { _decorator, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { resourcesCache } from "../cascading-slot-utils";
+import { globalEmitter, resourcesCache, SlotClientEvent } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
@@ -24,6 +24,9 @@ export class CascadingMascot extends ObserverComponent {
         this.gameConfig = resourcesCache.gameFeatures;
         this.settingMixDuration();
         super.onLoad();
+        if (this.gameConfig.effectIntroMultiplier) {
+            globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playAnimMultiplier, this);
+        }
     }
 
     private settingMixDuration() {
