@@ -3,14 +3,20 @@ import { _decorator } from "cc";
 import WebViewGuide from "db://shared-components/game/game-guide/scripts/web-view-guide";
 import Observer from "observer";
 
+import { BuyFreespinsStore } from "../../buy-freespins/handler/buy-freespins-store";
 import { BetControlStore } from "../../stores/bet-control-store";
-const { ccclass, property } = _decorator;
-const { observer, render, handle } = Observer;
+const { ccclass } = _decorator;
+const { render, handle } = Observer;
 
 @ccclass
 export class CascadingWebViewGuide extends WebViewGuide {
     private level = 0;
     private coin = 0;
+    private readonly Features = {
+        BuyFreeSpins: {
+            enabled: false,
+        },
+    };
 
     @handle(gc.GameGuide.GameGuideHandlers.GetGuideURL)
     initUrl(specialDirection = "", scrollToId = "") {
@@ -28,6 +34,11 @@ export class CascadingWebViewGuide extends WebViewGuide {
         this.coin = coin;
     }
 
+    @render(BuyFreespinsStore, (store) => store.enabled)
+    setBuyFsEnabled(enabled: boolean) {
+        this.Features.BuyFreeSpins.enabled = enabled;
+    }
+
     sendDataToIframe(gameConfigs: gc.GameConfigs.GameConfigStore) {
         const guideUrl = gc.UrlUtils.getSubDomain(this.url);
         this.onWebViewLoaded = () => {
@@ -35,6 +46,7 @@ export class CascadingWebViewGuide extends WebViewGuide {
                 ...gameConfigs,
                 coin: this.coin,
                 level: this.level,
+                features: this.Features,
             };
             (document.getElementById("webview") as HTMLIFrameElement)?.contentWindow?.postMessage(
                 JSON.stringify(configsWithBetInfo),
