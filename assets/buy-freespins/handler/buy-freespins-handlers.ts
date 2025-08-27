@@ -29,6 +29,7 @@ export class BuyFreespinsHandler {
     ];
 
     setFsMultiplier(multiplier: number) {
+        this.buyFsStore.enabled = true;
         this.buyFsStore.fsMultiplier = multiplier;
     }
 

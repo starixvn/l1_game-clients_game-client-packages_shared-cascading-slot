@@ -1,6 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
 import { BuyFsFeatureMessage } from "../buy-freespins/handler/buy-freespins-definitions";
+import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 
 const { injectable, inject } = inversify;
@@ -8,6 +9,7 @@ const { injectable, inject } = inversify;
 @injectable()
 export class FeaturesHandlers {
     @inject(BuyFreespinsStore) private readonly buyFsStore: BuyFreespinsStore;
+    @inject(BuyFreespinsHandler) private readonly buyFsHandler: BuyFreespinsHandler;
 
     constructor() {
         mobx.makeAutoObservable(this);
@@ -23,7 +25,9 @@ export class FeaturesHandlers {
     handleFeatures(features: any) {
         Object.keys(features).forEach((featureKey) => {
             if (featureKey === BuyFsFeatureMessage.Feature_Name) {
-                this.buyFsStore.fsMultiplier = features[featureKey]?.multiplier;
+                if (features[featureKey]?.enabled) {
+                    this.buyFsHandler.setFsMultiplier(features[featureKey].multiplier);
+                }
             }
         });
     }
