@@ -14,6 +14,7 @@ import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
 import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
+import { BetControlHandlers } from "./bet-control-handlers";
 
 const { injectable, inject } = inversify;
 
@@ -33,6 +34,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(BuyFreespinsHandler) protected readonly buyFsHandler: BuyFreespinsHandler;
     @inject(FSBPromotionUIHandler) protected readonly fsbPromotionUIHandler: FSBPromotionUIHandler;
     @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
+    @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
 
     constructor() {
         mobx.makeAutoObservable(this);
@@ -59,6 +61,37 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     if (triggerCancelAutoPlay) {
                         this.cancelAutoPlay();
                     }
+                }
+            );
+            mobx.reaction(
+                () => this.fsbPromotionUIStore.pendingUIEvent,
+                (evt) => {
+                    if (!evt || evt.event !== FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
+                        return;
+                    }
+                    const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
+                    setTimeout(() => {
+                        const { coinValue, betLevel } = this.fsbPromotionUIHandler.getDataBetControl();
+                        this.betControlHandlers.init(coinValue, betLevel);
+                        this.fsbPromotionUIHandler.tryConsumeFSB();
+                        if (isPlaceBet) {
+                            this.placeBet();
+                        }
+                        this.fsbPromotionUIStore.removePendingUIEvent();
+                    }, delayMs);
+                }
+            );
+
+            mobx.reaction(
+                () => [this.fsbPromotionUIStore.isEligibleForNextFSBSpin, this.fsbPromotionUIStore.hasServerFinishPromotion] as const,
+                ([eligible, finished]) => {
+                    if (!eligible || finished) {
+                        return;
+                    }
+                    const { coinValue, betLevel } = this.fsbPromotionUIHandler.getDataBetControl();
+                    this.betControlHandlers.init(coinValue, betLevel);
+                    this.fsbPromotionUIHandler.tryConsumeFSB();
+                    this.placeBet();
                 }
             );
             mobx.reaction(

@@ -8,7 +8,7 @@ import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
-simport { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -70,7 +70,6 @@ export class CascadingUIStore {
     triggerWinMultiplier = null;
 
     triggerDuringFreeSpinBonus = null;
-
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
             return 1000; // default value
@@ -169,7 +168,9 @@ export class CascadingUIStore {
 
     get disabledChangeTrialMode() {
         return (
-            this.cascadingState === CascadingSlotState.SPINNING || (this.isFreeSpins && !this.isTrialMode) || this.fsbPromotionUIStore.fsbPromotionInProgress
+            this.cascadingState === CascadingSlotState.SPINNING ||
+            (this.isFreeSpins && !this.isTrialMode) ||
+            this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
     }
 
@@ -182,12 +183,12 @@ export class CascadingUIStore {
             this.isFreeSpins ||
             this.isTrialMode ||
             this.cascadingState === CascadingSlotState.SPINNING ||
-            this.fsbPromotionUIStore.fsbPromotionInProgress
+            this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
     }
 
     get disabledOpenInputBet() {
-        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionUIStore.fsbPromotionInProgress;
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionUIStore.isFSBPromotionInProgress;
     }
 
     get isUsedFSBPromotionBonus() {

@@ -109,7 +109,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isHighlightScattersCompleted = false;
         this.uiStore.showReachMaxWin = false;
         this.uiStore.multiplier = 0;
-        if (!this.uiStore.isFreeSpins && !this.uiStore.fsbPromotionInProgress) {
+        if (!this.uiStore.isFreeSpins && !this.fsbPromotionUIStore.isFSBPromotionInProgress) {
             this.uiStore.totalMultiplier = 0;
         }
         this.uiStore.totalWin = 0;
