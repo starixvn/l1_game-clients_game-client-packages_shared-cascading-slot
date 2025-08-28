@@ -78,6 +78,9 @@ describe("CascadingSlotSettingHandlers", () => {
             UID: 123,
             currencyGroup: "CASH_USD",
         });
+        (CascadingSlotSettingHandlers.prototype as any).appStore = stub<gc.App.AppStore>({
+            isClearStorage: false,
+        });
 
         // Mock injectable decorator
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
