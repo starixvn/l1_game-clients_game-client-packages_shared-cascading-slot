@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
+import { stub } from "jest-auto-stub";
 import mobx from "mobx";
 import { CascadingSlotSettingHandlers } from "../../assets/handlers/cascading-slot-setting-handlers";
 
@@ -74,6 +74,10 @@ describe("CascadingSlotSettingHandlers", () => {
         (CascadingSlotSettingHandlers.prototype as any).gameUserSettingStore = mockGameUserSettingStore;
         (CascadingSlotSettingHandlers.prototype as any).cascadingUIStore = mockCascadingUIStore;
         (CascadingSlotSettingHandlers.prototype as any).betControlStore = mockBetControlStore;
+        (CascadingSlotSettingHandlers.prototype as any).mainPlayerStore = stub<gc.Player.MainPlayerStore>({
+            UID: 123,
+            currencyGroup: "CASH_USD",
+        });
 
         // Mock injectable decorator
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
@@ -83,16 +87,9 @@ describe("CascadingSlotSettingHandlers", () => {
         setTimeoutSpy?.mockRestore();
     });
 
-    const assignMocksToHandler = (handler: CascadingSlotSettingHandlers) => {
-        (handler as any).cascadingUIStore = mockCascadingUIStore;
-        (handler as any).betControlStore = mockBetControlStore;
-        (handler as any).gameUserSettingStore = mockGameUserSettingStore;
-    };
-
     describe("constructor", () => {
         it("should initialize and set up mobx reaction", () => {
             settingHandlers = new CascadingSlotSettingHandlers();
-            assignMocksToHandler(settingHandlers);
 
             expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
             expect(mockReaction).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));
