@@ -23,21 +23,27 @@ export class CascadingSlotSettingHandlers {
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     constructor() {
         setTimeout(() => {
-            this.loadTempStorage();
-            mobx.reaction(
-                () => this.gameUserSettingStore.tempStorage,
-                (trigger) => {
-                    switch (trigger?.action) {
-                        case GameUserSettingAction.Save:
-                            this.saveTempStorage();
-                            break;
-                        case GameUserSettingAction.Load:
-                            this.loadTempStorage();
-                            break;
+            mobx.when(() => this.mainPlayerStore.UID !== 0 && this.mainPlayerStore.currencyGroup !== "", () => {
+                this.loadTempStorage();
+                mobx.reaction(
+                    () => this.gameUserSettingStore.tempStorage,
+                    (trigger) => {
+                        this.reactionTempStorage(trigger);
                     }
-                }
-            );
+                );
+            });
         }, 0);
+    }
+
+    reactionTempStorage(trigger: gc.GameUserSettings.GameUserSettingTrigger) {
+        switch (trigger?.action) {
+            case GameUserSettingAction.Save:
+                this.saveTempStorage();
+                break;
+            case GameUserSettingAction.Load:
+                this.loadTempStorage();
+                break;
+        }
     }
 
     getStorageKey() {
