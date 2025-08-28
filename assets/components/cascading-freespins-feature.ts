@@ -1,12 +1,12 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Node, Prefab } from "cc";
-import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { resourcesCache } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { getAudioId } from "./../cascading-slot-utils";
 import { CascadingAudioContainer } from "./cascading-audio-container";
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -33,6 +33,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
     async handleBackgroundGame(triggerDuringFreeSpinBonus: boolean) {
         if (resourcesCache.gameFeatures?.allowBackgroundChangeOnFreeSpins) {
+            const freeSpinBonusAudioId = getAudioId("BGM_FEATURE");
             if (triggerDuringFreeSpinBonus) {
                 try {
                     const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/bg-freespins", Prefab);
@@ -41,7 +42,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
                     AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
                     AnimationUtils.fadeIn(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
                     this.audioContainer.updateVolumeMusicSource(0.1, 1);
-                    this.playSound(AudioIds.FREESPINS_BONUS);
+                    freeSpinBonusAudioId && this.playSound(freeSpinBonusAudioId);
                 } catch (err) {
                     console.log(err);
                 }
@@ -49,7 +50,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
                 AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
                 AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
                 this.audioContainer.updateVolumeMusicSource(1, 1);
-                this.stopSound(AudioIds.FREESPINS_BONUS);
+                freeSpinBonusAudioId && this.stopSound(freeSpinBonusAudioId);
                 this.bgFreeSpin.removeAllChildren();
             }
         }

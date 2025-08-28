@@ -3,7 +3,7 @@ import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { getCustomDuration } from "../../cascading-slot-utils";
+import { getAudioId, getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -84,17 +84,28 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     async setAnimationChangeSuper() {
         this.isChangeLevelSuper = false;
+        const superWinAudioId = getAudioId("SUPER_WIN");
+        if (superWinAudioId) {
+            this.playSound(superWinAudioId);
+        } else {
+            this.playSound(this.Sound.WINNING_LEVEL_UP);
+        }
         await this.changeLevelAnimation(this.mainSpine, "hide", this.superWinPrefab);
     }
 
     async setAnimationChangeMega() {
         this.isChangeLevelMega = false;
+        const megaWinAudioId = getAudioId("MEGA_WIN");
+        if (megaWinAudioId) {
+            this.playSound(megaWinAudioId);
+        } else {
+            this.playSound(this.Sound.WINNING_LEVEL_UP);
+        }
         await this.changeLevelAnimation(this.mainSpine, "hide", this.megaWinPrefab);
     }
 
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
         try {
-            this.playSound(this.Sound.WINNING_LEVEL_UP);
             skeleton.setAnimation(0, animation, false);
             const duration = skeleton.findAnimation(animation)?.duration || 0;
             if (duration > 0) {
@@ -104,7 +115,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) { }
+        } catch (error) {}
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {

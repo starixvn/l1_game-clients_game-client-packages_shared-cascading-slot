@@ -4,7 +4,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
-import { hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
+import { getAudioId, hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -120,7 +120,11 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        return AudioIds.CLICK_SYMBOL || AudioIds.CLICK;
+        const clickSymbolAudioId = getAudioId("CLICK_SYMBOL");
+        if (clickSymbolAudioId) {
+            return clickSymbolAudioId;
+        }
+        return AudioIds.CLICK;
     }
 
     @render(CascadingUIStore, (store) => store.cascadingState)

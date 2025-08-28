@@ -12,6 +12,7 @@ import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
 import {
     BoardSize,
     convertBoardValue,
+    getAudioId,
     globalEmitter,
     resourcesCache,
     SlotClientEvent,
@@ -756,7 +757,10 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (!this.effectMultiplierPrefab) {
             return;
         }
-        AudioUtils.playSFX(AudioIds.MULTIPLIER_SHOW);
+
+        const multiplierLandAudioId = getAudioId("MULTIPLIER_LAND");
+        multiplierLandAudioId && AudioUtils.playSFX(multiplierLandAudioId);
+
         const { level, node, position } = data;
         const effectNode = instantiate(this.effectMultiplierPrefab);
         this.effectContainer.addChild(effectNode);

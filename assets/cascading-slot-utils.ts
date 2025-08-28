@@ -1,4 +1,5 @@
 import { EventTarget, Node, tween, UIOpacity } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
 
@@ -138,4 +139,8 @@ export const findIndex = (value: number, valueList: number[]) => {
 
 export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
     return +(level * coin * betMultiplier).toFixed(1);
+};
+
+export const getAudioId = (id: string) => {
+    return AudioIds[id];
 };
