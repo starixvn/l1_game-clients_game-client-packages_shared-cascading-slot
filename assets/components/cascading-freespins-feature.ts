@@ -32,7 +32,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
     async handleBackgroundGame(triggerDuringFreeSpinBonus: boolean) {
-        if (resourcesCache.gameFeatures?.allowBackgroundChangeOnFreeSpins) {
+        if (resourcesCache.gameFeatures?.allowBonusFeature) {
             const freeSpinBonusAudioId = getAudioId("BGM_FEATURE");
             if (triggerDuringFreeSpinBonus) {
                 try {
