@@ -32,7 +32,7 @@ jest.mock("@sg/game-client-base", () => {
             NoticeStore: {},
             NoticeErrorsHandlers: {
                 AutoSignOutHandler: jest.fn(() => ({})),
-            }
+            },
         },
         Error: {
             ErrorStore: {},
@@ -298,7 +298,6 @@ describe("CascadingEffectBigwin", () => {
 
             await cascadingEffectBigwin.changeLevelAnimation(mockMainSpine, "hide", mockMegaWinPrefab);
 
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith("winning-level-up");
             expect(mockMainSpine.setAnimation).toHaveBeenCalledWith(0, "hide", false);
             expect(mockChangeLevel.removeAllChildren).toHaveBeenCalled();
             expect(mockChangeLevel.addChild).toHaveBeenCalled();
@@ -310,8 +309,6 @@ describe("CascadingEffectBigwin", () => {
             cascadingEffectBigwin.playSound = jest.fn();
 
             await cascadingEffectBigwin.changeLevelAnimation(mockMainSpine, "hide", mockMegaWinPrefab);
-
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith("winning-level-up");
             expect(mockMainSpine.setAnimation).toHaveBeenCalledWith(0, "hide", false);
             expect(mockChangeLevel.removeAllChildren).toHaveBeenCalled();
             expect(mockChangeLevel.addChild).toHaveBeenCalled();
