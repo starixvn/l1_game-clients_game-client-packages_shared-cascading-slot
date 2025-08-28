@@ -11,7 +11,11 @@ export class CascadingAudioContainer extends AudioContainer {
     @property({ type: AudioSource })
     listStoppableSFXSource: AudioSource[] = [];
 
-    private readonly audioSourceStates: Array<{ audioId: string | null; isAvailable: boolean }> = [];
+    @property({ type: AudioSource })
+    listSFXSource: AudioSource[] = [];
+
+    private readonly stoppableIdSources: Array<string | null> = [];
+    private readonly sfxIdSources: Array<string | null> = [];
 
     onLoad() {
         super.onLoad();
@@ -19,10 +23,52 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private initializeAudioSourceStates() {
-        this.audioSourceStates.length = 0;
+        this.stoppableIdSources.length = 0;
+        this.sfxIdSources.length = 0;
+
         for (const _ of this.listStoppableSFXSource) {
-            this.audioSourceStates.push({ audioId: null, isAvailable: true });
+            this.stoppableIdSources.push(null);
         }
+
+        for (const _ of this.listSFXSource) {
+            this.sfxIdSources.push(null);
+        }
+    }
+
+    @render(gc.Audios.AudioStore, (store) => store.sfx, { fireImmediately: false })
+    playSFX(data: gc.Audios.AudioData) {
+        if (!data) {
+            return;
+        }
+
+        for (let index = 0; index < this.listSFXSource.length; index++) {
+            const source = this.listSFXSource[index];
+            if (!source.playing) {
+                this.sfxIdSources[index] = null;
+            }
+        }
+
+        const sourceIndex = this.sfxIdSources.findIndex((id) => id === null);
+        if (sourceIndex === -1) {
+            console.warn(`No available audio source for SFX: ${data.id}`);
+            return;
+        }
+
+        if (data.action === gc.Audios.AudioAction.PLAY && this.isUserGesture) {
+            this.playOneShotAudio(data.id, this.listSFXSource[sourceIndex]);
+        }
+    }
+
+    async playOneShotAudio(id: string, audioSource: AudioSource) {
+        this.playAudio(
+            id,
+            (clip, isPlay) => {
+                if (isPlay === this.isPlaySFX) {
+                    audioSource.playOneShot(clip);
+                }
+            },
+            this.isPlaySFX
+        );
     }
 
     @render(gc.Audios.AudioStore, (store) => store.stoppableSFX)
@@ -73,8 +119,8 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private getAvailableSourceIndex(): number {
-        for (let i = 0; i < this.audioSourceStates.length; i++) {
-            if (this.audioSourceStates[i].isAvailable) {
+        for (let i = 0; i < this.stoppableIdSources.length; i++) {
+            if (this.stoppableIdSources[i] === null) {
                 return i;
             }
         }
@@ -82,18 +128,18 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private playAudioWithSource(audioId: string, sourceIndex: number) {
-        this.audioSourceStates[sourceIndex] = { audioId, isAvailable: false };
+        this.stoppableIdSources[sourceIndex] = audioId;
         this.playStoppableSFX(audioId, this.listStoppableSFXSource[sourceIndex]);
     }
 
     private stopAudioWithSource(audioId: string, sourceIndex: number) {
         this.stopAudio(this.listStoppableSFXSource[sourceIndex]);
-        this.audioSourceStates[sourceIndex] = { audioId: null, isAvailable: true };
+        this.stoppableIdSources[sourceIndex] = null;
     }
 
     private findSourceIndexByAudioId(audioId: string): number {
-        for (let i = 0; i < this.audioSourceStates.length; i++) {
-            if (this.audioSourceStates[i].audioId === audioId) {
+        for (let i = 0; i < this.stoppableIdSources.length; i++) {
+            if (this.stoppableIdSources[i] === audioId) {
                 return i;
             }
         }
