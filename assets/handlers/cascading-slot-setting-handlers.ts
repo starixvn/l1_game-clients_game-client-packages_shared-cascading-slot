@@ -18,6 +18,7 @@ interface IGameUserSetting {
 @injectable()
 export class CascadingSlotSettingHandlers {
     @inject(gc.GameUserSettings.GameUserSettingStore) protected readonly gameUserSettingStore: gc.GameUserSettings.GameUserSettingStore;
+    @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     constructor() {
@@ -39,8 +40,12 @@ export class CascadingSlotSettingHandlers {
         }, 0);
     }
 
+    getStorageKey() {
+        return `${localStorageKeys.gameUserSetting}-${this.mainPlayerStore.UID}-${this.mainPlayerStore.currencyGroup}`;
+    }
+
     loadTempStorage() {
-        const data = StorageManager.get(localStorageKeys.gameUserSetting) as IGameUserSetting;
+        const data = StorageManager.get(this.getStorageKey()) as IGameUserSetting;
         if (data) {
             this.cascadingUIStore.isTrialMode = data.trialMode;
             this.cascadingUIStore.isTurboModeUI = data.turboMode;
@@ -59,11 +64,11 @@ export class CascadingSlotSettingHandlers {
             lastBetSetting: this.betControlStore.needClearLastSetting
                 ? null
                 : {
-                      betLevel: this.betControlStore.betLevel,
-                      coinValue: this.betControlStore.coinValue,
-                  },
+                    betLevel: this.betControlStore.betLevel,
+                    coinValue: this.betControlStore.coinValue,
+                },
         };
         this.betControlStore.needClearLastSetting = false;
-        StorageManager.set(localStorageKeys.gameUserSetting, currentSetting);
+        StorageManager.set(this.getStorageKey(), currentSetting);
     }
 }
