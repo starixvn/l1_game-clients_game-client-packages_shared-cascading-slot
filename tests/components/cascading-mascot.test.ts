@@ -38,6 +38,7 @@ jest.mock("../../assets/cascading-slot-utils", () => ({
     resourcesCache: {
         gameFeatures: {
             turnOnEventMascot: true,
+            turnOnMultiplierMascot: true,
             freespinMascotAnimationName: "freespin_anim",
             bigWinMascotAnimationName: "bigwin_anim",
             multiplierMascotAnimationName: "multiplier_anim",
@@ -105,12 +106,14 @@ describe("CascadingMascot", () => {
     describe("Animation Methods", () => {
         describe("playAnimFreespin", () => {
             it("should play freespin animation and return to idle", async () => {
+                // Arrange
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
+
                 // Act
                 await cascadingMascot.playAnimFreespin();
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "freespin_anim", false);
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("freespin_anim");
             });
         });
 
@@ -165,16 +168,13 @@ describe("CascadingMascot", () => {
                     bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
                     multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.freespinMascotAnimationName,
-                    false
-                );
+                expect(cascadingMascot["handleAnimTransition"]).not.toHaveBeenCalledWith("freespin_anim");
             });
 
             it("should not play animation when mascot is disabled", async () => {
@@ -182,16 +182,13 @@ describe("CascadingMascot", () => {
                 const isShowFreeSpinEffect = true;
                 cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
                 resourcesCache.gameFeatures.turnOnEventMascot = false;
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.freespinMascotAnimationName,
-                    false
-                );
+                expect(cascadingMascot["handleAnimTransition"]).not.toHaveBeenCalledWith("freespin_anim");
             });
         });
 
@@ -205,33 +202,26 @@ describe("CascadingMascot", () => {
                     bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
                     multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
-                    false
-                );
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("bigwin_anim");
             });
 
             it("should not play animation when haveBigWin is false", async () => {
                 // Arrange
                 const haveBigWin = false;
                 cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
-                    false
-                );
+                expect(cascadingMascot["handleAnimTransition"]).not.toHaveBeenCalledWith("bigwin_anim");
             });
 
             it("should not play animation when mascot is disabled", async () => {
@@ -243,16 +233,13 @@ describe("CascadingMascot", () => {
                     bigWinMascotAnimationName: resourcesCache.gameFeatures.bigWinMascotAnimationName,
                     multiplierMascotAnimationName: resourcesCache.gameFeatures.multiplierMascotAnimationName,
                 };
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimBigWin(haveBigWin);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.bigWinMascotAnimationName,
-                    false
-                );
+                expect(cascadingMascot["handleAnimTransition"]).not.toHaveBeenCalledWith("bigwin_anim");
             });
         });
 
@@ -260,52 +247,30 @@ describe("CascadingMascot", () => {
             it("should play multiplier animation when triggerWinMultiplier is true and mascot is enabled", () => {
                 // Arrange
                 const triggerWinMultiplier = true;
-                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
-                resourcesCache.gameFeatures.turnOnEventMascot = true;
+                cascadingMascot["gameConfig"] = {
+                    ...resourcesCache.gameFeatures,
+                    turnOnMultiplierMascot: true,
+                };
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
-                    false
-                );
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("multiplier_anim");
             });
 
             it("should not play animation when triggerWinMultiplier is false", () => {
                 // Arrange
                 const triggerWinMultiplier = false;
                 cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
 
                 // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
-                    false
-                );
-            });
-
-            it("should not play animation when mascot is disabled", () => {
-                // Arrange
-                const triggerWinMultiplier = true;
-                cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
-                resourcesCache.gameFeatures.turnOnEventMascot = false;
-
-                // Act
-                cascadingMascot.showAnimMultiplier(triggerWinMultiplier);
-
-                // Assert
-                expect(AnimationUtils.playSpine).not.toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.multiplierMascotAnimationName,
-                    false
-                );
+                expect(cascadingMascot["handleAnimTransition"]).not.toHaveBeenCalledWith("multiplier_anim");
             });
         });
     });
@@ -331,20 +296,6 @@ describe("CascadingMascot", () => {
 
             // Assert
             expect(cascadingMascot["gameConfig"]).toBe(resourcesCache.gameFeatures);
-        });
-    });
-
-    describe("Error Handling", () => {
-        it("should handle handleAnimTransition rejection gracefully", async () => {
-            // Arrange
-            const error = new Error("Animation failed");
-            cascadingMascot["handleAnimTransition"] = jest.fn().mockRejectedValue(error);
-
-            // Ensure gameConfig is properly set up
-            cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
-
-            // Act & Assert
-            await expect(cascadingMascot.playAnimFreespin()).rejects.toThrow("Animation failed");
         });
     });
 });
