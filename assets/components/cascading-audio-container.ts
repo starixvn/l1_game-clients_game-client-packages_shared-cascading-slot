@@ -157,4 +157,18 @@ export class CascadingAudioContainer extends AudioContainer {
             this.isPlaySFX
         );
     }
+
+    @render(gc.UserSettings.UserSettingStore, (store) => store.musicEnable, { fireImmediately: false })
+    enableMusic(musicEnable: boolean) {
+        super.enableMusic(musicEnable);
+        const sourceIndex = this.findSourceIndexByAudioId(getAudioId("BGM_FEATURE"));
+        if (sourceIndex === -1) {
+            return;
+        }
+        if (!musicEnable) {
+            this.listStoppableSFXSource[sourceIndex].pause();
+        } else {
+            this.playAudioWithSource(getAudioId("BGM_FEATURE"), sourceIndex);
+        }
+    }
 }
