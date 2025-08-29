@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
@@ -23,14 +24,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     private isTurboMode = false;
     private gameConfig: GameFeatureJson;
 
-    private readonly Sound = {
-        FREE_SPIN_SOUND: "free_spin",
-        BIG_WIN_SOUND: "big_win",
-        INCREMENT: "increment",
-        INCREMENT_END: "increment_stop",
-        TRANSITION: "transition",
-    };
-
     onLoad() {
         super.onLoad();
         this.gameConfig = resourcesCache.gameFeatures;
@@ -45,7 +38,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         await this.delayMascotEvent();
         await this.playEffectTransition();
-        this.playSound(this.Sound.FREE_SPIN_SOUND);
+        this.playSound(AudioIds.FREESPIN);
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
         const duration = getCustomDuration("freeSpin", this.isTurboMode);
@@ -65,7 +58,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         await this.playEffectTransition();
         !this.isTurboMode && this.playSoundCoinIncrement();
 
-        this.playSound(this.Sound.BIG_WIN_SOUND);
+        this.playSound(AudioIds.BIG_WIN);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);
     }
@@ -92,12 +85,12 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, audioId: string) => handle.playStoppableSFX(audioId))
     playSoundCoinIncrement() {
-        return this.Sound.INCREMENT;
+        return AudioIds.INCREMENT;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundCoinIncrement() {
-        return this.Sound.INCREMENT;
+        return AudioIds.INCREMENT;
     }
 
     private async playEffectTransition() {
@@ -105,7 +98,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             return;
         }
         const transition = instantiate(this.pfbEffectTransition);
-        this.playSound(this.Sound.TRANSITION);
+        this.playSound(AudioIds.TRANSITION);
         this.node.addChild(transition);
         const duration = getCustomDuration("transition", this.isTurboMode);
         await AnimationUtils.delayTime(duration);

@@ -64,7 +64,7 @@ export interface GameFeatureJson {
     enablePeekEffect: boolean;
     effectIntroMultiplier: boolean;
     fixedExplodeDuration: number;
-    allowBonusFeature: boolean;
+    allowFreeSpinsFeature: boolean;
 }
 
 export interface ColorJson {

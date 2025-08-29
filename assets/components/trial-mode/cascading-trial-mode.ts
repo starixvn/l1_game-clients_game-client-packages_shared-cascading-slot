@@ -41,7 +41,7 @@ export class CascadingTrialMode extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        return "click";
+        return gc.Audios.AudioIds.CLICK;
     }
 
     @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))

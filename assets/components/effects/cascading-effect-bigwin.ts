@@ -1,9 +1,10 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { getAudioId, getCustomDuration } from "../../cascading-slot-utils";
+import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -45,14 +46,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private isTurboMode = false;
     private tweenBigWin: Tween<Node> = null;
     private tweenDelay = null;
-    private readonly Sound = {
-        FREE_SPIN_SOUND: "free_spin",
-        BIG_WIN_SOUND: "big_win",
-        BIG_WIN_STOP: "big_win_stop",
-        INCREMENT: "increment",
-        INCREMENT_END: "increment_stop",
-        WINNING_LEVEL_UP: "winning-level-up",
-    };
 
     private skipClickCount = 0;
     private readonly MAX_SKIP_CLICK_COUNT = 2;
@@ -84,23 +77,13 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     async setAnimationChangeSuper() {
         this.isChangeLevelSuper = false;
-        const superWinAudioId = getAudioId("SUPER_WIN");
-        if (superWinAudioId) {
-            this.playSound(superWinAudioId);
-        } else {
-            this.playSound(this.Sound.WINNING_LEVEL_UP);
-        }
+        this.playSound(AudioIds.SUPER_WIN || AudioIds.WINNING_LEVEL_UP);
         await this.changeLevelAnimation(this.mainSpine, "hide", this.superWinPrefab);
     }
 
     async setAnimationChangeMega() {
         this.isChangeLevelMega = false;
-        const megaWinAudioId = getAudioId("MEGA_WIN");
-        if (megaWinAudioId) {
-            this.playSound(megaWinAudioId);
-        } else {
-            this.playSound(this.Sound.WINNING_LEVEL_UP);
-        }
+        this.playSound(AudioIds.MEGA_WIN || AudioIds.WINNING_LEVEL_UP);
         await this.changeLevelAnimation(this.mainSpine, "hide", this.megaWinPrefab);
     }
 
@@ -153,8 +136,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
             .call(() => {
                 label.string = formatText(end);
                 this.handleBigWinActions(true);
-                this.playSound(this.Sound.BIG_WIN_STOP);
-                this.playSound(this.Sound.INCREMENT_END);
+                this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
+                this.playSound(AudioIds.INCREMENT_STOP);
                 this.stopSoundCoinIncrement();
             })
             .start();
@@ -248,8 +231,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
-        this.playSound(this.Sound.BIG_WIN_STOP);
-        this.playSound(this.Sound.INCREMENT_END);
+        this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
+        this.playSound(AudioIds.INCREMENT_STOP);
 
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         this.tweenDelay = tween({})
@@ -267,6 +250,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundCoinIncrement() {
-        return this.Sound.INCREMENT;
+        return AudioIds.INCREMENT;
     }
 }

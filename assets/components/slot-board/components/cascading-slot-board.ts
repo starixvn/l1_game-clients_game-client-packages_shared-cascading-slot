@@ -61,19 +61,6 @@ export class CascadingSlotBoard extends ObserverComponent {
     public renderFromStore = true;
     public currentTotalMultiplier = 0;
     public colorInfo: any;
-    private readonly Sound = {
-        MULTIPLIER_APPEAR_SOUND: "multiplier_appear",
-        COIN_SOUND: "coin",
-        REEL_STOP_1_SOUND: "reel_stop_1",
-        REEL_STOP_2_SOUND: "reel_stop_2",
-        REEL_STOP_3_SOUND: "reel_stop_3",
-        REEL_STOP_4_SOUND: "reel_stop_4",
-        REEL_STOP_5_SOUND: "reel_stop_5",
-        SPINNING_NORMAL: "spinning_normal",
-        SPINNING_TURBO: "spinning_turbo",
-        TUMBLE_WIN_SOUND: "tumble_win",
-    };
-
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
@@ -188,7 +175,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
                 this.setTumbleIcons(tumble);
-                this.playSound(this.Sound.TUMBLE_WIN_SOUND);
+                this.playSound(AudioIds.SYMBOL_MATCH);
             }
 
             await this.removeItems(explode, i);
@@ -267,25 +254,16 @@ export class CascadingSlotBoard extends ObserverComponent {
             return null;
         }
 
-        const soundArray = [
-            this.Sound.REEL_STOP_1_SOUND,
-            this.Sound.REEL_STOP_2_SOUND,
-            this.Sound.REEL_STOP_3_SOUND,
-            this.Sound.REEL_STOP_4_SOUND,
-            this.Sound.REEL_STOP_5_SOUND,
-            this.Sound.REEL_STOP_5_SOUND,
-        ];
-        const sound = soundArray[index];
         return () => {
-            this.playSound(sound);
+            this.playSound(AudioIds.REEL_STOP);
         };
     }
 
     private playSpinAudio(isTurbo: boolean) {
         if (isTurbo) {
-            this.playSound(this.Sound.SPINNING_TURBO);
+            this.playSound(AudioIds.SPINNING_TURBO);
         } else {
-            this.playSound(this.Sound.SPINNING_NORMAL);
+            this.playSound(AudioIds.SPINNING_NORMAL);
         }
     }
 
@@ -447,11 +425,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (winMultiplier) {
             const multiplierItems = this.getMultiplierItems();
             for (const mItem of multiplierItems) {
-                this.playSound(this.Sound.MULTIPLIER_APPEAR_SOUND);
+                this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
                 await mItem.playAnimationGlow();
                 await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
                 await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
-                this.playSound(this.Sound.COIN_SOUND);
+                this.playSound(AudioIds.WIN);
                 this.setMultiplierValue(mItem.multiplier);
             }
 

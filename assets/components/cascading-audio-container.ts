@@ -1,8 +1,8 @@
 import gc from "@sg/game-client-base";
 import { _decorator, AudioSource } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
-import { getAudioId } from "../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
@@ -88,7 +88,7 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private handlePlayAction(data: gc.Audios.AudioData) {
-        if (!this.isUserGesture && data.id !== getAudioId("BGM_FEATURE")) {
+        if (!this.isUserGesture && data.id !== AudioIds.BGM_FREESPIN) {
             return;
         }
 
@@ -161,14 +161,14 @@ export class CascadingAudioContainer extends AudioContainer {
     @render(gc.UserSettings.UserSettingStore, (store) => store.musicEnable, { fireImmediately: false })
     enableMusic(musicEnable: boolean) {
         super.enableMusic(musicEnable);
-        const sourceIndex = this.findSourceIndexByAudioId(getAudioId("BGM_FEATURE"));
+        const sourceIndex = this.findSourceIndexByAudioId(AudioIds.BGM_FREESPIN);
         if (sourceIndex === -1) {
             return;
         }
         if (!musicEnable) {
             this.listStoppableSFXSource[sourceIndex].pause();
         } else {
-            this.playAudioWithSource(getAudioId("BGM_FEATURE"), sourceIndex);
+            this.playAudioWithSource(AudioIds.BGM_FREESPIN, sourceIndex);
         }
     }
 }

@@ -2,20 +2,19 @@ import { _decorator, EventTouch, game, input, Input, KeyCode, Node } from "cc";
 import Observer from "observer";
 
 import gc from "@sg/game-client-base";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import { AutoPlayHandler } from "../handlers/auto-play-handlers";
 import { CascadingHoldActionHandlers } from "../handlers/cascading-hold-action-handlers";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { HoldActionStore } from "../stores/hold-action-store";
-import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 @ccclass
 export class HoldActionButton extends ObserverComponent {
-    private readonly spinButtonSound = "spin_button";
-
     onBlur = () => {
         this.clearTriggerAction();
     };
@@ -82,10 +81,10 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.callTriggerAction())
-    callTriggerAction() { }
+    callTriggerAction() {}
 
     @handle(CascadingHoldActionHandlers, (handler) => handler.clearTriggerAction())
-    clearTriggerAction() { }
+    clearTriggerAction() {}
 
     @render(HoldActionStore, (store) => store.triggerAction, { fireImmediately: false })
     handlePressingKey(triggerAction: any) {
@@ -96,15 +95,15 @@ export class HoldActionButton extends ObserverComponent {
     }
 
     @handle(FSBPromotionUIHandler, (handler) => handler.triggerFSBManual())
-    triggerFSBManual() { }
+    triggerFSBManual() {}
 
     @handle(AutoPlayHandler, (handler) => handler.placeBet())
-    placeBet() { }
+    placeBet() {}
 
     @render(AutoPlayStore, (store) => store.triggerBet)
     renderTriggerBet(triggerBet: any) {
         if (triggerBet) {
-            this.playSound(this.spinButtonSound);
+            this.playSound(AudioIds.SPIN_BUTTON);
         }
     }
 
