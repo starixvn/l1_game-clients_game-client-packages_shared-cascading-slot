@@ -71,6 +71,11 @@ const mockGameUserSettingHandler = {
     saveTempStorage: jest.fn(),
 };
 
+const mockFSBPromotionUIStore = {
+    isFSBPromotionInProgress: false,
+    isSpinningFSB: false,
+};
+
 describe("CascadingUIHandler", () => {
     let uiHandler: CascadingUIHandler;
     let setTimeoutSpy: any;
@@ -135,6 +140,7 @@ describe("CascadingUIHandler", () => {
         (CascadingUIHandler.prototype as any).betControlHandlers = mockBetControlHandlers;
         (CascadingUIHandler.prototype as any).userSettingHandlers = mockUserSettingHandlers;
         (CascadingUIHandler.prototype as any).gameUserSettingHandler = mockGameUserSettingHandler;
+        (CascadingUIHandler.prototype as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
 
         // Mock inversify decorators
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);

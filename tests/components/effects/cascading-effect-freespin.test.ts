@@ -11,6 +11,11 @@ jest.mock("@sg/game-client-base", () => {
                 CLICK: "click_sound",
             },
         },
+        Configs: {
+            SiteConfigs: jest.fn(() => ({
+                systemType: "test",
+            })),
+        },
         Player: {
             MainPlayerStore: jest.fn(() => ({ balance: 1000, name: "test_player" })),
         },

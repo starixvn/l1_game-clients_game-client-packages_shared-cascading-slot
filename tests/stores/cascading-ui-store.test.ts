@@ -21,6 +21,11 @@ jest.mock("@sg/game-client-base", () => ({
     Player: {
         MainPlayerStore: jest.fn(() => mockMainPlayerStore),
     },
+    Configs: {
+        SiteConfigs: jest.fn(() => ({
+            systemType: "test",
+        })),
+    },
 }));
 
 describe("CascadingUIStore", () => {
@@ -49,6 +54,11 @@ describe("CascadingUIStore", () => {
             triggerAction: null,
         } as any;
 
+        const mockFSBPromotionUIStore = {
+            isFSBPromotionInProgress: false,
+            isUsedFSBPromotionBonus: false,
+        } as any;
+
         // Create store instance
         store = new CascadingUIStore();
 
@@ -58,6 +68,7 @@ describe("CascadingUIStore", () => {
         (store as any).configsStore = mockConfigsStore;
         (store as any).holdActionStore = mockHoldActionStore;
         (store as any).mainPlayerStore = mockMainPlayerStore;
+        (store as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
     });
 
     describe("constructor and initial state", () => {
