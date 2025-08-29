@@ -119,6 +119,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     changeCascadingState(state: string) {
         this.uiStore.cascadingState = state;
+        this.fsbPromotionUIStore.isSpinningFSB = state === CascadingSlotState.SPINNING;
     }
 
     handleTurboModeUI(isTurboModeUI: boolean) {

@@ -23,7 +23,7 @@ import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
-import { FreeSpinSignal, FreeSpinSource } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FreeSpinSignal, FreeSpinSource, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -293,6 +293,13 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
     checkSpinNextRound() {}
+
+    @render(FSBPromotionUIStore, (store) => store.changeUserBalance)
+    handleUpdateBalance(isUpdateBalance: boolean) {
+        if (isUpdateBalance) {
+            this.handleChangeUserBalance(true);
+        }
+    }
 
     @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))
     setBalance(data: { balance: number; changedBalance: boolean }) {
