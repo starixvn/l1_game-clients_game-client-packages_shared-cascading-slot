@@ -1,4 +1,4 @@
-import { _decorator, sp } from "cc";
+import { _decorator, sp, tween, UIOpacity } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -10,6 +10,7 @@ const { render, handle } = Observer;
 
 enum AnimationNameMascot {
     idle = "idle",
+    transition = "transition",
 }
 
 @ccclass
@@ -25,7 +26,7 @@ export class CascadingMascot extends ObserverComponent {
         this.settingMixDuration();
         super.onLoad();
         if (this.gameConfig.effectIntroMultiplier) {
-            globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playAnimMultiplier, this);
+            globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playAnimMultiplierLand, this);
         }
     }
 
@@ -36,19 +37,38 @@ export class CascadingMascot extends ObserverComponent {
         this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.multiplierMascotAnimationName, mixDuration);
     }
 
-    async playAnimFreespin() {
-        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.freespinMascotAnimationName, false);
+    async handleAnimTransition(anim: string) {
+        const fadeInOutDuration = 0.3;
+        const durationMascot = this.spineMascot.findAnimation(anim).duration;
+        tween(this.node.getComponent(UIOpacity))
+            .delay(durationMascot - fadeInOutDuration)
+            .to(fadeInOutDuration, { opacity: 0 })
+            .start();
+
+        this.spineMascot.setAnimation(0, AnimationNameMascot.transition, false);
+        this.spineMascot.setAnimation(1, anim, false);
+
+        await new Promise((resolve) => setTimeout(resolve, this.spineMascot.findAnimation(anim).duration * 1000));
+
+        this.spineMascot.clearTracks();
+        tween(this.node.getComponent(UIOpacity)).to(fadeInOutDuration, { opacity: 255 }).start();
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
+    }
+
+    async playAnimFreespin() {
+        await this.handleAnimTransition(this.gameConfig.freespinMascotAnimationName);
     }
 
     async playAnimBigwin() {
-        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.bigWinMascotAnimationName, false);
-        AnimationUtils.playSpine(this.spineMascot, "idle", true);
+        await this.handleAnimTransition(this.gameConfig.bigWinMascotAnimationName);
     }
 
     async playAnimMultiplier() {
-        await AnimationUtils.playSpine(this.spineMascot, this.gameConfig.multiplierMascotAnimationName, false);
-        AnimationUtils.playSpine(this.spineMascot, "idle", true);
+        await this.handleAnimTransition(this.gameConfig.multiplierMascotAnimationName);
+    }
+
+    async playAnimMultiplierLand() {
+        await this.handleAnimTransition(this.gameConfig.multiplierLandMascotAnimationName);
     }
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
@@ -69,7 +89,7 @@ export class CascadingMascot extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.triggerWinMultiplier, { fireImmediately: false })
     showAnimMultiplier(triggerWinMultiplier: any) {
-        if (triggerWinMultiplier && this.gameConfig.turnOnEventMascot) {
+        if (triggerWinMultiplier && this.gameConfig.turnOnMultiplierMascot) {
             this.playAnimMultiplier();
         }
     }

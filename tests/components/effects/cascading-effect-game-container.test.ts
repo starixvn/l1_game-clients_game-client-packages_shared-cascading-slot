@@ -1,4 +1,5 @@
 import { instantiate, JsonAsset, Prefab } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import { resourcesCache } from "../../../assets/cascading-slot-utils";
 import { CascadingEffectGameContainer } from "../../../assets/components/effects/cascading-effect-game-container";
@@ -194,7 +195,7 @@ describe("CascadingEffectGameContainer", () => {
 
             expect(cascadingEffectGameContainer.delayMascotEvent).toHaveBeenCalled();
             expect(cascadingEffectGameContainer["playEffectTransition"]).toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith("free_spin");
+            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.FREESPIN);
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectFreespin);
             expect(mockNode.addChild).toHaveBeenCalled();
             expect(AnimationUtils.delayTime).toHaveBeenCalledWith(2);
@@ -234,7 +235,7 @@ describe("CascadingEffectGameContainer", () => {
             expect(cascadingEffectGameContainer.delayMascotEvent).toHaveBeenCalled();
             expect(cascadingEffectGameContainer["playEffectTransition"]).toHaveBeenCalled();
             expect(cascadingEffectGameContainer.playSoundCoinIncrement).toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith("big_win");
+            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN);
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectBigWin);
             expect(mockNode.addChild).toHaveBeenCalled();
         });
@@ -245,7 +246,7 @@ describe("CascadingEffectGameContainer", () => {
             await cascadingEffectGameContainer.renderBigWinEffect(true);
 
             expect(cascadingEffectGameContainer.playSoundCoinIncrement).not.toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith("big_win");
+            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN);
         });
     });
 

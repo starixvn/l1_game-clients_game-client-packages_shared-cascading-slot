@@ -70,6 +70,9 @@ describe("CascadingMascot", () => {
         // Create mock spine mascot
         mockSpineMascot = {
             setMix: jest.fn(),
+            findAnimation: jest.fn().mockReturnValue({ duration: 1 }),
+            setAnimation: jest.fn(),
+            clearTracks: jest.fn(),
         } as unknown as sp.Skeleton;
 
         // Mock AnimationUtils.playSpine to return a resolved promise
@@ -79,6 +82,7 @@ describe("CascadingMascot", () => {
     const createComponentInstance = () => {
         cascadingMascot = new CascadingMascot();
         cascadingMascot.spineMascot = mockSpineMascot;
+        cascadingMascot.node = { getComponent: jest.fn().mockReturnValue({ opacity: 255 }) } as any;
         // Initialize gameConfig by calling onLoad
         cascadingMascot.onLoad();
     };
@@ -112,23 +116,27 @@ describe("CascadingMascot", () => {
 
         describe("playAnimBigwin", () => {
             it("should play bigwin animation and return to idle", async () => {
+                // Arrange
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
+
                 // Act
                 await cascadingMascot.playAnimBigwin();
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "bigwin_anim", false);
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("bigwin_anim");
             });
         });
 
         describe("playAnimMultiplier", () => {
             it("should play multiplier animation and return to idle", async () => {
+                // Arrange
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
+
                 // Act
                 await cascadingMascot.playAnimMultiplier();
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "multiplier_anim", false);
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("multiplier_anim");
             });
         });
     });
@@ -139,17 +147,13 @@ describe("CascadingMascot", () => {
                 // Arrange
                 const isShowFreeSpinEffect = true;
                 cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;
+                cascadingMascot["handleAnimTransition"] = jest.fn().mockResolvedValue(undefined);
 
                 // Act
                 await cascadingMascot.showAnimFreeSpin(isShowFreeSpinEffect);
 
                 // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(
-                    mockSpineMascot,
-                    resourcesCache.gameFeatures.freespinMascotAnimationName,
-                    false
-                );
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
+                expect(cascadingMascot["handleAnimTransition"]).toHaveBeenCalledWith("freespin_anim");
             });
 
             it("should not play animation when isShowFreeSpinEffect is false", async () => {
@@ -331,10 +335,10 @@ describe("CascadingMascot", () => {
     });
 
     describe("Error Handling", () => {
-        it("should handle AnimationUtils.playSpine rejection gracefully", async () => {
+        it("should handle handleAnimTransition rejection gracefully", async () => {
             // Arrange
             const error = new Error("Animation failed");
-            (AnimationUtils.playSpine as jest.Mock).mockRejectedValue(error);
+            cascadingMascot["handleAnimTransition"] = jest.fn().mockRejectedValue(error);
 
             // Ensure gameConfig is properly set up
             cascadingMascot["gameConfig"] = resourcesCache.gameFeatures;

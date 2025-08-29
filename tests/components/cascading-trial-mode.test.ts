@@ -33,7 +33,7 @@ jest.mock("@sg/game-client-base", () => {
                 playSFX(id: string) {}
             },
             AudioIds: {
-                CLICK: "click_sound",
+                CLICK: "click",
             },
         },
         Player: {
@@ -123,6 +123,7 @@ jest.mock("observer", () => ({
 }));
 
 // Import after mocks are set up
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingTrialMode } from "../../assets/components/trial-mode/cascading-trial-mode";
 
 describe("CascadingTrialMode", () => {
@@ -208,7 +209,7 @@ describe("CascadingTrialMode", () => {
         it("should return click sound id", () => {
             const result = cascadingTrialMode.playSoundClick();
 
-            expect(result).toBe("click");
+            expect(result).toBe(AudioIds.CLICK);
         });
     });
 

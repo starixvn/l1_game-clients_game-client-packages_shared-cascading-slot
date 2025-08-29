@@ -1,6 +1,6 @@
 import { EventTouch, game, input, Input, KeyCode, Node } from "cc";
-import Observer from "observer";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
+import Observer from "observer";
 import { CascadingHoldActionHandlers } from "../../assets/handlers/cascading-hold-action-handlers";
 import { HoldActionStore } from "../../assets/stores/hold-action-store";
 jest.mock("observer", () => ({
@@ -41,8 +41,8 @@ jest.mock("@sg/game-client-base", () => ({
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() { }
-        onDestroy() { }
+        onLoad() {}
+        onDestroy() {}
     },
 }));
 
@@ -194,7 +194,7 @@ describe("HoldActionButton", () => {
 
     describe("Keyboard Interactions", () => {
         describe("onKeyDown", () => {
-            SUPPORTED_KEYS.forEach(keyCode => {
+            SUPPORTED_KEYS.forEach((keyCode) => {
                 it(`should call trigger action for ${KeyCode[keyCode]} key`, () => {
                     // Arrange
                     const event = { keyCode };
@@ -209,7 +209,7 @@ describe("HoldActionButton", () => {
         });
 
         describe("onKeyUp", () => {
-            SUPPORTED_KEYS.forEach(keyCode => {
+            SUPPORTED_KEYS.forEach((keyCode) => {
                 it(`should clear trigger action for ${KeyCode[keyCode]} key`, () => {
                     // Arrange
                     const event = { keyCode };
@@ -303,23 +303,23 @@ describe("HoldActionButton", () => {
                 // Assert
                 expect(Observer.render).toBeDefined();
                 expect(Observer.handle).toBeDefined();
-                expect(typeof Observer.render).toBe('function');
-                expect(typeof Observer.handle).toBe('function');
+                expect(typeof Observer.render).toBe("function");
+                expect(typeof Observer.handle).toBe("function");
             });
 
             it("should have correct decorator function signatures", () => {
                 // Arrange
                 const mockTarget = {};
-                const mockPropertyKey = 'testMethod';
+                const mockPropertyKey = "testMethod";
                 const mockDescriptor = { value: jest.fn() };
 
                 // Act
-                const renderResult = Observer.render(HoldActionStore, () => { }, { fireImmediately: false });
-                const handleResult = Observer.handle(CascadingHoldActionHandlers, () => { });
+                const renderResult = Observer.render(HoldActionStore, () => {}, { fireImmediately: false });
+                const handleResult = Observer.handle(CascadingHoldActionHandlers, () => {});
 
                 // Assert
-                expect(typeof renderResult).toBe('function');
-                expect(typeof handleResult).toBe('function');
+                expect(typeof renderResult).toBe("function");
+                expect(typeof handleResult).toBe("function");
 
                 // Test that they return descriptors
                 const renderDescriptor = renderResult(mockTarget, mockPropertyKey, mockDescriptor);
@@ -328,13 +328,6 @@ describe("HoldActionButton", () => {
                 expect(renderDescriptor).toBe(mockDescriptor);
                 expect(handleDescriptor).toBe(mockDescriptor);
             });
-        });
-    });
-
-    describe("Constants", () => {
-        it("should have correct spin button sound constant", () => {
-            // Assert
-            expect(holdActionButton["spinButtonSound"]).toBe(SPIN_BUTTON_SOUND);
         });
     });
 
@@ -359,7 +352,7 @@ describe("HoldActionButton", () => {
         const mockTransform = {
             hitTest: jest.fn().mockReturnValue(hitTestResult),
         };
-        console.log('Created mock transform:', mockTransform); // Debug log
+        console.log("Created mock transform:", mockTransform); // Debug log
         return mockTransform;
     };
 

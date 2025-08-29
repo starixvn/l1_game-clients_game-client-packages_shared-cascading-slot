@@ -1,4 +1,5 @@
 import { instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingEffectBigwin } from "../../../assets/components/effects/cascading-effect-bigwin";
 
 // Mock external dependencies
@@ -542,8 +543,8 @@ describe("CascadingEffectBigwin", () => {
             expect(mockTweenDelay.stop).toHaveBeenCalled();
             expect(mockTweenBigWin.stop).toHaveBeenCalled();
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(cascadingEffectBigwin["winAmount"]);
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith("big_win_stop");
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith("increment_stop");
+            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN_INCREMENT_ENDED);
+            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.INCREMENT_STOP);
             expect(cascadingEffectBigwin.stopSoundCoinIncrement).toHaveBeenCalled();
             expect(tween).toHaveBeenCalled();
         });
