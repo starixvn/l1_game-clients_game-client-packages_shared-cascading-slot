@@ -28,7 +28,9 @@ export class CascadingUIStore {
 
     multiplier = 0;
     totalMultiplier = 0;
-    isShowTotalMultiplierJoinGame = false;
+    get isShowTotalMultiplierJoinGame() {
+        return this.totalMultiplier > 0;
+    }
 
     isTurboModeUI = false;
     isTrialMode = false;

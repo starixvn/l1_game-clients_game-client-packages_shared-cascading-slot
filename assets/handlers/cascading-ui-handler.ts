@@ -108,7 +108,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isBigWinCompleted = false;
         this.uiStore.isHighlightScattersCompleted = false;
         this.uiStore.showReachMaxWin = false;
-        this.uiStore.isShowTotalMultiplierJoinGame = false;
         this.uiStore.multiplier = 0;
         if (!this.uiStore.isFreeSpins && !this.uiStore.fsbPromotionInProgress) {
             this.uiStore.totalMultiplier = 0;
@@ -176,7 +175,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
-        totalMultiplier > 0 && (this.uiStore.isShowTotalMultiplierJoinGame = true);
         this.uiStore.totalMultiplier = totalMultiplier;
     }
 

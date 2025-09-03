@@ -12,8 +12,8 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     total: Label = null;
 
     onLoad() {
-        super.onLoad();
         this.showView(false, true);
+        super.onLoad();
     }
 
     @render(CascadingUIStore, (store) => store.totalMultiplier)

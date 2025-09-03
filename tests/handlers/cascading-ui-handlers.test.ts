@@ -32,7 +32,6 @@ const mockUIStore = {
     isBigWinCompleted: false,
     isHighlightScattersCompleted: false,
     showReachMaxWin: false,
-    isShowTotalMultiplierJoinGame: false,
     isFreeSpins: false,
     haveBigWin: false,
     bigWinAmount: 0,
@@ -99,7 +98,6 @@ describe("CascadingUIHandler", () => {
             isBigWinCompleted: false,
             isHighlightScattersCompleted: false,
             showReachMaxWin: false,
-            isShowTotalMultiplierJoinGame: false,
             isFreeSpins: false,
             haveBigWin: false,
             bigWinAmount: 0,
@@ -140,7 +138,7 @@ describe("CascadingUIHandler", () => {
 
         // Mock inversify decorators
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
+        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => { });
 
         uiHandler = new CascadingUIHandler();
     });
@@ -264,7 +262,6 @@ describe("CascadingUIHandler", () => {
             mockUIStore.isBigWinCompleted = true;
             mockUIStore.isHighlightScattersCompleted = true;
             mockUIStore.showReachMaxWin = true;
-            mockUIStore.isShowTotalMultiplierJoinGame = true;
             mockUIStore.multiplier = 5;
             mockUIStore.totalMultiplier = 10;
             mockUIStore.totalWin = 200;
@@ -280,7 +277,6 @@ describe("CascadingUIHandler", () => {
             expect(mockUIStore.isBigWinCompleted).toBe(false);
             expect(mockUIStore.isHighlightScattersCompleted).toBe(false);
             expect(mockUIStore.showReachMaxWin).toBe(false);
-            expect(mockUIStore.isShowTotalMultiplierJoinGame).toBe(false);
             expect(mockUIStore.multiplier).toBe(0);
             expect(mockUIStore.totalMultiplier).toBe(0);
             expect(mockUIStore.totalWin).toBe(0);
