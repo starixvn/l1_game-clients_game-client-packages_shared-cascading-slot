@@ -15,7 +15,6 @@ export class CascadingSlotReelItem extends Component {
 
     public index = -1;
     private _effectSpine: sp.Skeleton = null;
-    multiplierRange = 0;
 
     setItem(index: number) {
         this.replaceItem(index);
@@ -64,7 +63,6 @@ export class CascadingSlotReelItem extends Component {
             const multiplierItem = this.getMultiplierItem();
             if (multiplierItem) {
                 multiplierItem.setValue(m);
-                this.multiplierRange = multiplierItem.multiplierRange;
             }
         }
     }

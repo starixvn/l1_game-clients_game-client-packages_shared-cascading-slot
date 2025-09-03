@@ -232,7 +232,7 @@ export class CascadingSlotReel extends Component {
                         globalEmitter.emit(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, {
                             position: destPosition,
                             node: item.node,
-                            level: item.multiplierRange,
+                            level: item.getMultiplierItem()?.multiplierRange ?? 0,
                         });
                 }),
                 tween().to(
