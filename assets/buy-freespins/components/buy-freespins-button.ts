@@ -22,7 +22,13 @@ export class BuyFreespinsButton extends ObserverComponent {
 
     onLoad(): void {
         this.button = this.getComponent(Button);
+        this.node.active = false;
         super.onLoad();
+    }
+
+    @render(BuyFreespinsStore, (store) => store.enabled)
+    renderEnabled(enabled: boolean) {
+        this.node.active = enabled;
     }
 
     @render(BuyFreespinsStore, (store) => store.totalBet)
