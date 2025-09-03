@@ -175,6 +175,11 @@ export class CascadingSymbolPreview extends Component {
         this.updateLabelWidth(firstLabelWidth);
     }
 
+    private roundUp(value: number, decimals: number = 2): number {
+        const multiplier = Math.pow(10, decimals);
+        return Math.ceil(value * multiplier) / multiplier;
+    }
+
     private createValueString(data: {
         isScatter: boolean;
         freespin: any;
@@ -184,9 +189,13 @@ export class CascadingSymbolPreview extends Component {
         betLevel: number;
     }) {
         const { isScatter, freespin, index, infoOdds, coinValue, betLevel } = data;
-        return isScatter && !this.hasSymbolOdds
-            ? `${freespin[index].odds}`
-            : `${gc.FormatUtils.numberWithCommas(infoOdds[index].odds * coinValue * betLevel, 3)}`;
+        if (isScatter && !this.hasSymbolOdds) {
+            return `${freespin[index].odds}`;
+        }
+
+        const calculatedValue = infoOdds[index].odds * coinValue * betLevel;
+        const roundedValue = this.roundUp(calculatedValue);
+        return `${gc.FormatUtils.numberWithCommas(roundedValue, 3)}`;
     }
 
     private createQuantityString(data: { isScatter: boolean; isLast: boolean; infoOdds: any; index: number; freespin: any }) {
