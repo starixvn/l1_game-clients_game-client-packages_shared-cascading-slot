@@ -93,16 +93,18 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
-        this.playSound(this.Sound.WINNING_LEVEL_UP);
-        skeleton.setAnimation(0, animation, false);
-        const duration = skeleton.findAnimation(animation)?.duration || 0;
-        if (duration > 0) {
-            await AnimationUtils.delayTime(0.1);
-            this.showHideBigWinNode(false);
-        }
-        const node = instantiate(levelPrefab);
-        this.changeLevel.removeAllChildren();
-        this.changeLevel.addChild(node);
+        try {
+            this.playSound(this.Sound.WINNING_LEVEL_UP);
+            skeleton.setAnimation(0, animation, false);
+            const duration = skeleton.findAnimation(animation)?.duration || 0;
+            if (duration > 0) {
+                await AnimationUtils.delayTime(0.1);
+                this.showHideBigWinNode(false);
+            }
+            const node = instantiate(levelPrefab);
+            this.changeLevel.removeAllChildren();
+            this.changeLevel.addChild(node);
+        } catch (error) { }
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
