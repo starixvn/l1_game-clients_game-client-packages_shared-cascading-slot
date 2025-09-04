@@ -293,7 +293,7 @@ describe("CascadingEffectGameContainer", () => {
         it("should return increment sound id", () => {
             const result = cascadingEffectGameContainer.playSoundCoinIncrement();
 
-            expect(result).toBe("increment");
+            expect(result).toBe("wincount-increment");
         });
     });
 
@@ -301,7 +301,7 @@ describe("CascadingEffectGameContainer", () => {
         it("should return increment sound id", () => {
             const result = cascadingEffectGameContainer.stopSoundCoinIncrement();
 
-            expect(result).toBe("increment");
+            expect(result).toBe("wincount-increment");
         });
     });
 
