@@ -544,7 +544,7 @@ describe("CascadingEffectBigwin", () => {
             expect(mockTweenBigWin.stop).toHaveBeenCalled();
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(cascadingEffectBigwin["winAmount"]);
             expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN_INCREMENT_ENDED);
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.INCREMENT_STOP);
+            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.WINCOUNT_STOP);
             expect(cascadingEffectBigwin.stopSoundCoinIncrement).toHaveBeenCalled();
             expect(tween).toHaveBeenCalled();
         });
@@ -562,7 +562,7 @@ describe("CascadingEffectBigwin", () => {
         it("should return increment sound id", () => {
             const result = cascadingEffectBigwin.stopSoundCoinIncrement();
 
-            expect(result).toBe("increment");
+            expect(result).toBe("wincount-increment");
         });
     });
 });

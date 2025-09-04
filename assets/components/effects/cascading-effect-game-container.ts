@@ -85,12 +85,12 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, audioId: string) => handle.playStoppableSFX(audioId))
     playSoundCoinIncrement() {
-        return AudioIds.INCREMENT;
+        return AudioIds.WINCOUNT_INCREMENT;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundCoinIncrement() {
-        return AudioIds.INCREMENT;
+        return AudioIds.WINCOUNT_INCREMENT;
     }
 
     private async playEffectTransition() {

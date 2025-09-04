@@ -137,7 +137,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
                 label.string = formatText(end);
                 this.handleBigWinActions(true);
                 this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
-                this.playSound(AudioIds.INCREMENT_STOP);
+                this.playSound(AudioIds.WINCOUNT_STOP);
                 this.stopSoundCoinIncrement();
             })
             .start();
@@ -232,7 +232,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
         this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
-        this.playSound(AudioIds.INCREMENT_STOP);
+        this.playSound(AudioIds.WINCOUNT_STOP);
 
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         this.tweenDelay = tween({})
@@ -250,6 +250,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundCoinIncrement() {
-        return AudioIds.INCREMENT;
+        return AudioIds.WINCOUNT_INCREMENT;
     }
 }
