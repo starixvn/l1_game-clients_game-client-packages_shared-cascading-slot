@@ -38,8 +38,17 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     async handleAnimTransition(anim: string) {
+        // Check if both tracks are already playing animations
+        const track0Entry = this.spineMascot.getCurrent(0);
+        const track1Entry = this.spineMascot.getCurrent(1);
+
+        if (track0Entry && track1Entry) {
+            // Both tracks are playing, don't set new animations
+            return;
+        }
+
         const fadeInOutDuration = 0.3;
-        const durationMascot = this.spineMascot.findAnimation(anim).duration;
+        const durationMascot = this.spineMascot.findAnimation(anim)?.duration;
         tween(this.node.getComponent(UIOpacity))
             .delay(durationMascot - fadeInOutDuration)
             .to(fadeInOutDuration, { opacity: 0 })
@@ -48,7 +57,7 @@ export class CascadingMascot extends ObserverComponent {
         this.spineMascot.setAnimation(0, AnimationNameMascot.transition, false);
         this.spineMascot.setAnimation(1, anim, false);
 
-        await new Promise((resolve) => setTimeout(resolve, this.spineMascot.findAnimation(anim).duration * 1000));
+        await AnimationUtils.delayTime(durationMascot);
 
         this.spineMascot.clearTracks();
         tween(this.node.getComponent(UIOpacity)).to(fadeInOutDuration, { opacity: 255 }).start();

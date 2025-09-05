@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Node } from "cc";
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
@@ -41,7 +42,7 @@ export class CascadingTrialMode extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        return gc.Audios.AudioIds.CLICK;
+        return AudioIds.CLICK;
     }
 
     @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))

@@ -146,7 +146,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.handleFreeSpinsTotal(total);
         this.updateFreespinCountMsgBottom(total);
-        this.handleTriggerDuringFreeSpinBonus({});
+        this.handleTriggerDuringFreeSpinBonus();
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
@@ -255,7 +255,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.triggerWinMultiplier = {};
     }
 
-    handleTriggerDuringFreeSpinBonus(trigger: any) {
+    handleTriggerDuringFreeSpinBonus(trigger = {}) {
         this.uiStore.triggerDuringFreeSpinBonus = trigger;
     }
 

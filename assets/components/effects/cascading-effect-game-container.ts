@@ -77,10 +77,8 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         return completed;
     }
 
-    @handle(CascadingUIHandler, (handler, trigger: any) => handler.handleTriggerDuringFreeSpinBonus(trigger))
-    handleTriggerDuringFreeSpinBonus() {
-        return {};
-    }
+    @handle(CascadingUIHandler, (handler) => handler.handleTriggerDuringFreeSpinBonus())
+    handleTriggerDuringFreeSpinBonus() {}
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {

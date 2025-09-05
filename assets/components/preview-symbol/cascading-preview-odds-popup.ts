@@ -120,7 +120,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        return AudioIds.CLICK_SYMBOL || AudioIds.CLICK;
+        return AudioIds.CLICK_SYMBOL;
     }
 
     @render(CascadingUIStore, (store) => store.cascadingState)

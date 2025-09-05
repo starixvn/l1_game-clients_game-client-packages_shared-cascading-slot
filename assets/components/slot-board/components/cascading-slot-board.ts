@@ -232,7 +232,6 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.showPeekEffect(false, i);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
                 this.reels[i].peekEffectHighlightAllItems();
-                this.reels[i].hasCalculatedScatter = true;
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
             }
         }
@@ -310,7 +309,6 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (peekEffect) {
             for (let i = 0; i < this.reels.length; i++) {
                 const reel = this.reels[i];
-                reel.hasCalculatedScatter = true;
                 await reel.fallIn(isTurbo, null);
                 reel.moveItemsBackToReelNode();
                 reel.peekEffectScatterItems();
