@@ -56,6 +56,11 @@ jest.mock("@sg/game-client-base", () => {
         Shared: {
             IHandler: class {},
             IMultipleHandlers: class {},
+            utils: {
+                StorageManager: {
+                    setPrefixKey: jest.fn(),
+                },
+            },
         },
         UserSettings: {
             UserSettingHandlers: class {
@@ -81,6 +86,12 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
 jest.mock("db://shared-components/shared/utils/utils", () => ({
     AnimationUtils: {
         delayTime: jest.fn().mockResolvedValue(undefined),
+    },
+}));
+jest.mock("db://shared-components/game/audios/utils", () => ({
+    AudioUtils: {
+        stopStoppableSFX: jest.fn(),
+        playStoppableSFX: jest.fn(),
     },
 }));
 jest.mock("observer", () => ({

@@ -1,5 +1,6 @@
 import { instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { CascadingEffectBigwin } from "../../../assets/components/effects/cascading-effect-bigwin";
 
 // Mock external dependencies
@@ -47,6 +48,11 @@ jest.mock("@sg/game-client-base", () => {
         Shared: {
             IHandler: class {},
             IMultipleHandlers: class {},
+            utils: {
+                StorageManager: {
+                    setPrefixKey: jest.fn(),
+                },
+            },
         },
         UserSettings: {
             UserSettingHandlers: class {
@@ -58,9 +64,7 @@ jest.mock("@sg/game-client-base", () => {
                 handle() {}
             },
         },
-        FormatUtils: {
-            numberWithCommas: jest.fn((value: number) => value.toLocaleString()),
-        },
+
         Notification: {
             NotificationStore: jest.fn(() => ({
                 connection: {
@@ -86,6 +90,13 @@ jest.mock("db://shared-components/shared/utils", () => ({
         fadeOut: jest.fn(),
         fadeIn: jest.fn(),
         delayTime: jest.fn().mockResolvedValue(undefined),
+    },
+}));
+
+jest.mock("db://shared-components/game/audios/utils", () => ({
+    AudioUtils: {
+        stopStoppableSFX: jest.fn(),
+        playStoppableSFX: jest.fn(),
     },
 }));
 jest.mock("observer", () => ({
@@ -545,6 +556,7 @@ describe("CascadingEffectBigwin", () => {
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(cascadingEffectBigwin["winAmount"]);
             expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.WINCOUNT_STOP);
             expect(cascadingEffectBigwin.stopSoundCoinIncrement).toHaveBeenCalled();
+            expect(AudioUtils.stopStoppableSFX).toHaveBeenCalledWith(AudioIds.STINGER_WINCOUNT);
             expect(tween).toHaveBeenCalled();
         });
     });
