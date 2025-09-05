@@ -24,6 +24,7 @@ export class CascadingSlotReel extends Component {
     itemDisplayCount = CascadingSlotConfig.reelItemCount;
     protected items: CascadingSlotReelItem[] = [];
     public peekEffect = false;
+    public hasCalculatedScatter = false;
 
     private readonly MIN_DURATION_FALL_IN = 0.25;
     private readonly MIN_DURATION_FALL_IN_TURBO = 0.1;
@@ -216,7 +217,13 @@ export class CascadingSlotReel extends Component {
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
-        item.isScatterSymbol && fromOutSide && AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER);
+        if (item.isScatterSymbol && fromOutSide) {
+            if (this.hasCalculatedScatter) {
+                AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER_WIN);
+            } else {
+                AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER);
+            }
+        }
 
         const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
