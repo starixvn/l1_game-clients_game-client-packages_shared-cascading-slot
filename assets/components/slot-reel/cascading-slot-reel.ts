@@ -216,7 +216,7 @@ export class CascadingSlotReel extends Component {
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
-        item.isScatterSymbol && AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER);
+        item.isScatterSymbol && fromOutSide && AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER);
 
         const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
