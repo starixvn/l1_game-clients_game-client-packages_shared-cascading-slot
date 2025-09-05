@@ -3,6 +3,7 @@ import { _decorator, AudioSource } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
@@ -169,6 +170,20 @@ export class CascadingAudioContainer extends AudioContainer {
             this.listStoppableSFXSource[sourceIndex].pause();
         } else {
             this.playAudioWithSource(AudioIds.BGM_FREESPIN, sourceIndex);
+        }
+    }
+
+    @render(CascadingUIStore, (store) => store.turnOnBGM)
+    turnOnBGM(turnOnBGM: boolean) {
+        if (turnOnBGM) {
+            this.updateVolumeMusicSource(1, 0.3);
+        }
+    }
+
+    @render(CascadingUIStore, (store) => store.turnOffBGM)
+    turnOffBGM(turnOffBGM: boolean) {
+        if (turnOffBGM) {
+            this.updateVolumeMusicSource(0.1, 0.3);
         }
     }
 }

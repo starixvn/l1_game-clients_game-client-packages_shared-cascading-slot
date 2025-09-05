@@ -161,7 +161,7 @@ export class CascadingUIStore {
         return (
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.cascadingState === CascadingSlotState.NOT_READY_BET ||
-            this.holdActionStore.triggerAction 
+            this.holdActionStore.triggerAction
         );
     }
 
@@ -190,5 +190,13 @@ export class CascadingUIStore {
 
     get isUsedFSBPromotionBonus() {
         return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
+    }
+
+    get turnOnBGM() {
+        return this.isBigWinCompleted || this.isFreeSpinEffectCompleted;
+    }
+
+    get turnOffBGM() {
+        return this.haveBigWin || this.isShowFreeSpinEffect;
     }
 }

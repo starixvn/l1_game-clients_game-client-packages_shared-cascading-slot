@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -77,13 +78,13 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     async setAnimationChangeSuper() {
         this.isChangeLevelSuper = false;
-        this.playSound(AudioIds.SUPER_WIN || AudioIds.WINNING_LEVEL_UP);
+        this.playSound(AudioIds.SUPER_WIN);
         await this.changeLevelAnimation(this.mainSpine, "hide", this.superWinPrefab);
     }
 
     async setAnimationChangeMega() {
         this.isChangeLevelMega = false;
-        this.playSound(AudioIds.MEGA_WIN || AudioIds.WINNING_LEVEL_UP);
+        this.playSound(AudioIds.MEGA_WIN);
         await this.changeLevelAnimation(this.mainSpine, "hide", this.megaWinPrefab);
     }
 
@@ -136,7 +137,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
             .call(() => {
                 label.string = formatText(end);
                 this.handleBigWinActions(true);
-                this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
                 this.playSound(AudioIds.WINCOUNT_STOP);
                 this.stopSoundCoinIncrement();
             })
@@ -231,8 +231,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
-        this.playSound(AudioIds.BIG_WIN_INCREMENT_ENDED);
         this.playSound(AudioIds.WINCOUNT_STOP);
+        AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
 
         const duration = getCustomDuration("bigWin", this.isTurboMode);
         this.tweenDelay = tween({})

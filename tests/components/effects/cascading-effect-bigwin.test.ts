@@ -543,7 +543,6 @@ describe("CascadingEffectBigwin", () => {
             expect(mockTweenDelay.stop).toHaveBeenCalled();
             expect(mockTweenBigWin.stop).toHaveBeenCalled();
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(cascadingEffectBigwin["winAmount"]);
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN_INCREMENT_ENDED);
             expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.WINCOUNT_STOP);
             expect(cascadingEffectBigwin.stopSoundCoinIncrement).toHaveBeenCalled();
             expect(tween).toHaveBeenCalled();

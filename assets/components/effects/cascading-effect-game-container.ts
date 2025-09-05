@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
@@ -38,12 +39,15 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         await this.delayMascotEvent();
         await this.playEffectTransition();
+
         this.playSound(AudioIds.FREESPIN);
+        AudioUtils.playStoppableSFX(AudioIds.STINGER_FREESPIN_WIN, true);
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
         const duration = getCustomDuration("freeSpin", this.isTurboMode);
         await AnimationUtils.delayTime(duration);
         freespin.destroy();
+        AudioUtils.stopStoppableSFX(AudioIds.STINGER_FREESPIN_WIN);
         this.setFreeSpinEffectCompleted(true);
         this.handleTriggerDuringFreeSpinBonus();
     }
@@ -57,7 +61,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         await this.delayMascotEvent();
         await this.playEffectTransition();
         !this.isTurboMode && this.playSoundCoinIncrement();
-
+        AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
         this.playSound(AudioIds.BIG_WIN);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);
