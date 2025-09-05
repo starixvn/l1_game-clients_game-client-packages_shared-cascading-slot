@@ -30,6 +30,7 @@ describe("CascadingHoldActionHandlers", () => {
         mockHoldActionStore = {
             triggerAction: null,
             isHolding: false,
+            enabled: true,
         } as any;
 
         mockCascadingUIStore = {
@@ -160,7 +161,7 @@ describe("CascadingHoldActionHandlers", () => {
             // Set up initial state with a timeout
             mockHoldActionStore.triggerAction = {};
             mockHoldActionStore.isHolding = true;
-            (handler as any).timeoutHolding = setTimeout(() => {}, 1000);
+            (handler as any).timeoutHolding = setTimeout(() => { }, 1000);
         });
 
         it("should clear triggerAction and isHolding flags", () => {

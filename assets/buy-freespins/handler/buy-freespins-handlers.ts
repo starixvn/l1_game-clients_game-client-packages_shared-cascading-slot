@@ -1,6 +1,7 @@
 import inversify from "inversify";
 import mobx from "mobx";
 import { SlotBetHandler } from "../../handlers/slot-bet-handler";
+import { HoldActionStore } from "../../stores/hold-action-store";
 import { BuyFsFeatureMessage, BuyFsPopupEvent, BuyFsPopupName, BuyFsResult } from "./buy-freespins-definitions";
 import { BuyFreespinsStore } from "./buy-freespins-store";
 
@@ -10,6 +11,7 @@ const { injectable, inject } = inversify;
 export class BuyFreespinsHandler {
     @inject(BuyFreespinsStore) private readonly buyFsStore: BuyFreespinsStore;
     @inject(SlotBetHandler) private readonly slotBetHandler: SlotBetHandler;
+    @inject(HoldActionStore) private readonly holdActionStore: HoldActionStore;
 
     private processing = false;
 
@@ -47,12 +49,14 @@ export class BuyFreespinsHandler {
 
     showBuyFsCongratulation() {
         if (this.buyFsStore.buyFsResult) {
+            this.holdActionStore.enabled = false;
             this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.SHOW };
             this.buyFsStore.isActive = false;
         }
     }
 
     closeCongratulation() {
+        this.holdActionStore.enabled = true;
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_FS_CONGRATULATION, event: BuyFsPopupEvent.HIDE };
         this.buyFsStore.buyFsResult = null;
     }
