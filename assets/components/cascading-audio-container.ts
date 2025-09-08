@@ -177,7 +177,6 @@ export class CascadingAudioContainer extends AudioContainer {
     turnOnBGM(turnOnBGM: boolean) {
         if (turnOnBGM) {
             this.updateVolumeMusicSource(1, 0.3);
-            //AudioUtils.playStoppableSFX(AudioIds.BGM_FREESPIN, true);
         }
     }
 
@@ -185,7 +184,6 @@ export class CascadingAudioContainer extends AudioContainer {
     turnOffBGM(turnOffBGM: boolean) {
         if (turnOffBGM) {
             this.updateVolumeMusicSource(0.1, 0.3);
-            //AudioUtils.stopStoppableSFX(AudioIds.BGM_FREESPIN);
         }
     }
 }

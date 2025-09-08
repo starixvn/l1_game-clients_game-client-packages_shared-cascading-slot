@@ -1,4 +1,4 @@
-import { _decorator, sp, tween, UIOpacity } from "cc";
+import { _decorator, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -38,29 +38,16 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     async handleAnimTransition(anim: string) {
-        // Check if both tracks are already playing animations
-        const track0Entry = this.spineMascot.getCurrent(0);
+        const durationMascot = this.spineMascot.findAnimation(anim)?.duration;
         const track1Entry = this.spineMascot.getCurrent(1);
-
-        if (track0Entry && track1Entry) {
-            // Both tracks are playing, don't set new animations
+        if (track1Entry) {
             return;
         }
 
-        const fadeInOutDuration = 0.3;
-        const durationMascot = this.spineMascot.findAnimation(anim)?.duration;
-        tween(this.node.getComponent(UIOpacity))
-            .delay(durationMascot - fadeInOutDuration)
-            .to(fadeInOutDuration, { opacity: 0 })
-            .start();
-
-        this.spineMascot.setAnimation(0, AnimationNameMascot.transition, false);
         this.spineMascot.setAnimation(1, anim, false);
 
         await AnimationUtils.delayTime(durationMascot);
-
         this.spineMascot.clearTracks();
-        tween(this.node.getComponent(UIOpacity)).to(fadeInOutDuration, { opacity: 255 }).start();
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 
