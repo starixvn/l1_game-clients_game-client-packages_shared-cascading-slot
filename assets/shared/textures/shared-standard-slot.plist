@@ -573,7 +573,7 @@
             <key>size</key>
             <string>{256,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:2df8b9c5dce1d1ab48f37f1f6ab1ac98:74bd019c7470329a7d92ae8cf076f30b:02fa47b9373ca7bd3cdefd555a754be6$</string>
+            <string>$TexturePacker:SmartUpdate:d7e3e31810975152902db01c4562887b:74bd019c7470329a7d92ae8cf076f30b:02fa47b9373ca7bd3cdefd555a754be6$</string>
             <key>textureFileName</key>
             <string>shared-standard-slot.webp</string>
         </dict>

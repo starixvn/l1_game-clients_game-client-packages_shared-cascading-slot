@@ -29,7 +29,7 @@
       ["--max-height", 2048],
       ["--size-constraints", "POT"],
       ["--png-opt-level", 0],
-      ["--alpha-handling", "KeepTransparentPixels"],
+      ["--alpha-handling", "ReduceBorderArtifacts"],
       ["--max-width", 2048],
       ["--trim-mode", "Trim"],
       ["--border-padding", 2],
