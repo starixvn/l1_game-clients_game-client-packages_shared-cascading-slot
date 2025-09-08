@@ -71,8 +71,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }
                     const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
                     setTimeout(() => {
-                        const { coinValue, betLevel } = this.fsbPromotionUIHandler.getDataBetControl();
-                        this.betControlHandlers.init(coinValue, betLevel);
                         this.fsbPromotionUIHandler.tryConsumeFSB();
                         if (isPlaceBet) {
                             this.placeBet();
@@ -88,8 +86,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     if (!eligible || finished) {
                         return;
                     }
-                    const { coinValue, betLevel } = this.fsbPromotionUIHandler.getDataBetControl();
-                    this.betControlHandlers.init(coinValue, betLevel);
                     this.fsbPromotionUIHandler.tryConsumeFSB();
                     this.placeBet();
                 }

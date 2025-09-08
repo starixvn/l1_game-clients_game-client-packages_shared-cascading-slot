@@ -4,12 +4,16 @@ import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingUIStore } from "./cascading-ui-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 const { injectable, inject } = inversify;
 
 @injectable()
 export class BetControlStore {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
+    @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
+    @inject(FSBPromotionStore) protected readonly fsbPromotionStore: FSBPromotionStore;
     constructor() {
         mobx.makeAutoObservable(this);
         mobx.reaction(
@@ -141,5 +145,19 @@ export class BetControlStore {
             this.autoPlayStore.isOpenAutoplayPopup ||
             this.isOpenBetAmountPopup
         );
+    }
+
+    get effectiveCoinValue() {
+        return this.fsbPromotionUIStore.isFSBPromotionInProgress ? this.fsbPromotionStore.promotion?.coinValue : this.coinValue;
+    }
+
+    get effectiveBetLevel() {
+        return this.fsbPromotionUIStore.isFSBPromotionInProgress ? this.fsbPromotionStore.promotion?.betLevel : this.betLevel;
+    }
+
+    get effectiveTotalBet() {
+        return this.fsbPromotionUIStore.isFSBPromotionInProgress
+            ? calculateTotalBet(this.fsbPromotionStore.promotion?.betLevel, this.fsbPromotionStore.promotion?.coinValue, this.betMultiplier)
+            : this.totalBet;
     }
 }

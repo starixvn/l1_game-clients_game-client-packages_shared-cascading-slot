@@ -38,9 +38,9 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
         return {
             m: this.orientationStore.m,
             username: this.mainPlayerStore.name,
-            coinValue: this.betControlStore.coinValue,
-            betLevel: this.betControlStore.betLevel,
-            totalBet: this.betControlStore.totalBet,
+            coinValue: this.betControlStore.effectiveCoinValue,
+            betLevel: this.betControlStore.effectiveBetLevel,
+            totalBet: this.betControlStore.effectiveTotalBet,
             freeSpin: this.uiStore.isFreeSpins || this.fsbPromotionUIStore.isFSBPromotionInProgress,
             clientSentTime: new Date(),
         };

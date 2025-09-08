@@ -71,6 +71,16 @@ const mockBetControlStore = {
     coinValue: 0.01,
     betLevel: 1,
     totalBet: 0.25,
+    effectiveCoinValue: 0.01,
+    effectiveBetLevel: 1,
+    effectiveTotalBet: 0.25,
+};
+
+const mockFSBPromotionStore = {
+    promotion: {
+        coinValue: 0.01,
+        betLevel: 1,
+    },
 };
 
 const mockUIStore = {
@@ -129,6 +139,13 @@ describe("SlotBetHandler", () => {
         mockBetControlStore.coinValue = 0.01;
         mockBetControlStore.betLevel = 1;
         mockBetControlStore.totalBet = 0.25;
+        mockBetControlStore.effectiveCoinValue = 0.01;
+        mockBetControlStore.effectiveBetLevel = 1;
+        mockBetControlStore.effectiveTotalBet = 0.25;
+        mockFSBPromotionStore.promotion = {
+            coinValue: 0.01,
+            betLevel: 1,
+        };
 
         mockUIStore.isFreeSpins = false;
         mockUIStore.isTrialMode = false;
@@ -146,6 +163,7 @@ describe("SlotBetHandler", () => {
         (SlotBetHandler.prototype as any).holdActionStore = mockHoldActionStore;
         (SlotBetHandler.prototype as any).autoPlayStore = mockAutoPlayStore;
         (SlotBetHandler.prototype as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
+        (SlotBetHandler.prototype as any).fsbPromotionStore = mockFSBPromotionStore;
 
         // Mock inherited properties
         (SlotBetHandler.prototype as any).orientationStore = mockOrientationStore;
@@ -199,10 +217,37 @@ describe("SlotBetHandler", () => {
             expect(betData.freeSpin).toBe(true);
         });
 
+        it("should include freeSpin flag when FSB promotion is in progress", () => {
+            mockFSBPromotionUIStore.isFSBPromotionInProgress = true;
+
+            const betData = slotBetHandler.slotBetData();
+
+            expect(betData.freeSpin).toBe(true);
+        });
+
+        it("should use effective values when FSB promotion is in progress", () => {
+            mockFSBPromotionUIStore.isFSBPromotionInProgress = true;
+            mockFSBPromotionStore.promotion = {
+                coinValue: 0.05,
+                betLevel: 2,
+            };
+            // Mock effective values that would be calculated by BetControlStore
+            mockBetControlStore.effectiveCoinValue = 0.05;
+            mockBetControlStore.effectiveBetLevel = 2;
+            mockBetControlStore.effectiveTotalBet = 1.0;
+
+            const betData = slotBetHandler.slotBetData();
+
+            expect(betData.coinValue).toBe(0.05);
+            expect(betData.betLevel).toBe(2);
+            expect(betData.totalBet).toBe(1.0);
+            expect(betData.freeSpin).toBe(true);
+        });
+
         it("should update bet data when store values change", () => {
-            mockBetControlStore.coinValue = 0.05;
-            mockBetControlStore.betLevel = 3;
-            mockBetControlStore.totalBet = 1.5;
+            mockBetControlStore.effectiveCoinValue = 0.05;
+            mockBetControlStore.effectiveBetLevel = 3;
+            mockBetControlStore.effectiveTotalBet = 1.5;
             mockMainPlayerStore.name = "newPlayer";
 
             const betData = slotBetHandler.slotBetData();
@@ -226,6 +271,16 @@ describe("SlotBetHandler", () => {
 
         it("should return true for free spins regardless of balance", () => {
             mockUIStore.isFreeSpins = true;
+            mockUIStore.userBalance = 0;
+            mockGameSetting.validateBalanceWhenBet = true;
+
+            const result = slotBetHandler.isValidBet(100);
+
+            expect(result).toBe(true);
+        });
+
+        it("should return true for FSB promotion regardless of balance", () => {
+            mockFSBPromotionUIStore.isFSBPromotionInProgress = true;
             mockUIStore.userBalance = 0;
             mockGameSetting.validateBalanceWhenBet = true;
 
@@ -396,6 +451,24 @@ describe("SlotBetHandler", () => {
             expect(result).toBe(true);
             expect(mockConnectionTrialStore.send).toHaveBeenCalled();
             expect(mockConnectionStore.send).not.toHaveBeenCalled();
+        });
+
+        it("should handle FSB promotion betting", () => {
+            mockFSBPromotionUIStore.isFSBPromotionInProgress = true;
+            mockFSBPromotionStore.promotion = {
+                coinValue: 0.05,
+                betLevel: 2,
+            };
+            mockBetControlStore.effectiveCoinValue = 0.05;
+            mockBetControlStore.effectiveBetLevel = 2;
+            mockBetControlStore.effectiveTotalBet = 1.0;
+
+            const result = slotBetHandler.handle();
+
+            expect(result).toBe(true);
+            expect(mockBetStore.isProcessingBet).toBe(true);
+            expect(mockUIStore.changeUserBalance).toBe(true);
+            expect(mockUIHandler.changeCascadingState).toHaveBeenCalledWith(CascadingSlotState.SPINNING);
         });
     });
 

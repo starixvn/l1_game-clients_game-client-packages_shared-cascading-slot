@@ -1,9 +1,12 @@
 import { Container } from "inversify";
+import mobx from "mobx";
 import "reflect-metadata";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { AutoPlayStore } from "../../assets/stores/auto-play-store";
 import { BetControlStore } from "../../assets/stores/bet-control-store";
 import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 
 // Mock the calculateTotalBet function
 jest.mock("../../assets/cascading-slot-utils", () => ({
@@ -17,6 +20,8 @@ describe("BetControlStore", () => {
     let betControlStore: BetControlStore;
     let autoPlayStore: AutoPlayStore;
     let cascadingUIStore: any; // Mock object
+    let fsbPromotionUIStore: any; // Mock object
+    let fsbPromotionStore: any; // Mock object
 
     beforeEach(() => {
         container = new Container();
@@ -30,9 +35,23 @@ describe("BetControlStore", () => {
             },
         };
 
+        // Create mock FSB promotion stores
+        fsbPromotionUIStore = {
+            isFSBPromotionInProgress: false,
+        };
+
+        fsbPromotionStore = {
+            promotion: {
+                coinValue: 0.1,
+                betLevel: 1,
+            },
+        };
+
         // Bind dependencies
         container.bind(AutoPlayStore).toSelf();
         container.bind(CascadingUIStore).toConstantValue(cascadingUIStore);
+        container.bind(FSBPromotionUIStore).toConstantValue(fsbPromotionUIStore);
+        container.bind(FSBPromotionStore).toConstantValue(fsbPromotionStore);
         container.bind(BetControlStore).toSelf();
 
         // Get instances
@@ -399,6 +418,342 @@ describe("BetControlStore", () => {
             betControlStore.isOpenBetAmountPopup = true;
 
             expect(betControlStore.isCollapseMenuInGame).toBe(true);
+        });
+    });
+
+    describe("effectiveCoinValue getter", () => {
+        it("should return promotion coin value when FSB promotion is in progress", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion.coinValue = 0.5;
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.5);
+        });
+
+        it("should return regular coin value when FSB promotion is not in progress", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = false;
+            betControlStore.currentCoinIndex = 2; // coinValue = 0.5
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.5);
+        });
+
+        it("should handle undefined promotion gracefully", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = undefined;
+
+            expect(betControlStore.effectiveCoinValue).toBeUndefined();
+        });
+
+        it("should handle null promotion gracefully", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = null;
+
+            expect(betControlStore.effectiveCoinValue).toBeUndefined();
+        });
+    });
+
+    describe("effectiveBetLevel getter", () => {
+        it("should return promotion bet level when FSB promotion is in progress", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion.betLevel = 3;
+
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+        });
+
+        it("should return regular bet level when FSB promotion is not in progress", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = false;
+            betControlStore.currentBetLevelIndex = 2; // betLevel = 3
+
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+        });
+
+        it("should handle undefined promotion gracefully", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = undefined;
+
+            expect(betControlStore.effectiveBetLevel).toBeUndefined();
+        });
+
+        it("should handle null promotion gracefully", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = null;
+
+            expect(betControlStore.effectiveBetLevel).toBeUndefined();
+        });
+    });
+
+    describe("effectiveTotalBet getter", () => {
+        it("should return calculated total bet when FSB promotion is in progress", () => {
+            const { calculateTotalBet } = require("../../assets/cascading-slot-utils");
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: 0.2,
+                betLevel: 2,
+            };
+
+            const result = betControlStore.effectiveTotalBet;
+
+            expect(calculateTotalBet).toHaveBeenCalledWith(2, 0.2, 10);
+            expect(result).toBe(4); // 2 * 0.2 * 10 = 4
+        });
+
+        it("should return regular total bet when FSB promotion is not in progress", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = false;
+            betControlStore.currentTotalBetIndex = 2; // totalBet = 5
+
+            expect(betControlStore.effectiveTotalBet).toBe(5);
+        });
+
+        it("should handle undefined promotion gracefully", () => {
+            const { calculateTotalBet } = require("../../assets/cascading-slot-utils");
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = undefined;
+
+            const result = betControlStore.effectiveTotalBet;
+
+            expect(calculateTotalBet).toHaveBeenCalledWith(undefined, undefined, 10);
+            expect(result).toBeNaN();
+        });
+
+        it("should handle null promotion gracefully", () => {
+            const { calculateTotalBet } = require("../../assets/cascading-slot-utils");
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = null;
+
+            const result = betControlStore.effectiveTotalBet;
+
+            expect(calculateTotalBet).toHaveBeenCalledWith(undefined, undefined, 10);
+            expect(result).toBeNaN();
+        });
+
+        it("should handle missing promotion properties gracefully", () => {
+            const { calculateTotalBet } = require("../../assets/cascading-slot-utils");
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: 0.2,
+                // betLevel is missing
+            };
+
+            const result = betControlStore.effectiveTotalBet;
+
+            expect(calculateTotalBet).toHaveBeenCalledWith(undefined, 0.2, 10);
+            expect(result).toBeNaN();
+        });
+    });
+
+    describe("FSB Promotion integration", () => {
+        it("should use promotion values when FSB promotion is active", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: 0.3,
+                betLevel: 4,
+            };
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.3);
+            expect(betControlStore.effectiveBetLevel).toBe(4);
+            expect(betControlStore.effectiveTotalBet).toBe(12); // 4 * 0.3 * 10
+        });
+
+        it("should fallback to regular values when FSB promotion ends", () => {
+            // Start with promotion active
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: 0.3,
+                betLevel: 4,
+            };
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.3);
+            expect(betControlStore.effectiveBetLevel).toBe(4);
+
+            // End promotion
+            fsbPromotionUIStore.isFSBPromotionInProgress = false;
+            betControlStore.currentCoinIndex = 1; // coinValue = 0.2
+            betControlStore.currentBetLevelIndex = 1; // betLevel = 2
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.2);
+            expect(betControlStore.effectiveBetLevel).toBe(2);
+        });
+    });
+
+    describe("Computed recomputation (no reaction)", () => {
+        it("recomputes effectiveCoinValue when switching to FSB and changing promo coin", () => {
+            // initial (normal mode)
+            expect(betControlStore.effectiveCoinValue).toBe(0.1);
+
+            // switch to FSB + change promo coin
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion.coinValue = 0.5;
+            });
+
+            // read getter again → should reflect new promo value
+            expect(betControlStore.effectiveCoinValue).toBe(0.5);
+        });
+
+        it("recomputes effectiveBetLevel when switching to FSB and changing promo betLevel", () => {
+            // initial
+            expect(betControlStore.effectiveBetLevel).toBe(1);
+
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion.betLevel = 3;
+            });
+
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+        });
+
+        it("falls back to normal values when FSB turns off", () => {
+            // turn on FSB with custom promo
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.3, betLevel: 4 } as any;
+            });
+            expect(betControlStore.effectiveCoinValue).toBe(0.3);
+            expect(betControlStore.effectiveBetLevel).toBe(4);
+
+            // turn off FSB → use current indices
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = false;
+                betControlStore.currentCoinIndex = 2; // coinValue = 0.5
+                betControlStore.currentBetLevelIndex = 2; // betLevel = 3
+            });
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.5);
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+        });
+
+        it("recomputes effectiveTotalBet with promo values", () => {
+            mobx.runInAction(() => {
+                betControlStore.betMultiplier = 10;
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.2, betLevel: 2 } as any;
+            });
+
+            // 2 * 0.2 * 10 = 4
+            expect(betControlStore.effectiveTotalBet).toBe(4);
+        });
+
+        it("recomputes effectiveTotalBet with normal values", () => {
+            // set normal indices: coin=0.2 (idx 1), bet=2 (idx 1), and totalBetUnique sync
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = false;
+                betControlStore.betMultiplier = 10;
+                betControlStore.currentCoinIndex = 1; // 0.2
+                betControlStore.currentBetLevelIndex = 1; // 2
+                betControlStore.totalBetUnique = [
+                    { "1": { betLevel: 1, coinValue: 0.1 } },
+                    { "2": { betLevel: 2, coinValue: 0.1 } },
+                    { "4": { betLevel: 2, coinValue: 0.2 } }, // expect to pick this
+                ];
+                betControlStore.syncCurrentTotalBetIndex(4);
+            });
+
+            expect(betControlStore.effectiveTotalBet).toBe(4);
+        });
+
+        it("handles promo changes (coin & betLevel) and reflects in effectiveTotalBet", () => {
+            mobx.runInAction(() => {
+                betControlStore.betMultiplier = 5;
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.3, betLevel: 3 } as any;
+            });
+            // 3 * 0.3 * 5 = 4.5
+            expect(betControlStore.effectiveTotalBet).toBeCloseTo(4.5, 5);
+
+            mobx.runInAction(() => {
+                fsbPromotionStore.promotion.coinValue = 0.1 as any;
+                fsbPromotionStore.promotion.betLevel = 1 as any;
+            });
+            // 1 * 0.1 * 5 = 0.5
+            expect(betControlStore.effectiveTotalBet).toBeCloseTo(0.5, 5);
+        });
+    });
+
+    describe("Complex integration scenarios", () => {
+        it("should handle rapid state changes between promotion and normal mode", () => {
+            // Start in normal mode
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = false;
+                betControlStore.currentCoinIndex = 1;
+                betControlStore.currentBetLevelIndex = 1;
+            });
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.2);
+            expect(betControlStore.effectiveBetLevel).toBe(2);
+
+            // Switch to promotion mode
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.5, betLevel: 3 } as any;
+            });
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.5);
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+
+            // Switch back to normal mode
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = false;
+            });
+
+            expect(betControlStore.effectiveCoinValue).toBe(0.2);
+            expect(betControlStore.effectiveBetLevel).toBe(2);
+        });
+
+        it("should maintain consistency when promotion data changes", () => {
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.1, betLevel: 1 } as any;
+                betControlStore.betMultiplier = 10;
+            });
+
+            expect(betControlStore.effectiveTotalBet).toBe(1); // 1 * 0.1 * 10
+
+            // Change promotion data
+            mobx.runInAction(() => {
+                fsbPromotionStore.promotion.coinValue = 0.2 as any;
+                fsbPromotionStore.promotion.betLevel = 2 as any;
+            });
+
+            expect(betControlStore.effectiveTotalBet).toBe(4); // 2 * 0.2 * 10
+        });
+
+        it("should handle concurrent changes to multiple properties", () => {
+            // Make multiple changes at once (no reaction/spy)
+            mobx.runInAction(() => {
+                fsbPromotionUIStore.isFSBPromotionInProgress = true;
+                fsbPromotionStore.promotion = { coinValue: 0.3, betLevel: 3 } as any;
+                betControlStore.betMultiplier = 5;
+            });
+
+            // Directly assert computed values
+            expect(betControlStore.effectiveCoinValue).toBe(0.3);
+            expect(betControlStore.effectiveBetLevel).toBe(3);
+            expect(betControlStore.effectiveTotalBet).toBeCloseTo(4.5, 5); // 3 * 0.3 * 5
+        });
+    });
+
+    describe("Data validation and type safety", () => {
+        it("should handle non-numeric values gracefully", () => {
+            // Test with string values
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: "0.5" as any,
+                betLevel: "2" as any,
+            };
+
+            // Should still work due to JavaScript type coercion
+            expect(betControlStore.effectiveCoinValue).toBe("0.5");
+            expect(betControlStore.effectiveBetLevel).toBe("2");
+        });
+
+        it("should handle NaN and Infinity values", () => {
+            fsbPromotionUIStore.isFSBPromotionInProgress = true;
+            fsbPromotionStore.promotion = {
+                coinValue: NaN,
+                betLevel: Infinity,
+            };
+
+            expect(betControlStore.effectiveCoinValue).toBeNaN();
+            expect(betControlStore.effectiveBetLevel).toBe(Infinity);
         });
     });
 });
