@@ -8,7 +8,7 @@ import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
-enum AnimationNameMascot {
+export enum AnimationNameMascot {
     idle = "idle",
     transition = "transition",
 }
