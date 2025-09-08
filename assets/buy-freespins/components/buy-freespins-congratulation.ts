@@ -2,9 +2,11 @@ import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
 import Observer from "observer";
 
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
@@ -28,6 +30,13 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
                 this.node.destroy();
             };
         }
+        AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
+        this.handleFadeBGM(false);
+    }
+
+    @handle(CascadingUIHandler, (handler) => handler.handleFadeBGM(true))
+    handleFadeBGM(fadeBGM: boolean) {
+        return fadeBGM;
     }
 
     @render(BuyFreespinsStore, (store) => store.buyFsResult)
@@ -42,6 +51,8 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
 
     @handle(BuyFreespinsHandler, (handler) => handler.closeCongratulation())
     onClose() {
+        this.handleFadeBGM(true);
+        AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
         AudioUtils.playClick();
     }
 }

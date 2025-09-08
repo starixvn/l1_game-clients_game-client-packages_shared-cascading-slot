@@ -26,8 +26,8 @@ export class CascadingFreespinsFeature extends ObserverComponent {
 
     onLoad() {
         super.onLoad();
-        this.bgNormal.active = true;
-        this.bgFreeSpin.active = false;
+        this.bgNormal && (this.bgNormal.active = true);
+        this.bgFreeSpin && (this.bgFreeSpin.active = false);
     }
 
     @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
@@ -38,22 +38,27 @@ export class CascadingFreespinsFeature extends ObserverComponent {
 
         if (triggerDuringFreeSpinBonus) {
             try {
-                const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/bg-freespins", Prefab);
-                const bgFreespin = instantiate(prefabBgFreespin);
-                this.bgFreeSpin.addChild(bgFreespin);
-                AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
-                AnimationUtils.fadeIn(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
+                if (this.bgFreeSpin) {
+                    const prefabBgFreespin = await bundleManager.loadResourcesAsset<Prefab>("prefabs/bg-freespins", Prefab);
+                    const bgFreespin = instantiate(prefabBgFreespin);
+                    this.bgFreeSpin.addChild(bgFreespin);
+                    AnimationUtils.fadeIn(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
+                }
+
+                this.bgNormal && AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
+
                 this.audioContainer.updateVolumeMusicSource(0.1, 1);
                 this.playSound(AudioIds.BGM_FREESPIN);
-            } catch (err) {
-                console.log(err);
-            }
+            } catch (err) { }
         } else {
-            AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
-            AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
+            if (this.bgFreeSpin) {
+                AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
+                this.bgFreeSpin.removeAllChildren();
+            }
+            this.bgNormal && AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
+
             this.audioContainer.updateVolumeMusicSource(1, 1);
             this.stopSound(AudioIds.BGM_FREESPIN);
-            this.bgFreeSpin.removeAllChildren();
         }
     }
 

@@ -194,6 +194,8 @@ export class CascadingUIStore {
         return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
     }
 
+    fadeBGM = { value: false }
+
     get turnOnBGM() {
         return this.isBigWinCompleted || this.isFreeSpinEffectCompleted;
     }

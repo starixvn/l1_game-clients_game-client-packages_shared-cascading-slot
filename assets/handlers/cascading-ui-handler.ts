@@ -272,6 +272,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.triggerDuringFreeSpinBonus = trigger;
     }
 
+    handleFadeBGM(fadeBGM: boolean) {
+        this.uiStore.fadeBGM = { value: fadeBGM };
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,
