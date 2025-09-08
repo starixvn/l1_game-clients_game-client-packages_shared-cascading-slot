@@ -28,11 +28,11 @@ export class BuyFreespinsConfirmation extends ObserverComponent {
 
     @render(BuyFreespinsStore, (store) => store.totalBet)
     renderTotalBet(totalBet: number) {
-        this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2);
+        this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2, false);
     }
 
     @handle(BuyFreespinsHandler, (handler) => handler.sendRequestBuyFreespins())
-    sendRequestBuyFreespins() {}
+    sendRequestBuyFreespins() { }
 
     onConfirm() {
         AudioUtils.playClick();
@@ -42,7 +42,7 @@ export class BuyFreespinsConfirmation extends ObserverComponent {
     }
 
     @handle(BuyFreespinsHandler, (handler) => handler.hideBuyFreespins())
-    hideBuyFreespins() {}
+    hideBuyFreespins() { }
 
     onCancel() {
         AudioUtils.playClick();

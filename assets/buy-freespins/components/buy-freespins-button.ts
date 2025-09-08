@@ -37,7 +37,7 @@ export class BuyFreespinsButton extends ObserverComponent {
             this.labelTotalBet.string = "";
             return;
         }
-        this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2);
+        this.labelTotalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2, false);
     }
 
     @handle(BuyFreespinsHandler, (handler) => handler.showBuyFsConfirmation())
