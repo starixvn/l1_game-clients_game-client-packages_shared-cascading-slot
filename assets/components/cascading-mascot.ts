@@ -64,7 +64,7 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     async playAnimMultiplierLand() {
-        await this.handleAnimTransition(this.gameConfig.multiplierLandMascotAnimationName);
+        this.gameConfig.multiplierLandMascotAnimationName && (await this.handleAnimTransition(this.gameConfig.multiplierLandMascotAnimationName));
     }
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
