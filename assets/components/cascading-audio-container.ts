@@ -19,8 +19,8 @@ export class CascadingAudioContainer extends AudioContainer {
     private readonly sfxIdSources: Array<string | null> = [];
 
     onLoad() {
-        super.onLoad();
         this.initializeAudioSourceStates();
+        super.onLoad();
     }
 
     private initializeAudioSourceStates() {
