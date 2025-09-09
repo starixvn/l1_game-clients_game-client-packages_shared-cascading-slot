@@ -72,7 +72,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
         }
     }
 
-    @handle(gc.Audios.AudioStore, (handler, data: { id: string, loop: boolean }) => (handler.music = { ...data, action: gc.Audios.AudioAction.PLAY }))
+    @handle(gc.Audios.AudioHandler, (handler, data: { id: string, loop: boolean }) => handler.playMusic(data.id, data.loop))
     playMusic(id: string, loop: boolean) {
         return { id, loop };
     }
