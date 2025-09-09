@@ -26,7 +26,7 @@ export class CascadingEffectFreespin extends ObserverComponent {
         if (!button) {
             button = this.node.addComponent(Button);
         }
-        this.node.on(Button.EventType.CLICK, () => {
+        button.node.on(Button.EventType.CLICK, () => {
             this.skipToContinue();
         });
     }
