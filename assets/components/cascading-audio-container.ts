@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
-import { _decorator, AudioSource } from "cc";
-import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { _decorator, AudioClip, AudioSource } from "cc";
+import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
@@ -15,12 +15,27 @@ export class CascadingAudioContainer extends AudioContainer {
     @property({ type: AudioSource })
     listSFXSource: AudioSource[] = [];
 
+    @property
+    multipleMusicSources = 2;
+
+    protected musicSources: AudioSource[] = [];
+    protected musicSourcesState: { [key: string]: string } = {};
+
     private readonly stoppableIdSources: Array<string | null> = [];
     private readonly sfxIdSources: Array<string | null> = [];
 
     onLoad() {
+        this.initMusicSources();
         this.initializeAudioSourceStates();
         super.onLoad();
+    }
+
+    initMusicSources() {
+        for (let i = 0; i < this.multipleMusicSources; i++) {
+            const musicSource = i == 0 ? this.musicSource : this.musicSource.addComponent(AudioSource);
+            this.musicSources.push(musicSource);
+            this.musicSourcesState[i] = "";
+        }
     }
 
     private initializeAudioSourceStates() {
@@ -89,7 +104,7 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     private handlePlayAction(data: gc.Audios.AudioData) {
-        if (!this.isUserGesture && data.id !== AudioIds.BGM_FREESPIN) {
+        if (!this.isUserGesture) {
             return;
         }
 
@@ -159,20 +174,6 @@ export class CascadingAudioContainer extends AudioContainer {
         );
     }
 
-    @render(gc.UserSettings.UserSettingStore, (store) => store.musicEnable, { fireImmediately: false })
-    enableMusic(musicEnable: boolean) {
-        super.enableMusic(musicEnable);
-        const sourceIndex = this.findSourceIndexByAudioId(AudioIds.BGM_FREESPIN);
-        if (sourceIndex === -1) {
-            return;
-        }
-        if (!musicEnable) {
-            this.listStoppableSFXSource[sourceIndex].pause();
-        } else {
-            this.playAudioWithSource(AudioIds.BGM_FREESPIN, sourceIndex);
-        }
-    }
-
     @render(CascadingUIStore, (store) => store.turnOnBGM)
     turnOnBGM(turnOnBGM: boolean) {
         if (turnOnBGM) {
@@ -193,5 +194,51 @@ export class CascadingAudioContainer extends AudioContainer {
             const volume = fadeBGM.value ? 1 : 0.1;
             this.updateVolumeMusicSource(volume, 0.3);
         }
+    }
+
+    playMusic(data: gc.Audios.AudioData) {
+        if (data) {
+            if (data.action === gc.Audios.AudioAction.PLAY) {
+                this.playMusicAudio(data.id);
+            } else if (data.action === gc.Audios.AudioAction.STOP) {
+                this.stopMusicAudio(data.id);
+            }
+        }
+    }
+
+    protected stopMusicAudio(id: string) {
+        const sourceId = Object.keys(this.musicSourcesState).find((key) => this.musicSourcesState[key] === id);
+        if (sourceId) {
+            this.stopAudio(this.musicSources[+sourceId]);
+            this.musicSourcesState[sourceId] = "";
+        }
+    }
+
+    protected stopAllMusic() {
+        //TODO: stop others music sources
+        this.musicSources.forEach((source, index) => {
+            this.stopAudio(source);
+            this.musicSourcesState[index] = "";
+        });
+    }
+
+    protected getAvailableMusicSource(): number {
+        return Object.keys(this.musicSourcesState).findIndex((key) => +key > 0 && this.musicSourcesState[key] === "");
+    }
+
+    protected handlePlayMusic(id: string, isPlay: boolean, clip: AudioClip) {
+        if (isPlay !== this.isPlayMusic) {
+            return;
+        }
+
+        const sourceId = this.getMusicSourceId(id);
+        const source = this.musicSources[sourceId];
+        this.playSourceClip(source, clip);
+    }
+
+    private getMusicSourceId(id: string) {
+        const audioConfigs = audioManager?.audioConfigs;
+        const config = audioConfigs[id];
+        return config?.isMusicGame ? 0 : this.getAvailableMusicSource();
     }
 }

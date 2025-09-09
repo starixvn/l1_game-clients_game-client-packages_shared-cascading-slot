@@ -23,6 +23,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
     audioContainer: CascadingAudioContainer = null;
 
     private readonly FADE_IN_OUT_DURATION = 0.5;
+    private triggerFreespin = false;
 
     onLoad() {
         super.onLoad();
@@ -30,12 +31,21 @@ export class CascadingFreespinsFeature extends ObserverComponent {
         this.bgFreeSpin && (this.bgFreeSpin.active = false);
     }
 
+    @render(gc.UserSettings.UserSettingStore, (store) => store.musicEnable, { fireImmediately: false })
+    enableMusic(musicEnable: boolean) {
+        if (musicEnable && this.triggerFreespin) {
+            this.scheduleOnce(() => {
+                this.playMusic(AudioIds.BGM_FREESPIN);
+            }, 0.1)
+        }
+    }
+
     @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
     async handleBackgroundGame(triggerDuringFreeSpinBonus: boolean) {
         if (!resourcesCache.gameFeatures?.allowFreeSpinsFeature) {
             return;
         }
-
+        this.triggerFreespin = triggerDuringFreeSpinBonus;
         if (triggerDuringFreeSpinBonus) {
             try {
                 if (this.bgFreeSpin) {
@@ -47,8 +57,8 @@ export class CascadingFreespinsFeature extends ObserverComponent {
 
                 this.bgNormal && AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
-                this.audioContainer.updateVolumeMusicSource(0.1, 1);
-                this.playSound(AudioIds.BGM_FREESPIN);
+                this.audioContainer.updateVolumeMusicSource(0, 0.3);
+                this.playMusic(AudioIds.BGM_FREESPIN);
             } catch (err) { }
         } else {
             if (this.bgFreeSpin) {
@@ -57,18 +67,18 @@ export class CascadingFreespinsFeature extends ObserverComponent {
             }
             this.bgNormal && AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
-            this.audioContainer.updateVolumeMusicSource(1, 1);
-            this.stopSound(AudioIds.BGM_FREESPIN);
+            this.audioContainer.updateVolumeMusicSource(1, 0.3);
+            this.stopMusic(AudioIds.BGM_FREESPIN);
         }
     }
 
-    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.playStoppableSFX(id))
-    playSound(id: string) {
+    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.playMusic(id))
+    playMusic(id: string) {
         return id;
     }
 
-    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.stopStoppableSFX(id))
-    stopSound(id: string) {
+    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.stopMusic(id))
+    stopMusic(id: string) {
         return id;
     }
 }
