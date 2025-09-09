@@ -32,7 +32,7 @@ export class CascadingAudioContainer extends AudioContainer {
 
     initMusicSources() {
         for (let i = 0; i < this.multipleMusicSources; i++) {
-            const musicSource = i == 0 ? this.musicSource : this.musicSource.addComponent(AudioSource);
+            const musicSource = i === 0 ? this.musicSource : this.musicSource.addComponent(AudioSource);
             this.musicSources.push(musicSource);
             this.musicSourcesState[i] = "";
         }
@@ -215,7 +215,6 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     protected stopAllMusic() {
-        //TODO: stop others music sources
         this.musicSources.forEach((source, index) => {
             this.stopAudio(source);
             this.musicSourcesState[index] = "";
