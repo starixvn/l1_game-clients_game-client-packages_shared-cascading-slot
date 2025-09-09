@@ -16,7 +16,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -28,27 +28,36 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
+            utils: {
+                StorageManager: {
+                    setPrefixKey: jest.fn(),
+                },
+            },
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
+        Configs: {
+            SiteConfigs: jest.fn(),
+        }
     };
     return mockGc;
 });
 
 jest.mock("../../../assets/stores/cascading-ui-store");
+jest.mock("../../../assets/handlers/cascading-ui-handler");
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() {}
+        onLoad() { }
     },
 }));
 jest.mock("observer", () => ({

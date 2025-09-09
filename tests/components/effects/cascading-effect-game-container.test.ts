@@ -39,7 +39,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -54,8 +54,8 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
             utils: {
                 StorageManager: {
                     setPrefixKey: jest.fn(),
@@ -64,12 +64,12 @@ jest.mock("@sg/game-client-base", () => {
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
     };
@@ -80,7 +80,7 @@ jest.mock("../../../assets/stores/cascading-ui-store");
 jest.mock("../../../assets/handlers/cascading-ui-handler");
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() {}
+        onLoad() { }
     },
 }));
 jest.mock("db://shared-components/shared/utils/utils", () => ({
@@ -190,7 +190,6 @@ describe("CascadingEffectGameContainer", () => {
             cascadingEffectGameContainer.delayMascotEvent = jest.fn();
             cascadingEffectGameContainer["playEffectTransition"] = jest.fn();
             cascadingEffectGameContainer.playSound = jest.fn();
-            cascadingEffectGameContainer.setFreeSpinEffectCompleted = jest.fn();
         });
 
         it("should destroy all children when effect is hidden", async () => {
@@ -209,17 +208,8 @@ describe("CascadingEffectGameContainer", () => {
             expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.FREESPIN);
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectFreespin);
             expect(mockNode.addChild).toHaveBeenCalled();
-            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(2);
-            expect(cascadingEffectGameContainer.setFreeSpinEffectCompleted).toHaveBeenCalledWith(true);
         });
 
-        it("should use turbo mode duration when turbo mode is enabled", async () => {
-            cascadingEffectGameContainer["isTurboMode"] = true;
-
-            await cascadingEffectGameContainer.freeSpinEffectVisibility(true);
-
-            expect(AnimationUtils.delayTime).toHaveBeenCalledWith(1);
-        });
     });
 
     describe("renderBigWinEffect", () => {
@@ -284,13 +274,7 @@ describe("CascadingEffectGameContainer", () => {
         });
     });
 
-    describe("setFreeSpinEffectCompleted", () => {
-        it("should return the completed parameter", () => {
-            const result = cascadingEffectGameContainer.setFreeSpinEffectCompleted(true);
 
-            expect(result).toBe(true);
-        });
-    });
 
     describe("playSound", () => {
         it("should return the sound id", () => {

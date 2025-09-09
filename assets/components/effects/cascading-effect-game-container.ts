@@ -6,7 +6,6 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
-import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -44,12 +43,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         AudioUtils.playStoppableSFX(AudioIds.STINGER_FREESPIN_WIN, true);
         const freespin = instantiate(this.pfbEffectFreespin);
         this.node.addChild(freespin);
-        const duration = getCustomDuration("freeSpin", this.isTurboMode);
-        await AnimationUtils.delayTime(duration);
-        freespin.destroy();
-        AudioUtils.stopStoppableSFX(AudioIds.STINGER_FREESPIN_WIN);
-        this.setFreeSpinEffectCompleted(true);
-        this.handleTriggerDuringFreeSpinBonus();
     }
 
     @render(CascadingUIStore, (store) => store.haveBigWin)
@@ -73,14 +66,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     renderTurboMode(isTurboMode: boolean) {
         this.isTurboMode = isTurboMode;
     }
-
-    @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
-    setFreeSpinEffectCompleted(completed: boolean) {
-        return completed;
-    }
-
-    @handle(CascadingUIHandler, (handler) => handler.handleTriggerDuringFreeSpinBonus())
-    handleTriggerDuringFreeSpinBonus() {}
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
