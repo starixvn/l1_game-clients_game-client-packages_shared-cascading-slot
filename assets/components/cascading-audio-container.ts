@@ -199,7 +199,7 @@ export class CascadingAudioContainer extends AudioContainer {
     playMusic(data: gc.Audios.AudioData) {
         if (data) {
             if (data.action === gc.Audios.AudioAction.PLAY) {
-                this.playMusicAudio(data.id);
+                this.playMusicAudio(data);
             } else if (data.action === gc.Audios.AudioAction.STOP) {
                 this.stopMusicAudio(data.id);
             }
@@ -225,13 +225,17 @@ export class CascadingAudioContainer extends AudioContainer {
         return Object.keys(this.musicSourcesState).findIndex((key) => +key > 0 && this.musicSourcesState[key] === "");
     }
 
-    protected handlePlayMusic(id: string, isPlay: boolean, clip: AudioClip) {
+    protected handlePlayMusic(data: gc.Audios.AudioData, isPlay: boolean, clip: AudioClip) {
         if (isPlay !== this.isPlayMusic) {
             return;
         }
 
-        const sourceId = this.getMusicSourceId(id);
+        const sourceId = this.getMusicSourceId(data.id);
         const source = this.musicSources[sourceId];
+
+        if (sourceId > 0) {
+            source.loop = data.loop;
+        }
         this.playSourceClip(source, clip);
     }
 

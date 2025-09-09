@@ -35,7 +35,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
     enableMusic(musicEnable: boolean) {
         if (musicEnable && this.triggerFreespin) {
             this.scheduleOnce(() => {
-                this.playMusic(AudioIds.BGM_FREESPIN);
+                this.playMusic(AudioIds.BGM_FREESPIN, true);
             }, 0.1)
         }
     }
@@ -58,7 +58,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
                 this.bgNormal && AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
                 this.audioContainer.updateVolumeMusicSource(0, 0.3);
-                this.playMusic(AudioIds.BGM_FREESPIN);
+                this.playMusic(AudioIds.BGM_FREESPIN, true);
             } catch (err) { }
         } else {
             if (this.bgFreeSpin) {
@@ -72,9 +72,9 @@ export class CascadingFreespinsFeature extends ObserverComponent {
         }
     }
 
-    @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.playMusic(id))
-    playMusic(id: string) {
-        return id;
+    @handle(gc.Audios.AudioStore, (handler, data: { id: string, loop: boolean }) => (handler.music = { ...data, action: gc.Audios.AudioAction.PLAY }))
+    playMusic(id: string, loop: boolean) {
+        return { id, loop };
     }
 
     @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.stopMusic(id))
