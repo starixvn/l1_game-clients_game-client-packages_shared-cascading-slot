@@ -45,7 +45,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             return;
         }
 
-        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin, 2);
+        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin, 2, false);
         this.labelTotalFreespins.string = total.numberOfFreeSpins.toString();
     }
 
