@@ -236,6 +236,7 @@ export class CascadingAudioContainer extends AudioContainer {
         if (sourceId > 0) {
             source.loop = data.loop;
         }
+        this.musicSourcesState[sourceId] = data.id;
         this.playSourceClip(source, clip);
     }
 
