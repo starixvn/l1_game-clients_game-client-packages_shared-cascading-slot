@@ -174,21 +174,7 @@ export class CascadingAudioContainer extends AudioContainer {
         );
     }
 
-    @render(CascadingUIStore, (store) => store.turnOnBGM)
-    turnOnBGM(turnOnBGM: boolean) {
-        if (turnOnBGM) {
-            this.updateVolumeMusicSource(1, 0.3);
-        }
-    }
-
-    @render(CascadingUIStore, (store) => store.turnOffBGM)
-    turnOffBGM(turnOffBGM: boolean) {
-        if (turnOffBGM) {
-            this.updateVolumeMusicSource(0.1, 0.3);
-        }
-    }
-
-    @render(CascadingUIStore, (store) => store.fadeBGM, { fireImmediately: false })
+    @render(CascadingUIStore, (store) => store.fadeBGM)
     fadeBGM(fadeBGM: { value: boolean }) {
         if (fadeBGM) {
             const volume = fadeBGM.value ? 1 : 0.1;

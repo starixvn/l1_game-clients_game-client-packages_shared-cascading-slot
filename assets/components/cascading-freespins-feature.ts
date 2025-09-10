@@ -6,6 +6,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { resourcesCache } from "../cascading-slot-utils";
+import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingAudioContainer } from "./cascading-audio-container";
 const { ccclass, property } = _decorator;
@@ -36,7 +37,7 @@ export class CascadingFreespinsFeature extends ObserverComponent {
         if (musicEnable && this.triggerFreespin) {
             this.scheduleOnce(() => {
                 this.playMusic(AudioIds.BGM_FREESPIN, true);
-            }, 0.1)
+            }, 0.1);
         }
     }
 
@@ -57,9 +58,9 @@ export class CascadingFreespinsFeature extends ObserverComponent {
 
                 this.bgNormal && AnimationUtils.fadeOutAndDeactivate(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
-                this.audioContainer.updateVolumeMusicSource(0, 0.3);
+                this.handleFadeBGM(false);
                 this.playMusic(AudioIds.BGM_FREESPIN, true);
-            } catch (err) { }
+            } catch (err) {}
         } else {
             if (this.bgFreeSpin) {
                 AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
@@ -67,12 +68,12 @@ export class CascadingFreespinsFeature extends ObserverComponent {
             }
             this.bgNormal && AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
-            this.audioContainer.updateVolumeMusicSource(1, 0.3);
+            this.handleFadeBGM(true);
             this.stopMusic(AudioIds.BGM_FREESPIN);
         }
     }
 
-    @handle(gc.Audios.AudioHandler, (handler, data: { id: string, loop: boolean }) => handler.playMusic(data.id, data.loop))
+    @handle(gc.Audios.AudioHandler, (handler, data: { id: string; loop: boolean }) => handler.playMusic(data.id, data.loop))
     playMusic(id: string, loop: boolean) {
         return { id, loop };
     }
@@ -80,5 +81,10 @@ export class CascadingFreespinsFeature extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handler, id: string) => handler.stopMusic(id))
     stopMusic(id: string) {
         return id;
+    }
+
+    @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
+    handleFadeBGM(fadeBGM: boolean) {
+        return fadeBGM;
     }
 }

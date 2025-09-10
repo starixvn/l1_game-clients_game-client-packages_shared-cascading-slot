@@ -40,11 +40,12 @@ export class CascadingEffectFreespin extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
+        this.handleFadeBGM(completed);
         return completed;
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerDuringFreeSpinBonus())
-    handleTriggerDuringFreeSpinBonus() { }
+    handleTriggerDuringFreeSpinBonus() {}
 
     @render(CascadingUIStore, (store) => store.freeSpinsByRound)
     renderFreeSpinsCount(freeSpinsCount: number) {
@@ -55,5 +56,10 @@ export class CascadingEffectFreespin extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
         this.isTurboMode = isTurboMode;
+    }
+
+    @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
+    handleFadeBGM(fadeBGM: boolean) {
+        return fadeBGM;
     }
 }

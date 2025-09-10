@@ -6,6 +6,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -36,6 +37,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        this.handleFadeBGM(false);
         await this.delayMascotEvent();
         await this.playEffectTransition();
 
@@ -51,6 +53,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
+        this.handleFadeBGM(false);
         await this.delayMascotEvent();
         await this.playEffectTransition();
         if (!this.isTurboMode) {
@@ -100,5 +103,10 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         const duration = getCustomDuration("eventMascot", this.isTurboMode);
         await AnimationUtils.delayTime(duration);
+    }
+
+    @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
+    handleFadeBGM(fadeBGM: boolean) {
+        return fadeBGM;
     }
 }

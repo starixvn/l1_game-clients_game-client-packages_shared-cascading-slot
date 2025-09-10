@@ -217,6 +217,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     setBigWinCompleted(completed: boolean) {
+        this.handleFadeBGM(completed);
         return completed;
     }
 
@@ -251,5 +252,10 @@ export class CascadingEffectBigwin extends ObserverComponent {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.stopStoppableSFX(id))
     stopSoundCoinIncrement() {
         return AudioIds.WINCOUNT_INCREMENT;
+    }
+
+    @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
+    handleFadeBGM(fadeBGM: boolean) {
+        return fadeBGM;
     }
 }
