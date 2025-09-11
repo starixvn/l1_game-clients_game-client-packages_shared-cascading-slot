@@ -38,16 +38,11 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     async handleAnimTransition(anim: string) {
-        const durationMascot = this.spineMascot.findAnimation(anim)?.duration;
-        const track1Entry = this.spineMascot.getCurrent(1);
-        if (track1Entry) {
+        const isPlayingAnim = AnimationUtils.isAnimationPlaying(this.spineMascot, anim);
+        if (isPlayingAnim) {
             return;
         }
-
-        this.spineMascot.setAnimation(1, anim, false);
-
-        await AnimationUtils.delayTime(durationMascot);
-        this.spineMascot.clearTracks();
+        await AnimationUtils.playSpine(this.spineMascot, anim, false);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 
@@ -64,7 +59,8 @@ export class CascadingMascot extends ObserverComponent {
     }
 
     async playAnimMultiplierLand() {
-        this.gameConfig.multiplierLandMascotAnimationName && (await this.handleAnimTransition(this.gameConfig.multiplierLandMascotAnimationName));
+        this.gameConfig.multiplierLandMascotAnimationName &&
+            (await this.handleAnimTransition(this.gameConfig?.multiplierLandMascotAnimationName));
     }
 
     @render(CascadingUIStore, (store) => store.isShowFreeSpinEffect)
