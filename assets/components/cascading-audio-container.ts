@@ -217,6 +217,9 @@ export class CascadingAudioContainer extends AudioContainer {
         }
 
         const sourceId = this.getMusicSourceId(data.id);
+        if (sourceId < 0) {
+            return;
+        }
         const source = this.musicSources[sourceId];
 
         if (sourceId > 0) {
