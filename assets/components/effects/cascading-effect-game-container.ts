@@ -37,10 +37,10 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
-        this.handleFadeBGM(false);
+
         await this.delayMascotEvent();
         await this.playEffectTransition();
-
+        this.handleFadeBGM(false);
         this.playSound(AudioIds.FREESPIN);
         AudioUtils.playStoppableSFX(AudioIds.STINGER_FREESPIN_WIN, true);
         const freespin = instantiate(this.pfbEffectFreespin);
