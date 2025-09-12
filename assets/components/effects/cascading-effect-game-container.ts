@@ -60,7 +60,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.playSoundCoinIncrement();
             AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
         }
-        this.playSound(AudioIds.BIG_WIN);
         const bigwin = instantiate(this.pfbEffectBigWin);
         this.node.addChild(bigwin);
     }

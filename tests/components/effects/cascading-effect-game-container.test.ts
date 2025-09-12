@@ -236,7 +236,6 @@ describe("CascadingEffectGameContainer", () => {
             expect(cascadingEffectGameContainer.delayMascotEvent).toHaveBeenCalled();
             expect(cascadingEffectGameContainer["playEffectTransition"]).toHaveBeenCalled();
             expect(cascadingEffectGameContainer.playSoundCoinIncrement).toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN);
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectBigWin);
             expect(mockNode.addChild).toHaveBeenCalled();
         });
@@ -247,7 +246,6 @@ describe("CascadingEffectGameContainer", () => {
             await cascadingEffectGameContainer.renderBigWinEffect(true);
 
             expect(cascadingEffectGameContainer.playSoundCoinIncrement).not.toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN);
         });
     });
 

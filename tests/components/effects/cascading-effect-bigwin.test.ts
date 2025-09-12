@@ -3,6 +3,31 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { CascadingEffectBigwin } from "../../../assets/components/effects/cascading-effect-bigwin";
 
+// Comprehensive type declarations to fix scheduleOnce issue
+declare global {
+    namespace cc {
+        interface Component {
+            scheduleOnce(callback: Function, delay: number): void;
+            schedule(callback: Function, interval: number, repeat?: number, delay?: number): void;
+            unschedule(callback: Function): void;
+            unscheduleAllCallbacks(): void;
+        }
+    }
+}
+
+// Create a global interface that any class can implement
+interface SchedulableComponent {
+    scheduleOnce(callback: Function, delay: number): void;
+    schedule(callback: Function, interval: number, repeat?: number, delay?: number): void;
+    unschedule(callback: Function): void;
+    unscheduleAllCallbacks(): void;
+}
+
+// Type for CascadingEffectBigwin with scheduleOnce method for testing
+type CascadingEffectBigwinWithSchedule = CascadingEffectBigwin & {
+    scheduleOnce: jest.Mock;
+};
+
 // Mock external dependencies
 jest.mock("@sg/game-client-base", () => {
     const mockGc = {
@@ -28,7 +53,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -46,8 +71,8 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
             utils: {
                 StorageManager: {
                     setPrefixKey: jest.fn(),
@@ -56,12 +81,12 @@ jest.mock("@sg/game-client-base", () => {
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
 
@@ -81,7 +106,11 @@ jest.mock("../../../assets/stores/cascading-ui-store");
 jest.mock("../../../assets/handlers/cascading-ui-handler");
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() {}
+        onLoad() { }
+        scheduleOnce = jest.fn();
+        schedule = jest.fn();
+        unschedule = jest.fn();
+        unscheduleAllCallbacks = jest.fn();
     },
 }));
 jest.mock("db://shared-components/shared/utils", () => ({
@@ -133,7 +162,7 @@ jest.mock("cc", () => {
 });
 
 describe("CascadingEffectBigwin", () => {
-    let cascadingEffectBigwin: CascadingEffectBigwin;
+    let cascadingEffectBigwin: CascadingEffectBigwinWithSchedule;
     let mockLblWinAmount: Label;
     let mockMegaWinPrefab: Prefab;
     let mockSuperWinPrefab: Prefab;
@@ -180,13 +209,18 @@ describe("CascadingEffectBigwin", () => {
         } as unknown as Tween<any>;
 
         // Create instance of CascadingEffectBigwin
-        cascadingEffectBigwin = new CascadingEffectBigwin();
+        cascadingEffectBigwin = new CascadingEffectBigwin() as CascadingEffectBigwinWithSchedule;
         cascadingEffectBigwin.lblWinAmount = mockLblWinAmount;
         cascadingEffectBigwin.megaWinPrefab = mockMegaWinPrefab;
         cascadingEffectBigwin.superWinPrefab = mockSuperWinPrefab;
         cascadingEffectBigwin.mainSpine = mockMainSpine;
         cascadingEffectBigwin.changeLevel = mockChangeLevel;
         cascadingEffectBigwin.nodeBigWin = mockNodeBigWin;
+
+        // Reset the change level flags to their initial state
+        cascadingEffectBigwin["isChangeLevelSuper"] = true;
+        cascadingEffectBigwin["isChangeLevelMega"] = true;
+        cascadingEffectBigwin["isChangeLevelBig"] = true;
     });
 
     describe("setAmount", () => {
@@ -213,39 +247,130 @@ describe("CascadingEffectBigwin", () => {
     });
 
     describe("changeFrameForBigWinLevel", () => {
-        it("should trigger super win animation when ratio >= 6", async () => {
+        it("should trigger super win animation when ratio >= 6 in normal mode", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+
+            cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
             const betWin = 6000;
             const totalBet = 1000;
             cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
 
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
+            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
             expect(cascadingEffectBigwin.setAnimationChangeSuper).toHaveBeenCalled();
+
+            // Restore console.log
+            (console.log as jest.Mock).mockRestore();
         });
 
-        it("should trigger mega win animation when ratio >= 3", async () => {
+        it("should trigger mega win animation when ratio >= 3 in normal mode", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+
+            cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
             const betWin = 3000;
             const totalBet = 1000;
             cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
 
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
+            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
             expect(cascadingEffectBigwin.setAnimationChangeMega).toHaveBeenCalled();
+
+            // Restore console.log
+            (console.log as jest.Mock).mockRestore();
         });
 
-        it("should not trigger any animation when ratio < 3", async () => {
+        it("should play BIG_WIN sound in normal mode when ratio < 3", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+
+            cascadingEffectBigwin["isTurboMode"] = false;
             const betWin = 2000;
             const totalBet = 1000;
             cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
             cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
 
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
             expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
             expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeBig).toHaveBeenCalled();
+
+            // Restore console.log
+            (console.log as jest.Mock).mockRestore();
         });
 
-        it("should not trigger super animation if already changed", async () => {
+        it("should return early when totalBet is 0", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+
+            await cascadingEffectBigwin.changeFrameForBigWinLevel(1000, 0);
+
+            // Should not call any animation methods due to early return
+            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
+
+            // Restore console.log
+            (console.log as jest.Mock).mockRestore();
+        });
+
+        it("should call only setAnimationChangeSuper for super win", async () => {
+            const betWin = 6000;
+            const totalBet = 1000; // ratio = 6, super win
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+
+            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
+
+            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeSuper).toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
+        });
+
+        it("should call only setAnimationChangeMega for mega win", async () => {
+            const betWin = 3000;
+            const totalBet = 1000; // ratio = 3, mega win
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+
+            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
+
+            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeMega).toHaveBeenCalled();
+        });
+
+        it("should only call setAnimationChangeBig when ratio < 3", async () => {
+            const betWin = 2000;
+            const totalBet = 1000; // ratio = 2, only big win
+            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
+
+            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
+
+            expect(cascadingEffectBigwin.setAnimationChangeBig).toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
+        });
+
+        it("should not trigger super animation if already changed in normal mode", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+
+            cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
             cascadingEffectBigwin["isChangeLevelSuper"] = false;
             const betWin = 6000;
             const totalBet = 1000;
@@ -254,9 +379,14 @@ describe("CascadingEffectBigwin", () => {
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
             expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
+            (console.log as jest.Mock).mockRestore();
         });
 
-        it("should not trigger mega animation if already changed", async () => {
+        it("should not trigger mega animation if already changed in normal mode", async () => {
+            // Mock console.log to avoid test noise
+            jest.spyOn(console, 'log').mockImplementation();
+
+            cascadingEffectBigwin["isTurboMode"] = false;
             cascadingEffectBigwin["isChangeLevelMega"] = false;
             const betWin = 3000;
             const totalBet = 1000;
@@ -265,6 +395,9 @@ describe("CascadingEffectBigwin", () => {
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
             expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
+
+            // Restore console.log
+            (console.log as jest.Mock).mockRestore();
         });
     });
 
@@ -301,6 +434,17 @@ describe("CascadingEffectBigwin", () => {
 
             expect(cascadingEffectBigwin["isChangeLevelMega"]).toBe(false);
             expect(cascadingEffectBigwin.changeLevelAnimation).toHaveBeenCalledWith(mockMainSpine, "hide", mockMegaWinPrefab);
+        });
+    });
+
+    describe("setAnimationChangeBig", () => {
+        it("should change to big win state and play sound", async () => {
+            cascadingEffectBigwin.playSound = jest.fn();
+
+            await cascadingEffectBigwin.setAnimationChangeBig();
+
+            expect(cascadingEffectBigwin["isChangeLevelBig"]).toBe(false);
+            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.BIG_WIN);
         });
     });
 
@@ -469,9 +613,11 @@ describe("CascadingEffectBigwin", () => {
 
         it("should handle big win in turbo mode", () => {
             cascadingEffectBigwin["isTurboMode"] = true;
+            cascadingEffectBigwin["totalBet"] = 100;
             cascadingEffectBigwin["winAmountForNoAnim"] = jest.fn();
             cascadingEffectBigwin.showHideBigWinNode = jest.fn();
             cascadingEffectBigwin.handleBigWinActions = jest.fn();
+            cascadingEffectBigwin.changeFrameForBigWinLevel = jest.fn();
 
             cascadingEffectBigwin.handleBigWinAmount(500);
 
@@ -479,6 +625,7 @@ describe("CascadingEffectBigwin", () => {
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(500);
             expect(cascadingEffectBigwin.showHideBigWinNode).toHaveBeenCalledWith(false);
             expect(cascadingEffectBigwin.handleBigWinActions).toHaveBeenCalledWith(true);
+            expect(cascadingEffectBigwin.changeFrameForBigWinLevel).not.toHaveBeenCalled();
         });
 
         it("should handle big win in normal mode", () => {
@@ -524,6 +671,7 @@ describe("CascadingEffectBigwin", () => {
             cascadingEffectBigwin.playSound = jest.fn();
             cascadingEffectBigwin.stopSoundCoinIncrement = jest.fn();
             cascadingEffectBigwin["winAmountForNoAnim"] = jest.fn();
+            cascadingEffectBigwin.scheduleOnce = jest.fn();
         });
 
         it("should handle completed action with skip count > 1", () => {
@@ -554,7 +702,10 @@ describe("CascadingEffectBigwin", () => {
             expect(mockTweenDelay.stop).toHaveBeenCalled();
             expect(mockTweenBigWin.stop).toHaveBeenCalled();
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(cascadingEffectBigwin["winAmount"]);
-            expect(cascadingEffectBigwin.playSound).toHaveBeenCalledWith(AudioIds.WINCOUNT_STOP);
+            expect(cascadingEffectBigwin.scheduleOnce).toHaveBeenCalledWith(
+                expect.any(Function),
+                0.1
+            );
             expect(cascadingEffectBigwin.stopSoundCoinIncrement).toHaveBeenCalled();
             expect(AudioUtils.stopStoppableSFX).toHaveBeenCalledWith(AudioIds.STINGER_WINCOUNT);
             expect(tween).toHaveBeenCalled();

@@ -42,6 +42,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     winAmount = 0;
     private isChangeLevelSuper = true;
     private isChangeLevelMega = true;
+    private isChangeLevelBig = true;
     private totalBet = 0;
     private coinValue = 0;
     private isTurboMode = false;
@@ -64,29 +65,41 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     async changeFrameForBigWinLevel(betWin: number, totalBet: number) {
+        if (totalBet === 0) {
+            return;
+        }
         const valueRatio = betWin / totalBet;
         if (valueRatio >= 6) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
         } else if (valueRatio >= 3) {
             this.isChangeLevelMega && this.setAnimationChangeMega();
+        } else {
+            this.isChangeLevelBig && this.setAnimationChangeBig();
         }
     }
+
+
 
     showHideBigWinNode(show: boolean) {
         this.nodeBigWin.active = show;
     }
 
     async setAnimationChangeSuper() {
-        this.isChangeLevelSuper = false;
         this.playSound(AudioIds.SUPER_WIN);
+        this.isChangeLevelSuper = false;
         await this.changeLevelAnimation(this.mainSpine, "hide", this.superWinPrefab);
     }
 
     async setAnimationChangeMega() {
-        this.isChangeLevelMega = false;
         this.playSound(AudioIds.MEGA_WIN);
+        this.isChangeLevelMega = false;
         await this.changeLevelAnimation(this.mainSpine, "hide", this.megaWinPrefab);
     }
+    async setAnimationChangeBig() {
+        this.playSound(AudioIds.BIG_WIN);
+        this.isChangeLevelBig = false;
+    }
+
 
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
         try {
@@ -99,7 +112,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) {}
+        } catch (error) { }
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
@@ -137,7 +150,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
             .call(() => {
                 label.string = formatText(end);
                 this.handleBigWinActions(true);
-                this.playSound(AudioIds.WINCOUNT_STOP);
                 this.stopSoundCoinIncrement();
             })
             .start();
@@ -201,10 +213,14 @@ export class CascadingEffectBigwin extends ObserverComponent {
         }
         this.winAmount = win;
         if (this.isTurboMode) {
+            this.isChangeLevelBig = true;
+            this.isChangeLevelSuper = true;
+            this.isChangeLevelMega = true;
             this.winAmountForNoAnim(this.winAmount);
             const ratio = this.winAmount / this.totalBet;
             this.showHideBigWinNode(ratio < 3);
             this.handleBigWinActions(true);
+
         } else {
             this.floatNumberBigWin({
                 label: this.lblWinAmount,
@@ -223,7 +239,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     handleBigWinActions(completed: boolean) {
         this.tweenDelay?.stop();
-
         if (this.skipClickCount > 1 || (this.skipClickCount === 1 && this.isTurboMode)) {
             this.setBigWinCompleted(completed);
             return;
@@ -232,7 +247,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
         !this.isTurboMode && this.stopSoundCoinIncrement();
-        this.playSound(AudioIds.WINCOUNT_STOP);
+        this.scheduleOnce(() => this.playSound(AudioIds.WINCOUNT_STOP), 0.1);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
 
         const duration = getCustomDuration("bigWin", this.isTurboMode);

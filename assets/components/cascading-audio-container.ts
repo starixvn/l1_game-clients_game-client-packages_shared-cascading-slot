@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, AudioClip, AudioSource } from "cc";
+import { _decorator, AudioClip, AudioSource, log } from "cc";
 import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
@@ -51,7 +51,6 @@ export class CascadingAudioContainer extends AudioContainer {
         }
     }
 
-    @render(gc.Audios.AudioStore, (store) => store.sfx, { fireImmediately: false })
     playSFX(data: gc.Audios.AudioData) {
         if (!data) {
             return;
