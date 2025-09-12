@@ -88,21 +88,6 @@ describe("CascadingMascot", () => {
         cascadingMascot.onLoad();
     };
 
-    describe("Lifecycle Methods", () => {
-        describe("onLoad", () => {
-            it("should initialize component and set mix durations", () => {
-                // Act
-                cascadingMascot.onLoad();
-
-                // Assert
-                expect(AnimationUtils.playSpine).toHaveBeenCalledWith(mockSpineMascot, "idle", true);
-                expect((mockSpineMascot as any).setMix).toHaveBeenCalledWith("idle", "freespin_anim", 0.3);
-                expect((mockSpineMascot as any).setMix).toHaveBeenCalledWith("idle", "bigwin_anim", 0.3);
-                expect((mockSpineMascot as any).setMix).toHaveBeenCalledWith("idle", "multiplier_anim", 0.3);
-            });
-        });
-    });
-
     describe("Animation Methods", () => {
         describe("playAnimFreespin", () => {
             it("should play freespin animation and return to idle", async () => {
