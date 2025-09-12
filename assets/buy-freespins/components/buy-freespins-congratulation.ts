@@ -34,7 +34,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
         this.handleFadeBGM(false);
     }
 
-    @handle(CascadingUIHandler, (handler) => handler.handleFadeBGM(true))
+    @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
     handleFadeBGM(fadeBGM: boolean) {
         return fadeBGM;
     }
