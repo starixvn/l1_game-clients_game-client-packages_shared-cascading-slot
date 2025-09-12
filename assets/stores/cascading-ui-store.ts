@@ -194,7 +194,7 @@ export class CascadingUIStore {
         return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
     }
 
-    fadeBGM = { value: false };
+    fadeBGM = { value: true };
 
     get disableBuyFreespins() {
         return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.autoPlayStore.isAutoplay;

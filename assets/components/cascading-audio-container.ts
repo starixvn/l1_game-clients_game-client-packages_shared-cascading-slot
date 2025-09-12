@@ -174,7 +174,7 @@ export class CascadingAudioContainer extends AudioContainer {
         );
     }
 
-    @render(CascadingUIStore, (store) => store.fadeBGM, { fireImmediately: false })
+    @render(CascadingUIStore, (store) => store.fadeBGM)
     fadeBGM(fadeBGM: { value: boolean }) {
         if (fadeBGM) {
             const volume = fadeBGM.value ? 1 : 0.1;
