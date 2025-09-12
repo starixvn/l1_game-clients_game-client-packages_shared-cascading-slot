@@ -23,7 +23,6 @@ export class CascadingMascot extends ObserverComponent {
     onLoad() {
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
         this.gameConfig = resourcesCache.gameFeatures;
-        //this.settingMixDuration();
         super.onLoad();
         if (this.gameConfig.effectIntroMultiplier) {
             globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playAnimMultiplierLand, this);
