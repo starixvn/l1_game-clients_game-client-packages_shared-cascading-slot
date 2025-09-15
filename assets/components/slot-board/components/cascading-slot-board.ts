@@ -104,7 +104,8 @@ export class CascadingSlotBoard extends ObserverComponent {
             [0, 1, 7, 3, 2, 1, 9, 5, 2, 8, 2, 7, 3, 7, 5, 10, 0, 0, 6, 4, 5, 4, 1, 8, 6, 4, 5, 3, 6, 9],
             [3, 6, 4, 0, 5, 2, 2, 2, 3, 7, 8, 4, 4, 3, 4, 9, 7, 4, 1, 10, 0, 1, 4, 2, 5, 9, 2, 1, 9, 0],
         ];
-        const multipliers = [[3], [8], [12], [15], [18]];
+        const multipliers =
+            resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [15], [18]] : [[3], [8], [12], [20], [100]];
         const randomIndex = random(samples.length - 1);
         console.log(`B${randomIndex}`);
         return { symbols: samples[randomIndex], multipliers: multipliers[randomIndex] };
@@ -491,10 +492,6 @@ export class CascadingSlotBoard extends ObserverComponent {
             return;
         }
         this.previewPopup.odds = gameConfigs.odds;
-        if (gameConfigs.odds.symbols[SpecialSymbol.SCATTER_SYMBOL]) {
-            const values = Object.values(gameConfigs.odds.symbols[SpecialSymbol.SCATTER_SYMBOL]);
-            resourcesCache.newMultiplierRange = values.some((value) => value.odds > 0);
-        }
     }
 
     @render(CascadingUIStore, (store) => store.minPeekScatterCount)

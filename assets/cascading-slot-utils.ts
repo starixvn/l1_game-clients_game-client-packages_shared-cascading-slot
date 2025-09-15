@@ -65,6 +65,7 @@ export interface GameFeatureJson {
     fixedExplodeDuration: number;
     allowFreeSpinsFeature: boolean;
     multiplierLandMascotAnimationName: string;
+    newMultiplierRange: boolean;
 }
 
 export interface ColorJson {
@@ -85,12 +86,10 @@ interface ResourceCaches {
     slotSymbols?: any;
     gameFeatures?: GameFeatureJson;
     colorJson?: ColorJson;
-    newMultiplierRange: boolean;
 }
 
 export const resourcesCache: ResourceCaches = {
     slotSymbols: {},
-    newMultiplierRange: false,
 };
 
 export const globalEmitter = new EventTarget();

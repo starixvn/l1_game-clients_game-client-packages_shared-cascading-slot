@@ -61,7 +61,7 @@ export class MultiplierItem extends Component {
 
     private updateMultiplierRange(value: number) {
         let i = 0;
-        const range = resourcesCache.newMultiplierRange ? [5, 15, 50] : [5, 10, 15];
+        const range = resourcesCache.gameFeatures?.newMultiplierRange ? [5, 15, 50] : [5, 10, 15];
         for (; i < range.length; i++) {
             if (value <= range[i]) {
                 break;
