@@ -218,7 +218,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {
-        this.handleFadeBGM(false);
+        this.handleFadeBGM(!this.uiStore.triggerDuringFreeSpinBonus);
         this.uiStore.haveFreeSpin = false;
         this.uiStore.isFreeSpinEffectCompleted = completed;
     }
