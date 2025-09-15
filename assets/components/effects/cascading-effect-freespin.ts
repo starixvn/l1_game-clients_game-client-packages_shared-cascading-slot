@@ -15,6 +15,7 @@ export class CascadingEffectFreespin extends ObserverComponent {
 
     freeSpinsCount = 0;
     private isTurboMode = false;
+    private isTriggerDuringFreeSpinBonus = false;
 
     onLoad() {
         this.initButtonSkip();
@@ -38,9 +39,18 @@ export class CascadingEffectFreespin extends ObserverComponent {
         this.handleTriggerDuringFreeSpinBonus();
     }
 
+    @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
+    triggerDuringFreeSpinBonus(triggerDuringFreeSpinBonus: boolean) {
+        this.isTriggerDuringFreeSpinBonus = triggerDuringFreeSpinBonus;
+    }
+
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     setFreeSpinEffectCompleted(completed: boolean) {
-        this.handleFadeBGM(completed);
+        if (this.isTriggerDuringFreeSpinBonus) {
+            this.handleFadeBGM(false);
+        } else {
+            this.handleFadeBGM(true);
+        }
         return completed;
     }
 

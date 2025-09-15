@@ -7,6 +7,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
@@ -21,6 +22,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
 
     @property(Label)
     private readonly labelTotalFreespins: Label = null;
+    private isTriggerDuringFreeSpinBonus = false;
 
     onLoad(): void {
         super.onLoad();
@@ -32,6 +34,11 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
         }
         AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
         this.handleFadeBGM(false);
+    }
+
+    @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
+    triggerDuringFreeSpinBonus(triggerDuringFreeSpinBonus: boolean) {
+        this.isTriggerDuringFreeSpinBonus = triggerDuringFreeSpinBonus;
     }
 
     @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
@@ -51,7 +58,11 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
 
     @handle(BuyFreespinsHandler, (handler) => handler.closeCongratulation())
     onClose() {
-        this.handleFadeBGM(true);
+        if (this.isTriggerDuringFreeSpinBonus) {
+            this.handleFadeBGM(false);
+        } else {
+            this.handleFadeBGM(true);
+        }
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
         AudioUtils.playClick();
     }

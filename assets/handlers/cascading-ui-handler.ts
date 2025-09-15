@@ -273,10 +273,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFadeBGM(fadeBGM: boolean) {
-        if (this.uiStore.triggerDuringFreeSpinBonus) {
-            this.uiStore.fadeBGM = { value: false };
-            return;
-        }
         this.uiStore.fadeBGM = { value: fadeBGM };
     }
 

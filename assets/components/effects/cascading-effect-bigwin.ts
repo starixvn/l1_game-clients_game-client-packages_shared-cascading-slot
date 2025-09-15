@@ -51,6 +51,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     private skipClickCount = 0;
     private readonly MAX_SKIP_CLICK_COUNT = 2;
+    private isTriggerDuringFreeSpinBonus = false;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -78,8 +79,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         }
     }
 
-
-
     showHideBigWinNode(show: boolean) {
         this.nodeBigWin.active = show;
     }
@@ -100,7 +99,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.isChangeLevelBig = false;
     }
 
-
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
         try {
             skeleton.setAnimation(0, animation, false);
@@ -112,7 +110,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) { }
+        } catch (error) {}
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
@@ -220,7 +218,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const ratio = this.winAmount / this.totalBet;
             this.showHideBigWinNode(ratio < 3);
             this.handleBigWinActions(true);
-
         } else {
             this.floatNumberBigWin({
                 label: this.lblWinAmount,
@@ -231,9 +228,18 @@ export class CascadingEffectBigwin extends ObserverComponent {
         }
     }
 
+    @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
+    triggerDuringFreeSpinBonus(triggerDuringFreeSpinBonus: boolean) {
+        this.isTriggerDuringFreeSpinBonus = triggerDuringFreeSpinBonus;
+    }
+
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     setBigWinCompleted(completed: boolean) {
-        this.handleFadeBGM(completed);
+        if (this.isTriggerDuringFreeSpinBonus) {
+            this.handleFadeBGM(false);
+        } else {
+            this.handleFadeBGM(true);
+        }
         return completed;
     }
 
