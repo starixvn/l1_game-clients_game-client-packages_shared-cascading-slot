@@ -51,7 +51,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     private skipClickCount = 0;
     private readonly MAX_SKIP_CLICK_COUNT = 2;
-    private isTriggerDuringFreeSpinBonus = false;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -228,18 +227,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
         }
     }
 
-    @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
-    triggerDuringFreeSpinBonus(triggerDuringFreeSpinBonus: boolean) {
-        this.isTriggerDuringFreeSpinBonus = triggerDuringFreeSpinBonus;
-    }
-
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleBigWinCompleted(completed))
     setBigWinCompleted(completed: boolean) {
-        if (this.isTriggerDuringFreeSpinBonus) {
-            this.handleFadeBGM(false);
-        } else {
-            this.handleFadeBGM(true);
-        }
         return completed;
     }
 

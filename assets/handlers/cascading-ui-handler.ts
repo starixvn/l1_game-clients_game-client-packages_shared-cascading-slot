@@ -204,6 +204,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         if (!this.settlementStore.finishData) {
             return;
         }
+        this.handleFadeBGM(!this.uiStore.triggerDuringFreeSpinBonus);
         const { freeSpins } = this.settlementStore.finishData;
         this.uiStore.haveBigWin = false;
         this.uiStore.isBigWinCompleted = completed;
@@ -217,6 +218,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {
+        this.handleFadeBGM(!this.uiStore.triggerDuringFreeSpinBonus);
         this.uiStore.haveFreeSpin = false;
         this.uiStore.isFreeSpinEffectCompleted = completed;
     }

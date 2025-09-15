@@ -58,11 +58,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
 
     @handle(BuyFreespinsHandler, (handler) => handler.closeCongratulation())
     onClose() {
-        if (this.isTriggerDuringFreeSpinBonus) {
-            this.handleFadeBGM(false);
-        } else {
-            this.handleFadeBGM(true);
-        }
+        this.handleFadeBGM(!this.isTriggerDuringFreeSpinBonus);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
         AudioUtils.playClick();
     }
