@@ -105,7 +105,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             [3, 6, 4, 0, 5, 2, 2, 2, 3, 7, 8, 4, 4, 3, 4, 9, 7, 4, 1, 10, 0, 1, 4, 2, 5, 9, 2, 1, 9, 0],
         ];
         const multipliers =
-            resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [15], [18]] : [[3], [8], [12], [20], [100]];
+            resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [20], [100]] : [[3], [8], [12], [15], [18]];
         const randomIndex = random(samples.length - 1);
         console.log(`B${randomIndex}`);
         return { symbols: samples[randomIndex], multipliers: multipliers[randomIndex] };
