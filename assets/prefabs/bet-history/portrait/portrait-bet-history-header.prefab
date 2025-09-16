@@ -1868,7 +1868,7 @@
     "_horizontalDirection": 0,
     "_constraint": 0,
     "_constraintNum": 2,
-    "_affectedByScale": false,
+    "_affectedByScale": true,
     "_isAlign": false,
     "_id": ""
   },
@@ -1903,8 +1903,8 @@
     },
     "_alignFlags": 45,
     "_target": null,
-    "_left": 9,
-    "_right": 9,
+    "_left": 0,
+    "_right": 0,
     "_top": 353,
     "_bottom": 353,
     "_horizontalCenter": 0,
@@ -1958,7 +1958,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 768,
+      "width": 786,
       "height": 692
     },
     "_anchorPoint": {
