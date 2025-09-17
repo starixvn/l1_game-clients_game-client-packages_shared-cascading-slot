@@ -1,7 +1,6 @@
 import gc from '@sg/game-client-base';
-import { _decorator, Component, Label, Node } from 'cc';
+import { _decorator, Label } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
-import { render } from 'observer';
 const { ccclass, property } = _decorator;
 
 @ccclass
