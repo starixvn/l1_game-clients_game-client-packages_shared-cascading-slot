@@ -234,6 +234,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 }
                 if (this.fsbPromotionUIStore.isShowFreeSpinMessage) {
                     this.fsbPromotionUIHandler.changeUIPendingEvent(FreeSpinsPromotionEvents.OPEN_PROMOTION_INFO);
+                    this.fsbPromotionUIHandler.setShowFreeSpinMessage(false);
                 }
             }
         }
