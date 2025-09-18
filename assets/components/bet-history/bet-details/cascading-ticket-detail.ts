@@ -125,6 +125,7 @@ export class CascadingTicketDetail extends ObserverComponent {
     onClickMultiplier() {
         const totalMultiplier = instantiate(this.totalMultiplierPrefab);
         const totalControl = totalMultiplier.getComponent(CascadingTotalMultiplier);
+        console.log(totalMultiplier, totalControl)
         totalControl.setData(this.data);
         this.node.addChild(totalMultiplier);
     }

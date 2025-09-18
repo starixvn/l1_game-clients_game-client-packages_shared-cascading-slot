@@ -29,6 +29,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
     }
 
+    handleMultiplierData(data: any) {
+        super.handleMultiplierData(data);
+        this.textMultiplier.string = `${gc.Translator.gameTranslate('total_multiplier')}:`;
+    }
+
 }
 
 

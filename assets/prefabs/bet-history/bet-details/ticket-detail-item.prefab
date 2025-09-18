@@ -1571,6 +1571,8 @@
     "prfFlyLabelWin": null,
     "effectContainer": null,
     "previewPopup": null,
+    "peekEffectOverlay": null,
+    "peekEffectContainer": null,
     "_id": ""
   },
   {
