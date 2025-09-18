@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Button, Label, Node } from "cc";
+import { _decorator, Button, Label, Node, sp } from "cc";
 import Observer from "observer";
 
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -17,6 +17,9 @@ export class BuyFreespinsButton extends ObserverComponent {
 
     @property(Node)
     private readonly nodeActive: Node = null;
+
+    @property(sp.Skeleton)
+    private readonly spineFreeSpin: sp.Skeleton = null;
 
     private button: Button = null;
 
@@ -49,10 +52,12 @@ export class BuyFreespinsButton extends ObserverComponent {
     renderBuyFsActive(isActive: boolean) {
         this.nodeActive.active = isActive;
         this.labelTotalBet.node.active = !isActive;
+        this.spineFreeSpin.setAnimation(0, isActive ? "show-active" : "show", true);
     }
 
     @render(BuyFreespinsStore, (store) => store.disableBuyFs)
     renderDisableBuyFreespins(disableBuyFreespins: boolean) {
         this.button.interactable = !disableBuyFreespins;
+        this.spineFreeSpin.setAnimation(0, disableBuyFreespins ? "disable" : "show", true);
     }
 }
