@@ -1,15 +1,12 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Node, UITransform } from "cc";
-import { CascadingTicketDetailItem } from "../../bet-details/cascading-ticket-detail-item";
 import { CascadingTumbleItem } from "../../../tumbles/cascading-tumble-item";
-
+import { CascadingTicketDetailItem } from "../../bet-details/cascading-ticket-detail-item";
 
 const { ccclass } = _decorator;
 
 @ccclass
 export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem {
-
-
     setData(tumble: any, index: number, data: any, currWinTumble: number) {
         let tumbleNode: Node;
         const freeSpins = data.settlementResult.freeSpins;
@@ -49,19 +46,16 @@ export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem
             return;
         }
         let totalHeight = 0;
-        const childHeights: number[] = [];
         groupItemNode.children.forEach((child) => {
             const uiTransform = child.getComponent(UITransform);
             if (uiTransform) {
                 const childHeight = uiTransform.height;
-                childHeights.push(childHeight);
                 totalHeight += childHeight;
-                console.log(childHeight)
+                console.log(childHeight);
             }
         });
 
         this.node.getComponent(UITransform).height = totalHeight;
-        console.log(totalHeight)
+        console.log(totalHeight);
     }
-
 }
