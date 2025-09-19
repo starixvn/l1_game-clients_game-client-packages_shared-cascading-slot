@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Node } from "cc";
+import { _decorator, instantiate, Label, Node } from "cc";
 import { CascadingTicketDetailItem } from "../../bet-details/cascading-ticket-detail-item";
 import { CascadingTumbleItem } from "../../../tumbles/cascading-tumble-item";
 
@@ -8,7 +8,6 @@ const { ccclass } = _decorator;
 
 @ccclass
 export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem {
-
 
     setData(tumble: any, index: number, data: any, currWinTumble: number) {
         let tumbleNode: Node;
@@ -32,12 +31,14 @@ export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem
                     control.setData(+key, count, win);
                     this.content.addChild(tumbleNode);
                 });
-            } else {
-                tumbleNode = instantiate(this.noTumbleWinDetailPrefab);
-                this.content.addChild(tumbleNode);
             }
         }
         this.win.string = gc.FormatUtils.numberWithCommas(currWinTumble, 2, false);
-        this.index.string = (index + 1).toString();
+        if (index === 0) {
+            this.index.string = 'Initial Spin';
+        } else {
+            this.index.string = `Tumble ${(index + 1).toString()}`;
+        }
     }
+    calculateHeightRow(numberOfIcon: number) { }
 }

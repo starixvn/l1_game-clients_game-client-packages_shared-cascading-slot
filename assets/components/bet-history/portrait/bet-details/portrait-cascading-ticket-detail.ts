@@ -1,6 +1,7 @@
 import gc from '@sg/game-client-base';
 import { _decorator, Label } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
+import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -13,15 +14,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     betLevelDetail: Label = null;
     @property(Label)
     totalBetDetail: Label = null;
-    @property(Label)
-    balanceDetail: Label = null;
-
 
     setData(data: any) {
         super.setData(data);
         const { betHistoryLog } = data;
         if (betHistoryLog) {
-            console.log(betHistoryLog)
             this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
             this.betLevelDetail.string = betHistoryLog.betLevel;
             this.coinValueDetail.string = betHistoryLog.coinValue;
@@ -32,6 +29,18 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     handleMultiplierData(data: any) {
         super.handleMultiplierData(data);
         this.textMultiplier.string = `${gc.Translator.gameTranslate('total_multiplier')}:`;
+    }
+
+    onClickClose() {
+        const betHistoryTable = this.node.scene.getComponentInChildren(CascadingBetHistoryTable);
+        if (betHistoryTable) {
+            betHistoryTable.onClickClose();
+            super.onClickClose();
+        }
+    }
+
+    onClickBackToHistory() {
+        super.onClickClose();
     }
 
 }
