@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Node, UITransform } from "cc";
+import { _decorator, instantiate, Node } from "cc";
 import { CascadingTicketDetailItem } from "../../bet-details/cascading-ticket-detail-item";
 import { CascadingTumbleItem } from "../../../tumbles/cascading-tumble-item";
 
