@@ -2,9 +2,10 @@ import gc from '@sg/game-client-base';
 import { _decorator, Label } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
 import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
+import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
 import Observer from 'observer';
 const { ccclass, property } = _decorator;
-const { render } = Observer;
+const { render, handle } = Observer;
 
 @ccclass
 export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
@@ -20,15 +21,37 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     public betHistory: any[] = [];
     public betHistoryDetial: any = null;
     private currentId: number = 0;
+    private pagination: any = null;
+    private isNavigatingToNextPage: boolean = false;
+
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: gc.BetHistory.BetHistoryModel) {
         this.betHistory = betHistoryModel.betLogs;
+        if (this.betHistory.length > 0) {
+            const currentItemExists = this.betHistory.find(item => item.id === this.currentId);
+            if (!currentItemExists || this.currentId === 0) {
+                // Select appropriate item based on navigation direction
+                const targetItem = this.isNavigatingToNextPage ? this.betHistory[0] : this.betHistory[this.betHistory.length - 1];
+                // console.log(targetItem)
+                this.currentId = targetItem.id;
+                this.betHistoryDetial = {
+                    betHistoryLog: targetItem
+                };
+                this.content.removeAllChildren();
+                this.multiplierNode.active = false;
+                this.setData(this.betHistoryDetial);
+                this.isNavigatingToNextPage = false; // Reset flag
+            }
+        }
     }
 
     setData(data: any) {
         super.setData(data);
         const { betHistoryLog } = data;
+        if (!this.pagination) {
+            this.pagination = this.node.scene.getComponentInChildren(Pagination);
+        }
         if (betHistoryLog) {
             this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
             this.betLevelDetail.string = betHistoryLog.betLevel;
@@ -67,16 +90,35 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (index > 0) {
             this.currentId = (this.betHistory[index - 1]).id;
             this.updateHistoryDetail();
+        } else if (index === 0) {
+            if (this.pagination) {
+                const currentPage = this.pagination.currentPage;
+                if (currentPage > 1) {
+                    this.isNavigatingToNextPage = false; // Going to previous page, select last item
+                    this.pagination.hanldePreviousPage();
+                } else {
+                    console.log('first page');
+                }
+            }
         }
-        console.log("previous", this.currentId)
     }
     onClickNextHistoryDetail() {
         const index = this.findCurrentIndex();
         if (index >= 0 && index < this.betHistory.length - 1) {
             this.currentId = (this.betHistory[index + 1]).id;
             this.updateHistoryDetail();
+        } else if (index === this.betHistory.length - 1) {
+            if (this.pagination) {
+                const currentPage = this.pagination.currentPage;
+                const totalPages = this.pagination.totalPages;
+                if (currentPage < totalPages) {
+                    this.isNavigatingToNextPage = true; // Going to next page, select first item
+                    this.pagination.hanldeNextPage();
+                } else {
+                    console.log('last page');
+                }
+            }
         }
-        console.log("next", this.currentId)
     }
 
     updateHistoryDetail() {
