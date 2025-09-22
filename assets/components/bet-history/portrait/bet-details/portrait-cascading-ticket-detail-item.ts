@@ -39,6 +39,7 @@ export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem
         } else {
             this.index.string = `Tumble ${(index + 1).toString()}`;
         }
+        this.content.removeAllChildren();
     }
     calculateHeightRow(numberOfIcon: number) { }
 }
