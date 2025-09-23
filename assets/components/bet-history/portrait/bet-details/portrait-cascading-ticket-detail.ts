@@ -166,10 +166,14 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     private resetMultiplierNode() {
-        if (!this.multiplierNode) return;
+        if (!this.multiplierNode) {
+            return;
+        }
 
         this.multiplierNode.active = false;
-        if (!this.multiplierTotal || !this.textMultiplier) return;
+        if (!this.multiplierTotal || !this.textMultiplier) {
+            return
+        }
 
         const defaultColor = Color.WHITE;
         this.multiplierTotal.node.getComponent(Label).color = defaultColor;
