@@ -205,4 +205,23 @@ export class CascadingUIStore {
             || this.autoPlayStore.isAutoplay
             || this.fsbPromotionUIStore.isFSBPromotionInProgress;
     }
+
+    get isShowMesgBeforeSpinPortrait() {
+        return (
+            !this.isHideTopMessage &&
+            (this.cascadingState === CascadingSlotState.SPINNING || this.cascadingState === CascadingSlotState.READY_BET)
+        );
+    }
+
+    get isShowMesgAfterSpinPortrait() {
+        return !this.isHideTopMessage && this.cascadingState === SlotNotification.SETTLED;
+    }
+
+    get showFreeSpinsSectionsPortrait() {
+        return this.bottomMessageState === SlotNotification.FREESPINS;
+    }
+
+    get isShowAutoSpinRoundPortrait() {
+        return this.bottomMessageState === SlotNotification.AUTO_SPIN;
+    }
 }

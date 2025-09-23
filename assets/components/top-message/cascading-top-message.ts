@@ -27,6 +27,7 @@ export class CascadingTopMessage extends ObserverComponent {
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
+    msgList = [1, 2, 3];
 
     onLoad() {
         this.colorConfig = resourcesCache.colorJson;
@@ -47,8 +48,8 @@ export class CascadingTopMessage extends ObserverComponent {
         this.nodeContent.children.forEach((child) => {
             child.active = false;
         });
-        const items = [1, 2, 3];
-        const item = items[random(items.length - 1)];
+
+        const item = this.msgList[random(this.msgList.length - 1)];
         this.nodeContent.children[item - 1].active = true;
     }
 
