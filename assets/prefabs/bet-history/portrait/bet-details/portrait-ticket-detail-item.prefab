@@ -1930,8 +1930,8 @@
     "_horizontalDirection": 0,
     "_constraint": 0,
     "_constraintNum": 2,
-    "_affectedByScale": false,
-    "_isAlign": false,
+    "_affectedByScale": true,
+    "_isAlign": true,
     "_id": ""
   },
   {

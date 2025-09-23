@@ -1,11 +1,11 @@
 import gc from '@sg/game-client-base';
-import { _decorator, EventTouch, Label, Node } from 'cc';
+import { _decorator, Color, EventTouch, Label, Node } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
 import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
 import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
 import Observer from 'observer';
 const { ccclass, property } = _decorator;
-const { render, handle } = Observer;
+const { render } = Observer;
 
 @ccclass
 export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
@@ -42,8 +42,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 this.betHistoryDetial = {
                     betHistoryLog: targetItem
                 };
-                this.content.removeAllChildren();
-                this.multiplierNode.active = false;
+                this.clearContent();
                 this.setData(this.betHistoryDetial);
                 this.isNavigatingToNextPage = false; // Reset flag
             }
@@ -165,13 +164,30 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
     }
 
+
+    private resetMultiplierNode() {
+        if (!this.multiplierNode) return;
+
+        this.multiplierNode.active = false;
+        if (!this.multiplierTotal || !this.textMultiplier) return;
+
+        const defaultColor = Color.WHITE;
+        this.multiplierTotal.node.getComponent(Label).color = defaultColor;
+        this.textMultiplier.node.getComponent(Label).color = defaultColor;
+    }
+
+    private clearContent() {
+        this.content?.removeAllChildren();
+        this.resetMultiplierNode();
+    }
+
+
     updateHistoryDetail() {
         const newItem = this.betHistory.find(item => item.id === this.currentId);
         this.betHistoryDetial = {
             betHistoryLog: newItem
         }
-        this.content.removeAllChildren();
-        this.multiplierNode.active = false;
+        this.clearContent();
         this.setData(this.betHistoryDetial);
     }
 
