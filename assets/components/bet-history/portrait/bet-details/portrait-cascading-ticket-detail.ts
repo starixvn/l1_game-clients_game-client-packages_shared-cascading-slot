@@ -20,9 +20,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
     public betHistory: any[] = [];
     public betHistoryDetial: any = null;
-    private currentId: number = 0;
+    private currentId = 0;
     private pagination: any = null;
-    private isNavigatingToNextPage: boolean = false;
+    private isNavigatingToNextPage = false;
 
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
@@ -33,7 +33,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (!currentItemExists || this.currentId === 0) {
                 // Select appropriate item based on navigation direction
                 const targetItem = this.isNavigatingToNextPage ? this.betHistory[0] : this.betHistory[this.betHistory.length - 1];
-                // console.log(targetItem)
                 this.currentId = targetItem.id;
                 this.betHistoryDetial = {
                     betHistoryLog: targetItem
