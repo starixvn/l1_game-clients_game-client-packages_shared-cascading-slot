@@ -1,7 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label, sys } from "cc";
 import Observer from "observer";
-import { PortraitCascadingUIStore } from "../../stores/portrait/portrait-cascading-ui-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingTopMessage } from "../top-message/cascading-top-message";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -23,7 +23,7 @@ export class PortraitMessagesBeforeSpin extends CascadingTopMessage {
         this.msg4.string = gc.Translator.gameTranslate(`show_msg_when_spin_${deviceSuffix}`).toUpperCase();
     }
 
-    @render(PortraitCascadingUIStore, (store) => store.isShowMesgBeforeSpinPortrait)
+    @render(CascadingUIStore, (store) => store.isShowMesgBeforeSpinPortrait)
     setNodeVisibilityBeforeSpin(isActive: boolean) {
         this.node.active = isActive;
     }
