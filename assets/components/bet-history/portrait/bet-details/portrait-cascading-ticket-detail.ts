@@ -25,6 +25,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private isNavigatingToNextPage = false;
 
     private touchStart = 0;
+    private readonly MIN_SWIPE_DISTANCE = 5;
 
 
 
@@ -91,9 +92,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
     onTouchEnd(event: EventTouch) {
         const touchEnd = event.getLocationX();
-        const touchDiff = Math.ceil(touchEnd - this.touchStart);
-        console.log("Touch diff:", touchDiff);
+        const touchDiff = touchEnd - this.touchStart;
+        const swipeDistance = Math.abs(touchDiff);
 
+        if (swipeDistance < this.MIN_SWIPE_DISTANCE) {
+            return;
+        }
         if (touchDiff > 0) {
             this.onClickNextHistoryDetail();
         } else {
