@@ -1,5 +1,5 @@
 import gc from '@sg/game-client-base';
-import { _decorator, Label } from 'cc';
+import { _decorator, EventTouch, Label, Node } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
 import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
 import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
@@ -23,6 +23,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private currentId = 0;
     private pagination: any = null;
     private isNavigatingToNextPage = false;
+
+    private touchStart = 0;
+
+
 
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
@@ -57,6 +61,43 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.coinValueDetail.string = betHistoryLog.coinValue;
             this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
             this.currentId = betHistoryLog.id;
+        }
+        this.touchEvents('add');
+    }
+
+    onDestroy() {
+        this.touchEvents('remove');
+    }
+
+    private touchEvents(type: string) {
+        const parentContent = this.content?.getParent();
+        if (parentContent) {
+            if (type === 'add') {
+                parentContent.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+                parentContent.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+                parentContent.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            } else {
+                parentContent.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+                parentContent.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+                parentContent.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            }
+        }
+    }
+
+
+    onTouchStart(event: EventTouch) {
+        this.touchStart = event.getLocationX();
+    }
+
+    onTouchEnd(event: EventTouch) {
+        const touchEnd = event.getLocationX();
+        const touchDiff = Math.ceil(touchEnd - this.touchStart);
+        console.log("Touch diff:", touchDiff);
+
+        if (touchDiff > 0) {
+            this.onClickNextHistoryDetail();
+        } else {
+            this.onClickPreviousHistoryDetail();
         }
     }
 

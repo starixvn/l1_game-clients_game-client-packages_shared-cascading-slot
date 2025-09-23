@@ -78,7 +78,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 3
@@ -204,7 +204,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 745,
-      "height": 45
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -386,8 +386,8 @@
     "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 24,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
     "_overflow": 1,
@@ -466,7 +466,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 208,
-      "height": 44
+      "height": 70
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -673,8 +673,8 @@
     "_string": "12645",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 24,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
     "_overflow": 0,
@@ -752,7 +752,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 58.86,
+      "width": 70.63,
       "height": 44
     },
     "_anchorPoint": {
@@ -1052,7 +1052,7 @@
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
     "_overflow": 1,
@@ -1502,8 +1502,8 @@
     "_string": "2,568",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 24,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
     "_overflow": 1,
@@ -1754,8 +1754,8 @@
     "_string": "1,238.56",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 24,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 44,
     "_overflow": 1,
@@ -1865,7 +1865,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 718,
-      "height": 50
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1963,7 +1963,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1070,
-      "height": 50
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
