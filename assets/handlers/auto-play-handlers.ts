@@ -71,6 +71,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
                     setTimeout(() => {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
+                        this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
                         if (isPlaceBet) {
                             this.placeBet();
                         }
@@ -84,6 +85,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 async (canSpinNextFSB) => {
                     if (canSpinNextFSB) {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
+                        this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
                         this.placeBet();
                     }
                 }
@@ -99,8 +101,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    private placeBetTimeStamp = 0
-    private readonly PLACE_BET_TIME_THRESHOLD = 1000;
+    private placeBetTimeStamp = 0;
+    private readonly PLACE_BET_TIME_THRESHOLD = 800;
 
     handle() { }
 
