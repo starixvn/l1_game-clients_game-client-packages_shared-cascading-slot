@@ -28,6 +28,10 @@ export class BuyFreespinsHandler {
             name: "finish",
             handle: this.handleBuyFsSuccess,
         },
+        {
+            name: "endBet",
+            handle: this.handleBuyFsFail,
+        },
     ];
 
     setFsMultiplier(multiplier: number) {
@@ -69,6 +73,12 @@ export class BuyFreespinsHandler {
         if (this.processing) {
             this.processing = false;
             this.buyFsStore.isActive = true;
+        }
+    }
+
+    handleBuyFsFail(endBet: number) {
+        if (endBet === -1 && this.processing) {
+            this.processing = false;
         }
     }
 }
