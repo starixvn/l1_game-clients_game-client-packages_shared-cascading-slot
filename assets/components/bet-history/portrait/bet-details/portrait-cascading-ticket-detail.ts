@@ -72,10 +72,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
         }
         if (betHistoryLog) {
-            if (this.timeDetail) this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
-            if (this.betLevelDetail) this.betLevelDetail.string = betHistoryLog.betLevel;
-            if (this.coinValueDetail) this.coinValueDetail.string = betHistoryLog.coinValue;
-            if (this.totalBetDetail) this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
+            if (this.timeDetail && this.betLevelDetail && this.coinValueDetail && this.totalBetDetail) {
+                this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
+                this.betLevelDetail.string = betHistoryLog.betLevel;
+                this.coinValueDetail.string = betHistoryLog.coinValue;
+                this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
+            }
             this.currentId = betHistoryLog.id;
         }
         this.touchEvents('add');
