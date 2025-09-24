@@ -2,13 +2,13 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -198,6 +198,9 @@ export class CascadingUIStore {
     fadeBGM = { value: true };
 
     get disableBuyFreespins() {
-        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.autoPlayStore.isAutoplay;
+        return this.isFreeSpins
+            || this.cascadingState === CascadingSlotState.SPINNING
+            || this.autoPlayStore.isAutoplay
+            || this.fsbPromotionUIStore.isFSBPromotionInProgress;
     }
 }
