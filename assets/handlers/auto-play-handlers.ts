@@ -99,6 +99,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
+    private placeBetTimeStamp = 0
+    private readonly PLACE_BET_TIME_THRESHOLD = 1000;
+
     handle() { }
 
     async handleAutoPlaceBet() {
@@ -115,6 +118,11 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
+        const now = Date.now();
+        if (now - this.placeBetTimeStamp < this.PLACE_BET_TIME_THRESHOLD) {
+            return;
+        }
+        this.placeBetTimeStamp = now;
         this.autoPlayStore.triggerBet = {};
         this.placeBetSilent();
     }
