@@ -1,4 +1,6 @@
 import gc from "@sg/game-client-base";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
+import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
 import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
@@ -9,11 +11,9 @@ import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
 import { BetControlStore } from "./../stores/bet-control-store";
+import { BetControlHandlers } from "./bet-control-handlers";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
-import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
-import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
-import { BetControlHandlers } from "./bet-control-handlers";
 
 const { injectable, inject } = inversify;
 
@@ -80,8 +80,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             );
 
             mobx.reaction(
-                () => this.fsbPromotionUIStore.canSpinNextFSB,
-                (canSpinNextFSB) => {
+                () => (this.fsbPromotionUIStore.canSpinNextFSB && !this.buyFsStore.buyFsResult),
+                async (canSpinNextFSB) => {
                     if (canSpinNextFSB) {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
                         this.placeBet();
@@ -99,7 +99,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {

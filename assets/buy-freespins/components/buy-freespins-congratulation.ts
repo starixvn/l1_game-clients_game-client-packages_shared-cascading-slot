@@ -3,6 +3,7 @@ import { _decorator, Label } from "cc";
 import Observer from "observer";
 
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -61,5 +62,17 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
         this.handleFadeBGM(!this.isTriggerDuringFreeSpinBonus);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
         AudioUtils.playClick();
+    }
+
+    @render(FSBPromotionUIStore, store => store.canSpinNextFSB)
+    renderCanSpinNextFSB(canSpinNextFSB: boolean) {
+        if (canSpinNextFSB) {
+            this.scheduleOnce(this.onClose, 3);
+        }
+    }
+
+    onDestroy(): void {
+        super.onDestroy();
+        this.unscheduleAllCallbacks();
     }
 }
