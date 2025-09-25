@@ -1,4 +1,7 @@
+import { BuyFreespinsStore } from "db://shared-cascading-slot/buy-freespins/handler/buy-freespins-store";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { stub } from "jest-auto-stub";
 import { BuyFreespinsHandler } from "../../assets/buy-freespins/handler/buy-freespins-handlers";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { SlotNotification } from "../../assets/cascading-slot-utils";
@@ -134,10 +137,6 @@ describe("AutoPlayHandler", () => {
             triggerBet: null,
         } as any;
 
-        mockFSBPromotionUIStore = {
-            isFSBPromotionInProgress: false,
-        } as any;
-
         mockCascadingUIStore = {
             freeSpinsTotal: 0,
             bottomMessageState: SlotNotification.BEFORE_SPIN,
@@ -186,7 +185,11 @@ describe("AutoPlayHandler", () => {
         (handler as any).noticeStore = mockNoticeStore;
         (handler as any).errorStore = mockErrorStore;
         (handler as any).roundStore = mockRoundStore;
-        (handler as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
+        (handler as any).fsbPromotionUIStore = stub<FSBPromotionUIStore>({
+            canSpinNextFSB: false
+        });
+        (handler as any).buyFsStore = stub<BuyFreespinsStore>();
+        (handler as any).fsbPromotionUIHandler = stub<FSBPromotionUIHandler>();
     });
 
     afterEach(() => {
@@ -516,11 +519,11 @@ describe("AutoPlayHandler", () => {
     });
 
     describe("checkSpinNextRound method", () => {
-        it("should place bet when free spins available", () => {
+        it("should place bet when free spins available", async () => {
             mockCascadingUIStore.freeSpinsTotal = 5;
             jest.spyOn(handler, "placeBet");
 
-            handler.checkSpinNextRound();
+            await handler.checkSpinNextRound();
 
             expect(handler.placeBet).toHaveBeenCalled();
         });
@@ -531,14 +534,16 @@ describe("AutoPlayHandler", () => {
             expect(mockBuyFsHandler.showBuyFsCongratulation).toHaveBeenCalled();
         });
 
-        it("should handle autoplay logic when no free spins and autoplay active", () => {
+        it("should handle autoplay logic when no free spins and autoplay active", async () => {
             mockCascadingUIStore.freeSpinsTotal = 0;
             mockAutoPlayStore.isAutoplay = true;
             mockAutoPlayStore.roundsAutoplay = 5;
             jest.spyOn(handler, "updateAutoPlayRounds");
             jest.spyOn(handler, "handleAutoPlaceBet");
+            //@ts-ignore
+            handler.fsbPromotionUIStore.isFSBPromotionInProgress = false;
 
-            handler.checkSpinNextRound();
+            await handler.checkSpinNextRound();
 
             expect(mockBetControlStore.resumeLastBet).toBe(false);
             expect(mockCascadingUIStore.bottomMessageState).toBe(SlotNotification.AUTO_SPIN);
@@ -547,25 +552,27 @@ describe("AutoPlayHandler", () => {
             expect(handler.handleAutoPlaceBet).toHaveBeenCalled();
         });
 
-        it("should handle manual play logic when no free spins and autoplay inactive", () => {
+        it("should handle manual play logic when no free spins and autoplay inactive", async () => {
             mockCascadingUIStore.freeSpinsTotal = 0;
             mockAutoPlayStore.isAutoplay = false;
+            //@ts-ignore
+            handler.fsbPromotionUIStore.isFSBPromotionInProgress = false;
             jest.spyOn(handler, "handleAutoPlaceBet");
 
-            handler.checkSpinNextRound();
+            await handler.checkSpinNextRound();
 
             expect(mockCascadingUIStore.bottomMessageState).toBe(SlotNotification.SETTLED);
             expect(mockCascadingUIHandler.changeCascadingState).toHaveBeenCalledWith(CascadingSlotState.SETTLED);
         });
 
-        it("should handle delayed bet when trigger action exists", () => {
+        it("should handle delayed bet when trigger action exists", async () => {
             mockCascadingUIStore.freeSpinsTotal = 0;
             mockAutoPlayStore.isAutoplay = false;
             mockHoldActionStore.isHolding = true;
 
             jest.spyOn(handler, "handleAutoPlaceBet");
 
-            handler.checkSpinNextRound();
+            await handler.checkSpinNextRound();
 
             // Advance timer to trigger the delayed call
             jest.advanceTimersByTime(1000);
