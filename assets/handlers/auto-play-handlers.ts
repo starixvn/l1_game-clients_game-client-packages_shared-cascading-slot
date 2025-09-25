@@ -229,9 +229,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.autoPlayStore.triggerBet = null;
         this.fsbPromotionUIStore.setActiveFreeSpin(FreeSpinSource.PROMOTION, this.cascadingUIStore.isUsedFSBPromotionBonus);
         this.buyFsHandler.showBuyFsCongratulation();
-        if (this.fsbPromotionUIStore.canSpinNextFSB && this.buyFsStore.buyFsResult) {
-            await AnimationUtils.delayTime(3);
-        }
+        await this.awaitInCaseSpinNextFSB();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
@@ -258,6 +256,12 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 }
                 this.checkToSpinNextFSB();
             }
+        }
+    }
+
+    private async awaitInCaseSpinNextFSB() {
+        if (this.fsbPromotionUIStore.canSpinNextFSB && this.buyFsStore.buyFsResult) {
+            await AnimationUtils.delayTime(3);
         }
     }
 
