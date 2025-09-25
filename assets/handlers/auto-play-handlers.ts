@@ -76,11 +76,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
                     if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
                     const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
+                        this.schedulingPlaceBet = isPlaceBet;
                     setTimeout(() => {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
                         this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
                         if (isPlaceBet) {
                             this.placeBet();
+                                this.schedulingPlaceBet = false;
                         }
                         this.fsbPromotionUIStore.removePendingUIEvent();
                     }, delayMs);
@@ -110,6 +112,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     private placeBetTimeStamp = 0;
+    private schedulingPlaceBet = false;
     private readonly PLACE_BET_TIME_THRESHOLD = 800;
 
     handle() { }
@@ -128,6 +131,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
+        if (this.schedulingPlaceBet) {
+            return;
+        }
         const now = Date.now();
         if (now - this.placeBetTimeStamp < this.PLACE_BET_TIME_THRESHOLD) {
             return;
