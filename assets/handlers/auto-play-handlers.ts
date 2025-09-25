@@ -229,6 +229,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.autoPlayStore.triggerBet = null;
         this.fsbPromotionUIStore.setActiveFreeSpin(FreeSpinSource.PROMOTION, this.cascadingUIStore.isUsedFSBPromotionBonus);
         this.buyFsHandler.showBuyFsCongratulation();
+        this.fsbPromotionUIHandler.tryShowEndedPopup();
         await this.awaitInCaseSpinNextFSB();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
