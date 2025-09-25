@@ -221,6 +221,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkSpinNextRound() {
+        this.cascadingUIStore.checkToSpinNext = true;
         this.buyFsHandler.showBuyFsCongratulation();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {

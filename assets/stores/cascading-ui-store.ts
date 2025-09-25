@@ -24,6 +24,7 @@ export class CascadingUIStore {
         mobx.makeAutoObservable(this);
     }
 
+    checkToSpinNext = false;
     totalWin = 0;
     totalTumbleWin = 0;
     isActualWin = false;
@@ -192,7 +193,7 @@ export class CascadingUIStore {
     }
 
     get isUsedFSBPromotionBonus() {
-        return this.freeSpinsTotal <= 0 && this.isFreeSpinEffectCompleted;
+        return this.freeSpinsTotal <= 0 && this.checkToSpinNext;
     }
 
     fadeBGM = { value: true };

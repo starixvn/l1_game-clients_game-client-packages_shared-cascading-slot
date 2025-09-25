@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -100,6 +100,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleNewRound() {
+        this.uiStore.checkToSpinNext = false;
         this.tumblesStore.tumbles = [];
         this.tumblesStore.isShowTumbleWinFrame = false;
         this.uiStore.totalTumbleWin = 0;
