@@ -54,12 +54,12 @@ export class CascadingHistoryItem extends ObserverComponent {
             this.time.node.getComponent(Label).color =
                 this.betLevel.node.getComponent(Label).color =
                 this.coinValue.node.getComponent(Label).color =
-                    this.textHighlightColor;
+                this.textHighlightColor;
         } else {
             this.time.node.getComponent(Label).color =
                 this.betLevel.node.getComponent(Label).color =
                 this.coinValue.node.getComponent(Label).color =
-                    this.textNormalColor;
+                this.textNormalColor;
         }
     }
 

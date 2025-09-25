@@ -17,8 +17,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     betLevelDetail: Label = null;
     @property(Label)
     totalBetDetail: Label = null;
-    @property(Label)
-    roundId: Label = null;
+
+    @property(Node)
+    btnNext: Node = null;
+
+    @property(Node)
+    btnPrevious: Node = null;
 
     public betHistory: any[] = [];
     public betHistoryDetial: any = null;
@@ -29,17 +33,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private touchStart = 0;
     private readonly MIN_SWIPE_DISTANCE = 5;
 
-    private page = 0;
-    private totalItems = 0;
-
 
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: gc.BetHistory.BetHistoryModel) {
-        const { page, total, betLogs } = betHistoryModel;
+        const { betLogs } = betHistoryModel;
         this.betHistory = betLogs;
-        this.page = page;
-        this.totalItems = total;
         this.handleBetHistorySelection();
     }
 
@@ -70,6 +69,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const { betHistoryLog } = data;
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
+
         }
         if (betHistoryLog) {
             if (this.timeDetail && this.betLevelDetail && this.coinValueDetail && this.totalBetDetail) {
@@ -153,12 +153,14 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.currentId = (this.betHistory[index - 1]).id;
             this.updateHistoryDetail();
         } else if (index === 0) {
-            if (this.page > 0) {
-                this.isNavigatingToNextPage = false;
-                this.pagination.hanldePreviousPage();
-                this.handleBetHistorySelection();
-            } else {
-                console.log('Already at first page');
+            if (this.pagination) {
+                const currentPage = this.pagination.currentPage;
+                if (currentPage > 1) {
+                    this.isNavigatingToNextPage = false; // Going to previous page, select last item
+                    this.pagination.hanldePreviousPage();
+                } else {
+                    console.log('first page');
+                }
             }
         }
     }
@@ -168,13 +170,15 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.currentId = (this.betHistory[index + 1]).id;
             this.updateHistoryDetail();
         } else if (index === this.betHistory.length - 1) {
-            const totalPages = Math.ceil(this.totalItems / this.betHistory.length);
-            if (this.page < totalPages - 1) {
-                this.isNavigatingToNextPage = true;
-                this.pagination.hanldeNextPage();
-                this.handleBetHistorySelection();
-            } else {
-                console.log('Already at last page');
+            if (this.pagination) {
+                const currentPage = this.pagination.currentPage;
+                const totalPages = this.pagination.totalPages;
+                if (currentPage < totalPages) {
+                    this.isNavigatingToNextPage = true; // Going to next page, select first item
+                    this.pagination.hanldeNextPage();
+                } else {
+                    console.log('last page');
+                }
             }
         }
     }
