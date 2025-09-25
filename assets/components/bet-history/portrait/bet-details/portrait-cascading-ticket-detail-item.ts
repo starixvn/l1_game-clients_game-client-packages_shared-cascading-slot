@@ -31,6 +31,9 @@ export class PortraitCascadingTicketDetailItem extends CascadingTicketDetailItem
                     control.setData(+key, count, win);
                     this.content.addChild(tumbleNode);
                 });;
+            } else {
+                tumbleNode = instantiate(this.noTumbleWinDetailPrefab);
+                this.content.addChild(tumbleNode);
             }
         }
         this.win.string = gc.FormatUtils.numberWithCommas(currWinTumble, 2, false);
