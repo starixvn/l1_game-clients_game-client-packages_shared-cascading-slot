@@ -81,8 +81,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
                         this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
                         if (isPlaceBet) {
-                            this.placeBet();
                                 this.schedulingPlaceBet = false;
+                                this.placeBet();
                         }
                         this.fsbPromotionUIStore.removePendingUIEvent();
                     }, delayMs);
