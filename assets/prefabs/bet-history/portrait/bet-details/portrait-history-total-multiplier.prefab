@@ -371,6 +371,8 @@
       "__id__": 0
     },
     "fileId": "a7SwEvapBMp5FpH4pMXiLB",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -401,7 +403,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -246.723,
+      "y": -224.615,
       "z": 0
     },
     "_lrot": {
@@ -691,6 +693,8 @@
       "__id__": 0
     },
     "fileId": "3fDMgIrdVL9LIrLlNX5A+/",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1056,6 +1060,8 @@
       "__id__": 0
     },
     "fileId": "12+XDag8xPu7nLjbPcq37e",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1396,8 +1402,6 @@
       "__id__": 0
     },
     "fileId": "cfiWtsNkJP5qGCFPTvGRTB",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1606,8 +1610,6 @@
       "__id__": 0
     },
     "fileId": "52KYFpeGFJwZz6AG6+H5kB",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -1816,8 +1818,6 @@
       "__id__": 0
     },
     "fileId": "ffShn0rhxHfq4sJEEwtpRx",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3575,6 +3575,8 @@
       "__id__": 0
     },
     "fileId": "abaqGIn8RBdrLm4yAGQ1Ks",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3929,6 +3931,8 @@
       "__id__": 0
     },
     "fileId": "33NQjSc7REqYXWNtl21mkG",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3987,6 +3991,8 @@
       "__id__": 0
     },
     "fileId": "999LjPBkRBE6B6bCvXp18K",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -4132,6 +4138,7 @@
       "__id__": 0
     },
     "fileId": "fbw7j3ZIpGervhZjtK2cqU",
-    "instance": null
+    "instance": null,
+    "targetOverrides": null
   }
 ]

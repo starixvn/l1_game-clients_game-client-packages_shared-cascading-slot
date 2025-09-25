@@ -6,6 +6,7 @@ import Pagination from 'db://shared-components/game/pagination/scripts/component
 import Observer from 'observer';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
+import { debounce } from 'lodash';
 
 @ccclass
 export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
@@ -17,6 +18,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     betLevelDetail: Label = null;
     @property(Label)
     totalBetDetail: Label = null;
+    @property(Label)
+    multiplierDetail: Label = null;
+
 
     @property(Node)
     btnNext: Node = null;
@@ -72,13 +76,15 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
         }
         if (betHistoryLog) {
-            if (this.timeDetail && this.betLevelDetail && this.coinValueDetail && this.totalBetDetail) {
-                this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
-                this.betLevelDetail.string = betHistoryLog.betLevel;
-                this.coinValueDetail.string = betHistoryLog.coinValue;
-                this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
-            }
+            this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
+            this.betLevelDetail.string = betHistoryLog.betLevel;
+            this.coinValueDetail.string = betHistoryLog.coinValue;
+            this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
             this.currentId = betHistoryLog.id;
+            if (this.multiplierNode.active) {
+                this.multiplierDetail.string = `(${betHistoryLog.totalTumbleWin}x${betHistoryLog.totalMultiplier})`;
+            }
+            this.multiplierDetail.node.active = this.multiplierNode.active;
         }
         this.touchEvents('add');
     }
@@ -122,6 +128,8 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.onClickPreviousHistoryDetail();
         }
     }
+
+
 
 
 
@@ -189,12 +197,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             return;
         }
 
-        this.multiplierNode.active = false;
         if (!this.multiplierTotal || !this.textMultiplier) {
             return
         }
 
         const defaultColor = Color.WHITE;
+        this.multiplierNode.active = false;
         this.multiplierTotal.node.getComponent(Label).color = defaultColor;
         this.textMultiplier.node.getComponent(Label).color = defaultColor;
     }
