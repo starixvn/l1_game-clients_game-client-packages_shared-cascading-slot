@@ -111,9 +111,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    private placeBetTimeStamp = 0;
     private schedulingPlaceBet = false;
-    private readonly PLACE_BET_TIME_THRESHOLD = 800;
 
     handle() { }
 
@@ -134,11 +132,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.schedulingPlaceBet) {
             return;
         }
-        const now = Date.now();
-        if (now - this.placeBetTimeStamp < this.PLACE_BET_TIME_THRESHOLD) {
-            return;
-        }
-        this.placeBetTimeStamp = now;
         this.autoPlayStore.triggerBet = {};
         this.placeBetSilent();
     }
