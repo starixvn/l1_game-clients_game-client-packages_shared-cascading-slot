@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
-import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FreeSpinSource, FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import inversify from "inversify";
 import mobx from "mobx";
@@ -227,6 +227,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     async checkSpinNextRound() {
         this.cascadingUIStore.checkToSpinNext = true;
         this.autoPlayStore.triggerBet = null;
+        this.fsbPromotionUIStore.setActiveFreeSpin(FreeSpinSource.PROMOTION, this.cascadingUIStore.isUsedFSBPromotionBonus);
         this.buyFsHandler.showBuyFsCongratulation();
         if (this.fsbPromotionUIStore.canSpinNextFSB && this.buyFsStore.buyFsResult) {
             await AnimationUtils.delayTime(3);

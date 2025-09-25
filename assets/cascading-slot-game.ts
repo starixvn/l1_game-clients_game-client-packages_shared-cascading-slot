@@ -7,6 +7,9 @@ import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 
+import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
+import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
+import { FreeSpinSignal, FreeSpinSource, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { GameComponentBase } from "db://shared-components/game/scripts/components/game-component-base";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
@@ -21,9 +24,6 @@ import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handl
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
-import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
-import { FreeSpinSignal, FreeSpinSource, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -107,7 +107,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
-    connectToService() {}
+    connectToService() { }
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
@@ -116,13 +116,13 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @render(LogStore, (store) => store.message)
-    logInfo(message: string) {}
+    logInfo(message: string) { }
 
     @handle(gc.UserSettings.UserSettingHandlers, (handle) => handle.loadStorages())
-    initUserSettings() {}
+    initUserSettings() { }
 
     @handle(gc.PlayerSelections.PlayerSelectionHandlers.InitHandlers)
-    initPlayerSelections() {}
+    initPlayerSelections() { }
 
     @handle(HideGame.HideGameHandler)
     onHideGame() {
@@ -148,7 +148,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
-    inGame() {}
+    inGame() { }
 
     @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
     handleTrialModeWithPromo(isTrialMode: boolean) {
@@ -158,11 +158,6 @@ export class CascadingSlotGame extends GameComponentBase {
     @render(CascadingUIStore, (store) => store.isFreeSpins)
     notifyFreeSpinFromGame(isActive: boolean) {
         this.notifyFreeSpin({ source: FreeSpinSource.GAME, active: isActive });
-    }
-
-    @render(CascadingUIStore, (store) => store.isUsedFSBPromotionBonus)
-    notifyFreeSpinFromPromotion(isActive: boolean) {
-        this.notifyFreeSpin({ source: FreeSpinSource.PROMOTION, active: isActive });
     }
 
     @handle(FSBPromotionUIHandler, (handler, signal: FreeSpinSignal) => handler.handleFreeSpin(signal))
@@ -264,10 +259,10 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
-    handleEndGameApiError() {}
+    handleEndGameApiError() { }
 
     @handle(AutoPlayHandler, (handler) => handler.checkAutoPlayWhenSettlementCompleted())
-    enableAutoPlayOnFreeSpinCompleted() {}
+    enableAutoPlayOnFreeSpinCompleted() { }
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
@@ -279,7 +274,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
-    handleNewRound() {}
+    handleNewRound() { }
 
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
     setFreeSpinsTotal(freespins: number) {
@@ -292,7 +287,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
-    checkSpinNextRound() {}
+    checkSpinNextRound() { }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)
     handleUpdateBalance(isUpdateBalance: boolean) {
@@ -324,7 +319,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Auth.AuthHandlers.GetBalance)
-    getBalance() {}
+    getBalance() { }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
@@ -389,10 +384,10 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
-    handleOnGameHide() {}
+    handleOnGameHide() { }
 
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
-    handleTriggerWinMultiplier() {}
+    handleTriggerWinMultiplier() { }
 
     @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
     updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {
