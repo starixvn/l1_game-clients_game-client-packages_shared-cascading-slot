@@ -65,33 +65,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             );
             mobx.reaction(
                 () => this.fsbPromotionUIStore.pendingUIEvent,
-                (evt) => {
-                    if (!evt) {
-                        return;
-                    }
-
-                    if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
-                        console.log("BEGIN_USING_FBS ====================== ");
-                        this.cascadingUIStore.totalMultiplier = 0;
-                        return;
-                    }
-
-                    if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
-                        const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
-                        this.schedulingPlaceBet = isPlaceBet;
-                        setTimeout(() => {
-                            this.fsbPromotionUIHandler.tryConsumeFSB();
-                            this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
-                            if (isPlaceBet) {
-                                this.schedulingPlaceBet = false;
-                                this.placeBet();
-                            }
-                            this.fsbPromotionUIStore.removePendingUIEvent();
-                        }, delayMs);
-                    }
-                }
+                (evt) => this.handleFBSEvent(evt)
             );
 
+            mobx.reaction(
+                () => this.fsbPromotionUIStore.event,
+                (evt) => this.handleFBSEvent(evt)
+            );
 
             mobx.reaction(
                 () => this.buyFsStore.triggerAutoPlay,
@@ -115,6 +95,32 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }
 
         this.placeBet();
+    }
+
+    handleFBSEvent(evt: { event: string; data?: any }) {
+        if (!evt) {
+            return;
+        }
+
+        if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
+            console.log("BEGIN_USING_FBS ====================== ");
+            this.cascadingUIStore.totalMultiplier = 0;
+            return;
+        }
+
+        if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
+            const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
+            this.schedulingPlaceBet = isPlaceBet;
+            setTimeout(() => {
+                this.fsbPromotionUIHandler.tryConsumeFSB();
+                this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
+                if (isPlaceBet) {
+                    this.schedulingPlaceBet = false;
+                    this.placeBet();
+                }
+                this.fsbPromotionUIStore.removePendingUIEvent();
+            }, delayMs);
+        }
     }
 
     handleError() {
