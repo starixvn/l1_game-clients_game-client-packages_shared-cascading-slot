@@ -65,7 +65,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreeSpinsTotal(freeSpinsTotal: number) {
         this.uiStore.freeSpinsTotal = freeSpinsTotal;
-        if (freeSpinsTotal === 0) {
+        if (freeSpinsTotal === 0 && !this.fsbPromotionUIStore.isFSBPromotionInProgress) {
             this.handleTriggerDuringFreeSpinBonus(null);
         }
     }
