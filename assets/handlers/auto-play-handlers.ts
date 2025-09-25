@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import { FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import inversify from "inversify";
 import mobx from "mobx";
 import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
@@ -70,36 +71,28 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }
 
                     if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
+                        console.log("BEGIN_USING_FBS ====================== ");
                         this.cascadingUIStore.totalMultiplier = 0;
                         return;
                     }
 
                     if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
-                    const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
+                        const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
                         this.schedulingPlaceBet = isPlaceBet;
-                    setTimeout(() => {
-                        this.fsbPromotionUIHandler.tryConsumeFSB();
-                        this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
-                        if (isPlaceBet) {
+                        setTimeout(() => {
+                            this.fsbPromotionUIHandler.tryConsumeFSB();
+                            this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
+                            if (isPlaceBet) {
                                 this.schedulingPlaceBet = false;
                                 this.placeBet();
-                        }
-                        this.fsbPromotionUIStore.removePendingUIEvent();
-                    }, delayMs);
-                }
-                }
-            );
-
-            mobx.reaction(
-                () => (this.fsbPromotionUIStore.canSpinNextFSB && !this.buyFsStore.buyFsResult),
-                async (canSpinNextFSB) => {
-                    if (canSpinNextFSB) {
-                        this.fsbPromotionUIHandler.tryConsumeFSB();
-                        this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
-                        this.placeBet();
+                            }
+                            this.fsbPromotionUIStore.removePendingUIEvent();
+                        }, delayMs);
                     }
                 }
             );
+
+
             mobx.reaction(
                 () => this.buyFsStore.triggerAutoPlay,
                 (triggerAutoPlay) => {
@@ -129,6 +122,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
+        console.log("placeBet ====================== ");
         if (this.schedulingPlaceBet) {
             return;
         }
@@ -227,9 +221,12 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         return this.autoPlayStore.roundsAutoplay <= 0;
     }
 
-    checkSpinNextRound() {
+    async checkSpinNextRound() {
         this.cascadingUIStore.checkToSpinNext = true;
         this.buyFsHandler.showBuyFsCongratulation();
+        if (this.fsbPromotionUIStore.canSpinNextFSB && this.buyFsStore.buyFsResult) {
+            await AnimationUtils.delayTime(3);
+        }
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
@@ -254,7 +251,17 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     this.fsbPromotionUIHandler.changeUIPendingEvent(FreeSpinsPromotionEvents.OPEN_PROMOTION_INFO);
                     this.fsbPromotionUIHandler.setShowFreeSpinMessage(false);
                 }
+                this.checkToSpinNextFSB();
             }
+        }
+    }
+
+    checkToSpinNextFSB() {
+        if (this.fsbPromotionUIStore.canSpinNextFSB) {
+            console.log("canSpinNextFSB ====================== ");
+            this.fsbPromotionUIHandler.tryConsumeFSB();
+            this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
+            this.placeBet();
         }
     }
 
