@@ -65,12 +65,12 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             );
             mobx.reaction(
                 () => this.fsbPromotionUIStore.pendingUIEvent,
-                (evt) => this.handleFBSEvent(evt)
+                (evt) => this.handleFsbEvent(evt)
             );
 
             mobx.reaction(
                 () => this.fsbPromotionUIStore.event,
-                (evt) => this.handleFBSEvent(evt)
+                (evt) => this.handleFsbEvent(evt)
             );
 
             mobx.reaction(
@@ -97,7 +97,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.placeBet();
     }
 
-    handleFBSEvent(evt: { event: string; data?: any }) {
+    handleFsbEvent(evt: { event: string; data?: any }) {
         if (!evt) {
             return;
         }
