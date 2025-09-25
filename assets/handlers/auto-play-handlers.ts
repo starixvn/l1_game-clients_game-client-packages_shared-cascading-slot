@@ -65,9 +65,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             mobx.reaction(
                 () => this.fsbPromotionUIStore.pendingUIEvent,
                 (evt) => {
-                    if (!evt || evt.event !== FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
+                    if (!evt) {
                         return;
                     }
+
+                    if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
+                        this.cascadingUIStore.totalMultiplier = 0;
+                        return;
+                    }
+
+                    if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
                     const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
                     setTimeout(() => {
                         this.fsbPromotionUIHandler.tryConsumeFSB();
@@ -77,6 +84,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                         }
                         this.fsbPromotionUIStore.removePendingUIEvent();
                     }, delayMs);
+                }
                 }
             );
 
