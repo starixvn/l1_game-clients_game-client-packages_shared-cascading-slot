@@ -1,6 +1,11 @@
 import gc from "@sg/game-client-base";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
-import { FreeSpinSource, FreeSpinsPromotionEvents, FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import {
+    FreeSpinSource,
+    FreeSpinsPromotionEvents,
+    FSBPromotionUIStore,
+} from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FunctionUtils } from "db://shared-components/shared/utils";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import inversify from "inversify";
 import mobx from "mobx";
@@ -84,8 +89,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-
-    handle() { }
+    handle() {}
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
@@ -252,8 +256,9 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }, 1000);
                 }
                 if (this.fsbPromotionUIStore.isShowFreeSpinMessage) {
-                    this.fsbPromotionUIHandler.changeUIPendingEvent(FreeSpinsPromotionEvents.OPEN_PROMOTION_INFO);
+                    this.fsbPromotionUIHandler.openPromotionInfo();
                     this.fsbPromotionUIHandler.setShowFreeSpinMessage(false);
+                    await FunctionUtils.waitUntil(() => this.fsbPromotionUIStore.isFSBInfoReady, 100, 10000).catch(() => {});
                 }
                 this.checkToSpinNextFSB();
             }
@@ -267,6 +272,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     checkToSpinNextFSB() {
+        console.log("checkToSpinNextFSB ====================== ", this.fsbPromotionUIStore.currentSpinCount);
         if (this.fsbPromotionUIStore.canSpinNextFSB) {
             console.log("canSpinNextFSB ====================== ");
             this.fsbPromotionUIHandler.tryConsumeFSB();
