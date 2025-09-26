@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab } from "cc";
+import { _decorator, Component, instantiate, log, Node, Prefab } from "cc";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -18,7 +18,7 @@ export class CascadingMascotDecor extends Component {
         try {
             await this.createNodeAsync();
         } catch (err) {
-            console.log(err);
+            log(err);
         }
     }
 
