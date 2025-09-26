@@ -33,9 +33,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private pagination: any = null;
     private isNavigatingToNextPage = false;
 
-    private touchStart = 0
+    private touchStart = 0;
+    private touchStartY = 0;
     private hasTriggeredSwipe = false;
-    private readonly MIN_SWIPE_DISTANCE = 50;
+    private readonly MIN_SWIPE_DISTANCE = 200;
+    private readonly MAX_VERTICAL_DISTANCE = 200;
 
 
 
@@ -113,7 +115,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     onTouchStart(event: EventTouch) {
-        this.touchStart = event.getLocation().x;
+        const location = event.getLocation();
+        this.touchStart = location.x;
+        this.touchStartY = location.y;
         this.hasTriggeredSwipe = false;
     }
 
@@ -121,15 +125,25 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (this.hasTriggeredSwipe) {
             return;
         }
-        const currentX = event.getLocation().x;
-        const touchDiff = currentX - this.touchStart;
-        const swipeDistance = Math.abs(touchDiff);
-        if (swipeDistance > this.MIN_SWIPE_DISTANCE) {
+
+        const location = event.getLocation();
+        const currentX = location.x;
+        const currentY = location.y;
+        const touchDiffX = currentX - this.touchStart;
+        const touchDiffY = Math.abs(currentY - this.touchStartY);
+        const swipeDistance = Math.abs(touchDiffX);
+
+        if (touchDiffY > this.MAX_VERTICAL_DISTANCE) {
+            this.isNavigatingToNextPage = false;
+            return;
+        }
+
+        if (swipeDistance > this.MIN_SWIPE_DISTANCE && touchDiffY <= this.MAX_VERTICAL_DISTANCE) {
             this.hasTriggeredSwipe = true; // Prevent multiple triggers
-            if (touchDiff > 0) {
-                this.onClickNextHistoryDetail();
-            } else {
+            if (touchDiffX > 0) {
                 this.onClickPreviousHistoryDetail();
+            } else {
+                this.onClickNextHistoryDetail();
             }
         }
     }
