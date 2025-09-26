@@ -15,7 +15,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
 
 
     private touchEvents(type: string) {
-        if (this.wrapper) {
+        if (this.wrapper && this.wrapper.isValid) {
             if (type === 'add') {
                 this.wrapper.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
                 this.wrapper.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
@@ -53,10 +53,8 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
             this.hasTriggeredSwipe = true; // Prevent multiple triggers
             if (touchDiff > 0) {
                 this.pagination.hanldeNextPage();
-                console.log('swipe right');
             } else {
                 this.pagination.hanldePreviousPage();
-                console.log('swipe left');
             }
         }
     }
