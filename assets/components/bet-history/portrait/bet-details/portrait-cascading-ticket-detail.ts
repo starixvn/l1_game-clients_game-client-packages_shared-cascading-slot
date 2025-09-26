@@ -33,8 +33,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private pagination: any = null;
     private isNavigatingToNextPage = false;
 
-    private touchStart = 0;
-    private readonly MIN_SWIPE_DISTANCE = 5;
+    private touchStart = 0
+    private hasTriggeredSwipe = false;
+    private readonly MIN_SWIPE_DISTANCE = 50;
 
 
 
@@ -43,6 +44,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const { betLogs } = betHistoryModel;
         this.betHistory = betLogs;
         this.handleBetHistorySelection();
+        if (betLogs.length <= 1) {
+            this.btnNext.active = false;
+            this.btnPrevious.active = false;
+        }
     }
 
     private handleBetHistorySelection() {
@@ -98,39 +103,38 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (parentContent) {
             if (type === 'add') {
                 parentContent.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
-                parentContent.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-                parentContent.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+                parentContent.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             } else {
                 parentContent.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
-                parentContent.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-                parentContent.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+                parentContent.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             }
         }
     }
 
 
     onTouchStart(event: EventTouch) {
-        this.touchStart = event.getLocationX();
+        this.touchStart = event.getLocation().x;
+        this.hasTriggeredSwipe = false;
     }
 
-    onTouchEnd(event: EventTouch) {
-        const touchEnd = event.getLocationX();
-        const touchDiff = touchEnd - this.touchStart;
-        const swipeDistance = Math.abs(touchDiff);
-
-        if (swipeDistance < this.MIN_SWIPE_DISTANCE) {
+    onTouchMove(event: EventTouch) {
+        if (this.hasTriggeredSwipe) {
             return;
         }
-        if (touchDiff > this.MIN_SWIPE_DISTANCE) {
-            this.onClickNextHistoryDetail();
-        } else {
-            this.onClickPreviousHistoryDetail();
+        const currentX = event.getLocation().x;
+        const touchDiff = currentX - this.touchStart;
+        const swipeDistance = Math.abs(touchDiff);
+        if (swipeDistance > this.MIN_SWIPE_DISTANCE) {
+            this.hasTriggeredSwipe = true; // Prevent multiple triggers
+            if (touchDiff > 0) {
+                this.onClickNextHistoryDetail();
+            } else {
+                this.onClickPreviousHistoryDetail();
+            }
         }
     }
 
-    onTouchCancel(event: EventTouch) {
-        this.touchStart = 0;
-    }
+
 
 
 
@@ -139,6 +143,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     handleMultiplierData(data: any) {
         super.handleMultiplierData(data);
         this.textMultiplier.string = `${gc.Translator.gameTranslate('total_multiplier')}:`;
+        if (data.freeSpin) {
+            this.textMultiplier.node.getComponent(Label).color = new Color("FFFC00");
+            this.multiplierTotal.node.getComponent(Label).color = new Color("#06F");
+        }
     }
 
     onClickClose() {
@@ -226,6 +234,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
 }
+
 
 
 

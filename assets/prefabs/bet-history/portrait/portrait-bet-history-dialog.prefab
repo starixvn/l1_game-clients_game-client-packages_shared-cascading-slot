@@ -8581,7 +8581,7 @@
     "fileId": "63jC8NMrFDlpLbKm99EDRO"
   },
   {
-    "__type__": "aec3cP+maFEFrTGslFK4XEJ",
+    "__type__": "03e24lRC/ZL0LtXvRtLXJMR",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -8598,11 +8598,14 @@
     "body": {
       "__id__": 69
     },
+    "wrapper": {
+      "__id__": 18
+    },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "27WfgGMldARZFuoEPxe+Hk"
+    "fileId": "28etIv3hJPhp3OJ399wzS0"
   },
   {
     "__type__": "cc.PrefabInfo",

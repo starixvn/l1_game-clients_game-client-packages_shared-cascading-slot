@@ -1,0 +1,66 @@
+import { _decorator, EventTouch, Node } from 'cc';
+import { CascadingBetHistoryTable } from '../cascading-bet-history-table';
+import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
+const { ccclass, property } = _decorator;
+
+@ccclass
+export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
+
+    @property(Node)
+    wrapper: Node = null;
+    private pagination: any = null;
+    private touchStart = 0
+    private hasTriggeredSwipe = false;
+    private readonly MIN_SWIPE_DISTANCE = 50;
+
+
+    private touchEvents(type: string) {
+        if (this.wrapper) {
+            if (type === 'add') {
+                this.wrapper.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+                this.wrapper.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+            } else {
+                this.wrapper.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+                this.wrapper.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+            }
+        }
+    }
+    onLoad() {
+        super.onLoad();
+        this.touchEvents('add');
+        if (!this.pagination) {
+            this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
+        }
+    }
+
+    onDestroy() {
+        this.touchEvents('remove');
+    }
+
+    onTouchStart(event: EventTouch) {
+        this.touchStart = event.getLocation().x;
+        this.hasTriggeredSwipe = false;
+    }
+
+    onTouchMove(event: EventTouch) {
+        if (this.hasTriggeredSwipe) {
+            return;
+        }
+        const currentX = event.getLocation().x;
+        const touchDiff = currentX - this.touchStart;
+        const swipeDistance = Math.abs(touchDiff);
+        if (swipeDistance > this.MIN_SWIPE_DISTANCE) {
+            this.hasTriggeredSwipe = true; // Prevent multiple triggers
+            if (touchDiff > 0) {
+                this.pagination.hanldeNextPage();
+                console.log('swipe right');
+            } else {
+                this.pagination.hanldePreviousPage();
+                console.log('swipe left');
+            }
+        }
+    }
+
+}
+
+
