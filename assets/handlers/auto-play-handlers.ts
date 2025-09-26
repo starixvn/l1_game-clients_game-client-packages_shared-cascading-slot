@@ -89,7 +89,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
@@ -106,7 +106,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }
 
         if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
-            console.log("BEGIN_USING_FBS ====================== ");
             this.cascadingUIStore.totalMultiplier = 0;
             return;
         }
@@ -129,7 +128,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
-        console.log("placeBet ====================== ");
         if (this.autoPlayStore.triggerBet) {
             return;
         }
@@ -234,7 +232,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.fsbPromotionUIStore.setActiveFreeSpin(FreeSpinSource.PROMOTION, this.cascadingUIStore.isUsedFSBPromotionBonus);
         this.buyFsHandler.showBuyFsCongratulation();
         this.fsbPromotionUIHandler.tryShowEndedPopup();
-        await this.awaitInCaseSpinNextFSB();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
@@ -258,23 +255,22 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 if (this.fsbPromotionUIStore.isShowFreeSpinMessage) {
                     this.fsbPromotionUIHandler.openPromotionInfo();
                     this.fsbPromotionUIHandler.setShowFreeSpinMessage(false);
-                    await FunctionUtils.waitUntil(() => this.fsbPromotionUIStore.isFSBInfoReady, 100, 10000).catch(() => {});
+                    await FunctionUtils.waitUntil(() => this.fsbPromotionUIStore.isFSBInfoReady, 100, 10000).catch(() => { });
                 }
+                await this.awaitShowBuyFsResult();
                 this.checkToSpinNextFSB();
             }
         }
     }
 
-    private async awaitInCaseSpinNextFSB() {
+    private async awaitShowBuyFsResult() {
         if (this.fsbPromotionUIStore.canSpinNextFSB && this.buyFsStore.buyFsResult) {
             await AnimationUtils.delayTime(3);
         }
     }
 
     checkToSpinNextFSB() {
-        console.log("checkToSpinNextFSB ====================== ", this.fsbPromotionUIStore.currentSpinCount);
         if (this.fsbPromotionUIStore.canSpinNextFSB) {
-            console.log("canSpinNextFSB ====================== ");
             this.fsbPromotionUIHandler.tryConsumeFSB();
             this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
             this.placeBet();
