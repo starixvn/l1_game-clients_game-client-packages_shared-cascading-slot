@@ -52,10 +52,25 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
         if (swipeDistance > this.MIN_SWIPE_DISTANCE) {
             this.hasTriggeredSwipe = true; // Prevent multiple triggers
             if (touchDiff > 0) {
-                this.pagination.hanldeNextPage();
+                this.handleNextPage();
             } else {
-                this.pagination.hanldePreviousPage();
+                this.handlePreviousPage();
             }
+        }
+    }
+
+    handleNextPage() {
+        const currentPage = this.pagination.currentPage;
+        const totalPages = this.pagination.totalPages;
+        if (currentPage < totalPages) {
+            this.pagination.hanldeNextPage();
+        }
+    }
+
+    handlePreviousPage() {
+        const currentPage = this.pagination.currentPage;
+        if (currentPage > 1) {
+            this.pagination.hanldePreviousPage();
         }
     }
 
