@@ -6,7 +6,6 @@ import Pagination from 'db://shared-components/game/pagination/scripts/component
 import Observer from 'observer';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
-import { debounce } from 'lodash';
 
 @ccclass
 export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
@@ -100,11 +99,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (type === 'add') {
                 parentContent.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
                 parentContent.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-                parentContent.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+                parentContent.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
             } else {
                 parentContent.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
                 parentContent.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-                parentContent.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+                parentContent.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
             }
         }
     }
@@ -122,11 +121,15 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (swipeDistance < this.MIN_SWIPE_DISTANCE) {
             return;
         }
-        if (touchDiff > 0) {
+        if (touchDiff > this.MIN_SWIPE_DISTANCE) {
             this.onClickNextHistoryDetail();
         } else {
             this.onClickPreviousHistoryDetail();
         }
+    }
+
+    onTouchCancel(event: EventTouch) {
+        this.touchStart = 0;
     }
 
 
