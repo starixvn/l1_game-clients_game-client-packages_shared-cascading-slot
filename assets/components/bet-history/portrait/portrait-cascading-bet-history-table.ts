@@ -52,9 +52,9 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
         if (swipeDistance > this.MIN_SWIPE_DISTANCE) {
             this.hasTriggeredSwipe = true; // Prevent multiple triggers
             if (touchDiff > 0) {
-                this.handleNextPage();
-            } else {
                 this.handlePreviousPage();
+            } else {
+                this.handleNextPage();
             }
         }
     }
