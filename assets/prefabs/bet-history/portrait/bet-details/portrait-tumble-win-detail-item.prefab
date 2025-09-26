@@ -1390,7 +1390,7 @@
     "_fontSize": 30,
     "_fontFamily": "Arial",
     "_lineHeight": 30,
-    "_overflow": 1,
+    "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
       "__uuid__": "0f6981e6-5811-45ce-ac30-f06164d111a7",
@@ -1465,8 +1465,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 25,
-      "height": 55.44
+      "width": 15.17999267578125,
+      "height": 37.8
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
