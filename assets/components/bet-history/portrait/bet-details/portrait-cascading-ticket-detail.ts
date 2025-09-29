@@ -225,37 +225,25 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     slideAnimation(direction: string, onComplete?: () => void) {
-        if (this.content) {
-            if (this.isAnimating) {
-                return;
-            }
-            this.isAnimating = true;
-            const opacity = this.content.getComponent(UIOpacity) || this.content.addComponent(UIOpacity);
-            const pos = this.content.position;
-            const moveX = direction === 'right' ? -800 : 800;
-
-            // Fade out current slide
-            tween(this.content)
-                .parallel(
-                    tween(opacity).to(0.2, { opacity: 0 }),
-                    tween(this.content).to(0.2, { position: new Vec3(pos.x + moveX, pos.y, pos.z) })
-                )
-                .call(() => {
-                    onComplete?.();
-                    this.content.setPosition(new Vec3(pos.x - moveX, pos.y, pos.z));
-
-                    // Fade in new slide
-                    tween(this.content)
-                        .parallel(
-                            tween(opacity).to(0.2, { opacity: 255 }),
-                            tween(this.content).to(0.2, { position: pos })
-                        )
-                        .call(() => this.isAnimating = false)
-                        .start();
-                })
-                .start();
+        if (!this.content || this.isAnimating) {
+            return;
         }
 
+        this.isAnimating = true;
+        const pos = this.content.position;
+        const moveX = direction === 'right' ? -800 : 800;
+
+        tween(this.content)
+            .to(0.2, { position: new Vec3(pos.x + moveX, pos.y, pos.z) })
+            .call(() => {
+                onComplete?.();
+                this.content.setPosition(new Vec3(pos.x - moveX, pos.y, pos.z));
+                tween(this.content)
+                    .to(0.2, { position: pos })
+                    .call(() => this.isAnimating = false)
+                    .start();
+            })
+            .start();
     }
 
 
