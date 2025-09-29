@@ -1,9 +1,10 @@
 import gc from '@sg/game-client-base';
-import { _decorator, Color, EventTouch, Label, Node } from 'cc';
+import { _decorator, Color, EventTouch, Label, Node, tween, UIOpacity, Vec3, ScrollView } from 'cc';
 import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
 import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
 import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
 import Observer from 'observer';
+import { AnimationUtils } from 'db://shared-components/shared/utils';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
 
@@ -19,6 +20,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     totalBetDetail: Label = null;
     @property(Label)
     multiplierDetail: Label = null;
+
+    @property(ScrollView)
+    scrollView: ScrollView = null;
 
 
     @property(Node)
@@ -38,6 +42,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private hasTriggeredSwipe = false;
     private readonly MIN_SWIPE_DISTANCE = 200;
     private readonly MAX_VERTICAL_DISTANCE = 200;
+    private isAnimating = false;
 
 
 
@@ -53,7 +58,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private handleBetHistorySelection() {
-        if (this.betHistory.length > 0) {
+        if (this.betHistory && this.betHistory.length > 0) {
             const currentItemExists = this.betHistory.find(item => item.id === this.currentId);
             if (!currentItemExists || this.currentId === 0) {
                 // Select appropriate item based on navigation direction
@@ -140,11 +145,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
         if (swipeDistance > this.MIN_SWIPE_DISTANCE && touchDiffY <= this.MAX_VERTICAL_DISTANCE) {
             this.hasTriggeredSwipe = true; // Prevent multiple triggers
-            if (touchDiffX > 0) {
-                this.onClickPreviousHistoryDetail();
-            } else {
-                this.onClickNextHistoryDetail();
-            }
+            touchDiffX > 0 ? this.onClickPreviousHistoryDetail() : this.onClickNextHistoryDetail();
         }
     }
 
@@ -177,45 +178,94 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     findCurrentIndex() {
-        return this.betHistory.findIndex((item) => item.id === this.currentId);
+        return this.betHistory.findIndex((item) => item.id === this.currentId)
     }
 
     onClickPreviousHistoryDetail() {
         const index = this.findCurrentIndex();
-        if (index > 0) {
-            this.currentId = (this.betHistory[index - 1]).id;
-            this.updateHistoryDetail();
+        this.resetScrollPosition();
+        if (index > 0 && this.betHistory[index - 1]) {
+            this.slideAnimation('left', () => {
+                this.currentId = this.betHistory[index - 1].id;
+                this.updateHistoryDetail();
+            });
         } else if (index === 0) {
             if (this.pagination) {
                 const currentPage = this.pagination.currentPage;
                 if (currentPage > 1) {
-                    this.isNavigatingToNextPage = false; // Going to previous page, select last item
-                    this.pagination.hanldePreviousPage();
-                } else {
-                    console.log('first page');
+                    this.slideAnimation('left', () => {
+                        this.isNavigatingToNextPage = false; // Going to previous page, select last item
+                        this.pagination.hanldePreviousPage();
+                    });
                 }
             }
         }
     }
     onClickNextHistoryDetail() {
         const index = this.findCurrentIndex();
-        if (index >= 0 && index < this.betHistory.length - 1) {
-            this.currentId = (this.betHistory[index + 1]).id;
-            this.updateHistoryDetail();
-        } else if (index === this.betHistory.length - 1) {
+        this.resetScrollPosition();
+        if (this.betHistory && index >= 0 && index < this.betHistory.length - 1) {
+            this.slideAnimation('right', () => {
+                this.currentId = this.betHistory[index + 1].id;
+                this.updateHistoryDetail();
+            });
+        } else if (this.betHistory && index === this.betHistory.length - 1) {
             if (this.pagination) {
                 const currentPage = this.pagination.currentPage;
                 const totalPages = this.pagination.totalPages;
                 if (currentPage < totalPages) {
-                    this.isNavigatingToNextPage = true; // Going to next page, select first item
-                    this.pagination.hanldeNextPage();
-                } else {
-                    console.log('last page');
+                    this.slideAnimation('right', () => {
+                        this.isNavigatingToNextPage = true; // Going to next page, select first item
+                        this.pagination.hanldeNextPage();
+                    });
                 }
             }
         }
     }
 
+
+
+    slideAnimation(direction: string, onComplete?: () => void) {
+        if (this.content) {
+            if (this.isAnimating) {
+                return;
+            }
+            this.isAnimating = true;
+            const opacity = this.content.getComponent(UIOpacity) || this.content.addComponent(UIOpacity);
+            const pos = this.content.position;
+            const moveX = direction === 'right' ? -800 : 800;
+
+            // Fade out current slide
+            tween(this.content)
+                .parallel(
+                    tween(opacity).to(0.2, { opacity: 0 }),
+                    tween(this.content).to(0.2, { position: new Vec3(pos.x + moveX, pos.y, pos.z) })
+                )
+                .call(() => {
+                    onComplete?.();
+                    this.content.setPosition(new Vec3(pos.x - moveX, pos.y, pos.z));
+
+                    // Fade in new slide
+                    tween(this.content)
+                        .parallel(
+                            tween(opacity).to(0.2, { opacity: 255 }),
+                            tween(this.content).to(0.2, { position: pos })
+                        )
+                        .call(() => this.isAnimating = false)
+                        .start();
+                })
+                .start();
+        }
+
+    }
+
+
+
+    private resetScrollPosition() {
+        if (this.scrollView) {
+            this.scrollView.scrollToTop(0);
+        }
+    }
 
     private resetMultiplierNode() {
         if (!this.multiplierNode) {
@@ -239,7 +289,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     updateHistoryDetail() {
-        const newItem = this.betHistory.find(item => item.id === this.currentId);
+        const newItem = this.betHistory ? this.betHistory.find(item => item.id === this.currentId) : null;
         this.betHistoryDetial = {
             betHistoryLog: newItem
         }
