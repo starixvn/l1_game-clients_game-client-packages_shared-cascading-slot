@@ -39,8 +39,8 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private touchStart = 0;
     private touchStartY = 0;
     private hasTriggeredSwipe = false;
-    private readonly MIN_SWIPE_DISTANCE = 200;
-    private readonly MAX_VERTICAL_DISTANCE = 200;
+    private readonly MIN_SWIPE_DISTANCE = 250;
+    private readonly MAX_VERTICAL_DISTANCE = 250;
     private isAnimating = false;
 
 

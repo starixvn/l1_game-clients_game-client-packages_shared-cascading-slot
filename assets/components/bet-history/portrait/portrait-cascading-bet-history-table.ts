@@ -12,7 +12,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
     private pagination: any = null;
     private touchStart = 0
     private hasTriggeredSwipe = false;
-    private readonly MIN_SWIPE_DISTANCE = 50;
+    private readonly MIN_SWIPE_DISTANCE = 250;
     private isAnimating = false;
 
 
