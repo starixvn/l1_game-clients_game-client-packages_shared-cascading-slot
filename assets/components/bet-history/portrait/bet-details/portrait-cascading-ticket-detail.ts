@@ -7,6 +7,13 @@ import Observer from 'observer';
 import TouchSwipeBase from 'db://shared-components/shared/common-components/touch-swipe-base';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
+interface PortraitBetHistoryLog extends gc.BetHistory.BetHistoryLog {
+    id: number;
+}
+interface PortraitBetHistoryModel extends gc.BetHistory.BetHistoryModel {
+    betLogs: PortraitBetHistoryLog[];
+}
+
 @ccclass
 export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     @property(Label)
@@ -32,8 +39,8 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     @property(Node)
     btnPrevious: Node = null;
 
-    public betHistory: any[] = [];
-    public betHistoryDetail: { betHistoryLog: gc.BetHistory.BetHistoryLog } | null = null;
+    public betHistory: PortraitBetHistoryLog[] = [];
+    public betHistoryDetail: { betHistoryLog: gc.BetHistory.BetHistoryLog } = null;
     private currentId = 0;
     private pagination: Pagination = null;
     private isNavigatingToNextPage = false;
@@ -58,14 +65,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
-    showBetHistory(betHistoryModel: gc.BetHistory.BetHistoryModel) {
+    showBetHistory(betHistoryModel: PortraitBetHistoryModel) {
         const { betLogs } = betHistoryModel;
         this.betHistory = betLogs;
         this.handleBetHistorySelection();
-        if (betLogs.length < 1) {
-            this.btnNext.active = false;
-            this.btnPrevious.active = false;
-        }
     }
 
     private handleBetHistorySelection() {
@@ -95,7 +98,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const { betHistoryLog } = data;
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
-
         }
         if (betHistoryLog) {
             this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
@@ -115,6 +117,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (data.freeSpin) {
             this.textMultiplier.node.getComponent(Label).color = new Color("EDBB02");
             this.multiplierTotal.node.getComponent(Label).color = new Color("#06F");
+            this.multiplierTotal.string = `x${data.totalMultiplier}`;
+        } else {
+            this.multiplierTotal.string = `x${data.multiplier}`;
         }
     }
 
