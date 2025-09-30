@@ -3,7 +3,7 @@ import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
+import { CascadingWarningContainer } from "../../assets/components/cascading-warning-container";
 import { CascadingWarningMsg } from "../../assets/components/cascading-warning-msg";
 
 jest.mock("observer", () => ({
@@ -33,7 +33,6 @@ jest.mock("db://shared-components/shared/common-components/observer-component/sc
         onDestroy() { }
     },
 }));
-
 jest.mock("../../assets/stores/cascading-ui-store", () => ({
     CascadingUIStore: jest.fn(),
 }));
@@ -42,8 +41,9 @@ jest.mock("../../assets/components/cascading-warning-msg", () => ({
     CascadingWarningMsg: jest.fn(),
 }));
 
-import { CascadingWarningContainer } from "../../assets/components/cascading-warning-container";
-
+jest.mock("db://shared-cascading-slot/stores/bet-control-store", () => ({
+    BetControlStore: jest.fn(),
+}));
 describe("CascadingWarningContainer", () => {
     let cascadingWarningContainer: CascadingWarningContainer;
     let mockPrefab: Prefab;
