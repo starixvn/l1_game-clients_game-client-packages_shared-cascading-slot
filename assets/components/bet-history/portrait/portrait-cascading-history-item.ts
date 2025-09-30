@@ -9,10 +9,6 @@ export class PortraitCascadingHistoryItem extends CascadingHistoryItem {
 
     @property(Label)
     haveFreeSpin: Label = null;
-
-    onDestroy() {
-        super.onDestroy();
-    }
     setData(data: any) {
         super.setData(data);
         this.handleFreeSpin(data);

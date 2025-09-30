@@ -84,7 +84,11 @@ export class CascadingTicketDetailItem extends Component {
         }
 
         this.win.string = gc.FormatUtils.numberWithCommas(currWinTumble, 2, false);
-        this.index.string = (index + 1).toString();
+        this.updateIndexLabel(index);
+    }
+
+    protected updateIndexLabel(index: string | number) {
+        this.index.string = typeof index === 'string' ? index : (index + 1).toString();
     }
 
     setDataHaveFreeSpin(data: FreeSpinData) {
