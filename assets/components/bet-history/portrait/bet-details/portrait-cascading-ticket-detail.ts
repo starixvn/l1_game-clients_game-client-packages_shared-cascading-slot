@@ -67,8 +67,16 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: PortraitBetHistoryModel) {
         const { betLogs } = betHistoryModel;
+
         this.betHistory = betLogs;
         this.handleBetHistorySelection();
+        this.updateNavigationButtons(betLogs.length);
+    }
+
+    private updateNavigationButtons(betHistoryLength: number) {
+        const hasMultipleItems = betHistoryLength > 1;
+        this.btnNext.active = hasMultipleItems;
+        this.btnPrevious.active = hasMultipleItems;
     }
 
     private handleBetHistorySelection() {
