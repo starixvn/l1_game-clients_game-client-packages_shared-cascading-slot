@@ -1,9 +1,9 @@
-import gc from '@sg/game-client-base';
-import { _decorator, Color, EventTouch, Label, Node, tween, UIOpacity, Vec3, ScrollView } from 'cc';
-import { CascadingTicketDetail } from '../../bet-details/cascading-ticket-detail';
-import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
-import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
-import Observer from 'observer';
+import gc from "@sg/game-client-base";
+import { _decorator, Color, EventTouch, Label, Node, ScrollView, tween, Vec3 } from "cc";
+import Pagination from "db://shared-components/game/pagination/scripts/components/pagination";
+import Observer from "observer";
+import { CascadingTicketDetail } from "../../bet-details/cascading-ticket-detail";
+import { CascadingBetHistoryTable } from "../../cascading-bet-history-table";
 const { ccclass, property } = _decorator;
 const { render } = Observer;
 
@@ -22,7 +22,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
     @property(ScrollView)
     scrollView: ScrollView = null;
-
 
     @property(Node)
     btnNext: Node = null;
@@ -43,8 +42,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private readonly MAX_VERTICAL_DISTANCE = 250;
     private isAnimating = false;
 
-
-
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: gc.BetHistory.BetHistoryModel) {
         const { betLogs } = betHistoryModel;
@@ -58,17 +55,17 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
     private handleBetHistorySelection() {
         if (this.betHistory && this.betHistory.length > 0) {
-            const currentItemExists = this.betHistory.find(item => item.id === this.currentId);
+            const currentItemExists = this.betHistory.find((item) => item.id === this.currentId);
             if (!currentItemExists || this.currentId === 0) {
                 // Select appropriate item based on navigation direction
                 const targetItem = this.isNavigatingToNextPage ? this.betHistory[0] : this.betHistory[this.betHistory.length - 1];
                 this.currentId = targetItem.id;
                 this.betHistoryDetial = {
-                    betHistoryLog: targetItem
+                    betHistoryLog: targetItem,
                 };
                 this.clearContent();
                 this.setData({
-                    betHistoryLog: targetItem
+                    betHistoryLog: targetItem,
                 });
                 this.isNavigatingToNextPage = false;
             }
@@ -83,31 +80,30 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const { betHistoryLog } = data;
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
-
         }
         if (betHistoryLog) {
             this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
             this.betLevelDetail.string = betHistoryLog.betLevel;
             this.coinValueDetail.string = betHistoryLog.coinValue;
-            this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
+            this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
             this.currentId = betHistoryLog.id;
             if (this.multiplierNode.active) {
                 this.multiplierDetail.string = `(${betHistoryLog.totalTumbleWin}x${betHistoryLog.totalMultiplier})`;
             }
             this.multiplierDetail.node.active = this.multiplierNode.active;
         }
-        this.touchEvents('add');
+        this.touchEvents("add");
     }
 
     onDestroy() {
         super.onDestroy();
-        this.touchEvents('remove');
+        this.touchEvents("remove");
     }
 
     private touchEvents(type: string) {
         const parentContent = this.content?.getParent();
         if (parentContent) {
-            if (type === 'add') {
+            if (type === "add") {
                 parentContent.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
                 parentContent.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
             } else {
@@ -116,7 +112,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             }
         }
     }
-
 
     onTouchStart(event: EventTouch) {
         const location = event.getLocation();
@@ -148,15 +143,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
     }
 
-
-
-
-
-
-
     handleMultiplierData(data: any) {
         super.handleMultiplierData(data);
-        this.textMultiplier.string = `${gc.Translator.gameTranslate('total_multiplier')}:`;
+        this.textMultiplier.string = `${gc.Translator.gameTranslate("total_multiplier")}:`;
         if (data.freeSpin) {
             this.textMultiplier.node.getComponent(Label).color = new Color("FFFC00");
             this.multiplierTotal.node.getComponent(Label).color = new Color("#06F");
@@ -171,20 +160,19 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
     }
 
-
     onClickBackToHistory() {
         super.onClickClose();
     }
 
     findCurrentIndex() {
-        return this.betHistory.findIndex((item) => item.id === this.currentId)
+        return this.betHistory.findIndex((item) => item.id === this.currentId);
     }
 
     onClickPreviousHistoryDetail() {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (index > 0 && this.betHistory[index - 1]) {
-            this.slideAnimation('left', () => {
+            this.slideAnimation("left", () => {
                 this.currentId = this.betHistory[index - 1].id;
                 this.updateHistoryDetail();
             });
@@ -192,7 +180,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (this.pagination) {
                 const currentPage = this.pagination.currentPage;
                 if (currentPage > 1) {
-                    this.slideAnimation('left', () => {
+                    this.slideAnimation("left", () => {
                         this.isNavigatingToNextPage = false; // Going to previous page, select last item
                         this.pagination.hanldePreviousPage();
                     });
@@ -204,7 +192,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (this.betHistory && index >= 0 && index < this.betHistory.length - 1) {
-            this.slideAnimation('right', () => {
+            this.slideAnimation("right", () => {
                 this.currentId = this.betHistory[index + 1].id;
                 this.updateHistoryDetail();
             });
@@ -213,7 +201,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 const currentPage = this.pagination.currentPage;
                 const totalPages = this.pagination.totalPages;
                 if (currentPage < totalPages) {
-                    this.slideAnimation('right', () => {
+                    this.slideAnimation("right", () => {
                         this.isNavigatingToNextPage = true; // Going to next page, select first item
                         this.pagination.hanldeNextPage();
                     });
@@ -222,8 +210,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
     }
 
-
-
     slideAnimation(direction: string, onComplete?: () => void) {
         if (!this.content || this.isAnimating) {
             return;
@@ -231,7 +217,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
         this.isAnimating = true;
         const pos = this.content.position;
-        const moveX = direction === 'right' ? -800 : 800;
+        const moveX = direction === "right" ? -800 : 800;
 
         tween(this.content)
             .to(0.2, { position: new Vec3(pos.x + moveX, pos.y, pos.z) })
@@ -240,13 +226,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 this.content.setPosition(new Vec3(pos.x - moveX, pos.y, pos.z));
                 tween(this.content)
                     .to(0.2, { position: pos })
-                    .call(() => this.isAnimating = false)
+                    .call(() => (this.isAnimating = false))
                     .start();
             })
             .start();
     }
-
-
 
     private resetScrollPosition() {
         if (this.scrollView) {
@@ -260,7 +244,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
 
         if (!this.multiplierTotal || !this.textMultiplier) {
-            return
+            return;
         }
 
         const defaultColor = Color.WHITE;
@@ -274,18 +258,12 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         this.resetMultiplierNode();
     }
 
-
     updateHistoryDetail() {
-        const newItem = this.betHistory ? this.betHistory.find(item => item.id === this.currentId) : null;
+        const newItem = this.betHistory ? this.betHistory.find((item) => item.id === this.currentId) : null;
         this.betHistoryDetial = {
-            betHistoryLog: newItem
-        }
+            betHistoryLog: newItem,
+        };
         this.clearContent();
         this.setData(this.betHistoryDetial);
     }
-
 }
-
-
-
-
