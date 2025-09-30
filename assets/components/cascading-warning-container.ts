@@ -3,6 +3,7 @@ import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingWarningMsg } from "./cascading-warning-msg";
 
@@ -30,6 +31,11 @@ export class CascadingWarningContainer extends ObserverComponent {
             const msg = gc.Translator.gameTranslate("reach_max_win");
             this.addNode(msg);
         }
+    }
+
+    @render(BetControlStore, (store) => store.totalBet, { fireImmediately: false })
+    private updateTotalBet(totalBet: number) {
+        this.addNode(totalBet.toString());
     }
 
     addNode(msg: string) {
