@@ -29,4 +29,6 @@ export class CascadingSlotConfigsStore {
     set trialUser(user: GameServiceMessageCascading.CascadingTrialUserMsg) {
         this._trialUser = user;
     }
+
+    gameInfo: GameServiceMessageCascading.GameInfoMsg = null;
 }

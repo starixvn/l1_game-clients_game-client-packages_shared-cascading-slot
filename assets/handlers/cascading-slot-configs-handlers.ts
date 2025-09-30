@@ -18,6 +18,10 @@ export class CascadingSlotConfigsHandlers implements gc.Shared.IMultipleHandlers
         this.configStore.trialUser = trialUser;
     }
 
+    handleGameInfo(gameInfo: GameServiceMessageCascading.GameInfoMsg) {
+        this.configStore.gameInfo = gameInfo;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingSlotConfigsMsg.eventName,
@@ -26,6 +30,10 @@ export class CascadingSlotConfigsHandlers implements gc.Shared.IMultipleHandlers
         {
             name: GameServiceMessageCascading.CascadingTrialUserMsg.eventName,
             handle: this.handleTrialUser,
+        },
+        {
+            name: GameServiceMessageCascading.GameInfoMsg.eventName,
+            handle: this.handleGameInfo,
         },
     ];
 }

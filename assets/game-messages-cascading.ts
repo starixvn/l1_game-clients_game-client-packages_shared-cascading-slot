@@ -72,6 +72,11 @@ export namespace GameServiceMessageCascading {
         multiplier: number;
         static eventName = "trialUser";
     }
+
+    export class GameInfoMsg {
+        volatility: number;
+        static eventName = "gameInfo";
+    }
 }
 
 export interface Settlement {
