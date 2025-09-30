@@ -34,7 +34,7 @@ describe("CascadingSlotConfigsHandlers", () => {
         it("should have eventHandleList with correct structure", () => {
             expect(handler.eventHandleList).toBeDefined();
             expect(Array.isArray(handler.eventHandleList)).toBe(true);
-            expect(handler.eventHandleList).toHaveLength(2);
+            expect(handler.eventHandleList).toHaveLength(3);
         });
 
         it("should have correct event names in eventHandleList", () => {
