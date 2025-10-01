@@ -55,9 +55,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (this.PortraitTouchSwipeHandler && this.PortraitTouchSwipeHandler.swipeCallback) {
             this.PortraitTouchSwipeHandler.swipeCallback = (isLeft: boolean) => {
                 if (isLeft) {
-                    this.onClickNextHistoryDetail();
-                } else {
                     this.onClickPreviousHistoryDetail();
+                } else {
+                    this.onClickNextHistoryDetail();
                 }
             }
         }
@@ -114,7 +114,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
             this.currentId = betHistoryLog.id;
             if (this.multiplierNode.active) {
-                this.multiplierDetail.string = `(${betHistoryLog.totalTumbleWin}x${betHistoryLog.totalMultiplier})`;
+                this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier})`;
             }
             this.multiplierDetail.node.active = this.multiplierNode.active;
         }
@@ -152,7 +152,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (index > 0 && this.betHistory[index - 1]) {
-            this.slideAnimation('left', () => {
+            this.slideAnimation('right', () => {
                 this.currentId = this.betHistory[index - 1].id;
                 this.updateHistoryDetail();
             });
@@ -160,7 +160,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (this.pagination) {
                 const currentPage = this.pagination.currentPage;
                 if (currentPage > 1) {
-                    this.slideAnimation('left', () => {
+                    this.slideAnimation('right', () => {
                         this.isNavigatingToNextPage = false; // Going to previous page, select last item
                         this.pagination.hanldePreviousPage();
                     });
@@ -172,7 +172,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (this.betHistory && index >= 0 && index < this.betHistory.length - 1) {
-            this.slideAnimation('right', () => {
+            this.slideAnimation('left', () => {
                 this.currentId = this.betHistory[index + 1].id;
                 this.updateHistoryDetail();
             });
@@ -181,7 +181,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 const currentPage = this.pagination.currentPage;
                 const totalPages = this.pagination.totalPages;
                 if (currentPage < totalPages) {
-                    this.slideAnimation('right', () => {
+                    this.slideAnimation('left', () => {
                         this.isNavigatingToNextPage = true; // Going to next page, select first item
                         this.pagination.hanldeNextPage();
                     });
