@@ -7,7 +7,7 @@ const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
 @ccclass
-export class PortraitMainMessagesGame extends ObserverComponent {
+export class PortraitBottomControlGame extends ObserverComponent {
     @property(Node)
     nodeMsgBeforeSpin: Node = null;
 
@@ -36,11 +36,9 @@ export class PortraitMainMessagesGame extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.showFreeSpinsSectionsPortrait)
     setShowFreeSpinsSectionsPortrait(showFreeSpinsSectionsPortrait: boolean) {
         if (showFreeSpinsSectionsPortrait) {
-            AnimationUtils.fadeOut(this.nodeBetControls, 0.3);
             AnimationUtils.fadeIn(this.nodeFreeSpinsSections, 0.3);
         } else {
             AnimationUtils.fadeOut(this.nodeFreeSpinsSections, 0.3);
-            AnimationUtils.fadeIn(this.nodeBetControls, 0.3);
         }
     }
 
