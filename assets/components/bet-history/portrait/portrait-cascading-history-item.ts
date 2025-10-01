@@ -18,7 +18,6 @@ export class PortraitCascadingHistoryItem extends CascadingHistoryItem {
         const { betHistoryLog } = data;
         const freeSpin = betHistoryLog.freeSpin;
         if (freeSpin) {
-            this.haveFreeSpin.node.active = true;
             this.haveFreeSpin.string = `(${gc.Translator.gameTranslate("free_spin")})`;
         }
     }
