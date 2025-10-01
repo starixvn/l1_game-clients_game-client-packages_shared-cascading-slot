@@ -3922,7 +3922,7 @@
       "__id__": 117
     },
     "component": "",
-    "_componentId": "62be83klK9CnoiksnvCoH2p",
+    "_componentId": "031d4pHApxI9LohAeIRnOp4",
     "handler": "onClickOpenBetControl",
     "customEventData": ""
   },
@@ -4831,9 +4831,10 @@
     "fileId": "f9/00aKPpCyp/McuObU22d"
   },
   {
-    "__type__": "62be83klK9CnoiksnvCoH2p",
+    "__type__": "031d4pHApxI9LohAeIRnOp4",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 117
     },
@@ -4858,7 +4859,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "2eGvq8qrFIlojkQxGCRrE5"
+    "fileId": "deYcp7DeJJWIYx/AeKqRxF"
   },
   {
     "__type__": "cc.PrefabInfo",

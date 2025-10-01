@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "portrait-cascading-warning-container",
+    "_name": "portrait-totalbet-warning-container",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "portrait-cascading-warning-container",
+    "_name": "portrait-totalbet-warning-container",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -121,8 +121,8 @@
     "__prefab": {
       "__id__": 7
     },
-    "prefabWarning": {
-      "__uuid__": "ba38becf-609b-4f10-b2e9-55c6f652ec18",
+    "prefabTotalBetWarning": {
+      "__uuid__": "8e0edf23-2c41-4066-8540-915efa8950bf",
       "__expectedType__": "cc.Prefab"
     },
     "_id": ""

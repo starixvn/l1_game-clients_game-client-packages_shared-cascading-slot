@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "5e793024-6702-42af-8deb-b8683ed4ffde",
+  "uuid": "5f1b35ec-ecf4-4183-b7fc-badfea40e7f1",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "portrait-cascading-warning-container"
+    "syncNodeName": "portrait-totalbet-warning-container"
   }
 }
