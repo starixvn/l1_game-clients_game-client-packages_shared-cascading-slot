@@ -55,9 +55,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         if (this.PortraitTouchSwipeHandler && this.PortraitTouchSwipeHandler.swipeCallback) {
             this.PortraitTouchSwipeHandler.swipeCallback = (isLeft: boolean) => {
                 if (isLeft) {
-                    this.onClickPreviousHistoryDetail();
-                } else {
                     this.onClickNextHistoryDetail();
+                } else {
+                    this.onClickPreviousHistoryDetail();
                 }
             }
         }
