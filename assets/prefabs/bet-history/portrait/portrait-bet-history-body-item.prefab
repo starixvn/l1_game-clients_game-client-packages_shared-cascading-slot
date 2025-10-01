@@ -2183,7 +2183,7 @@
     "fileId": "a0qOeo7mdN1KH72kkrmOSB"
   },
   {
-    "__type__": "2765fc9DChKEKbTk7qQ3axU",
+    "__type__": "fd8e66x6lNMS4BZhyCr5CeV",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -2229,14 +2229,11 @@
       "b": 255,
       "a": 255
     },
-    "haveFreeSpin": {
-      "__id__": 39
-    },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "07tF8zk/xETZ89ZLSqhrBf"
+    "fileId": "91KUUSGLtP145s2vFf1zbp"
   },
   {
     "__type__": "cc.PrefabInfo",
