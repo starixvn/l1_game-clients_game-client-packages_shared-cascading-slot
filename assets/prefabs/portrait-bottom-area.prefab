@@ -3102,7 +3102,7 @@
       "__id__": 117
     },
     "component": "",
-    "_componentId": "031d4pHApxI9LohAeIRnOp4",
+    "_componentId": "62be83klK9CnoiksnvCoH2p",
     "handler": "onClickDecreaseTotalBet",
     "customEventData": ""
   },
@@ -3737,7 +3737,7 @@
       "__id__": 117
     },
     "component": "",
-    "_componentId": "031d4pHApxI9LohAeIRnOp4",
+    "_componentId": "62be83klK9CnoiksnvCoH2p",
     "handler": "onClickIncreaseTotalBet",
     "customEventData": ""
   },
@@ -3922,7 +3922,7 @@
       "__id__": 117
     },
     "component": "",
-    "_componentId": "031d4pHApxI9LohAeIRnOp4",
+    "_componentId": "62be83klK9CnoiksnvCoH2p",
     "handler": "onClickOpenBetControl",
     "customEventData": ""
   },
@@ -4831,10 +4831,9 @@
     "fileId": "f9/00aKPpCyp/McuObU22d"
   },
   {
-    "__type__": "031d4pHApxI9LohAeIRnOp4",
+    "__type__": "62be83klK9CnoiksnvCoH2p",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {},
     "node": {
       "__id__": 117
     },
