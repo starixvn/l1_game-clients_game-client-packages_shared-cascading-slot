@@ -1,4 +1,4 @@
-import { _decorator, Label } from "cc";
+import { _decorator, Label, Node } from "cc";
 import Observer from "observer";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -8,12 +8,15 @@ const { observer, render, handle } = Observer;
 
 @ccclass
 export class PortraitCascadingSpinButton extends CascadingSpinButton {
+    @property(Node)
+    nodeAutospinNumber: Node = null;
+
     @property(Label)
     lblAutoSpinRound: Label = null;
 
     @render(CascadingUIStore, (store) => store.isShowAutoSpinRoundPortrait)
     setNodeVisibilityAutoSpinRound(isActive: boolean) {
-        this.lblAutoSpinRound.node.active = isActive;
+        this.nodeAutospinNumber.active = isActive;
     }
 
     @render(AutoPlayStore, (store) => store.roundsAutoplay)
