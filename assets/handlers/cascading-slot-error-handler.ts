@@ -43,7 +43,7 @@ export class CascadingSlotErrorHandler extends gc.Error.ErrorHandlers {
 
     slotHandleNotice(notice: { errorCode: string }) {
         if (notice && notice.errorCode === "SB1929") {
-            this.cascadingUIHandler.handlePlaceBetFailed();
+            this.cascadingUIHandler.handlePlaceBetFailed(true);
             this.betControlHandlers.init();
         }
     }

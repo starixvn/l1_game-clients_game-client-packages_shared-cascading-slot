@@ -12,7 +12,7 @@ const mockApiError = {
 jest.mock("@sg/game-client-base", () => ({
     Bet: {
         BetStore: jest.fn(() => mockBetStore),
-        BetHandler: jest.fn().mockImplementation(function () {}),
+        BetHandler: jest.fn().mockImplementation(function () { }),
     },
     GameServiceMessage: {
         ApiError: {
@@ -339,7 +339,7 @@ describe("CascadingSlotErrorHandler", () => {
 
             handler.slotHandleNotice(notice);
 
-            expect(mockCascadingUIHandler.handlePlaceBetFailed).toHaveBeenCalled();
+            expect(mockCascadingUIHandler.handlePlaceBetFailed).toHaveBeenCalledWith(true);
             expect(mockBetControlHandlers.init).toHaveBeenCalled();
         });
 
