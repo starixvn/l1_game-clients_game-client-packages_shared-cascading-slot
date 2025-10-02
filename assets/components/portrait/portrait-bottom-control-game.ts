@@ -40,8 +40,10 @@ export class PortraitBottomControlGame extends ObserverComponent {
     setShowFreeSpinsSectionsPortrait(showFreeSpinsSectionsPortrait: boolean) {
         if (showFreeSpinsSectionsPortrait) {
             AnimationUtils.fadeIn(this.nodeFreeSpinsSections, 0.3);
+            this.nodeBetControls.active = false;
         } else {
             AnimationUtils.fadeOut(this.nodeFreeSpinsSections, 0.3);
+            this.nodeBetControls.active = true;
         }
     }
 
