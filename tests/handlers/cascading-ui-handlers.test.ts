@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BuyFreespinsStore } from "db://shared-cascading-slot/buy-freespins/handler/buy-freespins-store";
+import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import inversify from "inversify";
 import { stub } from "jest-auto-stub";
 import mobx from "mobx";
@@ -14,35 +15,12 @@ jest.mock("inversify");
 jest.mock("mobx");
 
 // Mock stores
-const mockUIStore = {
-    isActualWin: false,
-    totalWin: 0,
-    freeSpinsTotal: 0,
-    freeSpinsByRound: 0,
-    multiplier: 0,
-    totalMultiplier: 0,
-    bottomMessageState: SlotNotification.BEFORE_SPIN,
-    cascadingState: CascadingSlotState.READY_BET,
-    isTrialMode: false,
-    isTurboModeUI: false,
-    isSymbolPreviewVisible: false,
-    triggerCancelAutoPlay: null,
-    totalTumbleWin: 0,
-    isFreeSpinEffectCompleted: false,
-    isBigWinCompleted: false,
-    isHighlightScattersCompleted: false,
-    showReachMaxWin: false,
-    isFreeSpins: false,
-    haveBigWin: false,
-    bigWinAmount: 0,
-    haveFreeSpin: false,
-    roundId: 0,
-    freespinCountMsgBottom: 0,
-    isConnectedTrialService: false,
-    changeUserBalance: false,
-    triggerWinMultiplier: null,
-    isPlacingBet: false,
-};
+const mockUIStore = stub<CascadingUIStore>();
+Object.defineProperty(mockUIStore, 'isFreeSpins', {
+    get() {
+        return this.freeSpinsTotal > 0;
+    }
+});
 
 const mockTumblesStore = {
     tumbles: [],
@@ -84,36 +62,6 @@ describe("CascadingUIHandler", () => {
     beforeEach(() => {
         // Reset all mocks
         jest.clearAllMocks();
-
-        // Reset mock stores
-        Object.assign(mockUIStore, {
-            isActualWin: false,
-            totalWin: 0,
-            freeSpinsTotal: 0,
-            freeSpinsByRound: 0,
-            multiplier: 0,
-            totalMultiplier: 0,
-            bottomMessageState: SlotNotification.BEFORE_SPIN,
-            cascadingState: CascadingSlotState.READY_BET,
-            isTrialMode: false,
-            isTurboModeUI: false,
-            isSymbolPreviewVisible: false,
-            triggerCancelAutoPlay: null,
-            totalTumbleWin: 0,
-            isFreeSpinEffectCompleted: false,
-            isBigWinCompleted: false,
-            isHighlightScattersCompleted: false,
-            showReachMaxWin: false,
-            isFreeSpins: false,
-            haveBigWin: false,
-            bigWinAmount: 0,
-            haveFreeSpin: false,
-            roundId: 0,
-            freespinCountMsgBottom: 0,
-            isConnectedTrialService: false,
-            changeUserBalance: false,
-            triggerWinMultiplier: null,
-        });
 
         mockTumblesStore.tumbles = [];
         mockSettlementStore.finishData = null;
@@ -167,6 +115,7 @@ describe("CascadingUIHandler", () => {
 
     describe("handleTotalWin", () => {
         it("should accumulate win when isActualWin is false", () => {
+            mockUIStore.totalWin = 0
             uiHandler.handleTotalWin({ win: 100, isActualWin: false });
 
             expect(mockUIStore.isActualWin).toBe(false);
@@ -186,6 +135,7 @@ describe("CascadingUIHandler", () => {
         });
 
         it("should default isActualWin to false", () => {
+            mockUIStore.totalWin = 0;
             uiHandler.handleTotalWin({ win: 100 });
 
             expect(mockUIStore.isActualWin).toBe(false);
@@ -209,6 +159,7 @@ describe("CascadingUIHandler", () => {
 
     describe("handleMultiplier", () => {
         it("should accumulate multiplier", () => {
+            mockUIStore.multiplier = 0;
             uiHandler.handleMultiplier(2);
             expect(mockUIStore.multiplier).toBe(2);
 
@@ -219,42 +170,61 @@ describe("CascadingUIHandler", () => {
 
     describe("handleOnGameHide", () => {
         it("should reset bottom message state and trigger cancel auto play", () => {
+            jest.spyOn(uiHandler, "resetBottomMessageState");
             uiHandler.handleOnGameHide();
 
-            expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
+            expect(uiHandler.resetBottomMessageState).toHaveBeenCalled();
             expect(mockUIStore.triggerCancelAutoPlay).toEqual({});
         });
     });
 
     describe("handlePlaceBetFailed", () => {
-        it("should reset state and NOT clear free spins", () => {
-            mockUIStore.freeSpinsTotal = 10;
-            mockUIStore.freeSpinsByRound = 5;
-            mockUIStore.isPlacingBet = true;
+        describe("call handlePlaceBetFailed default FALSE", () => {
+            it("should reset state and NOT clear free spins ,NOT reset bottom message state", () => {
+                mockUIStore.freeSpinsTotal = 10;
+                mockUIStore.freeSpinsByRound = 5;
+                mockUIStore.isPlacingBet = true;
+                jest.spyOn(uiHandler, "resetBottomMessageState");
 
-            uiHandler.handlePlaceBetFailed();
+                uiHandler.handlePlaceBetFailed();
 
-            expect(mockUIStore.cascadingState).toBe(CascadingSlotState.READY_BET);
-            expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
-            expect(mockUIStore.triggerCancelAutoPlay).toEqual({});
-            expect(mockUIStore.isPlacingBet).toBe(false);
-            expect(mockUIStore.freeSpinsTotal).toBe(10);
-            expect(mockUIStore.freeSpinsByRound).toBe(5);
+                expect(mockUIStore.cascadingState).toBe(CascadingSlotState.READY_BET);
+                expect(uiHandler.resetBottomMessageState).not.toHaveBeenCalled();
+                expect(mockUIStore.triggerCancelAutoPlay).toEqual({});
+                expect(mockUIStore.isPlacingBet).toBe(false);
+                expect(mockUIStore.freeSpinsTotal).toBe(10);
+                expect(mockUIStore.freeSpinsByRound).toBe(5);
+            });
+
+            it("should call updateFreespinCountMsgBottom", () => {
+                mockUIStore.freeSpinsTotal = 10;
+                mockUIStore.freeSpinsByRound = 5;
+                mockUIStore.isPlacingBet = true;
+                jest.spyOn(uiHandler, "updateFreespinCountMsgBottom");
+
+                uiHandler.handlePlaceBetFailed();
+
+                expect(uiHandler.updateFreespinCountMsgBottom).toHaveBeenCalledWith(mockUIStore.freeSpinsTotal);
+            });
         });
 
-        it("should reset state and clear free spins", () => {
+        it("should reset state and clear free spins, call reset bottom message state", () => {
             mockUIStore.freeSpinsTotal = 10;
             mockUIStore.freeSpinsByRound = 5;
             mockUIStore.isPlacingBet = true;
+            jest.spyOn(uiHandler, "resetBottomMessageState");
+            jest.spyOn(uiHandler, "updateFreespinCountMsgBottom");
 
             uiHandler.handlePlaceBetFailed(true);
 
             expect(mockUIStore.cascadingState).toBe(CascadingSlotState.READY_BET);
-            expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
+            expect(uiHandler.resetBottomMessageState).toHaveBeenCalled();
             expect(mockUIStore.triggerCancelAutoPlay).toEqual({});
             expect(mockUIStore.isPlacingBet).toBe(false);
             expect(mockUIStore.freeSpinsTotal).toBe(0);
             expect(mockUIStore.freeSpinsByRound).toBe(0);
+
+            expect(uiHandler.updateFreespinCountMsgBottom).not.toBeCalled();
         });
     });
 
@@ -290,7 +260,6 @@ describe("CascadingUIHandler", () => {
             mockUIStore.totalMultiplier = 10;
             mockUIStore.totalWin = 200;
             mockUIStore.isSymbolPreviewVisible = true;
-            mockUIStore.isFreeSpins = false;
 
             uiHandler.handleNewRound();
 
@@ -308,8 +277,9 @@ describe("CascadingUIHandler", () => {
         });
 
         it("should preserve totalMultiplier during free spins", () => {
-            mockUIStore.isFreeSpins = true;
+            mockUIStore.totalMultiplier = 5;
             mockUIStore.totalMultiplier = 10;
+            mockUIStore.freeSpinsTotal = 5;
 
             uiHandler.handleNewRound();
 
