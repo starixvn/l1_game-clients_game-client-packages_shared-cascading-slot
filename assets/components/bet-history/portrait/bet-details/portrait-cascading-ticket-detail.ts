@@ -104,7 +104,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
         super.setData(data);
         const { betHistoryLog } = data;
-        console.log(betHistoryLog)
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
         }
@@ -157,7 +156,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (index > 0 && this.betHistory[index - 1]) {
-            this.slideAnimation('right', () => {
+            this.slideAnimation(false, () => {
                 this.currentId = this.betHistory[index - 1].id;
                 this.updateHistoryDetail();
             });
@@ -165,7 +164,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (this.pagination) {
                 const currentPage = this.pagination.currentPage;
                 if (currentPage > 1) {
-                    this.slideAnimation('right', () => {
+                    this.slideAnimation(false, () => {
                         this.isNavigatingToNextPage = false; // Going to previous page, select last item
                         this.pagination.hanldePreviousPage();
                     });
@@ -177,7 +176,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
         if (this.betHistory && index >= 0 && index < this.betHistory.length - 1) {
-            this.slideAnimation('left', () => {
+            this.slideAnimation(true, () => {
                 this.currentId = this.betHistory[index + 1].id;
                 this.updateHistoryDetail();
             });
@@ -186,7 +185,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 const currentPage = this.pagination.currentPage;
                 const totalPages = this.pagination.totalPages;
                 if (currentPage < totalPages) {
-                    this.slideAnimation('left', () => {
+                    this.slideAnimation(true, () => {
                         this.isNavigatingToNextPage = true; // Going to next page, select first item
                         this.pagination.hanldeNextPage();
                     });
@@ -194,14 +193,14 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             }
         }
     }
-    slideAnimation(direction: string, onComplete?: () => void) {
+    slideAnimation(isRight: boolean, onComplete?: () => void) {
         if (!this.content || this.isAnimating) {
             return;
         }
 
         this.isAnimating = true;
         const pos = this.content.position;
-        const moveX = direction === 'right' ? -800 : 800;
+        const moveX = isRight ? -800 : 800;
 
         tween(this.content)
             .to(0.2, { position: new Vec3(pos.x + moveX, pos.y, pos.z) })

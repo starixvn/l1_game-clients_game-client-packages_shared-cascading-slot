@@ -38,7 +38,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
     }
 
 
-    slideAnimation(direction: string, onComplete?: () => void) {
+    slideAnimation(isRight: boolean, onComplete?: () => void) {
         if (this.body) {
             if (this.isAnimating) {
                 return;
@@ -46,7 +46,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
             this.isAnimating = true;
             const opacity = this.body.getComponent(UIOpacity) || this.body.addComponent(UIOpacity);
             const pos = this.body.position;
-            const moveX = direction === 'right' ? -800 : 800;
+            const moveX = isRight ? -800 : 800;
 
             // Fade out current slide
             tween(this.body)
@@ -76,7 +76,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
         const currentPage = this.pagination.currentPage;
         const totalPages = this.pagination.totalPages;
         if (currentPage < totalPages) {
-            this.slideAnimation('right', () => {
+            this.slideAnimation(true, () => {
                 this.pagination.hanldeNextPage();
             });
         }
@@ -85,7 +85,7 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
     handlePreviousPage() {
         const currentPage = this.pagination.currentPage;
         if (currentPage > 1) {
-            this.slideAnimation('left', () => {
+            this.slideAnimation(false, () => {
                 this.pagination.hanldePreviousPage();
             });
         }
