@@ -1,5 +1,7 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import Observer from "observer";
+import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { AutoPlayStore } from "../../stores/auto-play-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingSpinButton } from "../spin-button/cascading-spin-button";
@@ -22,5 +24,15 @@ export class PortraitCascadingSpinButton extends CascadingSpinButton {
     @render(AutoPlayStore, (store) => store.roundsAutoplay)
     setRoundsAutoplayMsg(roundsAutoplay: number) {
         this.lblAutoSpinRound.string = roundsAutoplay.toString();
+    }
+
+    @handle(AutoPlayHandler, (handle) => handle.clickAutoPlay())
+    onClickAutoPlay() {
+        this.playSoundClick();
+    }
+
+    @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
+    playSoundClick() {
+        return gc.Audios.AudioIds.CLICK;
     }
 }
