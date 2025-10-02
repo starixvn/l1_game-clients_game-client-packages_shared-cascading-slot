@@ -243,13 +243,31 @@ describe("AutoPlayHandler", () => {
     });
 
     describe("placeBet method", () => {
+        it("should not call placeBetSilent when isPlacingBet is true", () => {
+            //@ts-ignore
+            mockCascadingUIStore.isPlacingBet = true;
+            jest.spyOn(handler, "placeBetSilent");
+
+            handler.placeBet();
+
+            expect(handler.placeBetSilent).not.toHaveBeenCalled();
+        });
         it("should set triggerBet and call placeBetSilent", () => {
             jest.spyOn(handler, "placeBetSilent");
 
             handler.placeBet();
 
             expect(mockAutoPlayStore.triggerBet).toStrictEqual({});
+            expect(mockCascadingUIStore.isPlacingBet).toBe(true);
             expect(handler.placeBetSilent).toHaveBeenCalled();
+        });
+
+        it("should set isPlacingBet false when bet fails", () => {
+            mockSlotBetHandler.handle.mockReturnValue(false);
+
+            handler.placeBet();
+            //@ts-ignore
+            expect(mockCascadingUIStore.isPlacingBet).toBe(false);
         });
     });
 
@@ -277,7 +295,8 @@ describe("AutoPlayHandler", () => {
             mockSlotBetHandler.handle.mockReturnValue(false);
             mockCascadingUIStore.freeSpinsTotal = 5;
 
-            handler.placeBetSilent();
+            const success = handler.placeBetSilent();
+            expect(success).toBe(false);
 
             expect(mockCascadingUIHandler.updateFreespinCountMsgBottom).not.toHaveBeenCalled();
         });

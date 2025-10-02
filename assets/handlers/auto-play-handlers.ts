@@ -128,11 +128,11 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     placeBet() {
-        if (this.autoPlayStore.triggerBet) {
+        if (this.cascadingUIStore.isPlacingBet) {
             return;
         }
         this.autoPlayStore.triggerBet = {};
-        this.placeBetSilent();
+        this.cascadingUIStore.isPlacingBet = this.placeBetSilent();
     }
 
     placeBetSilent() {
@@ -143,6 +143,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.cascadingUIHandler.updateFreespinCountMsgBottom(this.cascadingUIStore.freeSpinsTotal - 1);
             }
         }
+        return success;
     }
 
     openAutoPlayPopup() {
@@ -229,6 +230,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     async checkSpinNextRound() {
         this.cascadingUIStore.checkToSpinNext = true;
         this.autoPlayStore.triggerBet = null;
+        this.cascadingUIStore.isPlacingBet = false;
+
         this.fsbPromotionUIStore.setActiveFreeSpin(FreeSpinSource.PROMOTION, this.cascadingUIStore.isUsedFSBPromotionBonus);
         this.buyFsHandler.showBuyFsCongratulation();
         this.fsbPromotionUIHandler.tryShowEndedPopup();

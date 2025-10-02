@@ -67,6 +67,7 @@ export class CascadingUIStore {
 
     roundId = 0;
     triggerCancelAutoPlay = null;
+    isPlacingBet = false;
 
     triggerWinMultiplier = null;
 

@@ -41,6 +41,7 @@ const mockUIStore = {
     isConnectedTrialService: false,
     changeUserBalance: false,
     triggerWinMultiplier: null,
+    isPlacingBet: false,
 };
 
 const mockTumblesStore = {
@@ -229,12 +230,14 @@ describe("CascadingUIHandler", () => {
         it("should reset state and clear free spins", () => {
             mockUIStore.freeSpinsTotal = 10;
             mockUIStore.freeSpinsByRound = 5;
+            mockUIStore.isPlacingBet = true;
 
             uiHandler.handlePlaceBetFailed();
 
             expect(mockUIStore.cascadingState).toBe(CascadingSlotState.READY_BET);
             expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
             expect(mockUIStore.triggerCancelAutoPlay).toEqual({});
+            expect(mockUIStore.isPlacingBet).toBe(false);
             expect(mockUIStore.freeSpinsTotal).toBe(0);
             expect(mockUIStore.freeSpinsByRound).toBe(0);
         });

@@ -100,6 +100,7 @@ describe("CascadingUIStore", () => {
             expect(store.roundId).toBe(0);
             expect(store.triggerCancelAutoPlay).toBeNull();
             expect(store.triggerWinMultiplier).toBeNull();
+            expect(store.isPlacingBet).toBe(false);
         });
     });
 
