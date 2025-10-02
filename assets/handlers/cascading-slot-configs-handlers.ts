@@ -18,7 +18,8 @@ export class CascadingSlotConfigsHandlers implements gc.Shared.IMultipleHandlers
         this.configStore.trialUser = trialUser;
     }
 
-    handleGameInfo(gameInfo: GameServiceMessageCascading.GameInfoMsg) {
+    handleGameInfo(data: { gameInfo: GameServiceMessageCascading.GameInfoMsg }) {
+        const { gameInfo } = data;
         this.configStore.gameInfo = gameInfo;
     }
 
