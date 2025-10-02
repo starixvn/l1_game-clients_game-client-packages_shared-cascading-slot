@@ -23,6 +23,9 @@ export class PortraitBottomControlGame extends ObserverComponent {
     @property(Label)
     labelFreeSpinsCount: Label = null;
 
+    @property(Node)
+    nodeLastFreeSpin: Node = null;
+
     @render(CascadingUIStore, (store) => store.isShowMesgBeforeSpinPortrait)
     setHideTopMessage(isShowMesgBeforeSpinPortrait: boolean) {
         this.nodeMsgBeforeSpin.active = isShowMesgBeforeSpinPortrait;
@@ -44,6 +47,14 @@ export class PortraitBottomControlGame extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.freespinCountMsgBottom)
     setFreeSpinsCount(freespinCountMsgBottom: number) {
+        const nodeRemainingFreeSpins = this.nodeFreeSpinsSections.getChildByName("remaining-freespins");
+        if (freespinCountMsgBottom === 0) {
+            this.nodeLastFreeSpin.active = true;
+            nodeRemainingFreeSpins.active = false;
+        } else {
+            this.nodeLastFreeSpin.active = false;
+            nodeRemainingFreeSpins.active = true;
+        }
         this.labelFreeSpinsCount.string = freespinCountMsgBottom.toString();
     }
 }
