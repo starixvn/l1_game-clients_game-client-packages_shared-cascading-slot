@@ -85,11 +85,14 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handlePlaceBetFailed(clearFreeSpins = false) {
         this.changeCascadingState(CascadingSlotState.READY_BET);
-        this.resetBottomMessageState();
         this.uiStore.triggerCancelAutoPlay = {};
         this.uiStore.isPlacingBet = false;
         if (clearFreeSpins) {
+            this.resetBottomMessageState();
             this.clearFreeSpins();
+        }
+        if (this.uiStore.isFreeSpins) {
+            this.updateFreespinCountMsgBottom(this.uiStore.freeSpinsTotal);
         }
     }
 
