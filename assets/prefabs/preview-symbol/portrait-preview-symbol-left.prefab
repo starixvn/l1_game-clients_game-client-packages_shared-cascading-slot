@@ -99,7 +99,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 65,
+      "x": 58.918,
       "y": 0,
       "z": 0
     },
@@ -297,8 +297,6 @@
       "__id__": 0
     },
     "fileId": "88gn1l3KNE2I5f4zROAhUv",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -389,7 +387,7 @@
     "_alignFlags": 32,
     "_target": null,
     "_left": 0,
-    "_right": 0,
+    "_right": 6.082000000000001,
     "_top": 0,
     "_bottom": 0,
     "_horizontalCenter": 0,
