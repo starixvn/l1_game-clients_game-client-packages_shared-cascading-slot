@@ -941,8 +941,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 431.0798034667969,
-      "height": 50.4
+      "width": 315.1598815917969,
+      "height": 60.480000000000004
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -977,13 +977,13 @@
       "b": 2,
       "a": 255
     },
-    "_string": "BET MULTIPLIER 20X",
+    "_string": "TỔNG SỐ NHÂN",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 40,
     "_fontSize": 40,
     "_fontFamily": "Arial",
-    "_lineHeight": 40,
+    "_lineHeight": 48,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -5307,6 +5307,7 @@
       "__id__": 0
     },
     "fileId": "b1D2KZyyFCF4EYb9yyakQd",
-    "instance": null
+    "instance": null,
+    "targetOverrides": null
   }
 ]
