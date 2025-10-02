@@ -4858,7 +4858,7 @@
     "propertyPath": [
       "_active"
     ],
-    "value": false
+    "value": true
   },
   {
     "__type__": "CCPropertyOverrideInfo",
@@ -5074,6 +5074,8 @@
       "__id__": 0
     },
     "fileId": "3dx5bhdO9BwZbniyP+CXWP",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
