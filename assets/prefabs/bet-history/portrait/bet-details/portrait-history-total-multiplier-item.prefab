@@ -139,9 +139,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 20,
-      "g": 20,
-      "b": 20,
+      "r": 39,
+      "g": 39,
+      "b": 39,
       "a": 255
     },
     "_spriteFrame": {
@@ -226,8 +226,6 @@
       "__id__": 0
     },
     "fileId": "da2Xt0SDFFN6U2192p4ZCn",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
