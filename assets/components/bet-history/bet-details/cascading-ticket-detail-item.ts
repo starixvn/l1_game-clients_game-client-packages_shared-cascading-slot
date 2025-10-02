@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Component, instantiate, Label, Node, Prefab, sys, UITransform } from "cc";
-import { convertData } from "db://shared-cascading-slot/cascading-slot-utils";
+import { convertBoardValue, convertData } from "db://shared-cascading-slot/cascading-slot-utils";
 import { CascadingSlotBoard } from "db://shared-cascading-slot/components/slot-board/components/cascading-slot-board";
 import { CascadingTumbleItem } from "db://shared-cascading-slot/components/tumbles/cascading-tumble-item";
 import Observer from "observer";
@@ -104,6 +104,11 @@ export class CascadingTicketDetailItem extends Component {
     setDataResultBoard(symbols: string, multiplier: number[]) {
         const board = convertData(symbols);
         this.resultBoard.setData(board, multiplier);
+    }
+
+    highlightExplodedSymbols(symbols: number[]) {
+        const values = convertBoardValue(symbols);
+        this.resultBoard.highlightExplodedSymbols(values);
     }
 
     calculateHeightRow(numberOfIcon: number) {

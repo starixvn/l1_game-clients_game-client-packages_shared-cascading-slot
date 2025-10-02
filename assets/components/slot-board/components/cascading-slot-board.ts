@@ -344,6 +344,21 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.handleHighlightScattersCompleted(true);
     }
 
+    highlightExplodedSymbols(explodedSymbols: number[][]) {
+        if (!this.effectContainer) {
+            return;
+        }
+        this.effectContainer.active = true;
+        explodedSymbols.forEach((symbols, reelIndex) => {
+            symbols.forEach((symbol, index) => {
+                if (symbol !== -1) {
+                    const item = this.reels[reelIndex].getItem(index);
+                    ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+                }
+            });
+        });
+    }
+
     public updateMultiplierItems(multipliers: number[]) {
         const multiplierItems = this.getMultiplierItems();
         multiplierItems.forEach((multiplierItem, index) => {
@@ -746,3 +761,4 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 }
+

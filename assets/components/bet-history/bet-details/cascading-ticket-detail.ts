@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Button, Color, instantiate, Label, Node, Prefab, sys } from "cc";
+import { GameServiceMessageCascading } from "db://shared-cascading-slot/game-messages-cascading";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -49,7 +50,7 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     data: any = null;
 
-    setData(data: any) {
+    setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData }) {
         const { betHistoryLog } = data;
         if (!betHistoryLog) {
             return;
@@ -84,6 +85,11 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
             const newTumbleMultipliers = [...tumble.multipliers];
             control.setDataResultBoard(tumble.originalBoard, newTumbleMultipliers);
+            this.scheduleOnce(() => {
+                try {
+                    tumble.explodedSymbols && control.highlightExplodedSymbols(tumble.explodedSymbols);
+                } catch (e) { }
+            }, 0.1);
         });
         this.handleMultiplierData(betHistoryLog);
         this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin, 2, false);

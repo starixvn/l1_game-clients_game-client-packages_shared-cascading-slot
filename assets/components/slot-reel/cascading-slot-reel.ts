@@ -42,6 +42,7 @@ export class CascadingSlotReel extends Component {
         for (let i = 0; i < this.itemDisplayCount; i++) {
             const item = this.addItem();
             item.node.position = v3(item.node.position.x, this.getItemPosY(i), 0);
+            console.log("createReel", item.node.position.y);
         }
     }
 
@@ -76,8 +77,12 @@ export class CascadingSlotReel extends Component {
     }
 
     getItemNode(index: number): Node {
-        const item = this.items[index];
+        const item = this.getItem(index);
         return item.node;
+    }
+
+    getItem(index: number): CascadingSlotReelItem {
+        return this.items[index];
     }
 
     addItems(data: number[]): CascadingSlotReelItem[] {
