@@ -40,7 +40,7 @@
         "__id__": 46
       },
       {
-        "__id__": 48
+        "__id__": 49
       }
     ],
     "_prefab": {
@@ -423,7 +423,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 1.0875,
+      "y": 0,
       "z": 0
     },
     "_lrot": {
@@ -948,7 +948,7 @@
     "fileId": "fbFheho2lDd6PSOLEIMD//"
   },
   {
-    "__type__": "2af12AuVMhJq6CsnEVpMj0q",
+    "__type__": "cc.Toggle",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -959,33 +959,9 @@
     "__prefab": {
       "__id__": 47
     },
-    "tglTurboMode": {
-      "__id__": 48
-    },
-    "nodeDisabled": {
-      "__id__": 32
-    },
-    "_id": ""
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "f9XxpVPTtLFag9Y4gi54hh"
-  },
-  {
-    "__type__": "05abcvTTwBMdoR7wHCGUsPj",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "__prefab": {
-      "__id__": 49
-    },
     "clickEvents": [],
     "_interactable": true,
-    "_transition": 3,
+    "_transition": 0,
     "_normalColor": {
       "__type__": "cc.Color",
       "r": 255,
@@ -1023,23 +999,18 @@
     "_target": null,
     "checkEvents": [
       {
-        "__id__": 50
+        "__id__": 48
       }
     ],
     "_isChecked": false,
-    "_checkMark": null,
-    "disabledDisplayNode": null,
-    "unCheckImage": {
-      "__id__": 10
-    },
-    "checkMarkNode": {
-      "__id__": 18
+    "_checkMark": {
+      "__id__": 29
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "a3XBgSwv5BYL+QFqlEpSU3"
+    "fileId": "20JfKFAD9LxI7Xce46tge2"
   },
   {
     "__type__": "cc.ClickEvent",
@@ -1050,6 +1021,33 @@
     "_componentId": "2af12AuVMhJq6CsnEVpMj0q",
     "handler": "onTurboModeChanged",
     "customEventData": ""
+  },
+  {
+    "__type__": "caa04IFMNZOBpqkGLnW/goH",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 50
+    },
+    "tglTurboMode": {
+      "__id__": 46
+    },
+    "nodeDisabled": {
+      "__id__": 32
+    },
+    "nodeDeactive": {
+      "__id__": 10
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "36c3dBaddI+IG5mgCJDwnR"
   },
   {
     "__type__": "cc.PrefabInfo",
