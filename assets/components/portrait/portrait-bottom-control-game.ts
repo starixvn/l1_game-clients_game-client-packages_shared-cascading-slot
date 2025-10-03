@@ -1,6 +1,5 @@
 import { _decorator, Label, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -39,9 +38,8 @@ export class PortraitBottomControlGame extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.showFreeSpinsSectionsPortrait)
     setShowFreeSpinsSectionsPortrait(showFreeSpinsSectionsPortrait: boolean) {
         if (showFreeSpinsSectionsPortrait) {
-            AnimationUtils.fadeIn(this.nodeFreeSpinsSections, 0.3);
+            this.nodeFreeSpinsSections.active = true;
         } else {
-            AnimationUtils.fadeOut(this.nodeFreeSpinsSections, 0.3);
             this.nodeFreeSpinsSections.active = false;
         }
     }
