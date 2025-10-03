@@ -85,11 +85,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
             const newTumbleMultipliers = [...tumble.multipliers];
             control.setDataResultBoard(tumble.originalBoard, newTumbleMultipliers);
-            this.scheduleOnce(() => {
-                try {
-                    tumble.explodedSymbols && control.highlightExplodedSymbols(tumble.explodedSymbols);
-                } catch (e) { }
-            }, 0.1);
+            tumble.explodedSymbols && control.highlightExplodedSymbols(tumble.explodedSymbols);
         });
         this.handleMultiplierData(betHistoryLog);
         this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin, 2, false);
@@ -137,6 +133,10 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     showBetDetail(data: any) {
         this.setData(data);
+        const dialog = this.getComponent(Dialog);
+        if (dialog && !dialog.autoShowWhenEnable) {
+            dialog.show();
+        }
     }
 
     @handle(gc.Audios.AudioHandler, (handle) => handle.playSFX(gc.Audios.AudioIds.CLICK))

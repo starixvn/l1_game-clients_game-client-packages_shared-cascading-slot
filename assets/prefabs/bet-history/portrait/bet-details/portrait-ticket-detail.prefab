@@ -9578,7 +9578,7 @@
     "nodeBody": {
       "__id__": 18
     },
-    "autoShowWhenEnable": true,
+    "autoShowWhenEnable": false,
     "playClickWhenHide": false,
     "_id": ""
   },
