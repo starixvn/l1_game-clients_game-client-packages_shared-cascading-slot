@@ -10,9 +10,9 @@ const { render, handle } = Observer;
 
 @ccclass
 export class CascadingWebViewGuide extends WebViewGuide {
-    private level = 0;
-    private coin = 0;
-    private readonly Features = {
+    public level = 0;
+    public coin = 0;
+    public readonly Features = {
         BuyFreeSpins: {
             enabled: false,
         },
