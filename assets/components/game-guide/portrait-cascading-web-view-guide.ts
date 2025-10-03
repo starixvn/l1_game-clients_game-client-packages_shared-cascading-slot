@@ -5,22 +5,8 @@ const { ccclass } = _decorator;
 
 @ccclass
 export class PortraitCascadingWebViewGuide extends CascadingWebViewGuide {
-
-
-    sendDataToIframe(gameConfigs: gc.GameConfigs.GameConfigStore) {
-        const portraitUrl = this.url + "&mode=portrait";
-        this.onWebViewLoaded = () => {
-            const configsWithBetInfo = {
-                ...gameConfigs,
-                coin: this.coin,
-                level: this.level,
-                features: this.Features,
-            };
-            (document.getElementById("webview") as HTMLIFrameElement)?.contentWindow?.postMessage(
-                JSON.stringify(configsWithBetInfo),
-                gc.UrlUtils.getSubDomain(portraitUrl)
-            );
-        };
+    loadGameGuide(url: string) {
+        super.loadGameGuide(url + "&mode=portrait");
     }
 }
 
