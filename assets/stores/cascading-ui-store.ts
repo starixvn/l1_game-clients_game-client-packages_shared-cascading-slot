@@ -200,21 +200,23 @@ export class CascadingUIStore {
     fadeBGM = { value: true };
 
     get disableBuyFreespins() {
-        return this.isFreeSpins
-            || this.cascadingState === CascadingSlotState.SPINNING
-            || this.autoPlayStore.isAutoplay
-            || this.fsbPromotionUIStore.isFSBPromotionInProgress;
-    }
-
-    get isShowMesgBeforeSpinPortrait() {
         return (
-            !this.isHideTopMessage &&
-            (this.cascadingState === CascadingSlotState.SPINNING || this.cascadingState === CascadingSlotState.READY_BET)
+            this.isFreeSpins ||
+            this.cascadingState === CascadingSlotState.SPINNING ||
+            this.autoPlayStore.isAutoplay ||
+            this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
     }
 
+    get isShowMesgBeforeSpinPortrait() {
+        return !this.isHideTopMessage && this.cascadingState === CascadingSlotState.READY_BET;
+    }
+
     get isShowMesgAfterSpinPortrait() {
-        return !this.isHideTopMessage && this.cascadingState === SlotNotification.SETTLED;
+        return (
+            !this.isHideTopMessage &&
+            (this.cascadingState === SlotNotification.SETTLED || this.cascadingState === CascadingSlotState.SPINNING)
+        );
     }
 
     get showFreeSpinsSectionsPortrait() {
