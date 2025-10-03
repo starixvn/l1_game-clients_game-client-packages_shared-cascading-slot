@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, macro, RichText } from "cc";
+import { _decorator, Color, macro, RichText, SpriteAtlas } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
@@ -14,6 +14,9 @@ const { observer, render, handle } = Observer;
 export class PortraitCascadingMessages extends ObserverComponent {
     @property(RichText)
     msg: RichText = null;
+
+    @property(SpriteAtlas)
+    mainAtlas: SpriteAtlas = null;
 
     msgList = ["show_msg_when_spin_desktop", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "mgs_free_spins"];
 
@@ -34,12 +37,21 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     updateTopMessage() {
+        //const randomIndex = 2;
         const randomIndex = random(this.msgList.length - 1);
-        if (randomIndex === 3) {
-            this.msg.string = this.msg.string.replace(/%{maxWin}/i, this.maxWinPerRound.toString());
-        }
+
         const messageKey = this.msgList[randomIndex];
-        this.renderMsg(messageKey);
+        if (randomIndex === 3) {
+            const textMsg = gc.Translator.gameTranslate(messageKey);
+            this.msg.string = textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString());
+        } else if (randomIndex === 2) {
+            const icon = this.mainAtlas.getSpriteFrame("symbol-13");
+            const textMsg2a = gc.Translator.gameTranslate("top_message2a");
+            const textMsg2b = gc.Translator.gameTranslate("top_message2b");
+            this.msg.string = `<img src="symbol-13"/> ${textMsg2a} ${textMsg2b}`.toUpperCase();
+        } else {
+            this.renderMsg(messageKey);
+        }
     }
 
     renderMsg(msg: string) {
