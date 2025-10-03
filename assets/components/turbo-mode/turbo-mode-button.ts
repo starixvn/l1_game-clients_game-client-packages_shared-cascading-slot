@@ -20,6 +20,7 @@ export default class TurboModeButton extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handle, isTurboModeUI: boolean) => handle.handleTurboModeUI(isTurboModeUI))
     onTurboModeChanged() {
+        this.hideSymbolPreview();
         return this.tglTurboMode.isChecked;
     }
 
@@ -37,5 +38,10 @@ export default class TurboModeButton extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.disabledTurboMode)
     turboModeDisabled(disabledTurboMode: boolean) {
         this.nodeDisabled.active = disabledTurboMode;
+    }
+
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
+    hideSymbolPreview() {
+        return false;
     }
 }
