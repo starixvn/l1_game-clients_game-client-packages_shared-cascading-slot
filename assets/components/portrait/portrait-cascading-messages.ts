@@ -46,9 +46,9 @@ export class PortraitCascadingMessages extends ObserverComponent {
         this.msg.string = gc.Translator.gameTranslate(msg).toUpperCase();
     }
 
-    @render(CascadingUIStore, (store) => store.isShowMesgBeforeSpinPortrait)
-    setNodeVisibilityBeforeSpin(isActive: boolean) {
-        this.node.active = isActive;
+    @render(CascadingUIStore, (store) => store.isHideTopMessage)
+    setNodeVisibilityBeforeSpin(isHideTopMessage: boolean) {
+        this.node.active = !isHideTopMessage;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)

@@ -8,12 +8,6 @@ const { observer, render, handle } = Observer;
 @ccclass
 export class PortraitBottomControlGame extends ObserverComponent {
     @property(Node)
-    nodeMsgBeforeSpin: Node = null;
-
-    @property(Node)
-    nodeMsg: Node = null;
-
-    @property(Node)
     nodeFreeSpinsSections: Node = null;
 
     @property(Node)
@@ -24,16 +18,6 @@ export class PortraitBottomControlGame extends ObserverComponent {
 
     @property(Node)
     nodeLastFreeSpin: Node = null;
-
-    @render(CascadingUIStore, (store) => store.isShowMesgBeforeSpinPortrait)
-    setHideTopMessage(isShowMesgBeforeSpinPortrait: boolean) {
-        this.nodeMsgBeforeSpin.active = isShowMesgBeforeSpinPortrait;
-    }
-
-    @render(CascadingUIStore, (store) => store.isShowMesgAfterSpinPortrait)
-    setNodeVisibilityBeforeSpin(isShowMesgAfterSpinPortrait: boolean) {
-        this.nodeMsg.active = isShowMesgAfterSpinPortrait;
-    }
 
     @render(CascadingUIStore, (store) => store.showFreeSpinsSectionsPortrait)
     setShowFreeSpinsSectionsPortrait(showFreeSpinsSectionsPortrait: boolean) {
