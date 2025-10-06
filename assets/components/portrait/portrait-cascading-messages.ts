@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, macro, RichText, SpriteAtlas } from "cc";
+import { _decorator, Color, macro, RichText, SpriteAtlas, sys } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
@@ -18,40 +18,45 @@ export class PortraitCascadingMessages extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    msgList = ["show_msg_when_spin_desktop", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "mgs_free_spins"];
+    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "mgs_free_spins"];
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
 
-    // handleMessageBeforeSpin() {
-    //     const deviceSuffix = sys.isMobile ? "phone" : "desktop";
-    //     this.msg4.string = gc.Translator.gameTranslate(`show_msg_when_spin_${deviceSuffix}`).toUpperCase();
-    // }
-
     onLoad() {
         this.colorConfig = resourcesCache.colorJson;
-        this.renderMsg(gc.Translator.gameTranslate("show_msg_when_spin_desktop"));
+        this.renderMsgDefault();
         this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
         super.onLoad();
         this.msg.getComponent(RichText).fontColor = new Color().fromHEX(this.colorConfig.topMessageTextColor);
     }
 
     updateTopMessage() {
-        //const randomIndex = 2;
         const randomIndex = random(this.msgList.length - 1);
-
         const messageKey = this.msgList[randomIndex];
-        if (randomIndex === 3) {
-            const textMsg = gc.Translator.gameTranslate(messageKey);
-            this.msg.string = textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString());
-        } else if (randomIndex === 2) {
-            const icon = this.mainAtlas.getSpriteFrame("symbol-13");
-            const textMsg2a = gc.Translator.gameTranslate("top_message2a");
-            const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-            this.msg.string = `<img src="symbol-13"/> ${textMsg2a} ${textMsg2b}`.toUpperCase();
-        } else {
-            this.renderMsg(messageKey);
+        switch (randomIndex) {
+            case 0:
+                this.renderMsgDefault();
+                break;
+            case 3:
+                const textMsg = gc.Translator.gameTranslate(messageKey);
+                this.msg.string = textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString());
+                break;
+            case 2:
+                const textMsg2a = gc.Translator.gameTranslate("top_message2a");
+                const textMsg2b = gc.Translator.gameTranslate("top_message2b");
+                this.msg.string = `<img src="symbol-13" /> ${textMsg2a} ${textMsg2b}`.toUpperCase();
+                break;
+            default:
+                this.renderMsg(messageKey);
+                break;
         }
+    }
+
+    renderMsgDefault() {
+        const deviceSuffix = sys.isMobile ? "phone" : "desktop";
+        const message = `show_msg_when_spin_${deviceSuffix}`;
+        this.renderMsg(gc.Translator.gameTranslate(message));
     }
 
     renderMsg(msg: string) {
