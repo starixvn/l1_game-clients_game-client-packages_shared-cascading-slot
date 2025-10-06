@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Color, macro, RichText, SpriteAtlas, sys } from "cc";
+import { AutoScrollingContent } from "db://shared-components/shared/common-components/auto-scrolling/auto-scrolling-content";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { random } from "lodash-es";
 import Observer from "observer";
@@ -22,8 +23,10 @@ export class PortraitCascadingMessages extends ObserverComponent {
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
+    private autoScrollingContent: AutoScrollingContent;
 
     onLoad() {
+        this.autoScrollingContent = this.getComponent(AutoScrollingContent);
         this.colorConfig = resourcesCache.colorJson;
         this.renderMsgDefault();
         this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
@@ -61,6 +64,13 @@ export class PortraitCascadingMessages extends ObserverComponent {
 
     renderMsg(msg: string) {
         this.msg.string = gc.Translator.gameTranslate(msg).toUpperCase();
+        this.onTextChange();
+    }
+
+    onTextChange() {
+        if (this.autoScrollingContent) {
+            this.autoScrollingContent.updateScrolling();
+        }
     }
 
     @render(CascadingUIStore, (store) => store.isHideTopMessage)
