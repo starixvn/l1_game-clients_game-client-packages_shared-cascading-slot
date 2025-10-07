@@ -155,28 +155,8 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     onClickPreviousHistoryDetail() {
         const index = this.findCurrentIndex();
         this.resetScrollPosition();
-        if (index > 0 && this.betHistory[index - 1]) {
-            this.slideAnimation(false, () => {
-                this.currentId = this.betHistory[index - 1].id;
-                this.updateHistoryDetail();
-            });
-        } else if (index === 0) {
-            if (this.pagination) {
-                const currentPage = this.pagination.currentPage;
-                if (currentPage > 1) {
-                    this.slideAnimation(false, () => {
-                        this.isNavigatingToNextPage = false; // Going to previous page, select last item
-                        this.pagination.hanldePreviousPage();
-                    });
-                }
-            }
-        }
-    }
-    onClickNextHistoryDetail() {
-        const index = this.findCurrentIndex();
-        this.resetScrollPosition();
         if (this.betHistory && index >= 0 && index < this.betHistory.length - 1) {
-            this.slideAnimation(true, () => {
+            this.slideAnimation(false, () => {
                 this.currentId = this.betHistory[index + 1].id;
                 this.updateHistoryDetail();
             });
@@ -185,9 +165,29 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 const currentPage = this.pagination.currentPage;
                 const totalPages = this.pagination.totalPages;
                 if (currentPage < totalPages) {
-                    this.slideAnimation(true, () => {
+                    this.slideAnimation(false, () => {
                         this.isNavigatingToNextPage = true; // Going to next page, select first item
                         this.pagination.hanldeNextPage();
+                    });
+                }
+            }
+        }
+    }
+    onClickNextHistoryDetail() {
+        const index = this.findCurrentIndex();
+        this.resetScrollPosition();
+        if (index > 0 && this.betHistory[index - 1]) {
+            this.slideAnimation(true, () => {
+                this.currentId = this.betHistory[index - 1].id;
+                this.updateHistoryDetail();
+            });
+        } else if (index === 0) {
+            if (this.pagination) {
+                const currentPage = this.pagination.currentPage;
+                if (currentPage > 1) {
+                    this.slideAnimation(true, () => {
+                        this.isNavigatingToNextPage = false; // Going to previous page, select last item
+                        this.pagination.hanldePreviousPage();
                     });
                 }
             }
@@ -239,6 +239,8 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         this.content?.removeAllChildren();
         this.resetMultiplierNode();
     }
+
+
 
 
     updateHistoryDetail() {
