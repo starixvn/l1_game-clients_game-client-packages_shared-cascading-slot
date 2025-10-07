@@ -1,11 +1,11 @@
+import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingUIStore } from "./cascading-ui-store";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
-import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 const { injectable, inject } = inversify;
 
 @injectable()
@@ -88,7 +88,7 @@ export class BetControlStore {
     currentTotalBetIndex = 0;
 
     get disabledChangeBet() {
-        return this.cascadingUIStore.isFreeSpins;
+        return this.cascadingUIStore.isFreeSpins || this.cascadingUIStore.disabledOpenInputBet;
     }
 
     get interactableBetLevel() {

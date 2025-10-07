@@ -1,3 +1,5 @@
+import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { Container } from "inversify";
 import mobx from "mobx";
 import "reflect-metadata";
@@ -5,8 +7,6 @@ import { CascadingSlotState } from "../../assets/cascading-slot-state";
 import { AutoPlayStore } from "../../assets/stores/auto-play-store";
 import { BetControlStore } from "../../assets/stores/bet-control-store";
 import { CascadingUIStore } from "../../assets/stores/cascading-ui-store";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
-import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 
 // Mock the calculateTotalBet function
 jest.mock("../../assets/cascading-slot-utils", () => ({
@@ -205,8 +205,15 @@ describe("BetControlStore", () => {
             expect(betControlStore.disabledChangeBet).toBe(true);
         });
 
-        it("should return false when isFreeSpins is false", () => {
+        it("should return true when disabledOpenInputBet is true", () => {
+            cascadingUIStore.disabledOpenInputBet = true; // This makes isFreeSpins return true
+
+            expect(betControlStore.disabledChangeBet).toBe(true);
+        });
+
+        it("should return false when isFreeSpins is false, disabledOpenInputBet is false", () => {
             cascadingUIStore.freeSpinsTotal = 0; // This makes isFreeSpins return false
+            cascadingUIStore.disabledOpenInputBet = false; // This makes disabledOpenInputBet return false
 
             expect(betControlStore.disabledChangeBet).toBe(false);
         });
