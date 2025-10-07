@@ -24,6 +24,9 @@ export class CascadingBottomArea extends ObserverComponent {
     }
     @render(CascadingUIStore, (store) => store.totalWin, { fireImmediately: false })
     async handleSettlement(totalTumbleWin: number) {
+        if (!this.totalWinLabel) {
+            return;
+        }
         if (totalTumbleWin === 0) {
             this.totalWinLabel.string = totalTumbleWin.toString();
             return;
@@ -41,7 +44,9 @@ export class CascadingBottomArea extends ObserverComponent {
             }
         });
 
-        this.totalWinLabel.node.getComponent(Label).color = new Color().fromHEX(this.colorConfig.bottomAreaWinAmountColor);
+        if (this.totalWinLabel) {
+            this.totalWinLabel.node.getComponent(Label).color = new Color().fromHEX(this.colorConfig.bottomAreaWinAmountColor);
+        }
     }
 
     updateColorLabel(comp: ChangeNodeColor) {
