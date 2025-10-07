@@ -51,6 +51,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     private skipClickCount = 0;
     private readonly MAX_SKIP_CLICK_COUNT = 2;
+    private readonly MEGA_WIN_RATIO = 20;
+    private readonly SUPER_WIN_RATIO = 50;
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -69,9 +71,9 @@ export class CascadingEffectBigwin extends ObserverComponent {
             return;
         }
         const valueRatio = betWin / totalBet;
-        if (valueRatio >= 6) {
+        if (valueRatio >= this.SUPER_WIN_RATIO) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
-        } else if (valueRatio >= 3) {
+        } else if (valueRatio >= this.MEGA_WIN_RATIO) {
             this.isChangeLevelMega && this.setAnimationChangeMega();
         } else {
             this.isChangeLevelBig && this.setAnimationChangeBig();
@@ -215,7 +217,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             this.isChangeLevelMega = true;
             this.winAmountForNoAnim(this.winAmount);
             const ratio = this.winAmount / this.totalBet;
-            this.showHideBigWinNode(ratio < 3);
+            this.showHideBigWinNode(ratio < this.MEGA_WIN_RATIO);
             this.handleBigWinActions(true);
         } else {
             this.floatNumberBigWin({
