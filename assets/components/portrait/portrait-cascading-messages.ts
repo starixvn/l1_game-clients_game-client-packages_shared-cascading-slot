@@ -19,7 +19,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "mgs_free_spins"];
+    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "msg_free_spins"];
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
@@ -48,7 +48,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
             case 2:
                 const textMsg2a = gc.Translator.gameTranslate("top_message2a");
                 const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-                this.msg.string = `<img src="symbol-13" /> ${textMsg2a} ${textMsg2b}`.toUpperCase();
+                this.msg.string = `<img src="symbol-13" /> ${textMsg2a} ${textMsg2b}`;
                 break;
             default:
                 this.renderMsg(messageKey);
@@ -63,7 +63,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     renderMsg(msg: string) {
-        this.msg.string = gc.Translator.gameTranslate(msg).toUpperCase();
+        this.msg.string = gc.Translator.gameTranslate(msg);
         this.onTextChange();
     }
 
