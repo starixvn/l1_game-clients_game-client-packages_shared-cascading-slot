@@ -48,7 +48,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
             case 2:
                 const textMsg2a = gc.Translator.gameTranslate("top_message2a");
                 const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-                this.msg.string = `<img src="symbol-13" /> ${textMsg2a} ${textMsg2b}`;
+                this.msg.string = `${textMsg2a} <img src="symbol-13" /> ${textMsg2b}`;
                 break;
             default:
                 this.renderMsg(messageKey);

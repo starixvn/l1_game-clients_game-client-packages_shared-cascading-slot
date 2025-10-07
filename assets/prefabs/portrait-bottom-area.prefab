@@ -49,7 +49,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 25.295,
+      "y": 37.945,
       "z": 0
     },
     "_lrot": {
@@ -1188,7 +1188,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -26.23,
+      "y": -30.64,
       "z": 0
     },
     "_lrot": {
@@ -1228,8 +1228,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67.57196044921875,
-      "height": 32.46
+      "width": 64.63996887207031,
+      "height": 41.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1267,10 +1267,10 @@
     "_string": "AUTO",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 21,
-    "_fontSize": 21,
+    "_actualFontSize": 20,
+    "_fontSize": 20,
     "_fontFamily": "Arial",
-    "_lineHeight": 21,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -1711,7 +1711,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -26.23,
+      "y": -30.64,
       "z": 0
     },
     "_lrot": {
@@ -1751,8 +1751,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 84.03596496582031,
-      "height": 32.46
+      "width": 80.31996154785156,
+      "height": 41.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1790,10 +1790,10 @@
     "_string": "TURBO",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 21,
-    "_fontSize": 21,
+    "_actualFontSize": 20,
+    "_fontSize": 20,
     "_fontFamily": "Arial",
-    "_lineHeight": 21,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -2099,7 +2099,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -28.087,
+      "y": -31.926,
       "z": 0
     },
     "_lrot": {
@@ -2139,8 +2139,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 49.78497314453125,
-      "height": 38.76
+      "width": 47.699981689453125,
+      "height": 41.28
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -2178,10 +2178,10 @@
     "_string": "BET",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 21,
-    "_fontSize": 21,
+    "_actualFontSize": 20,
+    "_fontSize": 20,
     "_fontFamily": "Arial",
-    "_lineHeight": 26,
+    "_lineHeight": 28,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
