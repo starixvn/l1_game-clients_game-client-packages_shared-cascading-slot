@@ -7,7 +7,7 @@ import Observer from "observer";
 import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
-import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -73,9 +73,9 @@ export class PortraitCascadingMessages extends ObserverComponent {
         }
     }
 
-    @render(CascadingUIStore, (store) => store.isHideTopMessage)
-    setNodeVisibilityBeforeSpin(isHideTopMessage: boolean) {
-        this.node.active = !isHideTopMessage;
+    @render(CascadingSlotTumblesStore, (store) => store.tumbles)
+    setNodeVisibilityBeforeSpin(tumbles: []) {
+        this.node.active = tumbles.length <= 1;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
