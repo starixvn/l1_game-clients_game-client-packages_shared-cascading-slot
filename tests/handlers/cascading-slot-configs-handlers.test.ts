@@ -74,6 +74,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
         });
 
@@ -98,6 +99,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 5,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.handleConfigs(completeConfigs);
@@ -120,6 +122,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: {},
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.handleConfigs(configsWithEmptyArrays);
@@ -142,6 +145,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: {},
                 },
                 totalMultiplier: 0,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.handleConfigs(configsWithZeros);
@@ -164,6 +168,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 100,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.handleConfigs(configsWithLargeNumbers);
@@ -186,6 +191,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 3.14159,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.handleConfigs(configsWithDecimals);
@@ -310,6 +316,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             const mockTrialUser: GameServiceMessageCascading.CascadingTrialUserMsg = {
@@ -340,6 +347,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 2,
+                bigWinRange: [0, 0, 0],
             };
 
             const mockTrialUser: GameServiceMessageCascading.CascadingTrialUserMsg = {
@@ -370,6 +378,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             const configs2: GameServiceMessageCascading.CascadingSlotConfigsMsg = {
@@ -386,6 +395,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 2,
+                bigWinRange: [0, 0, 0],
             };
 
             const user1: GameServiceMessageCascading.CascadingTrialUserMsg = {
@@ -428,6 +438,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 1 + i,
+                bigWinRange: [0, 0, 0],
             }));
 
             const usersArray = Array.from({ length: 10 }, (_, i) => ({
@@ -544,6 +555,7 @@ describe("CascadingSlotConfigsHandlers", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             // Call the handle method from eventHandleList

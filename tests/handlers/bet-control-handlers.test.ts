@@ -50,6 +50,7 @@ describe("BetControlHandlers", () => {
                 betLevels: [1, 2, 3, 4, 5],
                 betMultiplier: 10,
                 defaultCoinValue: 0.01,
+                bigWinRange: [0, 0, 0],
             },
         } as any;
 
@@ -343,6 +344,7 @@ describe("BetControlHandlers", () => {
                     symbols: {},
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             handler.init(0.1, 3);

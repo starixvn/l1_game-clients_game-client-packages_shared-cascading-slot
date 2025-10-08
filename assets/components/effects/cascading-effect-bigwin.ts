@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, log, Node, Prefab, sp, Tween, tween } from "cc";
+import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -69,7 +69,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
         if (totalBet === 0) {
             return;
         }
-        log("bigWinRange---", this.bigWinRange);
 
         const valueRatio = betWin / totalBet;
         const bigThreshold = this.bigWinRange?.[0] ?? 0;

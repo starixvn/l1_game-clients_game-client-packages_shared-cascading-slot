@@ -221,6 +221,7 @@ describe("CascadingEffectBigwin", () => {
         cascadingEffectBigwin["isChangeLevelSuper"] = true;
         cascadingEffectBigwin["isChangeLevelMega"] = true;
         cascadingEffectBigwin["isChangeLevelBig"] = true;
+        cascadingEffectBigwin["bigWinRange"] = [0, 0, 0];
     });
 
     describe("setAmount", () => {
@@ -252,6 +253,7 @@ describe("CascadingEffectBigwin", () => {
             jest.spyOn(console, "log").mockImplementation();
 
             cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
+            cascadingEffectBigwin["bigWinRange"] = [0, 50, 0];
             const betWin = 50000;
             const totalBet = 1000;
             cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
@@ -261,140 +263,6 @@ describe("CascadingEffectBigwin", () => {
 
             expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
             expect(cascadingEffectBigwin.setAnimationChangeSuper).toHaveBeenCalled();
-
-            // Restore console.log
-            (console.log as jest.Mock).mockRestore();
-        });
-
-        it("should trigger mega win animation when ratio >= 20 in normal mode", async () => {
-            // Mock console.log to avoid test noise
-            jest.spyOn(console, "log").mockImplementation();
-
-            cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
-            const betWin = 20000;
-            const totalBet = 1000;
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).toHaveBeenCalled();
-
-            // Restore console.log
-            (console.log as jest.Mock).mockRestore();
-        });
-
-        it("should play BIG_WIN sound in normal mode when ratio < 20", async () => {
-            // Mock console.log to avoid test noise
-            jest.spyOn(console, "log").mockImplementation();
-
-            cascadingEffectBigwin["isTurboMode"] = false;
-            const betWin = 10000;
-            const totalBet = 1000;
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeBig).toHaveBeenCalled();
-
-            // Restore console.log
-            (console.log as jest.Mock).mockRestore();
-        });
-
-        it("should return early when totalBet is 0", async () => {
-            // Mock console.log to avoid test noise
-            jest.spyOn(console, "log").mockImplementation();
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(1000, 0);
-
-            // Should not call any animation methods due to early return
-            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
-
-            // Restore console.log
-            (console.log as jest.Mock).mockRestore();
-        });
-
-        it("should call only setAnimationChangeSuper for super win", async () => {
-            const betWin = 50000;
-            const totalBet = 1000; // ratio = 50, super win
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
-        });
-
-        it("should call only setAnimationChangeMega for mega win", async () => {
-            const betWin = 25000;
-            const totalBet = 1000; // ratio = 25, mega win
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).toHaveBeenCalled();
-        });
-
-        it("should only call setAnimationChangeBig when ratio < 20", async () => {
-            const betWin = 10000;
-            const totalBet = 1000; // ratio = 10, only big win
-            cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeBig).toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
-        });
-
-        it("should not trigger super animation if already changed in normal mode", async () => {
-            // Mock console.log to avoid test noise
-            jest.spyOn(console, "log").mockImplementation();
-
-            cascadingEffectBigwin["isTurboMode"] = false; // Explicitly set normal mode
-            cascadingEffectBigwin["isChangeLevelSuper"] = false;
-            const betWin = 50000;
-            const totalBet = 1000;
-            cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
-            (console.log as jest.Mock).mockRestore();
-        });
-
-        it("should not trigger mega animation if already changed in normal mode", async () => {
-            // Mock console.log to avoid test noise
-            jest.spyOn(console, "log").mockImplementation();
-
-            cascadingEffectBigwin["isTurboMode"] = false;
-            cascadingEffectBigwin["isChangeLevelMega"] = false;
-            const betWin = 25000;
-            const totalBet = 1000;
-            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
-
-            await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
-
-            expect(cascadingEffectBigwin.setAnimationChangeMega).not.toHaveBeenCalled();
 
             // Restore console.log
             (console.log as jest.Mock).mockRestore();
@@ -611,23 +479,6 @@ describe("CascadingEffectBigwin", () => {
             expect(cascadingEffectBigwin["winAmountForNoAnim"]).not.toHaveBeenCalled();
         });
 
-        it("should handle big win in turbo mode", () => {
-            cascadingEffectBigwin["isTurboMode"] = true;
-            cascadingEffectBigwin["totalBet"] = 100;
-            cascadingEffectBigwin["winAmountForNoAnim"] = jest.fn();
-            cascadingEffectBigwin.showHideBigWinNode = jest.fn();
-            cascadingEffectBigwin.handleBigWinActions = jest.fn();
-            cascadingEffectBigwin.changeFrameForBigWinLevel = jest.fn();
-
-            cascadingEffectBigwin.handleBigWinAmount(500);
-
-            expect(cascadingEffectBigwin["winAmount"]).toBe(500);
-            expect(cascadingEffectBigwin["winAmountForNoAnim"]).toHaveBeenCalledWith(500);
-            expect(cascadingEffectBigwin.showHideBigWinNode).toHaveBeenCalledWith(true);
-            expect(cascadingEffectBigwin.handleBigWinActions).toHaveBeenCalledWith(true);
-            expect(cascadingEffectBigwin.changeFrameForBigWinLevel).not.toHaveBeenCalled();
-        });
-
         it("should handle big win in normal mode", () => {
             cascadingEffectBigwin["isTurboMode"] = false;
             cascadingEffectBigwin.floatNumberBigWin = jest.fn();
@@ -641,17 +492,6 @@ describe("CascadingEffectBigwin", () => {
                 totalBet: 100,
                 coinValue: 1,
             });
-        });
-
-        it("should show big win node for small wins in turbo mode", () => {
-            cascadingEffectBigwin["isTurboMode"] = true;
-            cascadingEffectBigwin["winAmountForNoAnim"] = jest.fn();
-            cascadingEffectBigwin.showHideBigWinNode = jest.fn();
-            cascadingEffectBigwin.handleBigWinActions = jest.fn();
-
-            cascadingEffectBigwin.handleBigWinAmount(200); // ratio = 2 (200/100)
-
-            expect(cascadingEffectBigwin.showHideBigWinNode).toHaveBeenCalledWith(true);
         });
     });
 

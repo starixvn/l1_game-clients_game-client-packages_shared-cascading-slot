@@ -47,6 +47,7 @@ describe("CascadingSlotConfigsStore", () => {
                     },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
         });
 
@@ -208,6 +209,7 @@ describe("CascadingSlotConfigsStore", () => {
                     },
                 },
                 totalMultiplier: 1,
+                bigWinRange: [0, 0, 0],
             };
 
             const mockTrialUser = {
@@ -238,6 +240,7 @@ describe("CascadingSlotConfigsStore", () => {
                     symbols: { symbol1: [{ from: 1, to: 10, odds: 100 }], symbol2: [{ from: 11, to: 20, odds: 200 }] },
                 },
                 totalMultiplier: 2,
+                bigWinRange: [0, 0, 0],
             };
 
             const mockTrialUser = {
