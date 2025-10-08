@@ -48,6 +48,7 @@ export namespace GameServiceMessageCascading {
         maxWinPerRound: number;
         odds: OddsConfig;
         totalMultiplier: number;
+        bigWinRange: number[];
 
         static eventName = "gameConfigs";
     }
@@ -78,7 +79,6 @@ export namespace GameServiceMessageCascading {
         static eventName = "gameInfo";
     }
 
-
     export interface BetDetailData {
         id: number;
         time: string;
@@ -104,7 +104,7 @@ export namespace GameServiceMessageCascading {
                 count: number;
                 odds: number;
                 win: number;
-            }
+            };
         };
         win: number;
         multipliers: number[];

@@ -200,6 +200,8 @@ export class CascadingSlotGame extends GameComponentBase {
             result,
             actualBetwin,
             freeSpins,
+            megaWin,
+            superWin,
         } = finishData;
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
@@ -221,7 +223,7 @@ export class CascadingSlotGame extends GameComponentBase {
         reachMaxWin && this.setReachMaxWin(true);
         this.setTotalMultiplierValue(totalMultiplier);
 
-        this.handleHaveBigWin(bigWin);
+        this.handleHaveBigWin(bigWin || megaWin || superWin);
         this.updateBigWinAmount(win);
 
         this.setFreeSpinsByRound(freeSpins);

@@ -6,8 +6,11 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
 import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
+import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { CascadingEffectBigwin } from "./cascading-effect-bigwin";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -24,6 +27,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
     private isTurboMode = false;
     private gameConfig: GameFeatureJson;
+    private bigWinRange = [];
 
     onLoad() {
         super.onLoad();
@@ -61,7 +65,10 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
         }
         const bigwin = instantiate(this.pfbEffectBigWin);
-        this.node.addChild(bigwin);
+        if (bigwin) {
+            bigwin.getComponent(CascadingEffectBigwin)?.setBigWinRange(this?.bigWinRange ?? []);
+            this.node.addChild(bigwin);
+        }
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
@@ -107,5 +114,13 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
     handleFadeBGM(fadeBGM: boolean) {
         return fadeBGM;
+    }
+
+    @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
+    updateBigWinRange(gameConfigs: GameServiceMessageCascading.CascadingSlotConfigsMsg) {
+        if (!gameConfigs) {
+            return;
+        }
+        this.bigWinRange = gameConfigs?.bigWinRange ?? [];
     }
 }

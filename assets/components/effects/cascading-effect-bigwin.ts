@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
+import { _decorator, instantiate, Label, log, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -51,8 +51,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     private skipClickCount = 0;
     private readonly MAX_SKIP_CLICK_COUNT = 2;
-    private readonly MEGA_WIN_RATIO = 20;
-    private readonly SUPER_WIN_RATIO = 50;
+    private bigWinRange = [];
 
     setAmount(data: BigWinType) {
         const { amount } = data;
@@ -70,12 +69,18 @@ export class CascadingEffectBigwin extends ObserverComponent {
         if (totalBet === 0) {
             return;
         }
+        log("bigWinRange---", this.bigWinRange);
+
         const valueRatio = betWin / totalBet;
-        if (valueRatio >= this.SUPER_WIN_RATIO) {
+        const bigThreshold = this.bigWinRange?.[0] ?? 0;
+        const superThreshold = this.bigWinRange?.[1];
+        const megaThreshold = this.bigWinRange?.[2];
+
+        if (typeof superThreshold === "number" && valueRatio >= superThreshold) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
-        } else if (valueRatio >= this.MEGA_WIN_RATIO) {
+        } else if (typeof megaThreshold === "number" && valueRatio >= megaThreshold) {
             this.isChangeLevelMega && this.setAnimationChangeMega();
-        } else {
+        } else if (typeof bigThreshold === "number" && valueRatio >= bigThreshold) {
             this.isChangeLevelBig && this.setAnimationChangeBig();
         }
     }
@@ -217,7 +222,9 @@ export class CascadingEffectBigwin extends ObserverComponent {
             this.isChangeLevelMega = true;
             this.winAmountForNoAnim(this.winAmount);
             const ratio = this.winAmount / this.totalBet;
-            this.showHideBigWinNode(ratio < this.MEGA_WIN_RATIO);
+            const megaThreshold = this.bigWinRange?.[2];
+            const shouldShow = typeof megaThreshold === "number" ? ratio < megaThreshold : true;
+            this.showHideBigWinNode(shouldShow);
             this.handleBigWinActions(true);
         } else {
             this.floatNumberBigWin({
@@ -269,5 +276,9 @@ export class CascadingEffectBigwin extends ObserverComponent {
     @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
     handleFadeBGM(fadeBGM: boolean) {
         return fadeBGM;
+    }
+
+    setBigWinRange(bigWinRange: number[]) {
+        this.bigWinRange = bigWinRange;
     }
 }
