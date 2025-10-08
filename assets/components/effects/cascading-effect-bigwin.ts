@@ -71,16 +71,25 @@ export class CascadingEffectBigwin extends ObserverComponent {
         }
 
         const valueRatio = betWin / totalBet;
-        const bigThreshold = this.bigWinRange?.[0] ?? 0;
-        const superThreshold = this.bigWinRange?.[1];
-        const megaThreshold = this.bigWinRange?.[2];
 
-        if (typeof superThreshold === "number" && valueRatio >= superThreshold) {
+        const superThreshold = +this.bigWinRange?.[1];
+        const megaThreshold = +this.bigWinRange?.[2];
+        this.handleLogBigWinRange(superThreshold, megaThreshold);
+
+        if (valueRatio >= superThreshold) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
-        } else if (typeof megaThreshold === "number" && valueRatio >= megaThreshold) {
+        } else if (valueRatio >= megaThreshold) {
             this.isChangeLevelMega && this.setAnimationChangeMega();
-        } else if (typeof bigThreshold === "number" && valueRatio >= bigThreshold) {
+        } else {
             this.isChangeLevelBig && this.setAnimationChangeBig();
+        }
+    }
+
+    handleLogBigWinRange(superThreshold: number, megaThreshold: number) {
+        if (typeof superThreshold !== "number" || typeof megaThreshold !== "number") {
+            console.log("[bigWinRange] is not a number", {
+                bigWinRange: this.bigWinRange,
+            });
         }
     }
 
