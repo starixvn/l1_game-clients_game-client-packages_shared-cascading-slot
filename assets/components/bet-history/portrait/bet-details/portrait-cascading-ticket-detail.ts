@@ -5,6 +5,7 @@ import { CascadingBetHistoryTable } from '../../cascading-bet-history-table';
 import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
 import Observer from 'observer';
 import TouchSwipeBase from 'db://shared-components/shared/common-components/touch-swipe-base';
+import { AudioUtils } from 'db://shared-components/game/audios/utils';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
 interface PortraitBetHistoryLog extends gc.BetHistory.BetHistoryLog {
@@ -247,6 +248,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
 
 
     updateHistoryDetail() {
+        AudioUtils.playClick();
         const newItem = this.betHistory ? this.betHistory.find(item => item.id === this.currentId) : null;
         this.betHistoryDetail = {
             betHistoryLog: newItem

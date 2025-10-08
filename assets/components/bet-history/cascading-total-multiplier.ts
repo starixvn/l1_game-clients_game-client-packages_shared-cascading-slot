@@ -4,6 +4,7 @@ import { Dialog } from "db://shared-components/shared/common-components/dialogs/
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingTotalMultiplierItem } from "./cascading-total-multiplier-item";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 const { ccclass, property } = _decorator;
 const { handle } = Observer;
 
@@ -30,7 +31,7 @@ export class CascadingTotalMultiplier extends Component {
     @handle(gc.Audios.AudioHandler, (handle) => handle.playSFX(gc.Audios.AudioIds.CLICK))
     onClickClose() {
         const dialogs = this.getComponentsInChildren(Dialog);
-
+        AudioUtils.playClick();
         if (dialogs.length > 0) {
             dialogs[0].hide();
         } else {
