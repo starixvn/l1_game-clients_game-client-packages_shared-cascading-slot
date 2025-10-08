@@ -105,6 +105,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
+        switch (evt.event) {
+            case FreeSpinsPromotionEvents.EFFECT_UNBOX_GIFT:
+            case FreeSpinsPromotionEvents.OPEN_PROMOTION_ENDED_POPUP:
+            case FreeSpinsPromotionEvents.OPEN_CLAIM_BONUS_NOTIFICATION:
+            case FreeSpinsPromotionEvents.OPEN_FREE_SPINS_PROMOTION:
+                this.cascadingUIHandler.triggerOpenDialog(evt.event);
+            default:
+                break;
+        }
+
         if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
             this.cascadingUIStore.totalMultiplier = 0;
             return;
