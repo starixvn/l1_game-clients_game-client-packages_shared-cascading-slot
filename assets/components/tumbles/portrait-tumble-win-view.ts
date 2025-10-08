@@ -37,9 +37,7 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
         this.node.active = isShowTumbleWinFrame;
     }
 
-    setMultiplier(value: number) {
-        //this.multiplier.string = `x${value}`;
-    }
+    setMultiplier(value: number) {}
 
     animTotalWinNode(totalTumbleWin: number) {
         tween(this.totalWinNode)
