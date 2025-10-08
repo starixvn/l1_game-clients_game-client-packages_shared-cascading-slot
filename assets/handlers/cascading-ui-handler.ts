@@ -184,6 +184,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleTotalMultiplier(totalMultiplier: number) {
+        if (totalMultiplier > 0) {
+            this.uiStore.portraitshowTotalMultiplierView = true;
+        }
         this.uiStore.totalMultiplier = totalMultiplier;
     }
 
