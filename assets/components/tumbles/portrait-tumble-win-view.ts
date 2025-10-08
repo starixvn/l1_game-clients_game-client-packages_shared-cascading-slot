@@ -13,9 +13,6 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
     @property(Label)
     totalWinLabel: Label = null;
 
-    @property(Label)
-    multiplier: Label = null;
-
     @property({ type: Layout, visible: false })
     tumbleLayout: Layout = null;
 
@@ -37,7 +34,9 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
         this.node.active = isShowTumbleWinFrame;
     }
 
-    setMultiplier(value: number) {}
+    setMultiplier(value: number) {
+        //NOSONAR
+    }
 
     animTotalWinNode(totalTumbleWin: number) {
         tween(this.totalWinNode)
