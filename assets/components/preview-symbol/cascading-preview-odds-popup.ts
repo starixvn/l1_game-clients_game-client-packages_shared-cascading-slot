@@ -39,7 +39,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
 
     addPreviewPopup(reels) {
         reels.forEach((reel, index) => {
-            const isInfoOnLeft = index === reels.length - 1 || index === reels.length - 2;
+            const isInfoOnLeft = index > reels.length - 4;
 
             reel.items.forEach((item) => {
                 this.addReelItemEvent(item, isInfoOnLeft);
