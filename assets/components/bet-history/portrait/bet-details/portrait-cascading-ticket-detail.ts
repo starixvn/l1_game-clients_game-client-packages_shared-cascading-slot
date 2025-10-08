@@ -67,13 +67,18 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: PortraitBetHistoryModel) {
         const { betLogs } = betHistoryModel;
-        const hasMultipleItems = betLogs.length > 1;
-        if (hasMultipleItems) {
-            this.btnNext.active = hasMultipleItems;
-            this.btnPrevious.active = hasMultipleItems;
-        }
         this.betHistory = betLogs;
         this.handleBetHistorySelection();
+        this.updateNavigationButtons(betLogs);
+    }
+
+
+    private updateNavigationButtons(betHistoryLog: PortraitBetHistoryLog[]) {
+        const currentIndex = this.findCurrentIndex();
+        const isAtFirstElement = currentIndex === 0;
+        const isAtLastElement = currentIndex === betHistoryLog.length - 1;
+        this.btnNext.active = !isAtFirstElement && this.betHistory.length > 1 || this.pagination.currentPage > 1;
+        this.btnPrevious.active = !isAtLastElement || this.pagination.currentPage < this.pagination.totalPages;
     }
 
     private handleBetHistorySelection() {
@@ -119,6 +124,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             }
             this.multiplierDetail.node.active = this.multiplierNode.active;
         }
+        this.updateNavigationButtons(this.betHistory);
     }
     handleMultiplierData(data: any) {
         super.handleMultiplierData(data);
