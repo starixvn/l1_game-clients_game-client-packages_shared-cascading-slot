@@ -82,7 +82,6 @@ describe("CascadingUIStore", () => {
             expect(store.isTurboModeUI).toBe(false);
             expect(store.isTrialMode).toBe(false);
             expect(store.cascadingState).toBe(CascadingSlotState.NOT_READY_BET);
-            expect(store.isSymbolPreviewVisible).toBe(false);
             expect(store.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
             expect(store.haveBigWin).toBe(false);
             expect(store.bigWinAmount).toBe(0);
@@ -121,19 +120,19 @@ describe("CascadingUIStore", () => {
         });
     });
 
-    describe("isSymbolPreviewVisible property", () => {
-        it("should get symbol preview visibility", () => {
-            expect(store.isSymbolPreviewVisible).toBe(false);
-        });
+    // describe("isSymbolPreviewVisible property", () => {
+    //     it("should get symbol preview visibility", () => {
+    //         expect(store.isSymbolPreviewVisible).toBe(false);
+    //     });
 
-        it("should set symbol preview visibility", () => {
-            store.isSymbolPreviewVisible = true;
-            expect(store.isSymbolPreviewVisible).toBe(true);
+    //     it("should set symbol preview visibility", () => {
+    //         store.isSymbolPreviewVisible = true;
+    //         expect(store.isSymbolPreviewVisible).toBe(true);
 
-            store.isSymbolPreviewVisible = false;
-            expect(store.isSymbolPreviewVisible).toBe(false);
-        });
-    });
+    //         store.isSymbolPreviewVisible = false;
+    //         expect(store.isSymbolPreviewVisible).toBe(false);
+    //     });
+    // });
 
     describe("bottomMessageState property", () => {
         it("should get bottom message state", () => {

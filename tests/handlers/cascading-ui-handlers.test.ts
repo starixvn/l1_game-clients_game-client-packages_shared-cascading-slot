@@ -259,7 +259,6 @@ describe("CascadingUIHandler", () => {
             mockUIStore.multiplier = 5;
             mockUIStore.totalMultiplier = 10;
             mockUIStore.totalWin = 200;
-            mockUIStore.isSymbolPreviewVisible = true;
 
             uiHandler.handleNewRound();
 
@@ -273,7 +272,6 @@ describe("CascadingUIHandler", () => {
             expect(mockUIStore.multiplier).toBe(0);
             expect(mockUIStore.totalMultiplier).toBe(0);
             expect(mockUIStore.totalWin).toBe(0);
-            expect(mockUIStore.isSymbolPreviewVisible).toBe(false);
         });
 
         it("should preserve totalMultiplier during free spins", () => {
@@ -431,10 +429,6 @@ describe("CascadingUIHandler", () => {
     });
 
     describe("utility methods", () => {
-        it("should handle symbol preview visibility", () => {
-            uiHandler.handleSymbolPreviewVisiblity(true);
-            expect(mockUIStore.isSymbolPreviewVisible).toBe(true);
-        });
 
         it("should handle turbo mode UI", () => {
             uiHandler.handleTurboModeUI(true);

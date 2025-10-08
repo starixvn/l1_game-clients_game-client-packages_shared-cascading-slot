@@ -1,5 +1,6 @@
 import inversify from "inversify";
 import mobx from "mobx";
+import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { SlotBetHandler } from "../../handlers/slot-bet-handler";
 import { HoldActionStore } from "../../stores/hold-action-store";
 import { BuyFsFeatureMessage, BuyFsPopupEvent, BuyFsPopupName, BuyFsResult } from "./buy-freespins-definitions";
@@ -12,6 +13,7 @@ export class BuyFreespinsHandler {
     @inject(BuyFreespinsStore) private readonly buyFsStore: BuyFreespinsStore;
     @inject(SlotBetHandler) private readonly slotBetHandler: SlotBetHandler;
     @inject(HoldActionStore) private readonly holdActionStore: HoldActionStore;
+    @inject(CascadingUIHandler) private readonly uiHandler: CascadingUIHandler;
 
     private processing = false;
 
@@ -44,6 +46,7 @@ export class BuyFreespinsHandler {
     }
 
     showBuyFsConfirmation() {
+        this.uiHandler.triggerOpenDialog(BuyFsPopupName.BUY_CONFIRMATION);
         this.buyFsStore.popupEvent = { name: BuyFsPopupName.BUY_CONFIRMATION, event: BuyFsPopupEvent.SHOW };
     }
 

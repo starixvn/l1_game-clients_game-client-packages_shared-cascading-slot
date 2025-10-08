@@ -3,6 +3,7 @@ import { _decorator, Node } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { DialogName } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -35,7 +36,7 @@ export class CascadingTrialMode extends ObserverComponent {
     @handle(CascadingUIHandler, (handle, isTrialMode: boolean) => handle.handleChangeMode(isTrialMode))
     onClickChangeMode() {
         this.playSoundClick();
-        this.handleSymbolPreviewVisiblity(false);
+        this.triggerOpenTrialMode();
         this.handleChangeUserBalance(true);
         return !this.isTrialMode;
     }
@@ -45,10 +46,8 @@ export class CascadingTrialMode extends ObserverComponent {
         return AudioIds.CLICK;
     }
 
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    handleSymbolPreviewVisiblity(isVisible: boolean) {
-        return isVisible;
-    }
+    @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.TRIAL_MODE))
+    triggerOpenTrialMode() { }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler, (handle) => handle.handleTrial())
     connectToServiceTrial() {
@@ -61,7 +60,7 @@ export class CascadingTrialMode extends ObserverComponent {
     }
 
     @handle(gc.Connection.ConnectionHandlers.InGameHandler, (handle) => handle.handleTrial())
-    inGameTrial() {}
+    inGameTrial() { }
 
     @handle(CascadingUIHandler, (handler, connected: boolean) => handler.updateConnectedTrialService(connected))
     updateConnectedTrialService(connected: boolean) {

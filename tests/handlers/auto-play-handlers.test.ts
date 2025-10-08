@@ -159,6 +159,7 @@ describe("AutoPlayHandler", () => {
             updateFreespinCountMsgBottom: jest.fn(),
             resetBottomMessageState: jest.fn(),
             changeCascadingState: jest.fn(),
+            triggerOpenDialog: jest.fn(),
         } as any;
 
         mockSlotBetHandler = {

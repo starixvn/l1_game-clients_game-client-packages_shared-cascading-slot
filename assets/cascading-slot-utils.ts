@@ -139,3 +139,16 @@ export const findIndex = (value: number, valueList: number[]) => {
 export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
     return +(level * coin * betMultiplier).toFixed(1);
 };
+
+export enum DialogName {
+    PREVIEW_ODDS = "preview-odds",
+    IN_GAME_MENU = "in-game-menu",
+    DUMMY_DIALOG = "dummy-dialog",
+    AUTO_SPIN = "auto-spin",
+    TURBO_MODE = "turbo-mode",
+    BET_CONTROL = "bet-control",
+    TRIAL_MODE = "trial-mode",
+
+    BUY_CONFIRMATION = "buy-fs-confirmation",
+    BUY_FS_CONGRATULATION = "buy-fs-congratulation",
+}

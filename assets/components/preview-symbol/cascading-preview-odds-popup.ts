@@ -4,7 +4,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingSlotState } from "../../cascading-slot-state";
-import { hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
+import { DialogName, hideNode, resourcesCache, showNode } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -54,7 +54,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
             }
             this.playSoundClick();
             if (this.currentPreviewItem === item.node) {
-                this.handleSymbolPreviewVisiblity(false);
+                this.triggerOpenPreviewOdd(false);
                 return;
             }
             this.currentPreviewItem = item.node;
@@ -90,7 +90,7 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
         const symbolPreview = previewNode.getComponent(CascadingSymbolPreview);
         const symbolOdds = this.odds.symbols[symbol.index];
         this.showPreview(previewNode, worldPosition);
-        this.handleSymbolPreviewVisiblity(true);
+        this.triggerOpenPreviewOdd(true);
         symbolPreview.setInfo({
             symbol,
             spine,
@@ -113,8 +113,8 @@ export class CascadingPreviewOddsPopup extends ObserverComponent {
         }
     }
 
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    handleSymbolPreviewVisiblity(isVisible: boolean) {
+    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.triggerOpenDialog(isVisible ? DialogName.PREVIEW_ODDS : DialogName.DUMMY_DIALOG))
+    triggerOpenPreviewOdd(isVisible: boolean) {
         return isVisible;
     }
 

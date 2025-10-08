@@ -12,7 +12,7 @@ import mobx from "mobx";
 import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { SlotNotification } from "../cascading-slot-utils";
+import { DialogName, SlotNotification } from "../cascading-slot-utils";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -152,6 +152,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     clickAutoPlay() {
+        this.cascadingUIHandler.triggerOpenDialog(DialogName.AUTO_SPIN);
         if (!this.autoPlayStore.isAutoplay && this.isValidBet()) {
             this.openAutoPlayPopup();
         } else {

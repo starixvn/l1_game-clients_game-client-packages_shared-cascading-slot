@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { resourcesCache } from "../../cascading-slot-utils";
+import { DialogName, resourcesCache } from "../../cascading-slot-utils";
 import { CascadingTotalBetHandlers } from "../../handlers/cascading-total-bet-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
@@ -54,7 +54,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
     onClickOpenBetControl() {
-        this.hideSymbolPreview();
+        this.triggerOpenBetControl();
     }
 
     @render(CascadingUIStore, (store) => store.disabledOpenInputBet)
@@ -72,10 +72,8 @@ export class CascadingTotalBet extends ObserverComponent {
         this.betControl?.onClickIncreaseTotalBet();
     }
 
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    hideSymbolPreview() {
-        return false;
-    }
+    @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.BET_CONTROL))
+    triggerOpenBetControl() { }
 
     updateColor() {
         this.node.getComponentsInChildren(ChangeNodeColor).forEach((comp) => {

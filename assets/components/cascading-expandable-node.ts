@@ -3,6 +3,7 @@ import Observer from "observer";
 
 import { ExpandableNode } from "db://shared-components/shared/common-components/expandable-node/scripts/expandable-node";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { DialogName } from "../cascading-slot-utils";
 import { CascadingUIHandler } from "../handlers/cascading-ui-handler";
 import { BetControlStore } from "../stores/bet-control-store";
 
@@ -21,11 +22,9 @@ export class CascadingExpandableNode extends ObserverComponent {
     }
 
     onClickMenu() {
-        this.hideSymbolPreview();
+        this.openInGameMenu();
     }
 
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    hideSymbolPreview() {
-        return false;
-    }
+    @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.IN_GAME_MENU))
+    openInGameMenu() { }
 }

@@ -3,6 +3,7 @@ import { _decorator, Node, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
+import { DialogName } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -20,7 +21,7 @@ export default class TurboModeButton extends ObserverComponent {
 
     @handle(CascadingUIHandler, (handle, isTurboModeUI: boolean) => handle.handleTurboModeUI(isTurboModeUI))
     onTurboModeChanged() {
-        this.hideSymbolPreview();
+        this.triggerOpenTurboMode();
         return this.tglTurboMode.isChecked;
     }
 
@@ -40,8 +41,6 @@ export default class TurboModeButton extends ObserverComponent {
         this.nodeDisabled.active = disabledTurboMode;
     }
 
-    @handle(CascadingUIHandler, (handler, isVisible: boolean) => handler.handleSymbolPreviewVisiblity(isVisible))
-    hideSymbolPreview() {
-        return false;
-    }
+    @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.TURBO_MODE))
+    triggerOpenTurboMode() { }
 }

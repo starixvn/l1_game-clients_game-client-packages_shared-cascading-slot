@@ -7,7 +7,7 @@ jest.mock("cc", () => {
         ...originalModule,
         _decorator: {
             ccclass: jest.fn((target: any) => target),
-            property: jest.fn((options?: any) => (target: any, propertyKey: string) => {}),
+            property: jest.fn((options?: any) => (target: any, propertyKey: string) => { }),
         },
     };
 });
@@ -18,10 +18,10 @@ jest.mock("@sg/game-client-base", () => {
         Connection: {
             ConnectionHandlers: {
                 ConnectHandler: class {
-                    handleTrial() {}
+                    handleTrial() { }
                 },
                 InGameHandler: class {
-                    handleTrial() {}
+                    handleTrial() { }
                 },
             },
             ConnectionTrialStore: class {
@@ -30,7 +30,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Audios: {
             AudioHandler: class {
-                playSFX(id: string) {}
+                playSFX(id: string) { }
             },
             AudioIds: {
                 CLICK: "click",
@@ -41,7 +41,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -53,17 +53,17 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
     };
@@ -80,10 +80,9 @@ jest.mock("../../assets/stores/cascading-ui-store", () => ({
 
 jest.mock("../../assets/handlers/cascading-ui-handler", () => ({
     CascadingUIHandler: class {
-        handleChangeMode(isTrialMode: boolean) {}
-        handleSymbolPreviewVisiblity(isVisible: boolean) {}
-        updateConnectedTrialService(connected: boolean) {}
-        handleChangeUserBalance(changed: boolean) {}
+        handleChangeMode(isTrialMode: boolean) { }
+        updateConnectedTrialService(connected: boolean) { }
+        handleChangeUserBalance(changed: boolean) { }
     },
 }));
 
@@ -213,19 +212,6 @@ describe("CascadingTrialMode", () => {
         });
     });
 
-    describe("handleSymbolPreviewVisiblity", () => {
-        it("should return the visibility parameter", () => {
-            const result = cascadingTrialMode.handleSymbolPreviewVisiblity(true);
-
-            expect(result).toBe(true);
-        });
-
-        it("should return false when passed false", () => {
-            const result = cascadingTrialMode.handleSymbolPreviewVisiblity(false);
-
-            expect(result).toBe(false);
-        });
-    });
 
     describe("connectToServiceTrial", () => {
         it("should call updateConnectedTrialService with true", () => {

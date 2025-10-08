@@ -33,7 +33,7 @@ jest.mock("@sg/game-client-base", () => {
         },
         Bet: {
             BetStore: {},
-            BetHandler: class {},
+            BetHandler: class { },
         },
         Notices: {
             NoticeStore: {},
@@ -48,17 +48,17 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class {},
-            IMultipleHandlers: class {},
+            IHandler: class { },
+            IMultipleHandlers: class { },
         },
         UserSettings: {
             UserSettingHandlers: class {
-                handle() {}
+                handle() { }
             },
         },
         GameUserSettings: {
             GameUserSettingHandler: class {
-                handle() {}
+                handle() { }
             },
         },
         Notification: {
@@ -129,12 +129,10 @@ describe("AutoPlayButton", () => {
     describe("onClickAutoPlay", () => {
         it("should play click sound and handle symbol preview visibility", () => {
             autoPlayButton.playSoundClick = jest.fn();
-            autoPlayButton.handleSymbolPreviewVisiblity = jest.fn();
 
             autoPlayButton.onClickAutoPlay();
 
             expect(autoPlayButton.playSoundClick).toHaveBeenCalled();
-            expect(autoPlayButton.handleSymbolPreviewVisiblity).toHaveBeenCalledWith(false);
         });
     });
 
@@ -171,10 +169,4 @@ describe("AutoPlayButton", () => {
         });
     });
 
-    describe("handleSymbolPreviewVisiblity", () => {
-        it("should return the visibility parameter", () => {
-            expect(autoPlayButton.handleSymbolPreviewVisiblity(true)).toBe(true);
-            expect(autoPlayButton.handleSymbolPreviewVisiblity(false)).toBe(false);
-        });
-    });
 });
