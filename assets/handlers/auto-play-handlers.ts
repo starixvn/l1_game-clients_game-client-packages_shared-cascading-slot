@@ -111,6 +111,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             case FreeSpinsPromotionEvents.OPEN_CLAIM_BONUS_NOTIFICATION:
             case FreeSpinsPromotionEvents.OPEN_FREE_SPINS_PROMOTION:
                 this.cascadingUIHandler.triggerOpenDialog(evt.event);
+                break;
             default:
                 break;
         }
