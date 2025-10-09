@@ -5,7 +5,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import mobx from "mobx";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { calculateTotalBet, DialogName, SlotNotification } from "../cascading-slot-utils";
+import { calculateTotalBet, DialogName, resourcesCache, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() { }
+    handle() {}
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -162,7 +162,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         const { total, betLevel, coinValue, betMultiplier } = freespins;
         this.handleFreeSpinsTotal(total);
         this.updateFreespinCountMsgBottom(total);
-        this.handleTriggerDuringFreeSpinBonus();
+        resourcesCache.gameFeatures?.allowFreeSpinsFeature && this.handleTriggerDuringFreeSpinBonus();
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
