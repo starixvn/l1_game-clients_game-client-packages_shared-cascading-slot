@@ -334,7 +334,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handle, bigWin: any) => handle.handleHaveBigWin(bigWin))
     handleHaveBigWin(bigwin: boolean) {
-        console.log("handleHaveBigWin---", bigwin);
         return bigwin;
     }
 
