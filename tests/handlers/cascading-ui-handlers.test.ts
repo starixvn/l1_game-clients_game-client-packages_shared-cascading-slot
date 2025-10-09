@@ -184,6 +184,7 @@ describe("CascadingUIHandler", () => {
                 mockUIStore.freeSpinsTotal = 10;
                 mockUIStore.freeSpinsByRound = 5;
                 mockUIStore.isPlacingBet = true;
+                mockUIStore.bottomMessageState = SlotNotification.FREESPINS;
                 jest.spyOn(uiHandler, "resetBottomMessageState");
 
                 uiHandler.handlePlaceBetFailed();
@@ -225,6 +226,15 @@ describe("CascadingUIHandler", () => {
             expect(mockUIStore.freeSpinsByRound).toBe(0);
 
             expect(uiHandler.updateFreespinCountMsgBottom).not.toBeCalled();
+        });
+
+        it("should call reset bottom message state, when auto spin", () => {
+            mockUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
+            jest.spyOn(uiHandler, "resetBottomMessageState");
+
+            uiHandler.handlePlaceBetFailed();
+
+            expect(uiHandler.resetBottomMessageState).toHaveBeenCalled();
         });
     });
 
