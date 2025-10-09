@@ -42,4 +42,8 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     renderTotalMultiplierJoinGame(isShow: boolean) {
         isShow && this.showView(true);
     }
+
+    setTotalMultiplierTmp(totalMultiplier: number) {
+        this.total.string = `x${totalMultiplier}`;
+    }
 }
