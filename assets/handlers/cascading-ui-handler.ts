@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;

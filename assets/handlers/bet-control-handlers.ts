@@ -15,8 +15,12 @@ export class BetControlHandlers {
 
     private readonly TrialModeDefaultBetLevelIndex = 4;
 
-    updateStatusBetAmountPopup(status = false) {
+    closeBetControl() {
         this.betControlStore.isOpenBetAmountPopup = false;
+    }
+
+    showBetControl() {
+        this.betControlStore.isOpenBetAmountPopup = true;
     }
 
     changeBetLevel(increase: boolean) {

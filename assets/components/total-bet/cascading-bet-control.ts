@@ -76,8 +76,8 @@ export class CascadingBetControl extends ObserverComponent {
         this.coinValue.string = coinValue.toString();
     }
 
-    @handle(BetControlHandlers, (handle, status: boolean) => handle.updateStatusBetAmountPopup())
-    onCloseBetControl() {}
+    @handle(BetControlHandlers, (handle) => handle.closeBetControl())
+    onCloseBetControl() { }
 
     @handle(BetControlHandlers, (handle) => handle.changeBetLevel(false))
     protected onClickDecreaseBetLevel() {

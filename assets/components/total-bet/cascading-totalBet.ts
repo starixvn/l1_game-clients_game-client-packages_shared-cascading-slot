@@ -5,7 +5,7 @@ import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { DialogName, resourcesCache } from "../../cascading-slot-utils";
-import { CascadingTotalBetHandlers } from "../../handlers/cascading-total-bet-handlers";
+import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -52,7 +52,7 @@ export class CascadingTotalBet extends ObserverComponent {
         this.buttonDecrease.interactable = interactableTotalBet.decrease;
     }
 
-    @handle(CascadingTotalBetHandlers, (handle, status: boolean) => handle.showBetControl())
+    @handle(BetControlHandlers, (handle) => handle.showBetControl())
     onClickOpenBetControl() {
         this.triggerOpenBetControl();
     }

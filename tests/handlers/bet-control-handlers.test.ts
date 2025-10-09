@@ -73,15 +73,7 @@ describe("BetControlHandlers", () => {
         it("should close bet amount popup", () => {
             mockBetControlStore.isOpenBetAmountPopup = true;
 
-            handler.updateStatusBetAmountPopup();
-
-            expect(mockBetControlStore.isOpenBetAmountPopup).toBe(false);
-        });
-
-        it("should close bet amount popup regardless of parameter", () => {
-            mockBetControlStore.isOpenBetAmountPopup = true;
-
-            handler.updateStatusBetAmountPopup(true);
+            handler.closeBetControl();
 
             expect(mockBetControlStore.isOpenBetAmountPopup).toBe(false);
         });
