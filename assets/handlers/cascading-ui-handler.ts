@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() { }
+    handle() {}
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -198,14 +198,17 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         if (!this.settlementStore.finishData) {
             return;
         }
-        const { bigWin, freeSpins } = this.settlementStore.finishData;
 
-        const isPeekEffectSuccess = freeSpins > 0 && this.uiStore.activePeekEffect;
-        if (bigWin && !isPeekEffectSuccess) {
+        const isPeekEffectSuccess = this.settlementStore?.finishData?.freeSpins > 0 && this.uiStore.activePeekEffect;
+        if (this.checkHaveBigWin(this.settlementStore?.finishData) && !isPeekEffectSuccess) {
             this.uiStore.haveBigWin = bigwin;
         } else {
             this.uiStore.isBigWinCompleted = true;
         }
+    }
+
+    checkHaveBigWin(finishData: any) {
+        return finishData?.bigWin || finishData?.megaWin || finishData?.superWin || false;
     }
 
     handleBigWinAmount(win: number) {
