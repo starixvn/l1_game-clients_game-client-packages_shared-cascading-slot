@@ -72,8 +72,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
         const valueRatio = betWin / totalBet;
 
-        const superThreshold = +this.bigWinRange?.[1];
-        const megaThreshold = +this.bigWinRange?.[2];
+        const megaThreshold = +this.bigWinRange?.[1];
+        const superThreshold = +this.bigWinRange?.[2];
         this.handleLogBigWinRange(superThreshold, megaThreshold);
 
         if (valueRatio >= superThreshold) {
