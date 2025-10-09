@@ -137,7 +137,7 @@ export const findIndex = (value: number, valueList: number[]) => {
 };
 
 export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
-    return +(level * coin * betMultiplier).toFixed(1);
+    return +(level * coin * betMultiplier);
 };
 
 export enum DialogName {
