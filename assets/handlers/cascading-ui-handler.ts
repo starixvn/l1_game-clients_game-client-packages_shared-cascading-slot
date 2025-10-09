@@ -200,15 +200,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
 
         const isPeekEffectSuccess = this.settlementStore?.finishData?.freeSpins > 0 && this.uiStore.activePeekEffect;
-        if (this.checkHaveBigWin(this.settlementStore?.finishData) && !isPeekEffectSuccess) {
+        if (bigwin && !isPeekEffectSuccess) {
             this.uiStore.haveBigWin = bigwin;
         } else {
             this.uiStore.isBigWinCompleted = true;
         }
-    }
-
-    checkHaveBigWin(finishData: any) {
-        return finishData?.bigWin || finishData?.megaWin || finishData?.superWin || false;
     }
 
     handleBigWinAmount(win: number) {
