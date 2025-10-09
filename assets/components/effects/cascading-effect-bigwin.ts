@@ -94,7 +94,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     showHideBigWinNode(show: boolean) {
-        this.nodeBigWin.active = show;
+        this.nodeBigWin && (this.nodeBigWin.active = show);
     }
 
     async setAnimationChangeSuper() {
@@ -191,6 +191,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     private winAmountForNoAnim(betWin: number) {
+        this.showHideBigWinNode(false);
         this.changeFrameForBigWinLevel(betWin, this.totalBet);
         this.setAmount({ amount: betWin });
     }
