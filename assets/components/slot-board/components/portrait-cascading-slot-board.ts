@@ -44,7 +44,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             }
         }
         if (this.currentTotalMultiplier > 0) {
-            await this.movingMultiplier(totalMultiplierView.total.node, this.effectContainer, tumbleWinView.multiplier.node);
+            await this.animMoveTotalMultiplier(totalMultiplierView.total.node, this.effectContainer, tumbleWinView.multiplier.node);
         }
 
         await AnimationUtils.delayTime(tumbleWinView.mulitiplierEffectDuration);
@@ -57,19 +57,41 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             const destPos = ComponentUtils.convertPosition(container, destNode);
             container.addChild(node);
             node.position = startPos;
-
-            const distance = startPos.subtract(destPos).length();
-            const pixelPerSecond = 750;
-            const duration = distance / pixelPerSecond;
+            const duration = 0.8;
             tween(node)
                 .to(duration, { scale: v3(3, 3, 3) }, { easing: "sineOut" })
                 .start();
             tween(node.getComponent(UIOpacity))
-                .to(duration - 0.1, { opacity: 240 }, { easing: "sineOut" })
-                .to(0.1, { opacity: 0 }, { easing: "sineOut" })
+                .delay(duration - 0.3)
+                .to(0.3, { opacity: 0 }, { easing: "sineOut" })
                 .start();
             tween(node)
-                .to(duration, { position: destPos }, { easing: "sineOut" })
+                .to(duration - 0.3, { position: destPos }, { easing: "sineOut" })
+                .delay(0.3)
+                .call(() => {
+                    resolve();
+                    node.destroy();
+                })
+                .start();
+        });
+    }
+
+    animMoveTotalMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
+        return new Promise<void>((resolve) => {
+            const node = instantiate(multiplierNode);
+            node.active = true;
+            const startPos = ComponentUtils.convertPosition(container, multiplierNode);
+            const destPos = ComponentUtils.convertPosition(container, destNode);
+            container.addChild(node);
+            node.position = startPos;
+            const duration = 0.6;
+            tween(node.getComponent(UIOpacity))
+                .to(duration * 0.6, { opacity: 240 }, { easing: "sineOut" })
+                .to(duration * 0.4, { opacity: 0 }, { easing: "sineOut" })
+                .start();
+            tween(node)
+                .to(duration - 0.3, { position: destPos }, { easing: "sineOut" })
+                .delay(0.3)
                 .call(() => {
                     resolve();
                     node.destroy();
