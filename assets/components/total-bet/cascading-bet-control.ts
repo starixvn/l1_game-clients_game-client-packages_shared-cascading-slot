@@ -5,6 +5,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
+import { DialogName } from "../../cascading-slot-utils";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { BetControlStore } from "../../stores/bet-control-store";
 
@@ -74,6 +75,13 @@ export class CascadingBetControl extends ObserverComponent {
     @render(BetControlStore, (store) => store.coinValue)
     private renderCoinValue(coinValue: number) {
         this.coinValue.string = coinValue.toString();
+    }
+
+    @render(CascadingUIStore, (store) => store.dialogOpenEvent, { fireImmediately: false })
+    private renderDialogOpenEvent(dialogOpenEvent: { name: string }) {
+        if (dialogOpenEvent?.name !== DialogName.BET_CONTROL) {
+            this.onCloseBetControl();
+        }
     }
 
     @handle(BetControlHandlers, (handle) => handle.closeBetControl())
