@@ -17,6 +17,7 @@ export class CascadingVolatilityLabel extends ObserverComponent {
     onLoad() {
         AnimationUtils.setOpacityNode(this.node, 1);
         super.onLoad();
+        this.node.active = false;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameInfo)
@@ -25,7 +26,7 @@ export class CascadingVolatilityLabel extends ObserverComponent {
             return;
         }
         const volatility = gameInfo.volatility;
-        console.log("volatility ---- ", volatility);
+        this.node.active = volatility > 0;
         this.updateVolatility(volatility);
     }
 

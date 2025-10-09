@@ -24,6 +24,7 @@ export class CascadingVolatilityView extends ObserverComponent {
             this.atlas = this.sprites[0].spriteAtlas;
         }
         super.onLoad();
+        this.node.active = false;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameInfo)
@@ -32,6 +33,7 @@ export class CascadingVolatilityView extends ObserverComponent {
             return;
         }
         const volatility = gameInfo.volatility;
+        this.node.active = volatility > 0;
         this.updateVolatility(volatility);
     }
 
