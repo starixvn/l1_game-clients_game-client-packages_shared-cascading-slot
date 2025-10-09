@@ -124,7 +124,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) {}
+        } catch (error) { }
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {

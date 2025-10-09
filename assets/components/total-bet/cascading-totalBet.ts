@@ -1,9 +1,9 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
+import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
-
-import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { DialogName, resourcesCache } from "../../cascading-slot-utils";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
@@ -43,7 +43,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.totalBetLabel.string = totalBet.toString();
+        this.totalBetLabel.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
     }
 
     @render(BetControlStore, (store) => store.interactableTotalBet)

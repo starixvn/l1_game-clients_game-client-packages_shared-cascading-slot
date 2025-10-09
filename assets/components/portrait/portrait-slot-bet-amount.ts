@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -12,6 +13,7 @@ export class PortraitSlotBetAmount extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.lblBetAmount.string = totalBet.toString();
+        this.lblBetAmount.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
+
     }
 }

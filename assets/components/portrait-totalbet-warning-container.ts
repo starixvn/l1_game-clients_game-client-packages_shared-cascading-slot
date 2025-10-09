@@ -1,7 +1,7 @@
+import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
-import Observer from "observer";
-
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import Observer from "observer";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingWarningMsg } from "./cascading-warning-msg";
 
@@ -24,7 +24,8 @@ export class PortraitTotalBetWarningContainer extends ObserverComponent {
             const warningNode = instantiate(this.prefabTotalBetWarning);
             const comp = warningNode.getComponent(CascadingWarningMsg);
             this.node.addChild(warningNode);
-            comp.setData(totalBet.toString());
+            comp.setData(gc.FormatUtils.numberWithCommas(totalBet, 2, true)
+            );
         }
     }
 }

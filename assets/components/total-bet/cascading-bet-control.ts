@@ -64,7 +64,7 @@ export class CascadingBetControl extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private renderTotalBet(totalBet: number) {
-        this.totalBet.string = totalBet.toString();
+        this.totalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
     }
 
     @render(BetControlStore, (store) => store.betLevel)
