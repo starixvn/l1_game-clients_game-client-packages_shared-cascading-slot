@@ -46,7 +46,7 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
                 this.totalWinLabel.string = gc.FormatUtils.numberWithCommas(totalTumbleWin, 2, false);
                 this.totalWinNode.active = true;
             })
-            .to(0.3, { scale: v3(1.2, 1.2, 1.2) }, { easing: "sineOut" })
+            .to(0.2, { scale: v3(1.2, 1.2, 1.2) }, { easing: "sineOut" })
             .to(0.1, { scale: v3(1, 1, 1) }, { easing: "sineOut" })
             .start();
     }

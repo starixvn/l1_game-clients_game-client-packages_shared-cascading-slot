@@ -1,6 +1,6 @@
 import { _decorator, instantiate, Node, tween, UIOpacity, UITransform, v3, Vec3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
-import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
+import { ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { TotalMultiplierView } from "../../total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
@@ -46,8 +46,6 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         if (this.currentTotalMultiplier > 0) {
             await this.movingTotalMultipliertoTotalWin(totalMultiplierView, this.effectContainer, tumbleWinView.multiplier.node);
         }
-
-        await AnimationUtils.delayTime(tumbleWinView.mulitiplierEffectDuration);
     }
 
     movingMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
