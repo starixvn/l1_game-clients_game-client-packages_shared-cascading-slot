@@ -1224,8 +1224,8 @@
     },
     "_alignFlags": 41,
     "_target": null,
-    "_left": -172.716,
-    "_right": -169.284,
+    "_left": -194.716,
+    "_right": -191.284,
     "_top": 74.493,
     "_bottom": 0,
     "_horizontalCenter": 0,
@@ -1279,7 +1279,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 742,
+      "width": 786,
       "height": 1
     },
     "_anchorPoint": {
