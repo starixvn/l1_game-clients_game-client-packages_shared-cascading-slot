@@ -107,6 +107,9 @@ export class CascadingTicketDetailItem extends Component {
     }
 
     highlightExplodedSymbols(symbols: number[]) {
+        if (symbols.length === 0) {
+            return;
+        }
         const values = convertBoardValue(symbols);
         this.resultBoard.highlightExplodedSymbols(values);
     }
