@@ -27,9 +27,9 @@ export class CascadingFreespinsFeature extends ObserverComponent {
     private triggerFreespin = false;
 
     onLoad() {
-        super.onLoad();
         this.bgNormal && (this.bgNormal.active = true);
         this.bgFreeSpin && (this.bgFreeSpin.active = false);
+        super.onLoad();
     }
 
     @render(gc.UserSettings.UserSettingStore, (store) => store.musicEnable, { fireImmediately: false })
@@ -63,8 +63,12 @@ export class CascadingFreespinsFeature extends ObserverComponent {
             } catch (err) {}
         } else {
             if (this.bgFreeSpin) {
-                AnimationUtils.fadeOutAndDeactivate(this.bgFreeSpin, this.FADE_IN_OUT_DURATION);
-                this.bgFreeSpin.removeAllChildren();
+                AnimationUtils.fadeOut(this.bgFreeSpin, this.FADE_IN_OUT_DURATION).then(() => {
+                    if(!this.triggerFreespin) {
+                        this.bgFreeSpin.removeAllChildren();
+                        this.bgFreeSpin.active = false;
+                    }
+                });
             }
             this.bgNormal && AnimationUtils.fadeIn(this.bgNormal, this.FADE_IN_OUT_DURATION);
 
