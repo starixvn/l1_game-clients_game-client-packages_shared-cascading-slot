@@ -70,15 +70,11 @@ export class CascadingEffectBigwin extends ObserverComponent {
             return;
         }
 
-        const valueRatio = betWin / totalBet;
+        const { isMega, isSuper } = this.checkBigWinThresholds(betWin, totalBet);
 
-        const megaThreshold = +this.bigWinRange?.[1];
-        const superThreshold = +this.bigWinRange?.[2];
-        this.handleLogBigWinRange(superThreshold, megaThreshold);
-
-        if (valueRatio >= superThreshold) {
+        if (isSuper) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
-        } else if (valueRatio >= megaThreshold) {
+        } else if (isMega) {
             this.isChangeLevelMega && this.setAnimationChangeMega();
         } else {
             this.isChangeLevelBig && this.setAnimationChangeBig();
@@ -91,6 +87,22 @@ export class CascadingEffectBigwin extends ObserverComponent {
                 bigWinRange: this.bigWinRange,
             });
         }
+    }
+
+    private checkBigWinThresholds(betWin: number, totalBet: number) {
+        if (totalBet === 0) {
+            return { isMega: false, isSuper: false };
+        }
+        const valueRatio = betWin / totalBet;
+
+        const megaThreshold = +this.bigWinRange?.[1];
+        const superThreshold = +this.bigWinRange?.[2];
+        this.handleLogBigWinRange(superThreshold, megaThreshold);
+
+        const isSuper = valueRatio >= superThreshold;
+        const isMega = valueRatio >= megaThreshold && !isSuper;
+
+        return { isMega, isSuper };
     }
 
     showHideBigWinNode(show: boolean) {
@@ -124,7 +136,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) { }
+        } catch (error) {}
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
@@ -191,7 +203,10 @@ export class CascadingEffectBigwin extends ObserverComponent {
     }
 
     private winAmountForNoAnim(betWin: number) {
-        this.showHideBigWinNode(false);
+        const { isMega, isSuper } = this.checkBigWinThresholds(betWin, this.totalBet);
+        if (isMega || isSuper) {
+            this.showHideBigWinNode(false);
+        }
         this.changeFrameForBigWinLevel(betWin, this.totalBet);
         this.setAmount({ amount: betWin });
     }
