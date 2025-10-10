@@ -1,6 +1,8 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label, Layout, Node, tween, v3 } from "cc";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { TumbleWinWiew } from "./tumble-win-view";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -22,6 +24,13 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
     @property({ type: Label, visible: false })
     totalWin: Label = null;
 
+    private isAutoSpinOrFreeSpin = false;
+
+    @render(CascadingUIStore, (store) => store.isAutoSpinOrFreeSpin)
+    setIsAutoSpinOrFreeSpin(isAutoSpinOrFreeSpin: boolean) {
+        this.isAutoSpinOrFreeSpin = isAutoSpinOrFreeSpin;
+    }
+
     setTumbleWinValuewin(totalTumbleWin: number) {
         if (totalTumbleWin === 0) {
             return;
@@ -30,7 +39,10 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
         this.animTotalWinNode(totalTumbleWin);
     }
 
-    setIsShowTumbleWinFrame(isShowTumbleWinFrame: boolean) {
+    async setIsShowTumbleWinFrame(isShowTumbleWinFrame: boolean) {
+        if (this.isAutoSpinOrFreeSpin && !isShowTumbleWinFrame) {
+            await AnimationUtils.delayTime(2);
+        }
         this.node.active = isShowTumbleWinFrame;
     }
 

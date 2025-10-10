@@ -8,6 +8,7 @@ import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -24,14 +25,32 @@ export class PortraitCascadingMessages extends ObserverComponent {
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
     private autoScrollingContent: AutoScrollingContent;
+    private isAutoSpinOrFreeSpin = false;
 
     onLoad() {
         this.autoScrollingContent = this.getComponent(AutoScrollingContent);
         this.colorConfig = resourcesCache.colorJson;
         this.renderMsgDefault();
-        this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
         super.onLoad();
         this.msg.getComponent(RichText).fontColor = new Color().fromHEX(this.colorConfig.topMessageTextColor);
+    }
+
+    onEnable() {
+        if (this.isAutoSpinOrFreeSpin) {
+            this.msg.string = "";
+            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 2);
+        } else {
+            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
+        }
+    }
+
+    onDisable() {
+        this.unschedule(this.updateTopMessage);
+    }
+
+    @render(CascadingUIStore, (store) => store.isAutoSpinOrFreeSpin)
+    setIsAutoSpinOrFreeSpin(isAutoSpinOrFreeSpin: boolean) {
+        this.isAutoSpinOrFreeSpin = isAutoSpinOrFreeSpin;
     }
 
     updateTopMessage() {

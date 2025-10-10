@@ -212,5 +212,9 @@ export class CascadingUIStore {
         return this.bottomMessageState === SlotNotification.AUTO_SPIN;
     }
 
+    get isAutoSpinOrFreeSpin() {
+        return this.isFreeSpins || this.autoPlayStore.isAutoplay;
+    }
+
     dialogOpenEvent: { name: string } = null;
 }
