@@ -8252,7 +8252,7 @@
     "__prefab": {
       "__id__": 409
     },
-    "_alignFlags": 40,
+    "_alignFlags": 45,
     "_target": null,
     "_left": 0,
     "_right": 0,
@@ -8267,7 +8267,7 @@
     "_isAbsHorizontalCenter": true,
     "_isAbsVerticalCenter": true,
     "_originalWidth": 786,
-    "_originalHeight": 0,
+    "_originalHeight": 270,
     "_alignMode": 2,
     "_lockFlags": 0,
     "_id": ""
