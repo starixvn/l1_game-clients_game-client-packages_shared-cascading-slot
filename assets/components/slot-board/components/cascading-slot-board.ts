@@ -365,8 +365,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                     ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
                 }
             });
-        }
-        )
+        });
     }
 
     public updateMultiplierItems(multipliers: number[]) {
