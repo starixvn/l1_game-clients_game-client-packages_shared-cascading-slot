@@ -36,7 +36,6 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             this.setMultiplierValue(mItem.multiplier);
 
             if (this.currentTotalMultiplier > 0) {
-                const totalMultiplierWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
                 await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView);
                 accumulatedMultiplier += +mItem.multiplier;
                 totalMultiplierView.setTotalMultiplierTmp(this.currentTotalMultiplier + accumulatedMultiplier);
