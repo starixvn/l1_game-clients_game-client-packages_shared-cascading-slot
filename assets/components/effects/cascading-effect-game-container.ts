@@ -29,6 +29,9 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     private gameConfig: GameFeatureJson;
     private bigWinRange = [];
 
+    private readonly MEGA_WIN_RATIO = 20;
+    private readonly SUPER_WIN_RATIO = 50;
+
     onLoad() {
         super.onLoad();
         this.gameConfig = resourcesCache.gameFeatures;
@@ -121,6 +124,6 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         if (!gameConfigs) {
             return;
         }
-        this.bigWinRange = gameConfigs?.bigWinRange ?? [];
+        this.bigWinRange = gameConfigs?.bigWinRange ?? [0, this.MEGA_WIN_RATIO, this.SUPER_WIN_RATIO];
     }
 }
