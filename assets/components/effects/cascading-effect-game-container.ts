@@ -29,8 +29,8 @@ export class CascadingEffectGameContainer extends ObserverComponent {
     private gameConfig: GameFeatureJson;
     private bigWinRange = [];
 
-    private readonly MEGA_WIN_RATIO = 20;
-    private readonly SUPER_WIN_RATIO = 50;
+    private readonly MEGA_WIN_RATIO = 3;
+    private readonly SUPER_WIN_RATIO = 6;
 
     onLoad() {
         super.onLoad();
