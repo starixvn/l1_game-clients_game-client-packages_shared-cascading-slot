@@ -44,7 +44,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             }
         }
         if (this.currentTotalMultiplier > 0) {
-            await this.movingMultiplier(totalMultiplierView.total.node, this.effectContainer, tumbleWinView.multiplier.node);
+            await this.movingTotalMultipliertoTotalWin(totalMultiplierView, this.effectContainer, tumbleWinView.multiplier.node);
         }
 
         await AnimationUtils.delayTime(tumbleWinView.mulitiplierEffectDuration);
@@ -52,12 +52,8 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
     movingMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
         return new Promise<void>((resolve) => {
-            const node = instantiate(multiplierNode);
-            node.active = true;
-            const startPos = ComponentUtils.convertPosition(container, multiplierNode);
+            const node = this.initStartNode(multiplierNode, container);
             const destPos = ComponentUtils.convertPosition(container, destNode);
-            container.addChild(node);
-            node.position = startPos;
             const duration = 0.6;
 
             this.animMoveMultiplier(node, destPos, duration, resolve);
@@ -66,14 +62,22 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
     movingMultiplierToTotalMultiplier(multiplierNode: Node, container: Node, totalMultiplierView: TotalMultiplierView) {
         return new Promise<void>((resolve) => {
-            const node = instantiate(multiplierNode);
-            node.active = true;
-            const startPos = ComponentUtils.convertPosition(container, multiplierNode);
+            const node = this.initStartNode(multiplierNode, container);
             const destPosTmp = ComponentUtils.convertPosition(container, totalMultiplierView.total.node);
             const totalValueWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
             const destPos = v3(destPosTmp.x - totalValueWidth / 2, destPosTmp.y, 0);
-            container.addChild(node);
-            node.position = startPos;
+            const duration = 0.6;
+
+            this.animMoveMultiplier(node, destPos, duration, resolve);
+        });
+    }
+
+    movingTotalMultipliertoTotalWin(totalMultiplierView: TotalMultiplierView, container: Node, totalWinView: Node) {
+        return new Promise<void>((resolve) => {
+            const node = this.initStartNode(totalMultiplierView.total.node, container);
+            const destPosTmp = ComponentUtils.convertPosition(container, totalWinView);
+            const totalMultipierWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
+            const destPos = v3(destPosTmp.x + totalMultipierWidth, destPosTmp.y, 0);
             const duration = 0.5;
 
             this.animMoveMultiplier(node, destPos, duration, resolve);
@@ -98,5 +102,14 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                 node.destroy();
             })
             .start();
+    }
+
+    initStartNode(nodeStart: Node, container: Node) {
+        const node = instantiate(nodeStart);
+        node.active = true;
+        const startPos = ComponentUtils.convertPosition(container, nodeStart);
+        container.addChild(node);
+        node.position = startPos;
+        return node;
     }
 }
