@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Prefab } from "cc";
+import { _decorator, Label, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
