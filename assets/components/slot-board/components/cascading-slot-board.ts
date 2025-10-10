@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Node, NodePool, Prefab, sp, tween, UIOpacity, v3, Vec3 } from "cc";
+import { _decorator, Color, instantiate, Label, Node, NodePool, Prefab, sp, tween, UIOpacity, UIRenderer, v3, Vec3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { CascadingSlotState } from "db://shared-cascading-slot/cascading-slot-state";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -342,6 +342,16 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
         await Promise.all(this.reels.map((reel) => reel.highlightScatterItems()));
         this.handleHighlightScattersCompleted(true);
+    }
+
+    showNoWinBoard() {
+        if (!this.effectContainer) {
+            return;
+        }
+        this.effectContainer.active = true;
+        const uiRenderer = this.effectContainer.getComponent(UIRenderer);
+        const color = uiRenderer.color;
+        uiRenderer.color = new Color(color.r, color.g, color.b, color.a * 0.7);
     }
 
     highlightExplodedSymbols(explodedSymbols: number[][]) {

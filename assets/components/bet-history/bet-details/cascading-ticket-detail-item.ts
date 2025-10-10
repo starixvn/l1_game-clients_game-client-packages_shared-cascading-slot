@@ -106,6 +106,10 @@ export class CascadingTicketDetailItem extends Component {
         this.resultBoard.setData(board, multiplier);
     }
 
+    showNoWinBoard() {
+        this.resultBoard.showNoWinBoard();
+    }
+
     highlightExplodedSymbols(symbols: number[]) {
         if (symbols.length === 0) {
             return;

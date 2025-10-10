@@ -85,7 +85,11 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
             const newTumbleMultipliers = [...tumble.multipliers];
             control.setDataResultBoard(tumble.originalBoard, newTumbleMultipliers);
-            tumble.explodedSymbols && control.highlightExplodedSymbols(tumble.explodedSymbols);
+            if (tumble.explodedSymbols) {
+                control.highlightExplodedSymbols(tumble.explodedSymbols);
+            } else {
+                control.showNoWinBoard();
+            }
         });
         this.handleMultiplierData(betHistoryLog);
         this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin, 2, false);
