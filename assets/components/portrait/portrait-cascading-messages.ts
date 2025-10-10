@@ -1,7 +1,8 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Color, macro, RichText, SpriteAtlas, sys } from "cc";
+import { _decorator, Color, macro, RichText, SpriteAtlas, sys, UIOpacity } from "cc";
 import { AutoScrollingContent } from "db://shared-components/shared/common-components/auto-scrolling/auto-scrolling-content";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import { random } from "lodash-es";
 import Observer from "observer";
 import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
@@ -38,7 +39,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
     onEnable() {
         if (this.isAutoSpinOrFreeSpin) {
             this.msg.string = "";
-            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 2);
+            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 1);
         } else {
             this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
         }
@@ -62,15 +63,16 @@ export class PortraitCascadingMessages extends ObserverComponent {
                 break;
             case 3:
                 const textMsg = gc.Translator.gameTranslate(messageKey);
-                this.msg.string = textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString());
+                this.renderMsg(textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString()));
                 break;
             case 2:
                 const textMsg2a = gc.Translator.gameTranslate("top_message2a");
                 const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-                this.msg.string = `${textMsg2a} <img src="symbol-13" /> ${textMsg2b}`;
+                this.renderMsg(`${textMsg2a} <img src="symbol-13" /> ${textMsg2b}`);
                 break;
             default:
-                this.renderMsg(messageKey);
+                const msg = gc.Translator.gameTranslate(messageKey);
+                this.renderMsg(msg);
                 break;
         }
     }
@@ -82,7 +84,9 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     renderMsg(msg: string) {
-        this.msg.string = gc.Translator.gameTranslate(msg);
+        this.node.getComponent(UIOpacity).opacity = 0;
+        AnimationUtils.fadeIn(this.node, 0.3);
+        this.msg.string = msg;
         this.onTextChange();
     }
 
@@ -94,7 +98,12 @@ export class PortraitCascadingMessages extends ObserverComponent {
 
     @render(CascadingSlotTumblesStore, (store) => store.tumbles)
     setNodeVisibilityBeforeSpin(tumbles: []) {
-        this.node.active = tumbles.length <= 1;
+        const isShow = tumbles.length <= 1;
+        if (isShow) {
+            AnimationUtils.fadeInAndActivate(this.node, 0.3);
+        } else {
+            AnimationUtils.fadeOutAndDeactivate(this.node, 0.3);
+        }
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
@@ -104,4 +113,12 @@ export class PortraitCascadingMessages extends ObserverComponent {
         }
         this.maxWinPerRound = gameConfigs.maxWinPerRound;
     }
+
+    // animTotalWin() {
+    //     this.node.scale = v3(0, 0, 0);
+    //     tween(this.node)
+    //         .to(0.2, { scale: v3(1.2, 1.2, 1.2) }, { easing: "sineOut" })
+    //         .to(0.2, { scale: v3(1, 1, 1) }, { easing: "sineOut" })
+    //         .start();
+    // }
 }
