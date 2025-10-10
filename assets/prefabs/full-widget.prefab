@@ -8468,7 +8468,11 @@
     },
     "fileId": "80vlGqy0xPhqxwHCpNTXgT",
     "instance": null,
-    "targetOverrides": null,
+    "targetOverrides": [
+      {
+        "__id__": 423
+      }
+    ],
     "nestedPrefabInstanceRoots": [
       {
         "__id__": 128
@@ -8482,6 +8486,28 @@
       {
         "__id__": 189
       }
+    ]
+  },
+  {
+    "__type__": "cc.TargetOverrideInfo",
+    "source": {
+      "__id__": 354
+    },
+    "sourceInfo": null,
+    "propertyPath": [
+      "betControl"
+    ],
+    "target": {
+      "__id__": 341
+    },
+    "targetInfo": {
+      "__id__": 424
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "20+v4T8LdLy6QGzwNeY99T"
     ]
   }
 ]
