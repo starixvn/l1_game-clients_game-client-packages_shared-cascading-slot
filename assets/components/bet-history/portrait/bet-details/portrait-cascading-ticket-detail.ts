@@ -107,34 +107,51 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
         super.setData(data);
         const { betHistoryLog } = data;
+
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
         }
-        if (betHistoryLog) {
-            this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
-            this.betLevelDetail.string = betHistoryLog.betLevel;
-            this.coinValueDetail.string = betHistoryLog.coinValue;
-            this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
-            this.currentId = betHistoryLog.id;
-            if (this.multiplierNode.active) {
-                const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
-                if (betHistoryLog.freeSpin) {
-                    if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
-                        this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier}) + ${winFreeSpin})`;
-                    } else {
-                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
-                    }
-                } else {
-                    if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
-                        this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier}) + ${winFreeSpin})`;
-                    } else {
-                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier})`;
-                    }
-                }
-            }
-            this.multiplierDetail.node.active = this.multiplierNode.active;
+
+        if (!betHistoryLog) {
+            return;
         }
+
+        this.updateBasicDetails(betHistoryLog);
+        this.updateMultiplierDetails(betHistoryLog);
         this.updateNavigationButtons(this.betHistory);
+    }
+
+    private updateBasicDetails(betHistoryLog: any) {
+        this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
+        this.betLevelDetail.string = betHistoryLog.betLevel;
+        this.coinValueDetail.string = betHistoryLog.coinValue;
+        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
+        this.currentId = betHistoryLog.id;
+    }
+
+    private updateMultiplierDetails(betHistoryLog: any) {
+        if (!this.multiplierNode.active) {
+            this.multiplierDetail.node.active = false;
+            return;
+        }
+
+        const multiplierString = this.calculateMultiplierString(betHistoryLog);
+        this.multiplierDetail.string = multiplierString;
+        this.multiplierDetail.node.active = true;
+    }
+
+    private calculateMultiplierString(betHistoryLog: any): string {
+        const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
+        const hasWinFreeSpin = betHistoryLog.settlementResult.freeSpins?.win > 0;
+        const totalTumbleWin = gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false);
+
+        const multiplier = betHistoryLog.freeSpin ? betHistoryLog.totalMultiplier : betHistoryLog.multiplier;
+        const baseString = `${totalTumbleWin}x${multiplier}`;
+
+        if (hasWinFreeSpin) {
+            return `((${baseString}) + ${winFreeSpin})`;
+        }
+        return `(${baseString})`;
     }
     handleMultiplierData(data: any) {
         super.handleMultiplierData(data);
