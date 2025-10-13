@@ -100,7 +100,7 @@ export class CascadingTicketDetailItem extends Component {
         this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 2, false);
         this.index.string = (data.index + 1).toString();
         this.calculateHeightRow(1);
-        return tumbleNode
+        return tumbleNode;
     }
 
     setDataResultBoard(symbols: string, multiplier: number[]) {
