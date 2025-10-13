@@ -71,6 +71,7 @@ export class CascadingTicketDetail extends ObserverComponent {
         let currWinTumble = 0;
 
         const freeSpinsWin = this.data.settlementResult.freeSpins?.win;
+        const isWinFreeSpin = this.data.settlementResult.freeSpins?.count > 0;
         let isShowNextRow = !isReachMaxWin;
         if (freeSpinsWin) {
             isShowNextRow = true;
@@ -87,6 +88,8 @@ export class CascadingTicketDetail extends ObserverComponent {
             control.setDataResultBoard(tumble.originalBoard, newTumbleMultipliers);
             if (tumble.explodedSymbols) {
                 control.highlightExplodedSymbols(tumble.explodedSymbols);
+            } else if (isWinFreeSpin) {
+                control.highlightScatterSymbolDetail();
             } else {
                 control.showNoWinBoard();
             }

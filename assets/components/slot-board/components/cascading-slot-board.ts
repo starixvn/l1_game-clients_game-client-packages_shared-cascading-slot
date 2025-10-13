@@ -378,6 +378,21 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 
+    highlightScatterSymbolDetail() {
+        if (!this.effectContainer) {
+            return;
+        }
+        this.effectContainer.active = true;
+        this.reels.forEach(reel => {
+            const items = reel.getItems();
+            items.forEach((item) => {
+                if (item.isScatterSymbol) {
+                    ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
+                }
+            });
+        });
+    }
+
     public updateMultiplierItems(multipliers: number[]) {
         const multiplierItems = this.getMultiplierItems();
         multiplierItems.forEach((multiplierItem, index) => {

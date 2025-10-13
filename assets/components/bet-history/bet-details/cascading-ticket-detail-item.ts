@@ -118,6 +118,10 @@ export class CascadingTicketDetailItem extends Component {
         this.resultBoard.highlightExplodedSymbols(values);
     }
 
+    highlightScatterSymbolDetail() {
+        this.resultBoard.highlightScatterSymbolDetail();
+    }
+
     calculateHeightRow(numberOfIcon: number) {
         const minHeightRow = this.getMinHeightRow();
         const heightTotalRow = numberOfIcon * this.getHeightRow();
