@@ -107,6 +107,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
         super.setData(data);
         const { betHistoryLog } = data;
+        console.log(betHistoryLog)
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
         }
@@ -117,8 +118,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2)
             this.currentId = betHistoryLog.id;
             if (this.multiplierNode.active) {
+                const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
                 if (betHistoryLog.freeSpin) {
                     this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
+                } else if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
+                    this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier}) + ${winFreeSpin})`;
                 } else {
                     this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier})`;
                 }
