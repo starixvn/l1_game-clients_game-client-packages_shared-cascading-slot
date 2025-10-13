@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Label, Node } from "cc";
+import { _decorator, Label } from "cc";
 import { CascadingTicketDetailItem } from "../../bet-details/cascading-ticket-detail-item";
 
 
