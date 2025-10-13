@@ -107,7 +107,6 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
         super.setData(data);
         const { betHistoryLog } = data;
-        console.log(betHistoryLog)
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
         }
