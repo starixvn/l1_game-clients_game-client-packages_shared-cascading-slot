@@ -120,7 +120,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
                 const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
                 if (betHistoryLog.freeSpin) {
                     if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
-                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
+                        this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier}) + ${winFreeSpin})`;
                     } else {
                         this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
                     }
