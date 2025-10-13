@@ -60,27 +60,28 @@ export class CascadingTicketDetailItem extends Component {
         const isFreeSpin = freeSpins?.odds > 0 || winFreeSpinOnlyCash;
         const freeSpin = data.freeSpin;
         if (index === data.settlementResult.tumbles.length - 1 && isFreeSpin) {
-            this.setDataHaveFreeSpin({
+            tumbleNode = this.setDataHaveFreeSpin({
                 ...freeSpins,
                 index,
                 currWinTumble,
                 extraFreeSpin: freeSpin,
             });
-        } else {
-            if (tumble.win > 0) {
-                Object.entries<{ count; win }>(tumble.icons).forEach(([key, value]) => {
-                    tumbleNode = instantiate(this.tumbleWinDetailItemPrefab);
-                    const control = tumbleNode.getComponent(CascadingTumbleItem);
-                    const { count, win } = value;
-                    control.setData(+key, count, win);
-                    numberOfIcon++;
-                    this.content.addChild(tumbleNode);
-                });
-                this.calculateHeightRow(numberOfIcon);
-            } else {
-                tumbleNode = instantiate(this.noTumbleWinDetailPrefab);
+
+        } else if (tumble.win > 0) {
+            Object.entries<{ count; win }>(tumble.icons).forEach(([key, value]) => {
+                tumbleNode = instantiate(this.tumbleWinDetailItemPrefab);
+                const control = tumbleNode.getComponent(CascadingTumbleItem);
+                const { count, win } = value;
+                control.setData(+key, count, win);
+                numberOfIcon++;
                 this.content.addChild(tumbleNode);
-            }
+            });
+            this.calculateHeightRow(numberOfIcon);
+        }
+
+        if (tumble.win === 0) {
+            tumbleNode = instantiate(this.noTumbleWinDetailPrefab);
+            this.content.addChild(tumbleNode);
         }
 
         this.win.string = gc.FormatUtils.numberWithCommas(currWinTumble, 2, false);
@@ -99,6 +100,7 @@ export class CascadingTicketDetailItem extends Component {
         this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 2, false);
         this.index.string = (data.index + 1).toString();
         this.calculateHeightRow(1);
+        return tumbleNode
     }
 
     setDataResultBoard(symbols: string, multiplier: number[]) {
