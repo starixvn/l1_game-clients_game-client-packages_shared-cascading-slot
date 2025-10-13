@@ -204,7 +204,7 @@
     "_actualFontSize": 30,
     "_fontSize": 30,
     "_fontFamily": "Arial",
-    "_lineHeight": 30,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
@@ -281,7 +281,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 425.66986083984375,
-      "height": 37.8
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -380,7 +380,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 660,
-      "height": 37.8
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
