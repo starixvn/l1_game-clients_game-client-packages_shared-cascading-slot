@@ -120,11 +120,17 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             if (this.multiplierNode.active) {
                 const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
                 if (betHistoryLog.freeSpin) {
-                    this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
-                } else if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
-                    this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier}) + ${winFreeSpin})`;
+                    if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
+                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
+                    } else {
+                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.totalMultiplier})`;
+                    }
                 } else {
-                    this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier})`;
+                    if (betHistoryLog.settlementResult.freeSpins?.win > 0) {
+                        this.multiplierDetail.string = `((${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier}) + ${winFreeSpin})`;
+                    } else {
+                        this.multiplierDetail.string = `(${gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false)}x${betHistoryLog.multiplier})`;
+                    }
                 }
             }
             this.multiplierDetail.node.active = this.multiplierNode.active;
