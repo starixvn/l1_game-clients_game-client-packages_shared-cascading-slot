@@ -123,8 +123,6 @@ jest.mock("../../../assets/cascading-slot-utils", () => ({
         return durations[key] || 1.0;
     }),
 
-    checkExistAudioId: jest.fn().mockResolvedValue(true),
-
     resourcesCache: {
         gameFeatures: {
             turnOnEventMascot: true,
