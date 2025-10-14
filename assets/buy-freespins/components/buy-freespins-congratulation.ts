@@ -4,10 +4,10 @@ import Observer from "observer";
 
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { FSBPromotionUIStore } from "db://shared-common-slot/index";
+import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { checkExistAudioId } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
@@ -35,7 +35,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             };
         }
         AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
-        if (await checkExistAudioId(AudioIds.STINGER_WINCOUNT)) {
+        if (audioManager.audioConfigs[AudioIds.STINGER_WINCOUNT]) {
             this.handleFadeBGM(false);
         }
     }

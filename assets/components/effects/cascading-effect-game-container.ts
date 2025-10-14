@@ -1,11 +1,12 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Prefab } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
-import { checkExistAudioId, GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
@@ -47,7 +48,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
         await this.delayMascotEvent();
         await this.playEffectTransition();
-        if (await checkExistAudioId(AudioIds.STINGER_FREESPIN_WIN)) {
+        if (audioManager.audioConfigs[AudioIds.STINGER_FREESPIN_WIN]) {
             this.handleFadeBGM(false);
         }
         this.playSound(AudioIds.FREESPIN);
@@ -62,7 +63,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
-        if (await checkExistAudioId(AudioIds.STINGER_WINCOUNT)) {
+        if (audioManager.audioConfigs[AudioIds.STINGER_WINCOUNT]) {
             this.handleFadeBGM(false);
         }
         await this.delayMascotEvent();
