@@ -143,9 +143,25 @@ export const calculateTotalBet = (level: number, coin: number, betMultiplier: nu
 
 export const checkExistAudioId = async (audioId: string): Promise<boolean> => {
     try {
-        const audioPath = `audios/${audioId}.mp3`;
-        const audio = await bundleManager.loadResourcesAsset(audioPath, AudioClip);
-        return audio !== null;
+        const audioPath = `audios/${audioId}`;
+
+        // First check if the audio is already cached
+        if (bundleManager.cachedAssets[audioPath]) {
+            return true;
+        }
+
+        // Check if the audio exists in the resources bundle
+        const resourcesBundle = await bundleManager.loadBundle("resources");
+        if (resourcesBundle) {
+            // Try to get the asset from bundle without loading it first
+            let asset = resourcesBundle.get(audioPath, AudioClip);
+            // If not found, try to load it (for lazy load audio)
+            if (!asset) {
+                asset = await bundleManager.loadResourcesAsset(audioPath, AudioClip);
+            }
+            return asset !== null;
+        }
+        return false;
     } catch (error) {
         return false;
     }
