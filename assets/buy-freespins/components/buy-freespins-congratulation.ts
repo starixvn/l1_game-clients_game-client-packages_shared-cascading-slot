@@ -7,6 +7,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/index";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { Dialog } from "db://shared-components/shared/common-components/dialogs/dialog";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { checkExistAudioId } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
@@ -25,7 +26,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
     private readonly labelTotalFreespins: Label = null;
     private isTriggerDuringFreeSpinBonus = false;
 
-    onLoad(): void {
+    async onLoad(): Promise<void> {
         super.onLoad();
         const dialogs = this.node.getComponentsInChildren(Dialog);
         if (dialogs.length > 0) {
@@ -34,7 +35,9 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             };
         }
         AudioUtils.playStoppableSFX(AudioIds.STINGER_WINCOUNT, true);
-        this.handleFadeBGM(false);
+        if (await checkExistAudioId(AudioIds.STINGER_WINCOUNT)) {
+            this.handleFadeBGM(false);
+        }
     }
 
     @render(CascadingUIStore, (store) => store.triggerDuringFreeSpinBonus)
@@ -64,7 +67,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
         AudioUtils.playClick();
     }
 
-    @render(FSBPromotionUIStore, store => store.canSpinNextFSB)
+    @render(FSBPromotionUIStore, (store) => store.canSpinNextFSB)
     renderCanSpinNextFSB(canSpinNextFSB: boolean) {
         if (canSpinNextFSB) {
             this.scheduleOnce(this.onClose, 3);

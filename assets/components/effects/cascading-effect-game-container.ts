@@ -5,7 +5,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
-import { GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { checkExistAudioId, GameFeatureJson, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
@@ -47,7 +47,9 @@ export class CascadingEffectGameContainer extends ObserverComponent {
 
         await this.delayMascotEvent();
         await this.playEffectTransition();
-        this.handleFadeBGM(false);
+        if (await checkExistAudioId(AudioIds.STINGER_FREESPIN_WIN)) {
+            this.handleFadeBGM(false);
+        }
         this.playSound(AudioIds.FREESPIN);
         AudioUtils.playStoppableSFX(AudioIds.STINGER_FREESPIN_WIN, true);
         const freespin = instantiate(this.pfbEffectFreespin);
@@ -60,7 +62,9 @@ export class CascadingEffectGameContainer extends ObserverComponent {
             this.node.destroyAllChildren();
             return;
         }
-        this.handleFadeBGM(false);
+        if (await checkExistAudioId(AudioIds.STINGER_WINCOUNT)) {
+            this.handleFadeBGM(false);
+        }
         await this.delayMascotEvent();
         await this.playEffectTransition();
         if (!this.isTurboMode) {

@@ -1,4 +1,5 @@
-import { EventTarget, Node, tween, UIOpacity } from "cc";
+import { AudioClip, EventTarget, Node, tween, UIOpacity } from "cc";
+import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
 
@@ -138,6 +139,16 @@ export const findIndex = (value: number, valueList: number[]) => {
 
 export const calculateTotalBet = (level: number, coin: number, betMultiplier: number) => {
     return +(level * coin * betMultiplier);
+};
+
+export const checkExistAudioId = async (audioId: string): Promise<boolean> => {
+    try {
+        const audioPath = `audios/${audioId}.mp3`;
+        const audio = await bundleManager.loadResourcesAsset(audioPath, AudioClip);
+        return audio !== null;
+    } catch (error) {
+        return false;
+    }
 };
 
 export enum DialogName {
