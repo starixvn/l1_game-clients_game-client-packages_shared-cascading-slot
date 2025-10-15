@@ -26,7 +26,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
     private readonly labelTotalFreespins: Label = null;
     private isTriggerDuringFreeSpinBonus = false;
 
-    async onLoad(): Promise<void> {
+    onLoad() {
         super.onLoad();
         const dialogs = this.node.getComponentsInChildren(Dialog);
         if (dialogs.length > 0) {
