@@ -68,7 +68,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
             case 2:
                 const textMsg2a = gc.Translator.gameTranslate("top_message2a");
                 const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-                this.renderMsg(`${textMsg2a} <img src="symbol-13" /> ${textMsg2b}`);
+                this.renderMsg(`${textMsg2a} ${this.renderImgForRichText()} ${textMsg2b}`);
                 break;
             default:
                 const msg = gc.Translator.gameTranslate(messageKey);
@@ -114,11 +114,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
         this.maxWinPerRound = gameConfigs.maxWinPerRound;
     }
 
-    // animTotalWin() {
-    //     this.node.scale = v3(0, 0, 0);
-    //     tween(this.node)
-    //         .to(0.2, { scale: v3(1.2, 1.2, 1.2) }, { easing: "sineOut" })
-    //         .to(0.2, { scale: v3(1, 1, 1) }, { easing: "sineOut" })
-    //         .start();
-    // }
+    renderImgForRichText() {
+        return `<img src="symbol-13" width=100 height=100 align=center />`;
+    }
 }
