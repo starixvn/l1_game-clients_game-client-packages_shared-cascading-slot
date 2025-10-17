@@ -115,6 +115,6 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     renderImgForRichText() {
-        return `<img src="symbol-13" width=100 height=100 align=center />`;
+        return `<img src="symbol-13"  />`;
     }
 }
