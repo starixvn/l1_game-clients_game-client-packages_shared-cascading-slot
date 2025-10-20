@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Game, game, JsonAsset, Label, Node } from "cc";
+import { _decorator, game, JsonAsset, Label, Node } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
