@@ -69,7 +69,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     onLoad() {
         this.initConfig();
-        this.registerEventShowHideGame();
         this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
@@ -85,16 +84,6 @@ export class CascadingSlotGame extends GameComponentBase {
         this.loadSlotSymbols();
         this.board.colorInfo = this.colorInfo;
         this.board.initBoardFullItems();
-    }
-
-    protected registerEventShowHideGame() {
-        game.on(Game.EVENT_HIDE, this.onHideGame, this);
-        game.on(Game.EVENT_SHOW, this.onShowGame, this);
-    }
-
-    protected clearEventShowHideGame() {
-        game.off(Game.EVENT_HIDE, this.onHideGame, this);
-        game.off(Game.EVENT_SHOW, this.onShowGame, this);
     }
 
     protected handleStaticNodeAndSetEmptyLabels() {
