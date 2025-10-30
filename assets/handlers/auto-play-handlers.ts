@@ -220,6 +220,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     cancelAutoPlay() {
         this.autoPlayStore.isAutoplay = false;
+        this.autoPlayStore.fastBetMode = false;
         this.updateAutoPlayRounds(0);
     }
 
@@ -262,6 +263,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.autoPlayStore.fastBetMode) {
             this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
             this.autoPlayStore.roundsAutoplay = this.autoPlayStore.selectedRoundOnPopup;
+            this.autoPlayStore.isAutoplay = true;
             this.autoPlayStore.isOpenAutoplayPopup = false;
             setTimeout(() => {
                 this.startFastBet(this.autoPlayStore.selectedRoundOnPopup);
