@@ -163,6 +163,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             this.placeBet();
         } else if (this.autoPlayStore.fastBetMode && this.autoPlayStore.roundsAutoplay <= 0) {
             this.stopFastBet();
+            this.autoPlayStore.isOpenAutoplayPopup = true;
         }
     }
 
@@ -184,7 +185,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.autoPlayStore.roundsAutoplay = 0;
         this.autoPlayStore.triggerContinuousBet = null;
         this.cascadingUIStore.isPlacingBet = false;
-        this.autoPlayStore.isOpenAutoplayPopup = true;
         this.cascadingUIHandler.resetProcessingBet();
     }
 
