@@ -190,6 +190,28 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
         this.handleChangeUserBalance(false);
+        const { win, freeSpins } = finishData;
+        const hasWonFreeSpins = freeSpins > 0;        
+        if (this.fastBetMode && hasWonFreeSpins) {
+            this.stopFastBetForFreeSpins();
+        }
+        
+        const skipAnimation = this.fastBetMode && !hasWonFreeSpins;
+        
+        if (!skipAnimation) {
+            await this.handleSettlementAnimation(finishData);
+        } else {
+            if (win > 0) {
+                this.getBalance();
+                this.handleChangeUserBalance(true);
+                this.handleTotalWin({ win: win, isActualWin: true });
+            }
+            
+            this.triggerContinuousBet();
+        }
+    }
+
+    async handleSettlementAnimation(finishData: any) {
         const {
             win,
             bigWin,
@@ -205,55 +227,38 @@ export class CascadingSlotGame extends GameComponentBase {
             actualBetwin,
             freeSpins,
         } = finishData;
-        const hasWonFreeSpins = freeSpins > 0;
-        
-        if (this.fastBetMode && hasWonFreeSpins) {
-            this.stopFastBetForFreeSpins();
+
+        const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
+        await this.board.spinResult(symbolsBoard, this.isTurboMode);
+        await this.board.handleTumbles(tumbles, this.isTurboMode);
+        const winTumbles = tumbles.length > 1;
+        const winMultiplier = multiplier > 0 && winTumbles;
+        winMultiplier && this.handleTriggerWinMultiplier();
+        await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
+        if (win > 0) {
+            this.getBalance();
+            this.handleChangeUserBalance(true);
+            if (winTumbles) {
+                await this.tumbleWinView.setTotalWinValue(actualBetwin);
+            }
+            this.handleTotalWin({ win: win, isActualWin: true });
         }
-        
-        const skipAnimation = this.fastBetMode && !hasWonFreeSpins;
-        
-        if (!skipAnimation) {
-            const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
-            await this.board.spinResult(symbolsBoard, this.isTurboMode);
-            await this.board.handleTumbles(tumbles, this.isTurboMode);
-            const winTumbles = tumbles.length > 1;
-            const winMultiplier = multiplier > 0 && winTumbles;
-            winMultiplier && this.handleTriggerWinMultiplier();
-            await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
-            if (win > 0) {
-                this.getBalance();
-                this.handleChangeUserBalance(true);
-                if (winTumbles) {
-                    await this.tumbleWinView.setTotalWinValue(actualBetwin);
-                }
-                this.handleTotalWin({ win: win, isActualWin: true });
-            }
-            this.updateTotalWinPromo({ win, totalFreeSpins });
-            this.showTotalMultiplierView(totalMultiplier, isFreeSpin, winMultiplier);
-            reachMaxWin && this.setReachMaxWin(true);
-            this.setTotalMultiplierValue(totalMultiplier);
+        this.updateTotalWinPromo({ win, totalFreeSpins });
+        this.showTotalMultiplierView(totalMultiplier, isFreeSpin, winMultiplier);
+        reachMaxWin && this.setReachMaxWin(true);
+        this.setTotalMultiplierValue(totalMultiplier);
 
-            const isHaveBigWin = bigWin || megaWin || superWin;
-            this.handleHaveBigWin(isHaveBigWin);
-            this.updateBigWinAmount(win);
+        const isHaveBigWin = bigWin || megaWin || superWin;
+        this.handleHaveBigWin(isHaveBigWin);
+        this.updateBigWinAmount(win);
 
-            this.setFreeSpinsByRound(freeSpins);
-            this.setFreeSpinsTotal(totalFreeSpins);
-            this.handleHaveFreeSpin(freeSpins > 0);
+        this.setFreeSpinsByRound(freeSpins);
+        this.setFreeSpinsTotal(totalFreeSpins);
+        this.handleHaveFreeSpin(freeSpins > 0);
 
-            const noWinMoreFreespins = freeSpins <= 0;
-            if (noWinMoreFreespins && !isHaveBigWin) {
-                this.handleFreeSpinEffectCompleted(true);
-            }
-        } else {
-            if (win > 0) {
-                this.getBalance();
-                this.handleChangeUserBalance(true);
-                this.handleTotalWin({ win: win, isActualWin: true });
-            }
-            
-            this.triggerContinuousBet();
+        const noWinMoreFreespins = freeSpins <= 0;
+        if (noWinMoreFreespins && !isHaveBigWin) {
+            this.handleFreeSpinEffectCompleted(true);
         }
     }
 
