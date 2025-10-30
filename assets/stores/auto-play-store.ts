@@ -19,6 +19,9 @@ export class AutoPlayStore {
     public triggerBet = null;
 
     public isClickAutoPlayToggle = false;
+    
+    public fastBetMode = false;
+    public triggerContinuousBet = null;
 
     get isTurnOnAutoPlay() {
         return this.isOpenAutoplayPopup || this.isAutoplay;

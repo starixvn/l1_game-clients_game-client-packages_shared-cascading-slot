@@ -86,10 +86,19 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                     }
                 }
             );
+
+            mobx.reaction(
+                () => this.autoPlayStore.triggerContinuousBet,
+                (trigger) => {
+                    if (trigger) {
+                        this.handleFastBetContinue();
+                    }
+                }
+            );
         }, 0);
     }
 
-    handle() { }
+    handle() {}
 
     async handleAutoPlaceBet() {
         if (!this.isValidBet()) {
@@ -144,6 +153,43 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         }
         this.autoPlayStore.triggerBet = {};
         this.cascadingUIStore.isPlacingBet = this.placeBetSilent();
+    }
+
+    handleFastBetContinue() {
+        this.autoPlayStore.triggerContinuousBet = null;
+        if (this.autoPlayStore.fastBetMode && this.autoPlayStore.roundsAutoplay > 0) {
+            this.autoPlayStore.roundsAutoplay--;
+            this.cascadingUIStore.isPlacingBet = false;
+            this.placeBet();
+        } else if (this.autoPlayStore.fastBetMode && this.autoPlayStore.roundsAutoplay <= 0) {
+            this.stopFastBet();
+        }
+    }
+
+    startFastBet(rounds?: number) {
+        const totalRounds = rounds || this.autoPlayStore.selectedRoundOnPopup;
+
+        if (!this.isValidBet()) {
+            this.handleError();
+            return;
+        }
+
+        this.autoPlayStore.fastBetMode = true;
+        this.autoPlayStore.roundsAutoplay = totalRounds;
+        this.placeBet();
+    }
+
+    stopFastBet() {
+        this.autoPlayStore.fastBetMode = false;
+        this.autoPlayStore.roundsAutoplay = 0;
+        this.autoPlayStore.triggerContinuousBet = null;
+        this.cascadingUIStore.isPlacingBet = false;
+        this.autoPlayStore.isOpenAutoplayPopup = true;
+        this.cascadingUIHandler.resetProcessingBet();
+    }
+
+    triggerFastBetContinue() {
+        this.autoPlayStore.triggerContinuousBet = {};
     }
 
     placeBetSilent() {
@@ -213,6 +259,16 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     confirmRoundAndStart() {
         const DELAY_AUTO_SPIN = 500;
+        if (this.autoPlayStore.fastBetMode) {
+            this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
+            this.autoPlayStore.roundsAutoplay = this.autoPlayStore.selectedRoundOnPopup;
+            this.autoPlayStore.isOpenAutoplayPopup = false;
+            setTimeout(() => {
+                this.startFastBet(this.autoPlayStore.selectedRoundOnPopup);
+            }, DELAY_AUTO_SPIN);
+            return;
+        }
+
         this.cascadingUIStore.bottomMessageState = SlotNotification.AUTO_SPIN;
         this.autoPlayStore.roundsAutoplay = this.autoPlayStore.selectedRoundOnPopup;
         this.autoPlayStore.isOpenAutoplayPopup = false;
@@ -270,7 +326,7 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 if (this.fsbPromotionUIStore.isShowFreeSpinMessage) {
                     this.fsbPromotionUIHandler.openPromotionInfo();
                     this.fsbPromotionUIHandler.setShowFreeSpinMessage(false);
-                    await FunctionUtils.waitUntil(() => this.fsbPromotionUIStore.isFSBInfoReady, 100, 10000).catch(() => { });
+                    await FunctionUtils.waitUntil(() => this.fsbPromotionUIStore.isFSBInfoReady, 100, 10000).catch(() => {});
                 }
                 await this.awaitShowBuyFsResult();
                 this.checkToSpinNextFSB();

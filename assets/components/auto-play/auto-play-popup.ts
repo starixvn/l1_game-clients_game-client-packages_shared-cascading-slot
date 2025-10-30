@@ -24,6 +24,9 @@ export default class AutoPlayPopup extends ObserverComponent {
     @property(Toggle)
     tglTurboMode: Toggle = null;
 
+    @property(Toggle)
+    tglFastBetMode: Toggle = null;
+
     @render(AutoPlayStore, (store) => store.roundsList)
     initContentRounds(roundsList: number[]) {
         this.nodeContent.destroyAllChildren();
@@ -59,10 +62,21 @@ export default class AutoPlayPopup extends ObserverComponent {
         return this.tglTurboMode.isChecked;
     }
 
+    
+    @handle(CascadingUIHandler, (handle, isFastBetMode: boolean) => handle.handleFastBetModeUI(isFastBetMode))
+    onFastBetModeChanged() {
+        return this.tglFastBetMode.isChecked;
+    }
+
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
         this.playSoundClick();
         this.tglTurboMode.isChecked = isTurboMode;
+    }
+
+    @render(AutoPlayStore, (store) => store.fastBetMode)
+    renderFastBetMode(fastBetMode: boolean) {
+        this.tglFastBetMode.isChecked = fastBetMode;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))

@@ -26,6 +26,7 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
+import { AutoPlayStore } from "./stores/auto-play-store";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 
@@ -66,6 +67,7 @@ export class CascadingSlotGame extends GameComponentBase {
     gameFeatureInfo: JsonAsset = null;
 
     public isTurboMode = false;
+    private fastBetMode = false;
 
     onLoad() {
         this.initConfig();
@@ -203,37 +205,55 @@ export class CascadingSlotGame extends GameComponentBase {
             actualBetwin,
             freeSpins,
         } = finishData;
-        const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
-        await this.board.spinResult(symbolsBoard, this.isTurboMode);
-        await this.board.handleTumbles(tumbles, this.isTurboMode);
-        const winTumbles = tumbles.length > 1;
-        const winMultiplier = multiplier > 0 && winTumbles;
-        winMultiplier && this.handleTriggerWinMultiplier();
-        await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
-        if (win > 0) {
-            this.getBalance();
-            this.handleChangeUserBalance(true);
-            if (winTumbles) {
-                await this.tumbleWinView.setTotalWinValue(actualBetwin);
-            }
-            this.handleTotalWin({ win: win, isActualWin: true });
+        const hasWonFreeSpins = freeSpins > 0;
+        
+        if (this.fastBetMode && hasWonFreeSpins) {
+            this.stopFastBetForFreeSpins();
         }
-        this.updateTotalWinPromo({ win, totalFreeSpins });
-        this.showTotalMultiplierView(totalMultiplier, isFreeSpin, winMultiplier);
-        reachMaxWin && this.setReachMaxWin(true);
-        this.setTotalMultiplierValue(totalMultiplier);
+        
+        const skipAnimation = this.fastBetMode && !hasWonFreeSpins;
+        
+        if (!skipAnimation) {
+            const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
+            await this.board.spinResult(symbolsBoard, this.isTurboMode);
+            await this.board.handleTumbles(tumbles, this.isTurboMode);
+            const winTumbles = tumbles.length > 1;
+            const winMultiplier = multiplier > 0 && winTumbles;
+            winMultiplier && this.handleTriggerWinMultiplier();
+            await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
+            if (win > 0) {
+                this.getBalance();
+                this.handleChangeUserBalance(true);
+                if (winTumbles) {
+                    await this.tumbleWinView.setTotalWinValue(actualBetwin);
+                }
+                this.handleTotalWin({ win: win, isActualWin: true });
+            }
+            this.updateTotalWinPromo({ win, totalFreeSpins });
+            this.showTotalMultiplierView(totalMultiplier, isFreeSpin, winMultiplier);
+            reachMaxWin && this.setReachMaxWin(true);
+            this.setTotalMultiplierValue(totalMultiplier);
 
-        const isHaveBigWin = bigWin || megaWin || superWin;
-        this.handleHaveBigWin(isHaveBigWin);
-        this.updateBigWinAmount(win);
+            const isHaveBigWin = bigWin || megaWin || superWin;
+            this.handleHaveBigWin(isHaveBigWin);
+            this.updateBigWinAmount(win);
 
-        this.setFreeSpinsByRound(freeSpins);
-        this.setFreeSpinsTotal(totalFreeSpins);
-        this.handleHaveFreeSpin(freeSpins > 0);
+            this.setFreeSpinsByRound(freeSpins);
+            this.setFreeSpinsTotal(totalFreeSpins);
+            this.handleHaveFreeSpin(freeSpins > 0);
 
-        const noWinMoreFreespins = freeSpins <= 0;
-        if (noWinMoreFreespins && !isHaveBigWin) {
-            this.handleFreeSpinEffectCompleted(true);
+            const noWinMoreFreespins = freeSpins <= 0;
+            if (noWinMoreFreespins && !isHaveBigWin) {
+                this.handleFreeSpinEffectCompleted(true);
+            }
+        } else {
+            if (win > 0) {
+                this.getBalance();
+                this.handleChangeUserBalance(true);
+                this.handleTotalWin({ win: win, isActualWin: true });
+            }
+            
+            this.triggerContinuousBet();
         }
     }
 
@@ -325,8 +345,13 @@ export class CascadingSlotGame extends GameComponentBase {
     getBalance() { }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
-    renderTurboMode(isTurboMode: boolean) {
+    renderTurboMode(isTurboMode: boolean) { 
         this.isTurboMode = isTurboMode;
+    }
+
+    @render(AutoPlayStore, (store) => store.fastBetMode)
+    renderFastBetMode(fastBetMode: boolean) {
+        this.fastBetMode = fastBetMode;
     }
 
     @handle(CascadingUIHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
@@ -399,4 +424,10 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.DUMMY_DIALOG))
     clickOnBackground() { }
+
+    @handle(AutoPlayHandler, (handler) => handler.triggerFastBetContinue())
+    triggerContinuousBet() { }
+
+    @handle(AutoPlayHandler, (handler) => handler.stopFastBet())
+    stopFastBetForFreeSpins() { }
 }

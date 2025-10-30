@@ -13,12 +13,14 @@ import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlemen
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { BetControlHandlers } from "./bet-control-handlers";
+import { AutoPlayStore } from "../stores/auto-play-store";
 
 const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
+    @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
@@ -136,6 +138,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleTurboModeUI(isTurboModeUI: boolean) {
         this.uiStore.isTurboModeUI = isTurboModeUI;
+    }
+
+    handleFastBetModeUI(isFastBetModeUI: boolean) {
+        this.autoPlayStore.fastBetMode = isFastBetModeUI;
     }
 
     handleBottomMessage(state: string) {
