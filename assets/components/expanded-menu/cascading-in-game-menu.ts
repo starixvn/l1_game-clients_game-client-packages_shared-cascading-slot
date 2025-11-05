@@ -5,7 +5,7 @@ import { InGameMenu } from "db://shared-components/game/in-game-menu/scripts/com
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
-const { observer, render, handle } = Observer;
+const { render, handle } = Observer;
 
 @ccclass
 export class CascadingWebViewGuide extends InGameMenu {

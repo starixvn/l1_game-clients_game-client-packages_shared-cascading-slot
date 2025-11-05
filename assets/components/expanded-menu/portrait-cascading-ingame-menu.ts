@@ -2,10 +2,11 @@ import { _decorator, Sprite } from "cc";
 import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
-import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
+import { ColorJson, DialogName, resourcesCache } from "../../cascading-slot-utils";
 import { CascadingWebViewGuide } from "./cascading-in-game-menu";
-const { ccclass, property } = _decorator;
-const { observer, render, handle } = Observer;
+import { CascadingUIStore } from "../../stores/cascading-ui-store";
+const { ccclass } = _decorator;
+const {render } = Observer;
 
 @ccclass
 export class PortraitCascadingInGameMenu extends CascadingWebViewGuide {
@@ -15,6 +16,13 @@ export class PortraitCascadingInGameMenu extends CascadingWebViewGuide {
         this.updateColor();
         super.onLoad();
     }
+    @render(CascadingUIStore, (store) => store.dialogOpenEvent)
+    handleDialogOpenEvent(dialogOpenEvent: { name: string }) {
+        if(dialogOpenEvent?.name !== DialogName.IN_GAME_MENU) {
+           this.expandableNode.collapse();
+        }
+    }
+  
 
     updateColor() {
         this.node.getComponentsInChildren(ChangeNodeColor).forEach((comp) => {

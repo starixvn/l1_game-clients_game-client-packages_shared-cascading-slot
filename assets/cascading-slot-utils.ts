@@ -148,6 +148,7 @@ export enum DialogName {
     TURBO_MODE = "turbo-mode",
     BET_CONTROL = "bet-control",
     TRIAL_MODE = "trial-mode",
+    FREESPINS_MESSAGE = "freespins-message",
 
     BUY_CONFIRMATION = "buy-fs-confirmation",
     BUY_FS_CONGRATULATION = "buy-fs-congratulation",

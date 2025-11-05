@@ -263,6 +263,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     updateFreespinCountMsgBottom(count: number) {
         this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
         this.uiStore.freespinCountMsgBottom = count;
+        this.triggerOpenDialog(DialogName.FREESPINS_MESSAGE);
     }
 
     updateConnectedTrialService(connected: boolean) {
