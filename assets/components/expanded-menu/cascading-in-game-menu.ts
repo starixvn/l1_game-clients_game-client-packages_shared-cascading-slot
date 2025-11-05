@@ -8,7 +8,7 @@ const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
 @ccclass
-export class CascadingWebViewGuide extends InGameMenu {
+export class CascadingInGameMenu extends InGameMenu {
     @property(Node)
     nodeHistoryDisabled: Node = null;
 

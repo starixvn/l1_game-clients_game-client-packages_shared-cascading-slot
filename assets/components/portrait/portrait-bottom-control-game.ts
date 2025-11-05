@@ -20,6 +20,7 @@ export class PortraitBottomControlGame extends ObserverComponent {
     setShowFreeSpinsSectionsPortrait(showFreeSpinsSectionsPortrait: boolean) {
         if (showFreeSpinsSectionsPortrait) {
             this.nodeFreeSpinsSections.active = true;
+            
         } else {
             this.nodeFreeSpinsSections.active = false;
         }

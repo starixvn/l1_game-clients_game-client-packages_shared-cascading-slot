@@ -3,13 +3,13 @@ import Observer from "observer";
 
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { ColorJson, DialogName, resourcesCache } from "../../cascading-slot-utils";
-import { CascadingWebViewGuide } from "./cascading-in-game-menu";
+import { CascadingInGameMenu } from "./cascading-in-game-menu";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass } = _decorator;
 const {render } = Observer;
 
 @ccclass
-export class PortraitCascadingInGameMenu extends CascadingWebViewGuide {
+export class PortraitCascadingInGameMenu extends CascadingInGameMenu {
     private colorConfig: ColorJson;
     onLoad(): void {
         this.colorConfig = resourcesCache.colorJson;
