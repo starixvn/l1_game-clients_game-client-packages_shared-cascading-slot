@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ChangeNodeColor } from "db://shared-components/shared/common-components/change-node-color";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
@@ -54,6 +55,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @handle(BetControlHandlers, (handle) => handle.showBetControl())
     onClickOpenBetControl() {
+        AudioUtils.playClick();
         this.triggerOpenBetControl();
     }
 
@@ -73,7 +75,7 @@ export class CascadingTotalBet extends ObserverComponent {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.BET_CONTROL))
-    triggerOpenBetControl() { }
+    triggerOpenBetControl() {}
 
     updateColor() {
         this.node.getComponentsInChildren(ChangeNodeColor).forEach((comp) => {
