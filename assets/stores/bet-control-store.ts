@@ -2,6 +2,7 @@ import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
+import gc from "@sg/game-client-base";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
@@ -159,5 +160,21 @@ export class BetControlStore {
         return this.fsbPromotionUIStore.isFSBPromotionInProgress
             ? calculateTotalBet(this.fsbPromotionStore.promotion?.betLevel, this.fsbPromotionStore.promotion?.coinValue, this.betMultiplier)
             : this.totalBet;
+    }
+
+    get totalBetSliderProgress(): number {
+        if (!this.totalBetUnique || this.totalBetUnique.length === 0) {
+            return 0;
+        }
+
+        const betValues = this.totalBetUnique.map(item => +Object.keys(item)[0]);
+        const minBet = Math.min(...betValues);
+        const maxBet = Math.max(...betValues);
+
+        return maxBet > minBet ? Math.max(0, Math.min(1, (this.totalBet - minBet) / (maxBet - minBet))) : 0;
+    }
+
+    get formattedTotalBet(): string {
+        return gc.FormatUtils.numberWithCommas(this.totalBet, 2, true);
     }
 }

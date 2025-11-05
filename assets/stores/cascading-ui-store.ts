@@ -1,7 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
-
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
@@ -26,6 +25,7 @@ export class CascadingUIStore {
 
     checkToSpinNext = false;
     totalWin = 0;
+    isHyperSpinActive = false;
     totalTumbleWin = 0;
     isActualWin = false;
 
@@ -74,7 +74,7 @@ export class CascadingUIStore {
     portraitshowTotalMultiplierView = false;
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
-            return 1000; // default value
+            return 1000;
         }
         const freeSpinOdds = this.configsStore.gameConfigs.odds.freeSpins;
 
@@ -131,6 +131,7 @@ export class CascadingUIStore {
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }
+        
         return this.mainPlayerStore.balance;
     }
 
@@ -146,6 +147,7 @@ export class CascadingUIStore {
     }
 
     get spinButtonState() {
+
         if (this.cascadingState === CascadingSlotState.SPINNING) {
             if (this.haveBigWin || this.haveFreeSpin || this.tumblesStore.tumbles.length > 1) {
                 return SpinButtonState.WIN_TUMBLE_OR_EVENT;
@@ -214,6 +216,22 @@ export class CascadingUIStore {
 
     get isAutoSpinOrFreeSpin() {
         return this.isFreeSpins || this.autoPlayStore.isAutoplay;
+    }
+
+    get disabledHyperSpin() {
+        // If hyper-spin is already active, don't disable it (allow it to continue during free spins)
+        // This ensures an active hyper-spin batch continues even when free spins are triggered
+        if (this.isHyperSpinActive) {
+            return false; // Keep hyper-spin active even during free spins
+        }
+
+        // Otherwise, disable button when conditions are met (prevents starting new hyper-spin)
+        return (
+            this.holdActionStore.isHolding ||
+            this.isFreeSpins ||
+            this.cascadingState === CascadingSlotState.SPINNING ||
+            this.fsbPromotionUIStore.isFSBPromotionInProgress
+        );
     }
 
     get excludeFirstMsgInGame() {

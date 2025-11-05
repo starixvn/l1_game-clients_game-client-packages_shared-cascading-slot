@@ -50,6 +50,13 @@ jest.mock("@sg/game-client-base", () => ({
         // Add any utility functions that might be needed
         // This prevents "Cannot read properties of undefined (reading 'utils')" error
     },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
 }));
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({

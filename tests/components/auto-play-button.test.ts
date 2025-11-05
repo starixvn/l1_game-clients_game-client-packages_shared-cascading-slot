@@ -49,7 +49,7 @@ jest.mock("@sg/game-client-base", () => {
         Rounds: {
             RoundStore: {},
         },
-        Shared: {
+         Shared: {
             IHandler: class { },
             IMultipleHandlers: class { },
             utils: {
