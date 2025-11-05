@@ -31,7 +31,7 @@ export class CascadingHistoryItem extends ObserverComponent {
     data: any = null;
     betHistoryLog: gc.BetHistory.BetHistoryLog = null;
     @property
-    textHighlightColor: Color = Color.YELLOW;
+    textHighlightColor: Color = new Color().fromHEX('#EBBC00');
 
     @property
     textNormalColor: Color = Color.WHITE;
