@@ -5,6 +5,10 @@ import { InGameMenuStore } from "db://shared-components/game/in-game-menu/script
 import { NodeContainer } from "db://shared-components/shared/common-components/node-container/node-container";
 import Observer from "observer";
 import { CascadingBetHistoryTable } from "./cascading-bet-history-table";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
+
+cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Initializing CascadingBetHistoryContainer class');
+
 const { ccclass, property } = _decorator;
 const { handle, render } = Observer;
 
@@ -20,10 +24,13 @@ export class CascadingBetHistoryContainer extends NodeContainer {
     bodyItemPrefab: Prefab = null;
 
     @handle(gc.BetHistory.BetHistoryHandlers.BetHistoryCallServiceHandler, (handler) => handler.handle(1))
-    hanldeShowBetHistory() {}
+    hanldeShowBetHistory() {
+        cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Handling bet history service call');
+    }
 
     @render(InGameMenuStore, (store) => store.event, { fireImmediately: false })
     openBetHistory({ event }: { event: InGameMenuEvents }) {
+        cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Open bet history event received:', { event, isOpenHistory: event === InGameMenuEvents.OPEN_HISTORY });
         if (event === InGameMenuEvents.OPEN_HISTORY) {
             this.hanldeShowBetHistory();
         }
@@ -31,7 +38,17 @@ export class CascadingBetHistoryContainer extends NodeContainer {
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: false })
     showBetHistory(betHistoryModel: gc.BetHistory.BetHistoryModel) {
+        cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Showing bet history:', {
+            hasWrapperNode: !!this.wrapperNode,
+            wrapperNodeActive: this.wrapperNode?.active,
+            hasTable: !!this.table,
+            hasHeaderPrefab: !!this.headerPrefab,
+            hasBodyItemPrefab: !!this.bodyItemPrefab,
+            betHistoryModel: betHistoryModel
+        });
+
         if (!this.wrapperNode?.active) {
+            cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Creating new wrapper node and table component');
             this.wrapperNode = this.createNode();
             this.table = this.wrapperNode.getComponent(CascadingBetHistoryTable);
         }
@@ -41,10 +58,19 @@ export class CascadingBetHistoryContainer extends NodeContainer {
             headerPrefab: this.headerPrefab,
             bodyItemPrefab: this.bodyItemPrefab,
         });
+
+        cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Bet history display initiated');
     }
 
     @render(gc.Dialogs.DialogsStore, (store) => store.forceClosed, { fireImmediately: false })
     popupVisibility(forceClosed: any) {
-        forceClosed && this.wrapperNode?.destroy();
+        cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Popup visibility change:', { forceClosed, hasWrapperNode: !!this.wrapperNode });
+        if (forceClosed && this.wrapperNode) {
+            cascadingSlotLogger.info('[CASCADING_BET_HISTORY_CONTAINER] Destroying wrapper node due to force close');
+            this.wrapperNode.destroy();
+        }
     }
 }
+
+
+

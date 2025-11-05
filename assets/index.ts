@@ -17,5 +17,19 @@ export * from "./stores/cascading-ui-store";
 
 export * from "./buy-freespins/handler/buy-freespins-handlers";
 export * from "./buy-freespins/handler/buy-freespins-store";
+export * from "./cascading-slot-logger";
+
+export * from "./handlers/hyper-spin-handler";
+export * from "./stores/hyper-spin-store";
 
 export const FEATURE_NAME = "cascading-slot";
+
+import { cascadingSlotLogger } from "./cascading-slot-logger";
+cascadingSlotLogger.info(`Module loaded with feature name: ${FEATURE_NAME}`, { featureName: FEATURE_NAME });
+
+// Test the logger functionality
+cascadingSlotLogger.debug("Logger initialization test", {
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+    features: ["toggle", "file-logging", "download"]
+});

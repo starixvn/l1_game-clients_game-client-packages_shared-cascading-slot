@@ -2,6 +2,8 @@ import { _decorator, Node, tween, UIOpacity, Vec3 } from 'cc';
 import { CascadingBetHistoryTable } from '../cascading-bet-history-table';
 import Pagination from 'db://shared-components/game/pagination/scripts/components/pagination';
 import TouchSwipeBase from 'db://shared-components/shared/common-components/touch-swipe-base';
+import { cascadingSlotLogger } from "../../../cascading-slot-logger";
+
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -18,22 +20,30 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
 
 
     private setupTouchHandler() {
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: setupTouchHandler called");
         if (this.touchSwipeHandler && this.touchSwipeHandler.swipeCallback) {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: setting up swipe callback");
             this.touchSwipeHandler.swipeCallback = (isLeft: boolean) => {
+                cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: swipe detected", isLeft ? "left" : "right");
                 if (isLeft) {
                     this.handleNextPage();
                 } else {
                     this.handlePreviousPage();
                 }
             }
+        } else {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: touchSwipeHandler not available");
         }
     }
 
     onLoad() {
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: onLoad called");
         this.setupTouchHandler();
         super.onLoad();
         if (!this.pagination) {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: initializing pagination");
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: pagination initialized", this.pagination);
         }
     }
 
@@ -73,24 +83,37 @@ export class PortraitCascadingBetHistoryTable extends CascadingBetHistoryTable {
     }
 
     handleNextPage() {
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: handleNextPage called");
         const currentPage = this.pagination.currentPage;
         const totalPages = this.pagination.totalPages;
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: currentPage", currentPage, "totalPages", totalPages);
         if (currentPage < totalPages) {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: navigating to next page");
             this.slideAnimation(true, () => {
                 this.pagination.hanldeNextPage();
             });
+        } else {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: already at last page");
         }
     }
 
     handlePreviousPage() {
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: handlePreviousPage called");
         const currentPage = this.pagination.currentPage;
+        cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: currentPage", currentPage);
         if (currentPage > 1) {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: navigating to previous page");
             this.slideAnimation(false, () => {
                 this.pagination.hanldePreviousPage();
             });
+        } else {
+            cascadingSlotLogger.info("PortraitCascadingBetHistoryTable: already at first page");
         }
     }
 
 }
+
+
+
 
 

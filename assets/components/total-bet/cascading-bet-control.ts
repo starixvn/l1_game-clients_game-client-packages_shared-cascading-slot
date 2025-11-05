@@ -8,6 +8,8 @@ import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui
 import { DialogName } from "../../cascading-slot-utils";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { BetControlStore } from "../../stores/bet-control-store";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
+
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -54,27 +56,102 @@ export class CascadingBetControl extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     private setTrialMode(isTrialMode: boolean) {
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] setTrialMode called", {
+            isTrialMode,
+            previousIsTrialMode: this.isTrialMode,
+            willUpdateTrialMode: true,
+            timestamp: new Date().toISOString()
+        });
+
         this.isTrialMode = isTrialMode;
+
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Trial mode updated", {
+            newIsTrialMode: this.isTrialMode,
+            timestamp: new Date().toISOString()
+        });
     }
 
     @render(BetControlStore, (store) => store.isOpenBetAmountPopup)
     handleDialogVisibility(status: boolean) {
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] handleDialogVisibility called", {
+            status,
+            hasNode: !!this.node,
+            currentNodeActive: this.node?.active,
+            willSetNodeActive: true,
+            timestamp: new Date().toISOString()
+        });
+
         this.node.active = status;
+
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Dialog visibility updated", {
+            status,
+            finalNodeActive: this.node.active,
+            timestamp: new Date().toISOString()
+        });
     }
 
     @render(BetControlStore, (store) => store.totalBet)
     private renderTotalBet(totalBet: number) {
-        this.totalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] renderTotalBet called", {
+            totalBet,
+            hasTotalBetLabel: !!this.totalBet,
+            currentTotalBetString: this.totalBet?.string,
+            willFormatNumber: true,
+            timestamp: new Date().toISOString()
+        });
+
+        const formattedBet = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Formatting total bet", {
+            originalBet: totalBet,
+            formattedBet,
+            timestamp: new Date().toISOString()
+        });
+
+        this.totalBet.string = formattedBet;
+
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Total bet label updated", {
+            totalBet,
+            formattedBet,
+            timestamp: new Date().toISOString()
+        });
     }
 
     @render(BetControlStore, (store) => store.betLevel)
     private renderBetLevel(betLevel: number) {
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] renderBetLevel called", {
+            betLevel,
+            hasBetLevelLabel: !!this.betLevel,
+            currentBetLevelString: this.betLevel?.string,
+            willConvertToString: true,
+            timestamp: new Date().toISOString()
+        });
+
         this.betLevel.string = betLevel.toString();
+
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Bet level label updated", {
+            betLevel,
+            stringValue: betLevel.toString(),
+            timestamp: new Date().toISOString()
+        });
     }
 
     @render(BetControlStore, (store) => store.coinValue)
     private renderCoinValue(coinValue: number) {
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] renderCoinValue called", {
+            coinValue,
+            hasCoinValueLabel: !!this.coinValue,
+            currentCoinValueString: this.coinValue?.string,
+            willConvertToString: true,
+            timestamp: new Date().toISOString()
+        });
+
         this.coinValue.string = coinValue.toString();
+
+        cascadingSlotLogger.info("[CASCADING_BET_CONTROL] Coin value label updated", {
+            coinValue,
+            stringValue: coinValue.toString(),
+            timestamp: new Date().toISOString()
+        });
     }
 
     @render(CascadingUIStore, (store) => store.dialogOpenEvent, { fireImmediately: false })
@@ -140,3 +217,6 @@ export class CascadingBetControl extends ObserverComponent {
         return gc.Audios.AudioIds.CLICK;
     }
 }
+
+
+
