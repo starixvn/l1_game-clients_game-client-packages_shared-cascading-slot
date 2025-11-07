@@ -1,5 +1,7 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Label, Node } from "cc";
+import { _decorator, Label, Node, sp } from "cc";
+import { ButtonState } from "db://shared-components/shared/common-components/button/button-state";
+import { StateChangedEvent } from "db://shared-components/shared/common-components/button/custom-button";
 import Observer from "observer";
 import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { AutoPlayStore } from "../../stores/auto-play-store";
@@ -15,6 +17,14 @@ export class PortraitCascadingSpinButton extends CascadingSpinButton {
 
     @property(Label)
     lblAutoSpinRound: Label = null;
+
+    @property(sp.Skeleton)
+    spineAutoSpin: sp.Skeleton = null;
+
+    onLoad() {
+        super.onLoad();
+        this.nodeAutospinNumber.on(StateChangedEvent, this.onButtonStateChanged, this);
+    }
 
     @render(CascadingUIStore, (store) => store.isShowAutoSpinRoundPortrait)
     setNodeVisibilityAutoSpinRound(isActive: boolean) {
@@ -34,5 +44,13 @@ export class PortraitCascadingSpinButton extends CascadingSpinButton {
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return gc.Audios.AudioIds.CLICK;
+    }
+
+    onButtonStateChanged(state: ButtonState) {
+        if (state === ButtonState.HOVER) {
+            this.spineAutoSpin.setAnimation(1, "hover", true);
+        } else {
+            this.spineAutoSpin.clearAnimation(1);
+        }
     }
 }

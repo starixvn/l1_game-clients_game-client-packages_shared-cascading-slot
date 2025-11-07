@@ -3,7 +3,6 @@ import { _decorator, Color, macro, RichText, SpriteAtlas, sys, UIOpacity } from 
 import { AutoScrollingContent } from "db://shared-components/shared/common-components/auto-scrolling/auto-scrolling-content";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { random } from "lodash-es";
 import Observer from "observer";
 import { ColorJson, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
@@ -21,12 +20,22 @@ export class PortraitCascadingMessages extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "msg_free_spins"];
+    msgList = [
+        "show_msg_when_spin_desktop",
+        "show_msg_when_spin_phone",
+        "top_message1",
+        "top_message2",
+        "top_message3",
+        "msg_random_multipliers",
+        "msg_free_spins",
+    ];
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
     private autoScrollingContent: AutoScrollingContent;
     private isAutoSpinOrFreeSpin = false;
+    protected filterKeys = [];
+    protected currentKeyIndex = 0;
 
     onLoad() {
         this.autoScrollingContent = this.getComponent(AutoScrollingContent);
@@ -55,9 +64,10 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     updateTopMessage() {
-        const randomIndex = random(this.msgList.length - 1);
-        const messageKey = this.msgList[randomIndex];
-        switch (randomIndex) {
+        const index = this.currentKeyIndex % this.filterKeys.length;
+        this.currentKeyIndex++;
+        const messageKey = this.msgList[index];
+        switch (index) {
             case 0:
                 this.renderMsgDefault();
                 break;
@@ -112,6 +122,17 @@ export class PortraitCascadingMessages extends ObserverComponent {
             return;
         }
         this.maxWinPerRound = gameConfigs.maxWinPerRound;
+    }
+
+    @render(CascadingUIStore, (store) => store.excludeFirstMsgInGame)
+    renderExcludeFirstMsgInGame(excludeFirstMsgInGame: boolean) {
+        this.updateFilterKeys(excludeFirstMsgInGame);
+    }
+
+    private updateFilterKeys(excludeFirstMsgInGame = false) {
+        const ignoreKey = !sys.isMobile ? "phone" : "desktop";
+        const keys = this.msgList.filter((key) => !key.includes(ignoreKey));
+        this.filterKeys = excludeFirstMsgInGame ? keys.slice(1) : keys;
     }
 
     renderImgForRichText() {

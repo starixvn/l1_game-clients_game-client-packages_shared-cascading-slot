@@ -216,5 +216,14 @@ export class CascadingUIStore {
         return this.isFreeSpins || this.autoPlayStore.isAutoplay;
     }
 
+    get excludeFirstMsgInGame() {
+        return (
+            this.isFreeSpins ||
+            this.autoPlayStore.isAutoplay ||
+            this.fsbPromotionUIStore.isFSBPromotionInProgress ||
+            this.cascadingState === CascadingSlotState.SPINNING
+        );
+    }
+
     dialogOpenEvent: { name: string } = null;
 }
