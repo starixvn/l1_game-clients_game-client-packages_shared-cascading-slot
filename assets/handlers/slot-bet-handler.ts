@@ -1,13 +1,14 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
+import { CascadingHoldActionHandlers } from "./cascading-hold-action-handlers";
 import { CascadingUIHandler } from "./cascading-ui-handler";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 
 const { injectable, inject } = inversify;
 
@@ -21,10 +22,28 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
 
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
+    @inject(gc.Bet.BetResponseHandlers) protected readonly betResponseHandlers: gc.Bet.BetResponseHandlers;
+    @inject(CascadingHoldActionHandlers) protected readonly cascadingHoldActionHandlers: CascadingHoldActionHandlers;
 
     handle() {
         const betData = this.slotBetData();
         return this.handleBetDataWithAmount(betData, betData.totalBet);
+    }
+
+    handleInterruption() {
+        if (this.betStore.isProcessingBet) {
+            this.resetBetProcessingInterrupt();
+            if (this.uiStore.isAutoSpinOrFreeSpin || this.fsbPromotionUIStore.isFSBPromotionInProgress) {
+                this.handle();
+            }
+        }
+    }
+
+    resetBetProcessingInterrupt() {
+        this.uiStore.isPlacingBet = false;
+        this.betResponseHandlers.stopProcessingBetAndClearInterval();
+        this.uiHandler.resetProcessingBet();
+        this.cascadingHoldActionHandlers.clearTriggerAction();
     }
 
     buyFreespins(amount: number) {

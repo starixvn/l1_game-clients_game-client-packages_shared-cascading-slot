@@ -19,7 +19,6 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { GameComponentBase } from "db://shared-components/game/scripts/components/game-component-base";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
-import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { ColorJson, convertData, DialogName, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
@@ -28,6 +27,7 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
+import { InterruptionHandlers } from "./handlers/interruption-handlers";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 
@@ -102,7 +102,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
-    connectToService() {}
+    connectToService() { }
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
@@ -111,28 +111,20 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @render(LogStore, (store) => store.message)
-    logInfo(message: string) {}
+    logInfo(message: string) { }
 
     @handle(gc.UserSettings.UserSettingHandlers, (handle) => handle.loadStorages())
-    initUserSettings() {}
+    initUserSettings() { }
 
     @handle(gc.PlayerSelections.PlayerSelectionHandlers.InitHandlers)
-    initPlayerSelections() {}
+    initPlayerSelections() { }
 
     @handle(HideGame.HideGameHandler)
-    onHideGame() {
-        // reload here will run when page appears from hidden
-        // to fix issue on iOS that EVENT_SHOW are not triggered when phone active
-        // if (sys.os === sys.OS.IOS) {
-        //     setTimeout(() => {
-        //         window.location.reload();
-        //     }, 100);
-        // }
-    }
+    @handle(InterruptionHandlers, (handler) => handler.onGameHide())
+    onHideGame() { }
 
-    onShowGame() {
-        window.location.reload();
-    }
+    @handle(InterruptionHandlers, (handler) => handler.onGameShow())
+    onShowGame() { }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
@@ -143,7 +135,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
-    inGame() {}
+    inGame() { }
 
     @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
     handleTrialModeWithPromo(isTrialMode: boolean) {
@@ -262,10 +254,10 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
-    handleEndGameApiError() {}
+    handleEndGameApiError() { }
 
     @handle(AutoPlayHandler, (handler) => handler.checkAutoPlayWhenSettlementCompleted())
-    enableAutoPlayOnFreeSpinCompleted() {}
+    enableAutoPlayOnFreeSpinCompleted() { }
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
@@ -277,7 +269,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
-    handleNewRound() {}
+    handleNewRound() { }
 
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
     setFreeSpinsTotal(freespins: number) {
@@ -290,7 +282,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
-    checkSpinNextRound() {}
+    checkSpinNextRound() { }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)
     handleUpdateBalance(isUpdateBalance: boolean) {
@@ -313,7 +305,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Auth.AuthHandlers.GetBalance)
-    getBalance() {}
+    getBalance() { }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
@@ -371,18 +363,8 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-    @render(GameVisibilityStore, (store) => store.isVisible)
-    renderGameVisibility(isVisible: boolean) {
-        if (!isVisible) {
-            this.handleOnGameHide();
-        }
-    }
-
-    @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
-    handleOnGameHide() {}
-
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
-    handleTriggerWinMultiplier() {}
+    handleTriggerWinMultiplier() { }
 
     @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
     updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {
@@ -390,5 +372,5 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.DUMMY_DIALOG))
-    clickOnBackground() {}
+    clickOnBackground() { }
 }

@@ -8,6 +8,7 @@ export * from "./handlers/cascading-slot-setting-handlers";
 export * from "./handlers/cascading-slot-settlement-handlers";
 export * from "./handlers/cascading-slot-tumbles-handlers";
 export * from "./handlers/cascading-ui-handler";
+export * from "./handlers/interruption-handlers";
 export * from "./stores/auto-play-store";
 export * from "./stores/cascading-slot-board-store";
 export * from "./stores/cascading-slot-configs-store";
