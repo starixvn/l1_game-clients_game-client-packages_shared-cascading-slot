@@ -20,15 +20,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    msgList = [
-        "show_msg_when_spin_desktop",
-        "show_msg_when_spin_phone",
-        "top_message1",
-        "top_message2",
-        "top_message3",
-        "msg_random_multipliers",
-        "msg_free_spins",
-    ];
+    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "msg_free_spins"];
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
@@ -64,8 +56,8 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     updateTopMessage() {
-        const index = this.currentKeyIndex % this.filterKeys.length;
         this.currentKeyIndex++;
+        const index = this.currentKeyIndex % this.filterKeys.length;
         const messageKey = this.msgList[index];
         switch (index) {
             case 0:
@@ -130,9 +122,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     private updateFilterKeys(excludeFirstMsgInGame = false) {
-        const ignoreKey = !sys.isMobile ? "phone" : "desktop";
-        const keys = this.msgList.filter((key) => !key.includes(ignoreKey));
-        this.filterKeys = excludeFirstMsgInGame ? keys.slice(1) : keys;
+        this.filterKeys = excludeFirstMsgInGame ? this.msgList.slice(1) : this.msgList;
     }
 
     renderImgForRichText() {
