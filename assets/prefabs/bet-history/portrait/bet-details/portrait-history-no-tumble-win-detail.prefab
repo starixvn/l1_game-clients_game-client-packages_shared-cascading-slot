@@ -198,17 +198,17 @@
       "b": 255,
       "a": 255
     },
-    "_string": "NO WINNING COMBINATION",
+    "_string": "No Winning Combination",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 24,
+    "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": {
-      "__uuid__": "0f6981e6-5811-45ce-ac30-f06164d111a7",
+      "__uuid__": "10013268-eb64-492c-9cd9-4a1aebbcfe21",
       "__expectedType__": "cc.TTFFont"
     },
     "_isSystemFontUsed": false,
@@ -280,7 +280,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 425.66986083984375,
+      "width": 289.0558166503906,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -308,7 +308,7 @@
     },
     "_alignFlags": 8,
     "_target": null,
-    "_left": 117.16506958007812,
+    "_left": 185.4720916748047,
     "_right": 9.479995727539062,
     "_top": 0,
     "_bottom": 0,
@@ -343,7 +343,7 @@
       "__id__": 13
     },
     "key": "cascadingslot.no_winning_combination",
-    "format": 1,
+    "format": 3,
     "prefix": "",
     "suffix": "",
     "_id": ""
