@@ -17,13 +17,9 @@ export class InterruptionHandlers {
     @inject(gc.Auth.AuthHandlers.TriggerRecheckIn) protected readonly triggerRecheckIn: gc.Auth.AuthHandlers.TriggerRecheckIn;
 
     @inject(FSBPromotionHandlers) protected readonly fsbPromotionHandlers: FSBPromotionHandlers;
-    onGameHide() {
-        // this.slotBoardStore.gameHidden = true;
-        // this.slotBoardStore.hasInterruption = true;
-    }
+    onGameHide() { }
 
     onGameShow() {
-        // this.slotBoardStore.gameHidden = false;
         this.triggerRecheckIn.handle();
         if (!this.connectionStore.isConnected) {
             this.connectionStore.reconnect();
