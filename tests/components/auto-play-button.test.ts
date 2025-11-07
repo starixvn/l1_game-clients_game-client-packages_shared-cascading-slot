@@ -26,7 +26,9 @@ jest.mock("@sg/game-client-base", () => {
             },
         },
         Configs: {
-            SiteConfigs: jest.fn(),
+            SiteConfigs: {
+                storagePrefixKey: "test_prefix",
+            },
         },
         Player: {
             MainPlayerStore: jest.fn(() => mockMainPlayerStore),
@@ -50,6 +52,11 @@ jest.mock("@sg/game-client-base", () => {
         Shared: {
             IHandler: class { },
             IMultipleHandlers: class { },
+            utils: {
+                StorageManager: {
+                    setPrefixKey: jest.fn(),
+                },
+            },
         },
         UserSettings: {
             UserSettingHandlers: class {
@@ -67,6 +74,14 @@ jest.mock("@sg/game-client-base", () => {
                     on: jest.fn(),
                 },
             })),
+        },
+        StorageManager: {
+            // Add any storage manager functions that might be needed
+            // This prevents "Cannot read properties of undefined (reading 'StorageManager')" error
+        },
+        utils: {
+            // Add any utility functions that might be needed
+            // This prevents "Cannot read properties of undefined (reading 'utils')" error
         },
     };
     return mockGc;

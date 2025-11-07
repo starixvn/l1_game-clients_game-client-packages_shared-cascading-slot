@@ -21,7 +21,9 @@ jest.mock("@sg/game-client-base", () => ({
         AudioHandler: jest.fn(),
     },
     Configs: {
-        SiteConfigs: jest.fn(),
+        SiteConfigs: {
+            storagePrefixKey: "test_prefix",
+        },
     },
     Player: {
         MainPlayerStore: jest.fn(),
@@ -36,6 +38,17 @@ jest.mock("@sg/game-client-base", () => ({
         NoticeErrorsHandlers: {
             AutoSignOutHandler: jest.fn(() => ({})),
         },
+    },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
+    utils: {
+        // Add any utility functions that might be needed
+        // This prevents "Cannot read properties of undefined (reading 'utils')" error
     },
 }));
 

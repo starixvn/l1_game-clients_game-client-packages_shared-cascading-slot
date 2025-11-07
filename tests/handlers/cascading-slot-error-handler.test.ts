@@ -31,7 +31,8 @@ jest.mock("@sg/game-client-base", () => ({
     },
     Configs: {
         SiteConfigs: {
-            systemType: ""
+            systemType: "",
+            storagePrefixKey: "test_prefix",
         },
     },
     Error: {
@@ -77,6 +78,17 @@ jest.mock("@sg/game-client-base", () => ({
         AudioHandler: jest.fn(() => ({
             playSFX: jest.fn(),
         })),
+    },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
+    utils: {
+        // Add any utility functions that might be needed
+        // This prevents "Cannot read properties of undefined (reading 'utils')" error
     },
 }));
 

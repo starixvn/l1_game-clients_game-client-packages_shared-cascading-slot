@@ -47,7 +47,9 @@ jest.mock("@sg/game-client-base", () => ({
         BetHandler: class MockBetHandler { },
     },
     Configs: {
-        SiteConfigs: jest.fn(),
+        SiteConfigs: {
+            storagePrefixKey: "test_prefix",
+        },
     },
     Notices: {
         NoticeStore: jest.fn(() => mockNoticeStore),
@@ -105,6 +107,17 @@ jest.mock("@sg/game-client-base", () => ({
                 on: jest.fn(),
             },
         })),
+    },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
+    utils: {
+        // Add any utility functions that might be needed
+        // This prevents "Cannot read properties of undefined (reading 'utils')" error
     },
 }));
 
