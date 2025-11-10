@@ -20,69 +20,53 @@ export class PortraitCascadingMessages extends ObserverComponent {
     @property(SpriteAtlas)
     mainAtlas: SpriteAtlas = null;
 
-    msgList = ["show_msg_when_spin_", "top_message1", "top_message2", "top_message3", "msg_random_multipliers", "msg_free_spins"];
+    msgList = [
+        "show_msg_when_spin_desktop",
+        "show_msg_when_spin_phone",
+        "top_message1",
+        "top_message2",
+        "top_message3",
+        "msg_random_multipliers",
+        "msg_free_spins",
+    ];
 
     private colorConfig: ColorJson;
     private maxWinPerRound: number;
     private autoScrollingContent: AutoScrollingContent;
-    private isAutoSpinOrFreeSpin = false;
     protected filterKeys = [];
     protected currentKeyIndex = 0;
 
     onLoad() {
         this.autoScrollingContent = this.getComponent(AutoScrollingContent);
         this.colorConfig = resourcesCache.colorJson;
-        this.renderMsgDefault();
         super.onLoad();
+        this.updateTopMessage();
         this.msg.getComponent(RichText).fontColor = new Color().fromHEX(this.colorConfig.topMessageTextColor);
     }
 
     onEnable() {
-        if (this.isAutoSpinOrFreeSpin) {
-            this.msg.string = "";
-            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 1);
-        } else {
-            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
-        }
+        this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
     }
 
     onDisable() {
         this.unschedule(this.updateTopMessage);
     }
 
-    @render(CascadingUIStore, (store) => store.isAutoSpinOrFreeSpin)
-    setIsAutoSpinOrFreeSpin(isAutoSpinOrFreeSpin: boolean) {
-        this.isAutoSpinOrFreeSpin = isAutoSpinOrFreeSpin;
-    }
-
     updateTopMessage() {
-        this.currentKeyIndex++;
-        const index = this.currentKeyIndex % this.filterKeys.length;
-        const messageKey = this.msgList[index];
-        switch (index) {
-            case 0:
-                this.renderMsgDefault();
-                break;
-            case 3:
-                const textMsg = gc.Translator.gameTranslate(messageKey);
-                this.renderMsg(textMsg.replace(/%{maxWin}/i, this.maxWinPerRound.toString()));
-                break;
-            case 2:
-                const textMsg2a = gc.Translator.gameTranslate("top_message2a");
-                const textMsg2b = gc.Translator.gameTranslate("top_message2b");
-                this.renderMsg(`${textMsg2a} ${this.renderImgForRichText()} ${textMsg2b}`);
-                break;
-            default:
-                const msg = gc.Translator.gameTranslate(messageKey);
-                this.renderMsg(msg);
-                break;
-        }
-    }
+        const options = {
+            maxWin: this.maxWinPerRound,
+        };
 
-    renderMsgDefault() {
-        const deviceSuffix = sys.isMobile ? "phone" : "desktop";
-        const message = `show_msg_when_spin_${deviceSuffix}`;
-        this.renderMsg(gc.Translator.gameTranslate(message));
+        const index = this.currentKeyIndex % this.filterKeys.length;
+        this.currentKeyIndex++;
+        if (this.filterKeys[index].includes("top_message2")) {
+            const textMsg2a = gc.Translator.gameTranslate("top_message2a");
+            const textMsg2b = gc.Translator.gameTranslate("top_message2b");
+            this.renderMsg(`${textMsg2a} ${this.renderImgForRichText()} ${textMsg2b}`);
+            return;
+        }
+        const msg = gc.Translator.t(`cascadingslot.${this.filterKeys[index]}`, options);
+        this.renderMsg(msg);
     }
 
     renderMsg(msg: string) {
@@ -104,7 +88,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
         if (isShow) {
             AnimationUtils.fadeInAndActivate(this.node, 0.3);
         } else {
-            AnimationUtils.fadeOutAndDeactivate(this.node, 0.3);
+            this.node.active = false;
         }
     }
 
@@ -122,7 +106,9 @@ export class PortraitCascadingMessages extends ObserverComponent {
     }
 
     private updateFilterKeys(excludeFirstMsgInGame = false) {
-        this.filterKeys = excludeFirstMsgInGame ? this.msgList.slice(1) : this.msgList;
+        const ignoreKey = !sys.isMobile ? "phone" : "desktop";
+        const keys = this.msgList.filter((key) => !key.includes(ignoreKey));
+        this.filterKeys = excludeFirstMsgInGame ? keys.slice(1) : keys;
     }
 
     renderImgForRichText() {
