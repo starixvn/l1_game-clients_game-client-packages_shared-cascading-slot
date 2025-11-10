@@ -13,6 +13,13 @@ export class BuyFreespinsStore {
 
     constructor() {
         mobx.makeAutoObservable(this);
+        setTimeout(() => {
+            mobx.reaction(() => this.cascadingUIStore.isFreeSpins, (isFreeSpins) => {
+                if (!isFreeSpins) {
+                    this.isActive = false;
+                }
+            });
+        }, 10);
     }
 
     popupEvent: IBuyFreespinsPopupEvent = null;
