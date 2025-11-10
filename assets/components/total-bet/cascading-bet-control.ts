@@ -5,6 +5,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { DialogName } from "../../cascading-slot-utils";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { BetControlStore } from "../../stores/bet-control-store";
@@ -85,7 +86,9 @@ export class CascadingBetControl extends ObserverComponent {
     }
 
     @handle(BetControlHandlers, (handle) => handle.closeBetControl())
-    onCloseBetControl() { }
+    onCloseBetControl() {
+        AudioUtils.playClick();
+    }
 
     @handle(BetControlHandlers, (handle) => handle.changeBetLevel(false))
     protected onClickDecreaseBetLevel() {
