@@ -43,7 +43,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
     resetBetProcessingInterrupt() {
         this.uiStore.isPlacingBet = false;
         this.betResponseHandlers.stopProcessingBetAndClearInterval();
-        this.uiHandler.resetProcessingBet();
+        this.uiHandler.resetProcessingBet(false);
         this.cascadingHoldActionHandlers.clearTriggerAction();
     }
 
@@ -93,7 +93,7 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
 
             success = true;
         } else {
-            this.uiHandler.resetProcessingBet();
+            this.uiHandler.resetProcessingBet(true);
         }
 
         return success;

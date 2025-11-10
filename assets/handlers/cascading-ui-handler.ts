@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() {}
+    handle() { }
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -100,9 +100,14 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }
     }
 
-    resetProcessingBet() {
+    resetProcessingBet(resetBottom: boolean) {
         this.changeCascadingState(CascadingSlotState.READY_BET);
-        this.resetBottomMessageState();
+
+        if (resetBottom || !(this.uiStore.bottomMessageState === SlotNotification.FREESPINS
+            || this.uiStore.bottomMessageState === SlotNotification.AUTO_SPIN)
+        ) {
+            this.resetBottomMessageState();
+        }
     }
 
     resetBottomMessageState() {
