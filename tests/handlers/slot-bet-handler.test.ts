@@ -64,8 +64,11 @@ jest.mock("@sg/game-client-base", () => ({
     ConnectionStore: jest.fn(),
     RetryGameHandler: jest.fn(),
 }));
-jest.mock("inversify");
-
+jest.mock("db://shared-components/shared/utils/function-utils", () => ({
+    FunctionUtils: {
+        waitUntil: jest.fn().mockImplementation(() => Promise.resolve()),
+    },
+}));
 // Mock stores
 const mockBetControlStore = {
     coinValue: 0.01,
@@ -179,7 +182,7 @@ describe("SlotBetHandler", () => {
 
         // Mock inversify decorators
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
+        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => { });
 
         // Mock parent class constructor
         (gc.Bet.BetHandler as any) = jest.fn().mockImplementation(() => ({}));
@@ -328,6 +331,9 @@ describe("SlotBetHandler", () => {
     });
 
     describe("handleBetDataWithAmount", () => {
+        beforeEach(() => {
+            jest.spyOn(slotBetHandler, "sendRequestBet");
+        });
         it("should successfully process valid bet in normal mode", () => {
             const betData = {
                 totalBet: 0.25,
@@ -340,24 +346,8 @@ describe("SlotBetHandler", () => {
             expect(result).toBe(true);
             expect(mockUIStore.changeUserBalance).toBe(true);
             expect(mockBetStore.isProcessingBet).toBe(true);
-            expect(mockConnectionStore.send).toHaveBeenCalledWith(gc.GameClientEmitMessage.Bet.eventName, betData);
+            expect(slotBetHandler.sendRequestBet).toHaveBeenCalledWith(betData);
             expect(mockUIHandler.changeCascadingState).toHaveBeenCalledWith(CascadingSlotState.SPINNING);
-            expect(mockRetryGameHandler.handle).toHaveBeenCalled();
-        });
-
-        it("should successfully process valid bet in trial mode", () => {
-            mockUIStore.isTrialMode = true;
-            const betData = {
-                totalBet: 0.25,
-                m: "desktop",
-                username: "testPlayer",
-            };
-
-            const result = slotBetHandler.handleBetDataWithAmount(betData, betData.totalBet);
-
-            expect(result).toBe(true);
-            expect(mockConnectionTrialStore.send).toHaveBeenCalledWith(gc.GameClientEmitMessage.Bet.eventName, betData);
-            expect(mockConnectionStore.send).not.toHaveBeenCalled();
         });
 
         it("should handle invalid bet and reset processing", () => {
@@ -370,8 +360,7 @@ describe("SlotBetHandler", () => {
 
             expect(result).toBe(false);
             expect(mockUIHandler.resetProcessingBet).toHaveBeenCalled();
-            expect(mockConnectionStore.send).not.toHaveBeenCalled();
-            expect(mockConnectionTrialStore.send).not.toHaveBeenCalled();
+            expect(slotBetHandler.sendRequestBet).not.toHaveBeenCalled();
         });
 
         it("should set proper state sequence for valid bet", () => {
@@ -383,6 +372,35 @@ describe("SlotBetHandler", () => {
             expect(mockUIStore.changeUserBalance).toBe(true);
             expect(mockBetStore.isProcessingBet).toBe(true);
             expect(mockUIHandler.changeCascadingState).toHaveBeenCalledWith(CascadingSlotState.SPINNING);
+        });
+    });
+
+    describe("sendRequestBet", () => {
+        beforeEach(() => {
+            jest.spyOn(slotBetHandler, "isConnectionReady").mockImplementation(() => true);
+
+            jest.spyOn(mockConnectionTrialStore, "send");
+            jest.spyOn(mockConnectionStore, "send");
+        });
+        it("should send request bet by trial mode", async () => {
+            const betData = { totalBet: 0.25 };
+            mockUIStore.isTrialMode = true;
+            await slotBetHandler.sendRequestBet(betData);
+
+            expect(slotBetHandler.isConnectionReady).toHaveBeenCalled();
+            expect(mockConnectionTrialStore.send).toHaveBeenCalledWith(gc.GameClientEmitMessage.Bet.eventName, betData);
+            expect(mockConnectionStore.send).not.toHaveBeenCalled();
+            expect(mockRetryGameHandler.handle).toHaveBeenCalled();
+        });
+
+        it("should send request bet by normal mode", async () => {
+            const betData = { totalBet: 0.25 };
+            mockUIStore.isTrialMode = false;
+            await slotBetHandler.sendRequestBet(betData);
+
+            expect(slotBetHandler.isConnectionReady).toHaveBeenCalled();
+            expect(mockConnectionTrialStore.send).not.toHaveBeenCalled();
+            expect(mockConnectionStore.send).toHaveBeenCalledWith(gc.GameClientEmitMessage.Bet.eventName, betData);
         });
     });
 
@@ -441,16 +459,6 @@ describe("SlotBetHandler", () => {
             expect(result).toBe(false);
             expect(mockUIHandler.resetProcessingBet).toHaveBeenCalled();
             expect((slotBetHandler as any).showNoticePlaceBetFailure).toHaveBeenCalled();
-        });
-
-        it("should handle trial mode betting", () => {
-            mockUIStore.isTrialMode = true;
-
-            const result = slotBetHandler.handle();
-
-            expect(result).toBe(true);
-            expect(mockConnectionTrialStore.send).toHaveBeenCalled();
-            expect(mockConnectionStore.send).not.toHaveBeenCalled();
         });
 
         it("should handle FSB promotion betting", () => {

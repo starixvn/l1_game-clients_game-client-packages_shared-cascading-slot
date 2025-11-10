@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { FunctionUtils } from "db://shared-components/shared/utils/function-utils";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { BetControlStore } from "../stores/bet-control-store";
@@ -65,18 +66,31 @@ export class SlotBetHandler extends gc.Bet.BetHandler {
         };
     }
 
+    isConnectionReady() {
+        return this.connectionStore.isConnected && this.connectionStore.signedIn;
+    }
+
+    async sendRequestBet(data: any) {
+        await FunctionUtils.waitUntil(() => this.isConnectionReady(), 100, 20 * 60000).catch(() => { });
+        if (!this.isConnectionReady()) {
+            return;
+        }
+
+        this.uiStore.isTrialMode
+            ? this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data)
+            : this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
+        this.retryGameHandler.handle();
+    }
+
     handleBetDataWithAmount(data: any, amount: number) {
         let success = false;
         if (this.isValidBet(amount)) {
             this.uiStore.changeUserBalance = false;
             this.betStore.isProcessingBet = true;
-            this.uiStore.isTrialMode
-                ? this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data)
-                : this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
+            this.sendRequestBet(data);
             this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
             this.uiStore.changeUserBalance = true;
 
-            this.retryGameHandler.handle();
             success = true;
         } else {
             this.uiHandler.resetProcessingBet();
