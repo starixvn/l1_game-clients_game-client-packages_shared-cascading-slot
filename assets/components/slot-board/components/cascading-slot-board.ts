@@ -290,14 +290,14 @@ export class CascadingSlotBoard extends ObserverComponent {
                 })
                 .filter((value) => value > -1);
         });
-
+        this.peekEffectOverlay.active = true;
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
                 return reel.highlightItems(items);
             })
         );
-
+        this.peekEffectOverlay.active = false;
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
