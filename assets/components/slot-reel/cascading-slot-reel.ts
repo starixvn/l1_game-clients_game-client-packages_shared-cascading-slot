@@ -30,12 +30,12 @@ export class CascadingSlotReel extends Component {
 
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
-    private readonly ITEM_BACK_DURATION = 0.13;
-    private readonly ITEM_BACK_OFFSET_Y = 25;
+    private readonly ITEM_BACK_DURATION = 0.2;
+    private readonly ITEM_BACK_OFFSET_Y = 6;
 
     public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
     private readonly FALL_OUT_SPEED = 2800;
-    private readonly FALL_IN_NORMAL_SPEED = 1800;
+    private readonly FALL_IN_NORMAL_SPEED = 1600;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
     createReel() {
@@ -215,6 +215,7 @@ export class CascadingSlotReel extends Component {
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
         this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
+        console.log("duration", duration);
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
@@ -231,7 +232,8 @@ export class CascadingSlotReel extends Component {
         const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
         tween(item.node)
-            .to(duration - backDuration, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "circOut" })
+            .to(duration - backDuration, { position: v3(xNode, posY, 0) }, { easing: "sineOut" })
+
             .call(() => {
                 if (isBottomItem) {
                     onBottomItemEnded && onBottomItemEnded();
@@ -246,13 +248,10 @@ export class CascadingSlotReel extends Component {
                             level: item.getMultiplierItem()?.multiplierRange ?? 0,
                         });
                 }),
-                tween().to(
-                    backDuration,
-                    { position: v3(xNode, posY, 0) },
-                    {
-                        easing: "sineOut",
-                    }
-                )
+                tween()
+                    .to(0.06, { position: v3(xNode, posY + backOffsetY, 0) }, { easing: "sineOut" })
+                    .to(0.06, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "sineOut" })
+                    .to(0.08, { position: v3(xNode, posY, 0) }, { easing: "sineOut" })
             )
             .call(() => {
                 effectIntroMultiplier && item.playIntroAnimation();
