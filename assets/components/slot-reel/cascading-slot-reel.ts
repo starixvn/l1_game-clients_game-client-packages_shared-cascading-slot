@@ -30,13 +30,13 @@ export class CascadingSlotReel extends Component {
 
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
-    private readonly ITEM_BACK_DURATION = 0.2;
-    private readonly ITEM_BACK_OFFSET_Y = 6;
+    private readonly ITEM_BACK_DURATION = 0.24;
+    private readonly ITEM_BACK_OFFSET_Y = 4;
 
     public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
     public readonly DELAY_EACH_ITEM_FALL_IN_DELAY = 0.3;
     private readonly FALL_OUT_SPEED = 2800;
-    private readonly FALL_IN_NORMAL_SPEED = 1600;
+    private readonly FALL_IN_NORMAL_SPEED = 1500;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
     createReel() {
@@ -219,7 +219,6 @@ export class CascadingSlotReel extends Component {
         this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
-        const backDurationEach = backDuration / 3;
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
@@ -251,9 +250,9 @@ export class CascadingSlotReel extends Component {
                         });
                 }),
                 tween()
-                    .to(backDurationEach, { position: v3(xNode, posY + backOffsetY, 0) })
-                    .to(backDurationEach, { position: v3(xNode, posY - backOffsetY, 0) })
-                    .to(backDurationEach, { position: v3(xNode, posY, 0) }, { easing: "quadOut" })
+                    .to(backDuration * 0.3, { position: v3(xNode, posY + backOffsetY, 0) })
+                    .to(backDuration * 0.3, { position: v3(xNode, posY - 2, 0) })
+                    .to(backDuration * 0.4, { position: v3(xNode, posY, 0) }, { easing: "expoOut" })
             )
             .call(() => {
                 effectIntroMultiplier && item.playIntroAnimation();
