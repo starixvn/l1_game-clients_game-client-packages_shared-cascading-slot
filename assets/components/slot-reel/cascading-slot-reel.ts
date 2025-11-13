@@ -191,6 +191,7 @@ export class CascadingSlotReel extends Component {
             duration = distance / speed;
             duration = Math.max(duration, minDuration);
             const delay = this.delayFallingEachItem(duration);
+
             if (!isTurbo) {
                 await AnimationUtils.delayTime(delay);
             }
@@ -215,9 +216,9 @@ export class CascadingSlotReel extends Component {
 
     fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
         this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
-        console.log("duration", duration);
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
+        const backDurationEach = backDuration / 3;
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
@@ -249,9 +250,9 @@ export class CascadingSlotReel extends Component {
                         });
                 }),
                 tween()
-                    .to(0.06, { position: v3(xNode, posY + backOffsetY, 0) }, { easing: "sineOut" })
-                    .to(0.06, { position: v3(xNode, posY - backOffsetY, 0) }, { easing: "sineOut" })
-                    .to(0.08, { position: v3(xNode, posY, 0) }, { easing: "sineOut" })
+                    .to(backDurationEach, { position: v3(xNode, posY + backOffsetY, 0) })
+                    .to(backDurationEach, { position: v3(xNode, posY - backOffsetY, 0) })
+                    .to(backDurationEach, { position: v3(xNode, posY, 0) }, { easing: "quadOut" })
             )
             .call(() => {
                 effectIntroMultiplier && item.playIntroAnimation();
