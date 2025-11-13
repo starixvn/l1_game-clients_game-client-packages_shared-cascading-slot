@@ -34,6 +34,7 @@ export class CascadingSlotReel extends Component {
     private readonly ITEM_BACK_OFFSET_Y = 6;
 
     public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
+    public readonly DELAY_EACH_ITEM_FALL_IN_DELAY = 0.3;
     private readonly FALL_OUT_SPEED = 2800;
     private readonly FALL_IN_NORMAL_SPEED = 1600;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;

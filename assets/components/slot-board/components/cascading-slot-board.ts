@@ -63,6 +63,8 @@ export class CascadingSlotBoard extends ObserverComponent {
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
+    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.8;
+    protected readonly DELAY_BEFORE_REFILL_TURBO = 0.2;
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -104,8 +106,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             [0, 1, 7, 3, 2, 1, 9, 5, 2, 8, 2, 7, 3, 7, 5, 10, 0, 0, 6, 4, 5, 4, 1, 8, 6, 4, 5, 3, 6, 9],
             [3, 6, 4, 0, 5, 2, 2, 2, 3, 7, 8, 4, 4, 3, 4, 9, 7, 4, 1, 10, 0, 1, 4, 2, 5, 9, 2, 1, 9, 0],
         ];
-        const multipliers =
-            resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [20], [100]] : [[3], [8], [12], [15], [18]];
+        const multipliers = resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [20], [100]] : [[3], [8], [12], [15], [18]];
         const randomIndex = random(samples.length - 1);
         console.log(`B${randomIndex}`);
         return { symbols: samples[randomIndex], multipliers: multipliers[randomIndex] };
@@ -179,6 +180,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i);
+            await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
             await this.fallIn(false, false);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
@@ -209,6 +211,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
+        const delayEachReelFallIn = this.reels[0].DELAY_EACH_ITEM_FALL_IN_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
         this.playSpinAudio(isTurbo);
@@ -218,7 +221,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
         for (let i = 0; i < this.reels.length; i++) {
             if (!isTurbo && i > 0) {
-                await AnimationUtils.delayTime(delayEachReelFallOut);
+                await AnimationUtils.delayTime(delayEachReelFallIn);
             }
             const reelSymbols = symbols[i];
             const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
@@ -368,7 +371,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             });
         });
 
-        this.reels.forEach(reel => {
+        this.reels.forEach((reel) => {
             const items = reel.getItems();
             items.forEach((item) => {
                 if (item.isMultiplierSymbol) {
@@ -383,7 +386,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             return;
         }
         this.effectContainer.active = true;
-        this.reels.forEach(reel => {
+        this.reels.forEach((reel) => {
             const items = reel.getItems();
             items.forEach((item) => {
                 if (item.isScatterSymbol) {
@@ -795,4 +798,3 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 }
-
