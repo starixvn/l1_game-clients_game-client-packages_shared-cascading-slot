@@ -13,7 +13,6 @@ const { ccclass } = _decorator;
 @ccclass
 export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     private totalTumbleWin = 0;
-    private readonly heightMessageNode = 80;
     async handleMultiplier(
         isFreeSpin: boolean,
         winMultiplier: boolean,
@@ -78,7 +77,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     movingLabelToTotalWin(multiplierNode: Node, container: Node, destNode: Node) {
         return new Promise<void>((resolve) => {
             const destPosTmp = ComponentUtils.convertPosition(container, destNode);
-            const destPos = v3(destPosTmp.x, destPosTmp.y + this.heightMessageNode, destPosTmp.z);
+            const destPos = v3(destPosTmp.x, destPosTmp.y, destPosTmp.z);
             const duration = 0.6;
 
             this.animMoveLabel(multiplierNode, destPos, duration, resolve);
@@ -142,7 +141,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         }
         
         tween(node)
-            .to(duration, { position: position })
+            .to(duration * 0.8, { position: position })
             .call(() => {
                 resolve();
                 node.destroy();
@@ -150,8 +149,8 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             .start();
         
         tween(node.getComponent(UIOpacity))
-            .delay(duration * 0.85)
-            .to(duration * 0.1, { opacity: 0 }, { easing: "sineOut" })
+            .delay(duration)
+            .to(duration, { opacity: 0 }, { easing: "sineOut" })
             .start();
     }
 
