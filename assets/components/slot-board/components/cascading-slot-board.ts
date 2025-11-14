@@ -145,7 +145,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    async handleTumbles(tumbles: Tumble[], isTurbo: boolean) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean , tumbleWinView?: TumbleWinWiew) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -171,7 +171,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                     const winIconDetail: WinIconDetail = icons[iconKey];
                     const node = this.getRandomWinItem(explode, +iconKey);
                     const position = ComponentUtils.convertPosition(this.effectContainer, node);
-                    this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
+                    this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win, tumbleWinView);
                 });
                 this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
@@ -415,17 +415,17 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 
-    createFlyWinLabel(container: Node, position: Vec3, value: number) {
+    createFlyWinLabel(container: Node, position: Vec3, value: number, tumbleWinView?: TumbleWinWiew) {
         const node = instantiate(this.prfFlyLabelWin);
         container.addChild(node);
         node.position = position;
 
         const label = node.getComponent(Label);
         label.string = gc.FormatUtils.numberWithCommas(value, 2, false);
-        this.flyWinLabelAnimation(node);
+        this.flyWinLabelAnimation(node, tumbleWinView);
     }
 
-    flyWinLabelAnimation(node: Node) {
+    flyWinLabelAnimation(node: Node , tumbleWinView?: TumbleWinWiew) {
         node.scale = v3(0, 0, 0);
         node.getComponent(UIOpacity).opacity = 1;
         tween(node)
