@@ -7,14 +7,13 @@ import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
 import { CascadingSlotBoard } from "./cascading-slot-board";
 import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-const { observer, render, handle } = Observer;
-const { ccclass, property } = _decorator;
+const { render } = Observer;
+const { ccclass } = _decorator;
 
 @ccclass
 export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     private totalTumbleWin = 0;
-    private isStopAnim = false;
-    private heightMessageNode = 80;
+    private readonly heightMessageNode = 80;
     async handleMultiplier(
         isFreeSpin: boolean,
         winMultiplier: boolean,
