@@ -181,6 +181,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
             await this.removeItems(explode, i);
             await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
+            await this.fallIn(false, false);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
@@ -320,7 +321,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
         } else {
             const promises = this.reels.map(async (reel, index) => {
-                await AnimationUtils.delayTime(index * 0.2);
+                await AnimationUtils.delayTime(index * 0.1);
                 await reel.fallIn(isTurbo, null);
             });
             await Promise.all(promises);
