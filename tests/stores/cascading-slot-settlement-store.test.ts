@@ -1,7 +1,19 @@
+import gc from "@sg/game-client-base";
 import { Container } from "inversify";
 import "reflect-metadata";
 import { GameServiceMessageCascading } from "../../assets/game-messages-cascading";
 import { CascadingSlotSettlementStore } from "../../assets/stores/cascading-slot-settlement-store";
+
+// Mock MainPlayerStore
+const mockMainPlayerStore = {
+    xMode: 1,
+};
+
+jest.mock("@sg/game-client-base", () => ({
+    Player: {
+        MainPlayerStore: jest.fn(() => mockMainPlayerStore),
+    },
+}));
 
 describe("CascadingSlotSettlementStore", () => {
     let container: Container;
@@ -9,6 +21,7 @@ describe("CascadingSlotSettlementStore", () => {
 
     beforeEach(() => {
         container = new Container();
+        container.bind(gc.Player.MainPlayerStore).toConstantValue(mockMainPlayerStore as any);
         container.bind(CascadingSlotSettlementStore).toSelf();
         settlementStore = container.get(CascadingSlotSettlementStore);
     });

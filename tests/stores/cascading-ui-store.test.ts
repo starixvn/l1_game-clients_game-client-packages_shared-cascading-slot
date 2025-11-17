@@ -15,6 +15,7 @@ jest.mock("../../assets/stores/hold-action-store");
 // Mock the gc module
 const mockMainPlayerStore = {
     balance: 1000,
+    xMode: 1,
 };
 
 jest.mock("@sg/game-client-base", () => ({
