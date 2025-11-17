@@ -306,6 +306,10 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.dialogOpenEvent = { name };
     }
 
+    handleShowMessages(isShowMessages: boolean) {
+        this.uiStore.isShowMessages = isShowMessages;
+    }
+
     eventHandleList = [
         {
             name: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,

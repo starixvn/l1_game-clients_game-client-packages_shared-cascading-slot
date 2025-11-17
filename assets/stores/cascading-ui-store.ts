@@ -72,6 +72,10 @@ export class CascadingUIStore {
 
     triggerDuringFreeSpinBonus = null;
     portraitshowTotalMultiplierView = false;
+
+    isShowMessages = true;
+
+    
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
             return 1000; // default value

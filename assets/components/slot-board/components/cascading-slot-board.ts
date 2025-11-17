@@ -145,6 +145,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
+    @handle(CascadingUIHandler, (handler, isShowMessages: boolean) => handler.handleShowMessages(isShowMessages))
+    handleShowMessages(isShowMessages: boolean) {
+        return isShowMessages;
+    }
+
     async handleTumbles(tumbles: Tumble[], isTurbo: boolean , tumbleWinView?: TumbleWinWiew) {
         if (!tumbles || tumbles.length <= 1) {
             return;
@@ -173,6 +178,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                     const position = ComponentUtils.convertPosition(this.effectContainer, node);
                     this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win, tumbleWinView);
                 });
+                this.handleShowMessages(true);
                 this.setTumbles(tumbles);
                 this.handleTotalWinTumble(tumbleWin);
                 this.setTumbleIcons(tumble);

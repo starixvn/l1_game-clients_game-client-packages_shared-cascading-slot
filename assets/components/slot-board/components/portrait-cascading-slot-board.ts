@@ -7,7 +7,8 @@ import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
 import { CascadingSlotBoard } from "./cascading-slot-board";
 import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-const { render } = Observer;
+import { CascadingUIHandler } from "db://shared-cascading-slot/handlers/cascading-ui-handler";
+const { render , handle } = Observer;
 const { ccclass } = _decorator;
 
 @ccclass
@@ -79,7 +80,6 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             const destPosTmp = ComponentUtils.convertPosition(container, destNode);
             const destPos = v3(destPosTmp.x, destPosTmp.y, destPosTmp.z);
             const duration = 0.6;
-
             this.animMoveLabel(multiplierNode, destPos, duration, resolve);
         });
     }
@@ -118,6 +118,12 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         });
     }
 
+    @handle(CascadingUIHandler, (handle, isShowMessages: boolean) => handle.handleShowMessages(isShowMessages))
+    setShowMessages(isShowMessages: boolean) {
+        return isShowMessages;
+    }
+
+    
     animMoveMultiplier(node: Node, position: Vec3, duration: number, resolve: () => void) {
         tween(node)
             .to(duration, { position: position }, { easing: "sineOut" })
@@ -143,6 +149,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         tween(node)
             .to(duration * 0.8, { position: position })
             .call(() => {
+                this.setShowMessages(false);
                 resolve();
                 node.destroy();
             })

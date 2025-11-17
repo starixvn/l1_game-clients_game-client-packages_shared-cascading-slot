@@ -87,9 +87,14 @@ export class PortraitCascadingMessages extends ObserverComponent {
         const isShow = tumbles.length <= 1;
         if (isShow) {
             AnimationUtils.fadeInAndActivate(this.node, 0.3);
-        } else {
+        } 
+    }
+
+    @render(CascadingUIStore, (store) => store.isShowMessages)
+    setNodeVisibility(isShowMessages: boolean) {
+        if(isShowMessages === false) {
             this.node.active = false;
-        }
+        } 
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
