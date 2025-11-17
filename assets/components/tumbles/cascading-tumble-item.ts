@@ -25,9 +25,9 @@ export class CascadingTumbleItem extends Component {
 
     protected prefixSymbol = "symbol-";
 
-    setData(icon: number, count: number, win: number) {
+    setData(icon: number, count: number, win: number, xMode: number) {
         this.numberIcon.string = count.toString();
-        this.winningValue.string = gc.FormatUtils.numberWithCommas(win, 2, false);
+        this.winningValue.string = gc.FormatUtils.numberWithCommas(win * xMode, 2, false);
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${icon}`);
     }
 

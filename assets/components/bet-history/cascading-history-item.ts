@@ -37,7 +37,7 @@ export class CascadingHistoryItem extends ObserverComponent {
     textNormalColor: Color = Color.WHITE;
 
     setData(data: any) {
-        const { betHistoryLog, index } = data;
+        const { betHistoryLog, index, xMode } = data;
         this.betHistoryLog = betHistoryLog;
         const win = betHistoryLog.betwin;
         this.node.active = true;
@@ -45,9 +45,9 @@ export class CascadingHistoryItem extends ObserverComponent {
         this.time.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.roundID.string = betHistoryLog.id;
         this.betLevel.string = betHistoryLog.betLevel;
-        this.coinValue.string = betHistoryLog.coinValue;
-        this.totalBet.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
-        this.totalWin.string = gc.FormatUtils.numberWithCommas(win, 2, false);
+        this.coinValue.string = gc.FormatUtils.numberWithCommas(betHistoryLog.coinValue * xMode, 2);
+        this.totalBet.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 2);
+        this.totalWin.string = gc.FormatUtils.numberWithCommas(win * xMode, 2, false);
         this.data = betHistoryLog;
 
         if (betHistoryLog.betwin > 0) {
@@ -62,6 +62,8 @@ export class CascadingHistoryItem extends ObserverComponent {
                 this.textNormalColor;
         }
     }
+
+
 
     @handle(gc.BetHistory.BetDetailsHandlers)
     openTicketDetail() {

@@ -106,7 +106,7 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             return;
         }
         super.setData(data);
-        const { betHistoryLog } = data;
+        const { betHistoryLog, xMode } = data;
 
         if (!this.pagination) {
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
@@ -116,16 +116,16 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
             return;
         }
 
-        this.updateBasicDetails(betHistoryLog);
+        this.updateBasicDetails(betHistoryLog, xMode);
         this.updateMultiplierDetails(betHistoryLog);
         this.updateNavigationButtons(this.betHistory);
     }
 
-    private updateBasicDetails(betHistoryLog: any) {
+    private updateBasicDetails(betHistoryLog: any, xMode) {
         this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.betLevelDetail.string = betHistoryLog.betLevel;
-        this.coinValueDetail.string = betHistoryLog.coinValue;
-        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
+        this.coinValueDetail.string = gc.FormatUtils.numberWithCommas( betHistoryLog.coinValue * xMode, 2);
+        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 2);
         this.currentId = betHistoryLog.id;
     }
 

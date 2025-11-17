@@ -1,4 +1,5 @@
 import gc from "@sg/game-client-base";
+const { MainPlayerStore } = gc.Player;
 import { _decorator, Node, Prefab } from "cc";
 import { InGameMenuEvents } from "db://shared-components/game/in-game-menu/scripts/stores/in-game-menu-events";
 import { InGameMenuStore } from "db://shared-components/game/in-game-menu/scripts/stores/in-game-menu-store";
@@ -18,6 +19,8 @@ export class CascadingBetHistoryContainer extends NodeContainer {
 
     @property(Prefab)
     bodyItemPrefab: Prefab = null;
+
+    xMode = 1;
 
     @handle(gc.BetHistory.BetHistoryHandlers.BetHistoryCallServiceHandler, (handler) => handler.handle(1))
     hanldeShowBetHistory() {}
@@ -40,7 +43,13 @@ export class CascadingBetHistoryContainer extends NodeContainer {
             data: betHistoryModel,
             headerPrefab: this.headerPrefab,
             bodyItemPrefab: this.bodyItemPrefab,
+            xMode: this.xMode,
         });
+    }
+
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
     }
 
     @render(gc.Dialogs.DialogsStore, (store) => store.forceClosed, { fireImmediately: false })

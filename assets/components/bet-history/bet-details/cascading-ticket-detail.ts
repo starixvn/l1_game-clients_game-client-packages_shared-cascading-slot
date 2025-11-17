@@ -50,8 +50,8 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     data: any = null;
 
-    setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData }) {
-        const { betHistoryLog } = data;
+    setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData, xMode: number }) {
+        const { betHistoryLog, xMode } = data;
         if (!betHistoryLog) {
             return;
         }
@@ -80,8 +80,8 @@ export class CascadingTicketDetail extends ObserverComponent {
             const detailItem = this.loadDetailItem();
             const control = detailItem.getComponent(CascadingTicketDetailItem);
             if ((index === tumbles.length - 1 && isShowNextRow) || index < tumbles.length - 1) {
-                currWinTumble += tumble.win;
-                control.setData(tumble, index, betHistoryLog, currWinTumble);
+                currWinTumble += tumble.win * xMode;
+                control.setData(tumble, index, betHistoryLog, currWinTumble, xMode);
                 this.content.addChild(detailItem);
             }
             const newTumbleMultipliers = [...tumble.multipliers];
@@ -95,7 +95,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
         });
         this.handleMultiplierData(betHistoryLog);
-        this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin, 2, false);
+        this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin * xMode, 2, false);
         this.reachMaxText.node.active = isReachMaxWin;
     }
 

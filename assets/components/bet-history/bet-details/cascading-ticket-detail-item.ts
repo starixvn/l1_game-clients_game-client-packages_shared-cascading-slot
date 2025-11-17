@@ -52,7 +52,7 @@ export class CascadingTicketDetailItem extends Component {
         }
     }
 
-    setData(tumble: any, index: number, data: any, currWinTumble: number) {
+    setData(tumble: any, index: number, data: any, currWinTumble: number, xMode: number) {
         let numberOfIcon = 0;
         let tumbleNode: Node;
         const freeSpins = data.settlementResult.freeSpins;
@@ -72,7 +72,7 @@ export class CascadingTicketDetailItem extends Component {
                 tumbleNode = instantiate(this.tumbleWinDetailItemPrefab);
                 const control = tumbleNode.getComponent(CascadingTumbleItem);
                 const { count, win } = value;
-                control.setData(+key, count, win);
+                control.setData(+key, count, win, xMode);
                 numberOfIcon++;
                 this.content.addChild(tumbleNode);
             });
