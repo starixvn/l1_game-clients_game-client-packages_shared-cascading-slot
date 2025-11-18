@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
@@ -14,6 +15,7 @@ export class BuyFreespinsHandler {
     @inject(SlotBetHandler) private readonly slotBetHandler: SlotBetHandler;
     @inject(HoldActionStore) private readonly holdActionStore: HoldActionStore;
     @inject(CascadingUIHandler) private readonly uiHandler: CascadingUIHandler;
+    @inject(gc.Player.MainPlayerStore) private readonly mainPlayerStore: gc.Player.MainPlayerStore;
 
     private processing = false;
 
@@ -51,6 +53,9 @@ export class BuyFreespinsHandler {
     }
 
     receiveBuyFsTotalWin(result: BuyFsResult) {
+        if (result) {
+            result.totalWin = Math.round(result.totalWin * this.mainPlayerStore.xMode * 100) / 100;
+        }
         this.buyFsStore.buyFsResult = result;
     }
 
