@@ -25,8 +25,9 @@ export class CascadingSlotReel extends Component {
     protected items: CascadingSlotReelItem[] = [];
     public peekEffect = false;
 
-    private readonly MIN_DURATION_FALL_IN = 0.25;
-    private readonly MIN_DURATION_FALL_IN_TURBO = 0.1;
+    private readonly MIN_DURATION_FALL_IN = 0.4;
+    private readonly MIN_DURATION_FALL_OUT = 0.25;
+    private readonly MIN_DURATION_TURBO = 0.1;
 
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
@@ -38,6 +39,8 @@ export class CascadingSlotReel extends Component {
     private readonly FALL_OUT_SPEED = 2800;
     private readonly FALL_IN_NORMAL_SPEED = 1700;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
+
+    public isReFillSymbols = false;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -173,13 +176,21 @@ export class CascadingSlotReel extends Component {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
+        if (this.isReFillSymbols) {
+            return 0.2 * duration;
+        }
         return 0.08 * duration;
     }
 
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
-        const minDuration = isTurbo ? this.MIN_DURATION_FALL_IN_TURBO : this.MIN_DURATION_FALL_IN;
+        let minDuration = 0;
+        if (isTurbo) {
+            minDuration = this.MIN_DURATION_TURBO;
+        } else {
+            minDuration = isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
+        }
 
         let duration = 0;
         for (let i = 0; i < this.items.length; i++) {
@@ -267,6 +278,7 @@ export class CascadingSlotReel extends Component {
     }
 
     async spin(data: number[], multiplier: number[], isTurbo: boolean, onSpinEnded: () => void) {
+        this.isReFillSymbols = false;
         this.setItemData(data, multiplier);
         this.setStartPositionForItems();
         await this.fallIn(isTurbo, onSpinEnded);

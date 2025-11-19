@@ -63,8 +63,8 @@ export class CascadingSlotBoard extends ObserverComponent {
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
-    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.8;
-    protected readonly DELAY_BEFORE_REFILL_TURBO = 0.2;
+    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.4;
+    protected readonly DELAY_BEFORE_REFILL_TURBO = 0.1;
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -150,7 +150,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         return isShowMessages;
     }
 
-    async handleTumbles(tumbles: Tumble[], isTurbo: boolean , tumbleWinView?: TumbleWinWiew) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean, tumbleWinView?: TumbleWinWiew) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -327,6 +327,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
         } else {
             const promises = this.reels.map(async (reel, index) => {
+                reel.isReFillSymbols = true;
                 await AnimationUtils.delayTime(index * 0.1);
                 await reel.fallIn(isTurbo, null);
             });
@@ -432,7 +433,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.flyWinLabelAnimation(node, tumbleWinView);
     }
 
-    flyWinLabelAnimation(node: Node , tumbleWinView?: TumbleWinWiew) {
+    flyWinLabelAnimation(node: Node, tumbleWinView?: TumbleWinWiew) {
         node.scale = v3(0, 0, 0);
         node.getComponent(UIOpacity).opacity = 1;
         tween(node)

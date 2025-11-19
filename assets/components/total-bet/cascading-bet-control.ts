@@ -81,13 +81,16 @@ export class CascadingBetControl extends ObserverComponent {
     @render(CascadingUIStore, (store) => store.dialogOpenEvent, { fireImmediately: false })
     private renderDialogOpenEvent(dialogOpenEvent: { name: string }) {
         if (dialogOpenEvent?.name !== DialogName.BET_CONTROL) {
-            this.onCloseBetControl();
+            this.triggerCloseBetControl();
         }
     }
 
     @handle(BetControlHandlers, (handle) => handle.closeBetControl())
+    triggerCloseBetControl() {}
+
     onCloseBetControl() {
         AudioUtils.playClick();
+        this.triggerCloseBetControl();
     }
 
     @handle(BetControlHandlers, (handle) => handle.changeBetLevel(false))
