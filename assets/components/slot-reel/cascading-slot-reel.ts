@@ -31,7 +31,7 @@ export class CascadingSlotReel extends Component {
 
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
-    private readonly ITEM_BACK_DURATION = 0.2;
+    private readonly ITEM_BACK_DURATION = 0.24;
     private readonly ITEM_BACK_OFFSET_Y = 6;
 
     public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
@@ -231,6 +231,7 @@ export class CascadingSlotReel extends Component {
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
+        console.log("duration", duration);
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
         if (item.isScatterSymbol && fromOutSide) {
@@ -261,8 +262,8 @@ export class CascadingSlotReel extends Component {
                         });
                 }),
                 tween()
-                    .to(backDuration * 0.3, { position: v3(xNode, posY + backOffsetY, 0) })
-                    .to(backDuration * 0.3, { position: v3(xNode, posY - 2, 0) })
+                    .to(backDuration * 0.3, { position: v3(xNode, posY - 4, 0) })
+                    .to(backDuration * 0.3, { position: v3(xNode, posY + 3, 0) })
                     .to(backDuration * 0.4, { position: v3(xNode, posY, 0) }, { easing: "expoOut" })
             )
             .call(() => {
