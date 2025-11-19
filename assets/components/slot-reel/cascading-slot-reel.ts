@@ -32,7 +32,7 @@ export class CascadingSlotReel extends Component {
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
     private readonly ITEM_BACK_DURATION = 0.24;
-    private readonly ITEM_BACK_OFFSET_Y = 6;
+    private readonly ITEM_BACK_OFFSET_Y = 4;
 
     public readonly DELAY_EACH_ITEM_FALL_OUT_DELAY = 0.08;
     public readonly DELAY_EACH_ITEM_FALL_IN_DELAY = 0.12;
@@ -262,7 +262,7 @@ export class CascadingSlotReel extends Component {
                         });
                 }),
                 tween()
-                    .to(backDuration * 0.3, { position: v3(xNode, posY - 4, 0) })
+                    .to(backDuration * 0.3, { position: v3(xNode, posY - backOffsetY, 0) })
                     .to(backDuration * 0.3, { position: v3(xNode, posY + 3, 0) })
                     .to(backDuration * 0.4, { position: v3(xNode, posY, 0) }, { easing: "expoOut" })
             )
