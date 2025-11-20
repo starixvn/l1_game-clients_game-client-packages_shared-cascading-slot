@@ -63,7 +63,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
-    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.4;
+    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.3;
     protected readonly DELAY_BEFORE_REFILL_TURBO = 0.1;
 
     public createReels() {
@@ -187,7 +187,6 @@ export class CascadingSlotBoard extends ObserverComponent {
 
             await this.removeItems(explode, i);
             await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
-            await this.fallIn(false, false);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
@@ -199,9 +198,13 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.showPeekEffectInTumbles(newItems);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
+
+            // Store old items count before adding new items
+            const oldItemsCount = this.reels.map((reel) => reel.getItems().length);
+
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(hasPeekEffect, false);
+            await this.fallIn(false, false, oldItemsCount);
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
@@ -316,7 +319,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         );
     }
 
-    public async fallIn(peekEffect: boolean, isTurbo: boolean) {
+    public async fallIn(peekEffect: boolean, isTurbo: boolean, remainSymbolsCount?: number[]) {
         if (peekEffect) {
             for (let i = 0; i < this.reels.length; i++) {
                 const reel = this.reels[i];
@@ -326,12 +329,35 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.hidePeekEffectAtIndex(i);
             }
         } else {
-            const promises = this.reels.map(async (reel, index) => {
-                reel.isReFillSymbols = true;
-                await AnimationUtils.delayTime(index * 0.1);
-                await reel.fallIn(isTurbo, null);
+            // For each reel: fall in remaining items, wait for it to finish, delay 0.1s, then fall in new items
+            // Each reel starts 0.1s after the previous reel starts (reels run in parallel, not waiting for completion)
+            const reelPromises = this.reels.map((reel, reelIndex) => {
+                return new Promise<void>((resolve) => {
+                    setTimeout(async () => {
+                        const oldCount = remainSymbolsCount[reelIndex];
+                        const newCount = reel.getItems().length;
+
+                        // Fall in remaining items and wait for it to finish
+                        if (oldCount > 0) {
+                            reel.isReFillSymbols = true;
+                            await reel.fallInRange(0, oldCount, false, null);
+                        }
+
+                        // Delay 0.1s before falling in new items
+                        await AnimationUtils.delayTime(0.1);
+
+                        // Fall in new items
+                        if (newCount > oldCount) {
+                            reel.isReFillSymbols = true;
+                            await reel.fallInRange(oldCount, newCount, false, null);
+                        }
+
+                        resolve();
+                    }, reelIndex * 100);
+                });
             });
-            await Promise.all(promises);
+
+            await Promise.all(reelPromises);
         }
     }
 

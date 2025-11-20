@@ -158,6 +158,10 @@ export class CascadingSlotReel extends Component {
         await this.fallWithOffset(0, isTurbo, onEnded);
     }
 
+    async fallInRange(startIndex: number, endIndex: number, isTurbo: boolean, onEnded?: () => void) {
+        await this.fallWithOffsetRange(startIndex, endIndex, 0, isTurbo, onEnded);
+    }
+
     protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
         const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
 
@@ -183,6 +187,10 @@ export class CascadingSlotReel extends Component {
     }
 
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
+        await this.fallWithOffsetRange(0, this.items.length, offset, isTurbo, onBottomItemEnded);
+    }
+
+    async fallWithOffsetRange(startIndex: number, endIndex: number, offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
         let minDuration = 0;
@@ -193,7 +201,7 @@ export class CascadingSlotReel extends Component {
         }
 
         let duration = 0;
-        for (let i = 0; i < this.items.length; i++) {
+        for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
             const distance = Math.abs(posY - item.node.position.y);
@@ -245,7 +253,7 @@ export class CascadingSlotReel extends Component {
         const effectIntroMultiplier = resourcesCache.gameFeatures?.effectIntroMultiplier && item.isMultiplierSymbol && fromOutSide;
 
         tween(item.node)
-            .to(duration - backDuration, { position: v3(xNode, posY, 0) }, { easing: "sineOut" })
+            .to(duration - backDuration, { position: v3(xNode, posY, 0) }, { easing: "sineIn" })
 
             .call(() => {
                 if (isBottomItem) {
