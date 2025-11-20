@@ -56,7 +56,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         this.totalTumbleWin = totalTumbleWin;
     }
 
-    async flyWinLabelAnimation(node: Node , tumbleWinView?: PortraitTumbleWinWiew) {;
+    async flyWinLabelAnimation(node: Node, tumbleWinView?: PortraitTumbleWinWiew) {
         if (tumbleWinView) {
             await new Promise<void>((resolve) => {
                 const duration = 0.3;
@@ -69,17 +69,36 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                     .start();
                 });
                 await AnimationUtils.delayTime(0.5);
-                await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node);
+                
+                const isBottomPosition = this.isNodeAtBottomBoard(node);
+                const moveDuration = isBottomPosition ? 0.3 : 0.6;
+                
+                await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node, moveDuration);
                 tumbleWinView.totalWinNode.active = true;
                 await tumbleWinView.setTotalWinValue(this.totalTumbleWin);
        }
     }
 
-    movingLabelToTotalWin(multiplierNode: Node, container: Node, destNode: Node) {
+    private isNodeAtBottomBoard(node: Node): boolean {
+        const threshold = 150; 
+        if (!this.reels || this.reels.length === 0) {
+            return false;
+        }
+        const bottomItems = this.reels.map(reel => {
+            const items = reel.getItems();
+            return items.length > 0 ? items[0] : null;
+        }).filter(item => item !== null);
+        if (bottomItems.length === 0) {
+            return false;
+        }
+        const avgBottomY = bottomItems.reduce((sum, item) => sum + item.node.worldPosition.y, 0) / bottomItems.length;
+        return Math.abs(node.worldPosition.y - avgBottomY) < threshold;
+    }
+
+    movingLabelToTotalWin(multiplierNode: Node, container: Node, destNode: Node, duration : number) {
         return new Promise<void>((resolve) => {
             const destPosTmp = ComponentUtils.convertPosition(container, destNode);
             const destPos = v3(destPosTmp.x, destPosTmp.y, destPosTmp.z);
-            const duration = 0.6;
             this.animMoveLabel(multiplierNode, destPos, duration, resolve);
         });
     }
