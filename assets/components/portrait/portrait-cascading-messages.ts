@@ -39,17 +39,9 @@ export class PortraitCascadingMessages extends ObserverComponent {
     onLoad() {
         this.autoScrollingContent = this.getComponent(AutoScrollingContent);
         this.colorConfig = resourcesCache.colorJson;
+        this.updateFilterKeys();
         super.onLoad();
-        this.updateTopMessage();
         this.msg.getComponent(RichText).fontColor = new Color().fromHEX(this.colorConfig.topMessageTextColor);
-    }
-
-    onEnable() {
-        this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
-    }
-
-    onDisable() {
-        this.unschedule(this.updateTopMessage);
     }
 
     updateTopMessage() {
@@ -66,6 +58,7 @@ export class PortraitCascadingMessages extends ObserverComponent {
             return;
         }
         const msg = gc.Translator.t(`cascadingslot.${this.filterKeys[index]}`, options);
+
         this.renderMsg(msg);
     }
 
@@ -87,14 +80,14 @@ export class PortraitCascadingMessages extends ObserverComponent {
         const isShow = tumbles.length <= 1;
         if (isShow) {
             AnimationUtils.fadeInAndActivate(this.node, 0.3);
-        } 
+        }
     }
 
     @render(CascadingUIStore, (store) => store.isShowMessages)
     setNodeVisibility(isShowMessages: boolean) {
-        if(isShowMessages === false) {
+        if (isShowMessages === false) {
             this.node.active = false;
-        } 
+        }
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs)
@@ -118,5 +111,16 @@ export class PortraitCascadingMessages extends ObserverComponent {
 
     renderImgForRichText() {
         return `<img src="symbol-13"  />`;
+    }
+
+    @render(CascadingUIStore, (store) => store.totalWin)
+    renderTotalWin(totalWin: number) {
+        if (totalWin <= 0) {
+            // Fix to pass the first time render for initialize values
+            setTimeout(() => this.updateTopMessage(), 200);
+            this.schedule(this.updateTopMessage, 5, macro.REPEAT_FOREVER, 0);
+        } else {
+            this.unschedule(this.updateTopMessage);
+        }
     }
 }
