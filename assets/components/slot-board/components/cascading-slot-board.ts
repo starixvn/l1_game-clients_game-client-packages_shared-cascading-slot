@@ -189,9 +189,11 @@ export class CascadingSlotBoard extends ObserverComponent {
             await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
+            // Store old items count before adding new items
+            const oldItemsCount = this.reels.map((reel) => reel.getItems().length);
             const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
-                await this.fallIn(false, false);
+                await this.fallInConcurrently(false);
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
                 AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
 
@@ -199,12 +201,9 @@ export class CascadingSlotBoard extends ObserverComponent {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
 
-            // Store old items count before adding new items
-            const oldItemsCount = this.reels.map((reel) => reel.getItems().length);
-
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(false, false, oldItemsCount);
+            await this.fallIn(hasPeekEffect, false, oldItemsCount);
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
@@ -315,6 +314,14 @@ export class CascadingSlotBoard extends ObserverComponent {
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
                 return reel.removeItemsByIndex(items);
+            })
+        );
+    }
+
+    public async fallInConcurrently(isTurbo: boolean) {
+        await Promise.all(
+            this.reels.map((reel) => {
+                return reel.fallIn(isTurbo, null);
             })
         );
     }
