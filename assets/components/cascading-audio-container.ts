@@ -4,8 +4,6 @@ import { audioManager } from "db://shared-components/game/audios/scripts/audio-m
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
-
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
 
@@ -27,23 +25,9 @@ export class CascadingAudioContainer extends AudioContainer {
     private readonly sfxIdSources: Array<string | null> = [];
 
     onLoad() {
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] onLoad called", {
-            multipleMusicSources: this.multipleMusicSources,
-            listStoppableSFXSourceCount: this.listStoppableSFXSource?.length,
-            listSFXSourceCount: this.listSFXSource?.length,
-            timestamp: new Date().toISOString()
-        });
-
         this.initMusicSources();
         this.initializeAudioSourceStates();
         super.onLoad();
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] onLoad completed", {
-            musicSourcesInitialized: this.musicSources?.length,
-            stoppableIdSourcesLength: this.stoppableIdSources?.length,
-            sfxIdSourcesLength: this.sfxIdSources?.length,
-            timestamp: new Date().toISOString()
-        });
     }
 
     initMusicSources() {
@@ -68,19 +52,7 @@ export class CascadingAudioContainer extends AudioContainer {
     }
 
     playSFX(data: gc.Audios.AudioData) {
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] playSFX called", {
-            data,
-            hasData: !!data,
-            audioId: data?.id,
-            action: data?.action,
-            isUserGesture: this.isUserGesture,
-            timestamp: new Date().toISOString()
-        });
-
         if (!data) {
-            cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] No audio data, returning early", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
 
@@ -93,32 +65,13 @@ export class CascadingAudioContainer extends AudioContainer {
 
         const sourceIndex = this.sfxIdSources.findIndex((id) => id === null);
         if (sourceIndex === -1) {
-            cascadingSlotLogger.warn(`No available audio source for SFX: ${data.id}`);
-            cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] No available audio source", {
-                audioId: data.id,
-                availableSources: this.sfxIdSources.filter(id => id === null).length,
-                totalSources: this.sfxIdSources.length,
-                timestamp: new Date().toISOString()
-            });
+            console.warn(`No available audio source for SFX: ${data.id}`);
             return;
         }
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] Found available source", {
-            audioId: data.id,
-            sourceIndex,
-            willPlay: data.action === gc.Audios.AudioAction.PLAY && this.isUserGesture,
-            timestamp: new Date().toISOString()
-        });
 
         if (data.action === gc.Audios.AudioAction.PLAY && this.isUserGesture) {
             this.playOneShotAudio(data.id, this.listSFXSource[sourceIndex]);
         }
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] playSFX completed", {
-            audioId: data.id,
-            played: data.action === gc.Audios.AudioAction.PLAY && this.isUserGesture,
-            timestamp: new Date().toISOString()
-        });
     }
 
     async playOneShotAudio(id: string, audioSource: AudioSource) {
@@ -135,26 +88,9 @@ export class CascadingAudioContainer extends AudioContainer {
 
     @render(gc.Audios.AudioStore, (store) => store.stoppableSFX)
     handleStoppableSFX(data: gc.Audios.AudioData) {
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] handleStoppableSFX called", {
-            data,
-            hasData: !!data,
-            audioId: data?.id,
-            action: data?.action,
-            timestamp: new Date().toISOString()
-        });
-
         if (!data) {
-            cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] No audio data, returning early", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] Processing stoppable SFX action", {
-            audioId: data.id,
-            action: data.action,
-            timestamp: new Date().toISOString()
-        });
 
         switch (data.action) {
             case gc.Audios.AudioAction.PLAY:
@@ -164,12 +100,6 @@ export class CascadingAudioContainer extends AudioContainer {
                 this.handleStopAction(data);
                 break;
         }
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] handleStoppableSFX completed", {
-            audioId: data.id,
-            action: data.action,
-            timestamp: new Date().toISOString()
-        });
     }
 
     private handlePlayAction(data: gc.Audios.AudioData) {
@@ -185,7 +115,7 @@ export class CascadingAudioContainer extends AudioContainer {
         // Get available source and play
         const sourceIndex = this.getAvailableSourceIndex();
         if (sourceIndex === -1) {
-            cascadingSlotLogger.warn(`No available audio source for stoppable SFX: ${data.id}`);
+            console.warn(`No available audio source for stoppable SFX: ${data.id}`);
             return;
         }
 
@@ -245,28 +175,10 @@ export class CascadingAudioContainer extends AudioContainer {
 
     @render(CascadingUIStore, (store) => store.fadeBGM)
     fadeBGM(fadeBGM: { value: boolean }) {
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] fadeBGM called", {
-            fadeBGM,
-            hasFadeBGM: !!fadeBGM,
-            fadeValue: fadeBGM?.value,
-            timestamp: new Date().toISOString()
-        });
-
         if (fadeBGM) {
             const volume = fadeBGM.value ? 1 : 0.1;
-            cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] Updating music volume", {
-                targetVolume: volume,
-                fadeDuration: 0.3,
-                isFadeIn: fadeBGM.value,
-                timestamp: new Date().toISOString()
-            });
             this.updateVolumeMusicSource(volume, 0.3);
         }
-
-        cascadingSlotLogger.info("[CASCADING_AUDIO_CONTAINER] fadeBGM completed", {
-            volumeUpdated: !!fadeBGM,
-            timestamp: new Date().toISOString()
-        });
     }
 
     playMusic(data: gc.Audios.AudioData) {
@@ -322,7 +234,3 @@ export class CascadingAudioContainer extends AudioContainer {
         return config?.isMusicGame ? 0 : this.getAvailableMusicSource();
     }
 }
-
-
-
-

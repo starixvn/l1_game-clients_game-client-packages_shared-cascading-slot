@@ -22,43 +22,13 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
     @inject(CascadingUIHandler) protected readonly uiHandler: CascadingUIHandler;
 
     constructor() {
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] constructor called", {
-            hasSettlementStore: !!this.settlementStore,
-            hasBoardHandler: !!this.boardHandler,
-            hasTumblesHandler: !!this.tumblesHandler,
-            hasTumblesStore: !!this.tumblesStore,
-            hasUIStore: !!this.uiStore,
-            hasUIHandler: !!this.uiHandler,
-            timestamp: new Date().toISOString()
-        });
     }
 
     handleFinish(data: any) {
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] handleFinish called", {
-            data,
-            hasData: !!data,
-            roundId: data?.roundId,
-            hasSettlementStore: !!this.settlementStore,
-            hasUIHandler: !!this.uiHandler,
-            hasUIStore: !!this.uiStore,
-            willHandleBottomMessage: true,
-            willSetFinishData: true,
-            willSetRoundId: true,
-            timestamp: new Date().toISOString()
-        });
 
         const { roundId } = data;
 
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] Extracted roundId", {
-            roundId,
-            timestamp: new Date().toISOString()
-        });
-
         this.uiHandler.handleBottomMessage(SlotNotification.SPINNING);
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] Bottom message handled", {
-            message: SlotNotification.SPINNING,
-            timestamp: new Date().toISOString()
-        });
 
         // Check for free spins in service message and warn
         const { freeSpins, totalFreeSpins, isFreeSpin } = data || {};
@@ -75,23 +45,9 @@ export class CascadingSlotSettlementHandlers implements gc.Shared.IMultipleHandl
         }
 
         this.settlementStore.finishData = data;
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] Finish data set in store", {
-            finishDataSet: true,
-            hasFreeSpins: !!(freeSpins > 0 || totalFreeSpins > 0 || isFreeSpin),
-            timestamp: new Date().toISOString()
-        });
 
         this.uiStore.roundId = roundId;
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] Round ID set in UI store", {
-            roundId,
-            roundIdSet: true,
-            timestamp: new Date().toISOString()
-        });
 
-        cascadingSlotLogger.info("[CASCADING_SLOT_SETTLEMENT_HANDLERS] handleFinish completed", {
-            roundId,
-            timestamp: new Date().toISOString()
-        });
     }
 
     eventHandleList = [

@@ -9,8 +9,6 @@ import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
-
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -56,76 +54,23 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private bigWinRange = [];
 
     setAmount(data: BigWinType) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAmount called", {
-            data,
-            amount: data.amount,
-            duration: data.duration ?? 0,
-            delayTime: data.delayTime ?? 0,
-            noZeroSuffix: data.noZeroSuffix ?? false,
-            hasLblWinAmount: !!this.lblWinAmount,
-            willStartTween: true,
-            timestamp: new Date().toISOString()
-        });
-
         const { amount } = data;
         const duration = data.duration ?? 0;
         const delayTime = data.delayTime ?? 0;
         const noZeroSuffix = data.noZeroSuffix ?? false;
 
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Starting tween animation", {
-            amount,
-            duration,
-            delayTime,
-            noZeroSuffix,
-            willDelay: delayTime > 0,
-            willAnimate: duration > 0,
-            timestamp: new Date().toISOString()
-        });
-
         tween(this.lblWinAmount.node)
             .delay(delayTime)
-            .call(() => {
-                cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Tween callback executed", {
-                    willFloatToNumber: true,
-                    amount,
-                    duration,
-                    noZeroSuffix,
-                    timestamp: new Date().toISOString()
-                });
-                AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: noZeroSuffix });
-            })
+            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: noZeroSuffix }))
             .start();
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Tween started", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     async changeFrameForBigWinLevel(betWin: number, totalBet: number) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] changeFrameForBigWinLevel called", {
-            betWin,
-            totalBet,
-            willSkipIfZeroBet: totalBet === 0,
-            willCheckThresholds: totalBet > 0,
-            timestamp: new Date().toISOString()
-        });
-
         if (totalBet === 0) {
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Skipping change frame - total bet is zero", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
 
         const { isMega, isSuper } = this.checkBigWinThresholds(betWin, totalBet);
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Thresholds checked", {
-            isMega,
-            isSuper,
-            willChangeToSuper: isSuper && this.isChangeLevelSuper,
-            willChangeToMega: !isSuper && isMega && this.isChangeLevelMega,
-            willChangeToBig: !isSuper && !isMega && this.isChangeLevelBig,
-            timestamp: new Date().toISOString()
-        });
 
         if (isSuper) {
             this.isChangeLevelSuper && this.setAnimationChangeSuper();
@@ -134,238 +79,64 @@ export class CascadingEffectBigwin extends ObserverComponent {
         } else {
             this.isChangeLevelBig && this.setAnimationChangeBig();
         }
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] changeFrameForBigWinLevel completed", {
-            betWin,
-            totalBet,
-            timestamp: new Date().toISOString()
-        });
     }
 
     handleLogBigWinRange(superThreshold: number, megaThreshold: number) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] handleLogBigWinRange called", {
-            superThreshold,
-            megaThreshold,
-            bigWinRange: this.bigWinRange,
-            superIsNumber: typeof superThreshold === "number",
-            megaIsNumber: typeof megaThreshold === "number",
-            willLogWarning: !(typeof superThreshold === "number" && typeof megaThreshold === "number"),
-            timestamp: new Date().toISOString()
-        });
-
         if (typeof superThreshold !== "number" || typeof megaThreshold !== "number") {
-            cascadingSlotLogger.info("[bigWinRange] is not a number", {
+            console.log("[bigWinRange] is not a number", {
                 bigWinRange: this.bigWinRange,
             });
         }
     }
 
     private checkBigWinThresholds(betWin: number, totalBet: number) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] checkBigWinThresholds called", {
-            betWin,
-            totalBet,
-            willSkipIfZeroBet: totalBet === 0,
-            willCalculateRatio: totalBet > 0,
-            bigWinRange: this.bigWinRange,
-            timestamp: new Date().toISOString()
-        });
-
         if (totalBet === 0) {
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Returning false thresholds - total bet is zero", {
-                timestamp: new Date().toISOString()
-            });
             return { isMega: false, isSuper: false };
         }
-
         const valueRatio = betWin / totalBet;
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Value ratio calculated", {
-            betWin,
-            totalBet,
-            valueRatio,
-            timestamp: new Date().toISOString()
-        });
 
         const megaThreshold = +this.bigWinRange?.[1];
         const superThreshold = +this.bigWinRange?.[2];
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Thresholds extracted", {
-            megaThreshold,
-            superThreshold,
-            bigWinRange: this.bigWinRange,
-            timestamp: new Date().toISOString()
-        });
-
         this.handleLogBigWinRange(superThreshold, megaThreshold);
 
         const isSuper = valueRatio >= superThreshold;
         const isMega = valueRatio >= megaThreshold && !isSuper;
 
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Threshold results", {
-            valueRatio,
-            megaThreshold,
-            superThreshold,
-            isSuper,
-            isMega,
-            timestamp: new Date().toISOString()
-        });
-
         return { isMega, isSuper };
     }
 
     showHideBigWinNode(show: boolean) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] showHideBigWinNode called", {
-            show,
-            hasNodeBigWin: !!this.nodeBigWin,
-            currentActive: this.nodeBigWin?.active,
-            willSetActive: !!this.nodeBigWin,
-            timestamp: new Date().toISOString()
-        });
-
         this.nodeBigWin && (this.nodeBigWin.active = show);
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Big win node visibility set", {
-            show,
-            finalActive: this.nodeBigWin?.active,
-            timestamp: new Date().toISOString()
-        });
     }
 
     async setAnimationChangeSuper() {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAnimationChangeSuper called", {
-            isChangeLevelSuper: this.isChangeLevelSuper,
-            willPlaySound: true,
-            willSetFlag: true,
-            willChangeLevelAnimation: this.isChangeLevelSuper,
-            timestamp: new Date().toISOString()
-        });
-
         this.playSound(AudioIds.SUPER_WIN);
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Super win sound played", {
-            timestamp: new Date().toISOString()
-        });
-
         this.isChangeLevelSuper = false;
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Super change level flag set to false", {
-            timestamp: new Date().toISOString()
-        });
-
         await this.changeLevelAnimation(this.mainSpine, "hide", this.superWinPrefab);
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAnimationChangeSuper completed", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     async setAnimationChangeMega() {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAnimationChangeMega called", {
-            isChangeLevelMega: this.isChangeLevelMega,
-            willPlaySound: true,
-            willSetFlag: true,
-            willChangeLevelAnimation: this.isChangeLevelMega,
-            timestamp: new Date().toISOString()
-        });
-
         this.playSound(AudioIds.MEGA_WIN);
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Mega win sound played", {
-            timestamp: new Date().toISOString()
-        });
-
         this.isChangeLevelMega = false;
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Mega change level flag set to false", {
-            timestamp: new Date().toISOString()
-        });
-
         await this.changeLevelAnimation(this.mainSpine, "hide", this.megaWinPrefab);
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAnimationChangeMega completed", {
-            timestamp: new Date().toISOString()
-        });
     }
-
     async setAnimationChangeBig() {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] setAnimationChangeBig called", {
-            isChangeLevelBig: this.isChangeLevelBig,
-            willPlaySound: true,
-            willSetFlag: true,
-            timestamp: new Date().toISOString()
-        });
-
         this.playSound(AudioIds.BIG_WIN);
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Big win sound played", {
-            timestamp: new Date().toISOString()
-        });
-
         this.isChangeLevelBig = false;
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Big change level flag set to false", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     async changeLevelAnimation(skeleton: sp.Skeleton, animation: string, levelPrefab: Prefab) {
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] changeLevelAnimation called", {
-            hasSkeleton: !!skeleton,
-            animation,
-            hasLevelPrefab: !!levelPrefab,
-            willSetAnimation: true,
-            willCheckDuration: true,
-            willInstantiate: true,
-            willManageChildren: true,
-            timestamp: new Date().toISOString()
-        });
-
         try {
             skeleton.setAnimation(0, animation, false);
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Animation set on skeleton", {
-                animation,
-                loop: false,
-                track: 0,
-                timestamp: new Date().toISOString()
-            });
-
             const duration = skeleton.findAnimation(animation)?.duration || 0;
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Animation duration checked", {
-                duration,
-                willDelay: duration > 0,
-                willHideNode: duration > 0,
-                timestamp: new Date().toISOString()
-            });
-
             if (duration > 0) {
                 await AnimationUtils.delayTime(0.1);
-                cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Delay completed, hiding big win node", {
-                    timestamp: new Date().toISOString()
-                });
                 this.showHideBigWinNode(false);
             }
-
             const node = instantiate(levelPrefab);
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Level prefab instantiated", {
-                hasNode: !!node,
-                nodeName: node?.name,
-                timestamp: new Date().toISOString()
-            });
-
             this.changeLevel.removeAllChildren();
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Change level children removed", {
-                timestamp: new Date().toISOString()
-            });
-
             this.changeLevel.addChild(node);
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] New level node added", {
-                timestamp: new Date().toISOString()
-            });
-
-        } catch (error) {
-            cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] Error in changeLevelAnimation", {
-                error,
-                animation,
-                timestamp: new Date().toISOString()
-            });
-        }
-
-        cascadingSlotLogger.info("[CASCADING_EFFECT_BIGWIN] changeLevelAnimation completed", {
-            animation,
-            timestamp: new Date().toISOString()
-        });
+        } catch (error) {}
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
@@ -535,6 +306,3 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.bigWinRange = bigWinRange;
     }
 }
-
-
-

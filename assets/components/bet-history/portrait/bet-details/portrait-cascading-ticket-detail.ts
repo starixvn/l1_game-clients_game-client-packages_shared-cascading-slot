@@ -6,8 +6,6 @@ import Pagination from 'db://shared-components/game/pagination/scripts/component
 import Observer from 'observer';
 import TouchSwipeBase from 'db://shared-components/shared/common-components/touch-swipe-base';
 import { AudioUtils } from 'db://shared-components/game/audios/utils';
-import { cascadingSlotLogger } from "../../../../cascading-slot-logger";
-
 const { ccclass, property } = _decorator;
 const { render } = Observer;
 interface PortraitBetHistoryLog extends gc.BetHistory.BetHistoryLog {
@@ -50,34 +48,26 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     private isAnimating = false;
 
     onLoad() {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: onLoad called");
         this.setupTouchHandler();
         super.onLoad();
     }
 
     private setupTouchHandler() {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: setupTouchHandler called");
         if (this.PortraitTouchSwipeHandler && this.PortraitTouchSwipeHandler.swipeCallback) {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: setting up swipe callback");
             this.PortraitTouchSwipeHandler.swipeCallback = (isLeft: boolean) => {
-                cascadingSlotLogger.info("PortraitCascadingTicketDetail: swipe detected", isLeft ? "left" : "right");
                 if (isLeft) {
                     this.onClickNextHistoryDetail();
                 } else {
                     this.onClickPreviousHistoryDetail();
                 }
             }
-        } else {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: PortraitTouchSwipeHandler not available");
         }
     }
 
 
     @render(gc.BetHistory.BetHistoryStore, (store) => store.betHistoryModel, { fireImmediately: true })
     showBetHistory(betHistoryModel: PortraitBetHistoryModel) {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: showBetHistory called with", betHistoryModel);
         const { betLogs } = betHistoryModel;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: betLogs count", betLogs?.length);
         this.betHistory = betLogs;
         this.handleBetHistorySelection();
         this.updateNavigationButtons(betLogs);
@@ -112,23 +102,17 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     setData(data: any) {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: setData called with", data);
         if (!data) {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: no data provided, returning");
             return;
         }
         super.setData(data);
         const { betHistoryLog } = data;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: betHistoryLog", betHistoryLog);
 
         if (!this.pagination) {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: initializing pagination");
             this.pagination = this.node?.scene?.getComponentInChildren(Pagination);
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: pagination initialized", this.pagination);
         }
 
         if (!betHistoryLog) {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: no betHistoryLog, returning");
             return;
         }
 
@@ -138,32 +122,22 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private updateBasicDetails(betHistoryLog: any) {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: updateBasicDetails called with", betHistoryLog);
         this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: timeDetail set to", this.timeDetail.string);
         this.betLevelDetail.string = betHistoryLog.betLevel;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: betLevelDetail set to", this.betLevelDetail.string);
         this.coinValueDetail.string = betHistoryLog.coinValue;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: coinValueDetail set to", this.coinValueDetail.string);
         this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount, 2);
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: totalBetDetail set to", this.totalBetDetail.string);
         this.currentId = betHistoryLog.id;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: currentId set to", this.currentId);
     }
 
     private updateMultiplierDetails(betHistoryLog: any) {
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: updateMultiplierDetails called with", betHistoryLog);
         if (!this.multiplierNode.active) {
-            cascadingSlotLogger.info("PortraitCascadingTicketDetail: multiplierNode not active, hiding multiplierDetail");
             this.multiplierDetail.node.active = false;
             return;
         }
 
         const multiplierString = this.calculateMultiplierString(betHistoryLog);
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: calculated multiplierString", multiplierString);
         this.multiplierDetail.string = multiplierString;
         this.multiplierDetail.node.active = true;
-        cascadingSlotLogger.info("PortraitCascadingTicketDetail: multiplierDetail activated with text", multiplierString);
     }
 
     private calculateMultiplierString(betHistoryLog: any): string {

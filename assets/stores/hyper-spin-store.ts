@@ -171,21 +171,9 @@ export class HyperSpinStore {
     @inject(CascadingSlotConfigsStore) protected readonly configStore: CascadingSlotConfigsStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     constructor() {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] HyperSpinStore constructor called", {
-            cascadingUIStoreInjected: !!this.cascadingUIStore,
-            autoPlayStoreInjected: !!this.autoPlayStore,
-            fsbPromotionUIStoreInjected: !!this.fsbPromotionUIStore,
-            fsbPromotionStoreInjected: !!this.fsbPromotionStore,
-            configStoreInjected: !!this.configStore,
-            betControlStoreInjected: !!this.betControlStore,
-            timestamp: new Date().toISOString()
-        });
 
         mobx.makeAutoObservable(this);
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] MobX auto-observable setup completed", {
-            timestamp: new Date().toISOString()
-        });
         mobx.reaction(
             () => this.currentCoinIndex,
             () => {
@@ -214,12 +202,6 @@ export class HyperSpinStore {
                 if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0) {
                     // Clamp stopOnProfit when totalBet changes to ensure it doesn't exceed new max
                     if (this.stopOnProfit > currentMaxStopOnProfit) {
-                        cascadingSlotLogger.info("[STOP_ON_PROFIT] Clamping due to totalBet change - value exceeds new max", {
-                            oldValue: this.stopOnProfit,
-                            newMax: currentMaxStopOnProfit,
-                            totalBet: this.betControlStore.totalBet,
-                            maxWinPerRound
-                        });
                         this.setStopOnProfit(currentMaxStopOnProfit);
                     }
                 }
@@ -227,12 +209,6 @@ export class HyperSpinStore {
                 if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0) {
                     // Clamp stopOnLoss when totalBet changes to ensure it doesn't exceed new max
                     if (this.stopOnLoss > currentMaxStopOnLoss) {
-                        cascadingSlotLogger.info("[STOP_ON_LOSS] Clamping due to totalBet change - value exceeds new max", {
-                            oldValue: this.stopOnLoss,
-                            newMax: currentMaxStopOnLoss,
-                            totalBet: this.betControlStore.totalBet,
-                            userBalance: this.cascadingUIStore.userBalance
-                        });
                         this.setStopOnLoss(currentMaxStopOnLoss);
                     }
                 }
@@ -253,23 +229,12 @@ export class HyperSpinStore {
                 if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0) {
                     // Always clamp if value exceeds new max
                     if (this.stopOnLoss > currentMaxStopOnLoss) {
-                        cascadingSlotLogger.info("[STOP_ON_LOSS] Clamping due to userBalance change - value exceeds new max", {
-                            oldValue: this.stopOnLoss,
-                            newMax: currentMaxStopOnLoss,
-                            userBalance: this.cascadingUIStore.userBalance
-                        });
                         this.setStopOnLoss(currentMaxStopOnLoss);
                     }
                     // If max decreased and stopOnLoss was at or near the old max, adjust to new max
                     else if (this._previousMaxStopOnLoss > 0 && currentMaxStopOnLoss < this._previousMaxStopOnLoss) {
                         const threshold = this._previousMaxStopOnLoss * 0.99; // 99% threshold to handle floating point
                         if (this.stopOnLoss >= threshold) {
-                            cascadingSlotLogger.info("[STOP_ON_LOSS] Adjusting to new max due to userBalance decrease - was at old max", {
-                                oldValue: this.stopOnLoss,
-                                oldMax: this._previousMaxStopOnLoss,
-                                newMax: currentMaxStopOnLoss,
-                                userBalance: this.cascadingUIStore.userBalance
-                            });
                             this.setStopOnLoss(currentMaxStopOnLoss);
                         }
                     }
@@ -296,25 +261,12 @@ export class HyperSpinStore {
                 if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0) {
                     // Always clamp if value exceeds new max
                     if (this.stopOnProfit > currentMaxStopOnProfit) {
-                        cascadingSlotLogger.info("[STOP_ON_PROFIT] Clamping due to totalBet change - value exceeds new max", {
-                            oldValue: this.stopOnProfit,
-                            newMax: currentMaxStopOnProfit,
-                            totalBet: this.betControlStore.totalBet,
-                            maxWinPerRound
-                        });
                         this.setStopOnProfit(currentMaxStopOnProfit);
                     }
                     // If max decreased and stopOnProfit was at or near the old max, adjust to new max
                     else if (this._previousMaxStopOnProfit > 0 && currentMaxStopOnProfit < this._previousMaxStopOnProfit) {
                         const threshold = this._previousMaxStopOnProfit * 0.99; // 99% threshold to handle floating point
                         if (this.stopOnProfit >= threshold) {
-                            cascadingSlotLogger.info("[STOP_ON_PROFIT] Adjusting to new max due to totalBet decrease - was at old max", {
-                                oldValue: this.stopOnProfit,
-                                oldMax: this._previousMaxStopOnProfit,
-                                newMax: currentMaxStopOnProfit,
-                                totalBet: this.betControlStore.totalBet,
-                                maxWinPerRound
-                            });
                             this.setStopOnProfit(currentMaxStopOnProfit);
                         }
                     }
@@ -470,8 +422,6 @@ export class HyperSpinStore {
         };
     }
 
-
-
     syncCurrentTotalBetIndex(totalBet: number) {
         // Use BetControlStore's totalBetUnique array
         // Check if stores are initialized
@@ -540,15 +490,8 @@ export class HyperSpinStore {
      * @param increase - true to increase, false to decrease
      */
     changeStopOnProfit(increase: boolean) {
-        cascadingSlotLogger.info("[STOP_ON_PROFIT] changeStopOnProfit called", {
-            increase,
-            currentValue: this.stopOnProfit,
-            step: this.stopOnProfitStep,
-            currentTotalBet: this.betControlStore?.totalBet ?? 0
-        });
         const step = this.stopOnProfitStep; // Step is equal to totalBet
         const newValue = increase ? this.stopOnProfit + step : this.stopOnProfit - step;
-        cascadingSlotLogger.info("[STOP_ON_PROFIT] New value before setStopOnProfit", { newValue });
         this.setStopOnProfit(newValue);
     }
 
@@ -557,22 +500,9 @@ export class HyperSpinStore {
      * @param value - The new stop on profit value
      */
     setStopOnProfit(value: number) {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnProfit called", {
-            value,
-            previousStopOnProfit: this.stopOnProfit,
-            minStopOnProfit: this.minStopOnProfit,
-            maxStopOnProfit: this.maxStopOnProfit,
-            currentTotalBet: this.betControlStore?.totalBet ?? 0,
-            userBalance: this.cascadingUIStore?.userBalance ?? 0,
-            timestamp: new Date().toISOString()
-        });
 
         // Validate value to prevent NaN
         if (typeof value !== "number" || isNaN(value)) {
-            cascadingSlotLogger.warn("[HYPER_SPIN_STORE] setStopOnProfit called with invalid value", { value });
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnProfit aborted - invalid value", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
 
@@ -583,36 +513,8 @@ export class HyperSpinStore {
         // Clamp between min and max
         const clampedValue = Math.max(min, Math.min(max, roundedValue));
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnProfit calculations", {
-            originalValue: value,
-            roundedValue,
-            clampedValue,
-            min,
-            max,
-            effectiveBet: this.betControlStore?.totalBet ?? 0,
-            wasRounded: value !== roundedValue,
-            wasClamped: clampedValue !== roundedValue,
-            clampDirection: clampedValue !== roundedValue ? (roundedValue < min ? "below minimum" : "above maximum") : "no clamping",
-            timestamp: new Date().toISOString()
-        });
-
-        cascadingSlotLogger.info("[STOP_ON_PROFIT] setStopOnProfit", {
-            value,
-            roundedValue,
-            clampedValue,
-            min,
-            max,
-            currentTotalBet: this.betControlStore?.totalBet ?? 0,
-            effectiveBet: this.betControlStore?.totalBet ?? 0
-        });
-
         this.stopOnProfit = clampedValue;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnProfit completed", {
-            finalStopOnProfit: this.stopOnProfit,
-            changeFromPrevious: this.stopOnProfit - (this.stopOnProfit - clampedValue + (typeof value === 'number' && !isNaN(value) ? value : 0)),
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
@@ -643,10 +545,8 @@ export class HyperSpinStore {
      * @param increase - true to increase, false to decrease
      */
     changeStopOnLoss(increase: boolean) {
-        cascadingSlotLogger.info("[STOP_ON_LOSS] changeStopOnLoss called", { increase, currentValue: this.stopOnLoss, step: this.stopOnLossStep });
         const step = this.stopOnLossStep; // Step is equal to totalBet (1x total bet)
         const newValue = increase ? this.stopOnLoss + step : this.stopOnLoss - step;
-        cascadingSlotLogger.info("[STOP_ON_LOSS] New value before setStopOnLoss", { newValue });
         this.setStopOnLoss(newValue);
     }
 
@@ -655,22 +555,9 @@ export class HyperSpinStore {
      * @param value - The new stop on loss value
      */
     setStopOnLoss(value: number) {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnLoss called", {
-            value,
-            previousStopOnLoss: this.stopOnLoss,
-            minStopOnLoss: this.minStopOnLoss,
-            maxStopOnLoss: this.maxStopOnLoss,
-            currentTotalBet: this.betControlStore?.totalBet ?? 0,
-            userBalance: this.cascadingUIStore?.userBalance ?? 0,
-            timestamp: new Date().toISOString()
-        });
 
         // Validate value to prevent NaN
         if (typeof value !== "number" || isNaN(value)) {
-            cascadingSlotLogger.warn("[HYPER_SPIN_STORE] setStopOnLoss called with invalid value", { value });
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnLoss aborted - invalid value", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
 
@@ -681,64 +568,23 @@ export class HyperSpinStore {
         // Clamp between min and max
         const clampedValue = Math.max(min, Math.min(max, roundedValue));
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnLoss calculations", {
-            originalValue: value,
-            roundedValue,
-            clampedValue,
-            min,
-            max,
-            wasRounded: value !== roundedValue,
-            wasClamped: clampedValue !== roundedValue,
-            clampDirection: clampedValue !== roundedValue ? (roundedValue < min ? "below minimum" : "above maximum") : "no clamping",
-            timestamp: new Date().toISOString()
-        });
-
-        cascadingSlotLogger.info("[STOP_ON_LOSS] setStopOnLoss", { value, roundedValue, clampedValue, min, max, currentTotalBet: this.betControlStore?.totalBet ?? 0, userBalance: this.cascadingUIStore?.userBalance ?? 0 });
-
         this.stopOnLoss = clampedValue;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setStopOnLoss completed", {
-            finalStopOnLoss: this.stopOnLoss,
-            changeFromPrevious: this.stopOnLoss - (this.stopOnLoss - clampedValue + (typeof value === 'number' && !isNaN(value) ? value : 0)),
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Start tracking profit/loss for hyper-spin session
      */
     startHyperSpinSessionTracking() {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] startHyperSpinSessionTracking called", {
-            cascadingUIStoreAvailable: !!this.cascadingUIStore,
-            currentUserBalance: this.cascadingUIStore?.userBalance ?? 0,
-            previousInitialBalance: this._hyperSpinInitialBalance,
-            previousCurrentProfit: this._hyperSpinCurrentProfit,
-            previousCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
 
         if (!this.cascadingUIStore) {
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] startHyperSpinSessionTracking aborted - cascadingUIStore not available", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
-
-        cascadingSlotLogger.info("[HYPER_SPIN_TRACKING] Starting hyper-spin session tracking", {
-            initialBalance: this.cascadingUIStore.userBalance,
-            timestamp: new Date().toISOString()
-        });
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] startHyperSpinSessionTracking completed", {
-            hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-            hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-            hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
@@ -746,165 +592,61 @@ export class HyperSpinStore {
      * This is used when the browser has cached code that doesn't include the startHyperSpinSessionTracking method
      */
     initializeHyperSpinTrackingFallback() {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] initializeHyperSpinTrackingFallback called", {
-            cascadingUIStoreAvailable: !!this.cascadingUIStore,
-            currentUserBalance: this.cascadingUIStore?.userBalance ?? 0,
-            previousInitialBalance: this._hyperSpinInitialBalance,
-            previousCurrentProfit: this._hyperSpinCurrentProfit,
-            previousCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
 
         if (!this.cascadingUIStore) {
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] initializeHyperSpinTrackingFallback aborted - cascadingUIStore not available", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
-
-        cascadingSlotLogger.info("[HYPER_SPIN_FALLBACK] Initializing hyper-spin tracking via fallback method", {
-            initialBalance: this.cascadingUIStore.userBalance,
-            timestamp: new Date().toISOString()
-        });
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] initializeHyperSpinTrackingFallback completed", {
-            hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-            hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-            hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Stop tracking profit/loss for hyper-spin session
      */
     stopHyperSpinSessionTracking() {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] stopHyperSpinSessionTracking called", {
-            cascadingUIStoreAvailable: !!this.cascadingUIStore,
-            currentUserBalance: this.cascadingUIStore?.userBalance ?? 0,
-            hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-            hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-            hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
 
         const finalBalance = this.cascadingUIStore?.userBalance ?? 0;
         const totalSessionChange = finalBalance - this._hyperSpinInitialBalance;
         const netResult = this._hyperSpinCurrentProfit - this._hyperSpinCurrentLoss;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_TRACKING] Stopping hyper-spin session tracking", {
-            initialBalance: this._hyperSpinInitialBalance,
-            finalBalance,
-            totalSessionChange,
-            totalProfit: this._hyperSpinCurrentProfit,
-            totalLoss: this._hyperSpinCurrentLoss,
-            netResult,
-            sessionResult: totalSessionChange >= 0 ? "profit" : "loss",
-            timestamp: new Date().toISOString()
-        });
-
         this._hyperSpinInitialBalance = 0;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] stopHyperSpinSessionTracking completed", {
-            trackingReset: {
-                hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-                hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-                hyperSpinCurrentLoss: this._hyperSpinCurrentLoss
-            },
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Update profit/loss tracking based on current balance
      */
     updateHyperSpinProfitLoss() {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] updateHyperSpinProfitLoss called", {
-            hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-            cascadingUIStoreAvailable: !!this.cascadingUIStore,
-            currentUserBalance: this.cascadingUIStore?.userBalance ?? 0,
-            previousCurrentProfit: this._hyperSpinCurrentProfit,
-            previousCurrentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
 
         if (this._hyperSpinInitialBalance === 0 || !this.cascadingUIStore) {
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] updateHyperSpinProfitLoss skipped", {
-                reason: this._hyperSpinInitialBalance === 0 ? "not tracking (initial balance is 0)" : "cascadingUIStore not available",
-                hyperSpinInitialBalance: this._hyperSpinInitialBalance,
-                cascadingUIStoreAvailable: !!this.cascadingUIStore,
-                timestamp: new Date().toISOString()
-            });
             return; // Not tracking or store not available
         }
 
         const currentBalance = this.cascadingUIStore.userBalance;
         const balanceChange = currentBalance - this._hyperSpinInitialBalance;
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] Calculating profit/loss", {
-            currentBalance,
-            initialBalance: this._hyperSpinInitialBalance,
-            balanceChange,
-            changeType: balanceChange > 0 ? "profit" : balanceChange < 0 ? "loss" : "break-even",
-            timestamp: new Date().toISOString()
-        });
-
         if (balanceChange > 0) {
             this._hyperSpinCurrentProfit = balanceChange;
             this._hyperSpinCurrentLoss = 0;
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] Updated to profit state", {
-                hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-                hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-                timestamp: new Date().toISOString()
-            });
         } else if (balanceChange < 0) {
             this._hyperSpinCurrentProfit = 0;
             this._hyperSpinCurrentLoss = Math.abs(balanceChange);
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] Updated to loss state", {
-                hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-                hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-                timestamp: new Date().toISOString()
-            });
         } else {
             this._hyperSpinCurrentProfit = 0;
             this._hyperSpinCurrentLoss = 0;
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] Updated to break-even state", {
-                hyperSpinCurrentProfit: this._hyperSpinCurrentProfit,
-                hyperSpinCurrentLoss: this._hyperSpinCurrentLoss,
-                timestamp: new Date().toISOString()
-            });
         }
 
-        cascadingSlotLogger.info("[HYPER_SPIN_TRACKING] Updated profit/loss tracking", {
-            initialBalance: this._hyperSpinInitialBalance,
-            currentBalance,
-            balanceChange,
-            currentProfit: this._hyperSpinCurrentProfit,
-            currentLoss: this._hyperSpinCurrentLoss
-        });
-
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] updateHyperSpinProfitLoss completed", {
-            finalCurrentProfit: this._hyperSpinCurrentProfit,
-            finalCurrentLoss: this._hyperSpinCurrentLoss,
-            netResult: this._hyperSpinCurrentProfit - this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Get current profit during hyper-spin session
      */
     getCurrentHyperSpinProfit(): number {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] getCurrentHyperSpinProfit accessed", {
-            currentProfit: this._hyperSpinCurrentProfit,
-            timestamp: new Date().toISOString()
-        });
         return this._hyperSpinCurrentProfit;
     }
 
@@ -912,10 +654,6 @@ export class HyperSpinStore {
      * Get current loss during hyper-spin session
      */
     getCurrentHyperSpinLoss(): number {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] getCurrentHyperSpinLoss accessed", {
-            currentLoss: this._hyperSpinCurrentLoss,
-            timestamp: new Date().toISOString()
-        });
         return this._hyperSpinCurrentLoss;
     }
 
@@ -925,30 +663,14 @@ export class HyperSpinStore {
      * @param active - true to activate hyper-spin, false to deactivate
      */
     setHyperSpinActive(active: boolean) {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setHyperSpinActive called", {
-            active,
-            previousIsHyperSpin: this.isHyperSpin,
-            previousIsHyperSpinActiveUI: this.cascadingUIStore?.isHyperSpinActive,
-            timestamp: new Date().toISOString()
-        });
 
         this.isHyperSpin = active;
 
         // Update UI store flag
         if (this.cascadingUIStore) {
             this.cascadingUIStore.isHyperSpinActive = active;
-            cascadingSlotLogger.info("[HYPER_SPIN_STORE] Updated CascadingUIStore flag", {
-                isHyperSpinActive: this.cascadingUIStore.isHyperSpinActive,
-                timestamp: new Date().toISOString()
-            });
         }
 
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] setHyperSpinActive completed", {
-            active,
-            isHyperSpin: this.isHyperSpin,
-            isHyperSpinActiveUI: this.cascadingUIStore?.isHyperSpinActive,
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
@@ -983,9 +705,6 @@ export class HyperSpinStore {
      * Initialize a new hyper-spin batch
      */
     initializeHyperSpinBatch() {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] initializeHyperSpinBatch called", {
-            timestamp: new Date().toISOString()
-        });
 
         const initialTotalBet = this.formatNumber(0, 2);
         const initialTotalWin = this.formatNumber(0, 2);
@@ -1013,22 +732,12 @@ export class HyperSpinStore {
         this._hyperSpinRoundCounter = 0;
         this._freeSpinCounter = 0;
 
-
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] initializeHyperSpinBatch completed", {
-            batchData: this._currentBatchData,
-            startingBalance: startingBalance,
-            startingBalanceRaw: startingBalanceRaw,
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Start hyper-spin batch (set status to Playing)
      */
     startHyperSpinBatch() {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] startHyperSpinBatch called", {
-            timestamp: new Date().toISOString()
-        });
 
         if (!this._currentBatchData) {
             this.initializeHyperSpinBatch();
@@ -1038,10 +747,6 @@ export class HyperSpinStore {
             const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
             this._currentBatchData.summary.hyperSpinStatus = "Playing";
 
-
-            cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch status set to Playing", {
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -1049,17 +754,11 @@ export class HyperSpinStore {
      * Pause hyper-spin batch (set status to Paused)
      */
     pauseHyperSpinBatch() {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] pauseHyperSpinBatch called", {
-            timestamp: new Date().toISOString()
-        });
 
         if (this._currentBatchData) {
             const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
             this._currentBatchData.summary.hyperSpinStatus = "Paused";
 
-            cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch status set to Paused", {
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -1067,17 +766,11 @@ export class HyperSpinStore {
      * Resume hyper-spin batch (set status to Playing)
      */
     resumeHyperSpinBatch() {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] resumeHyperSpinBatch called", {
-            timestamp: new Date().toISOString()
-        });
 
         if (this._currentBatchData) {
             const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
             this._currentBatchData.summary.hyperSpinStatus = "Playing";
 
-            cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch status set to Playing", {
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -1085,9 +778,6 @@ export class HyperSpinStore {
      * Complete hyper-spin batch (set status to Ready)
      */
     completeHyperSpinBatch() {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] completeHyperSpinBatch called", {
-            timestamp: new Date().toISOString()
-        });
 
         if (this._currentBatchData) {
             const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
@@ -1099,14 +789,6 @@ export class HyperSpinStore {
             this._currentBatchData.summary.endBalance = endBalance;
             this._currentBatchData.summary.endBalanceRaw = endBalanceRaw;
 
-
-            cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch status set to Ready", {
-                endBalance: endBalance,
-                endBalanceRaw: endBalanceRaw,
-                startingBalance: this._currentBatchData.summary.startingBalance,
-                startingBalanceRaw: this._currentBatchData.summary.startingBalanceRaw,
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -1115,10 +797,6 @@ export class HyperSpinStore {
      * @param spinData - The spin data to add
      */
     addSpinToBatch(spinData: HyperSpinSingleSpinData) {
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] addSpinToBatch called", {
-            spinData,
-            timestamp: new Date().toISOString()
-        });
 
         if (!this._currentBatchData) {
             this.initializeHyperSpinBatch();
@@ -1144,16 +822,6 @@ export class HyperSpinStore {
                 2
             );
 
-            cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Spin added to batch", {
-                spinId: spinData.spinId,
-                isFreeSpin: spinData.isFreeSpin,
-                winAmount: spinData.spinWinAmount,
-                multiplier: spinData.spinWinMultiplier,
-                totalBet: this._currentBatchData.summary.totalBet,
-                totalWin: this._currentBatchData.summary.totalWin,
-                totalSpins: this._currentBatchData.spins.length,
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -1242,9 +910,6 @@ export class HyperSpinStore {
     resetBatchCounters() {
         this._hyperSpinRoundCounter = 0;
         this._freeSpinCounter = 0;
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch counters reset", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
@@ -1254,27 +919,14 @@ export class HyperSpinStore {
         this._currentBatchData = null;
         this.resetBatchCounters();
 
-        cascadingSlotLogger.info("[HYPER_SPIN_BATCH] Batch data cleared", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     /**
      * Recover an interrupted batch (called by HyperSpinHandler)
      */
     recoverInterruptedBatch(): boolean {
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] recoverInterruptedBatch called", {
-            hasCurrentBatchData: !!this._currentBatchData,
-            batchStatus: this._currentBatchData?.summary.hyperSpinStatus,
-            timestamp: new Date().toISOString()
-        });
 
         if (!this._currentBatchData || this._currentBatchData.summary.hyperSpinStatus !== "Interrupted") {
-            cascadingSlotLogger.warn("[HYPER_SPIN_STORE] No interrupted batch to recover", {
-                hasBatchData: !!this._currentBatchData,
-                status: this._currentBatchData?.summary.hyperSpinStatus,
-                timestamp: new Date().toISOString()
-            });
             return false;
         }
 
@@ -1283,12 +935,6 @@ export class HyperSpinStore {
 
         // Set hyper-spin as active
         this.setHyperSpinActive(true);
-
-        cascadingSlotLogger.info("[HYPER_SPIN_STORE] Interrupted batch recovered successfully", {
-            roundsRemaining: this.roundsHyperSpin,
-            batchStatus: this._currentBatchData.summary.hyperSpinStatus,
-            timestamp: new Date().toISOString()
-        });
 
         return true;
     }

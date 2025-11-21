@@ -2,10 +2,6 @@ import gc from "@sg/game-client-base";
 import { _decorator, Color, Label, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
-
-cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Initializing CascadingHistoryItem class');
-
 const { ccclass, property } = _decorator;
 const { handle } = Observer;
 
@@ -42,19 +38,10 @@ export class CascadingHistoryItem extends ObserverComponent {
 
     setData(data: any) {
         const { betHistoryLog, index } = data;
-        cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Setting data for history item:', {
-            index,
-            betHistoryLogId: betHistoryLog?.id,
-            hasWin: betHistoryLog?.betwin > 0,
-            winAmount: betHistoryLog?.betwin,
-            isFreeSpin: betHistoryLog?.freeSpin
-        });
-
         this.betHistoryLog = betHistoryLog;
         const win = betHistoryLog.betwin;
         this.node.active = true;
         this.bg.active = index % 2 > 0;
-
         this.time.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.roundID.string = betHistoryLog.id;
         this.betLevel.string = betHistoryLog.betLevel;
@@ -63,22 +50,12 @@ export class CascadingHistoryItem extends ObserverComponent {
         this.totalWin.string = gc.FormatUtils.numberWithCommas(win, 2, false);
         this.data = betHistoryLog;
 
-        cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Data set successfully:', {
-            time: this.time.string,
-            roundID: this.roundID.string,
-            totalBet: this.totalBet.string,
-            totalWin: this.totalWin.string,
-            backgroundActive: this.bg.active
-        });
-
         if (betHistoryLog.betwin > 0) {
-            cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Applying highlight color for winning bet');
             this.time.node.getComponent(Label).color =
                 this.betLevel.node.getComponent(Label).color =
                 this.coinValue.node.getComponent(Label).color =
                 this.textHighlightColor;
         } else {
-            cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Applying normal color for non-winning bet');
             this.time.node.getComponent(Label).color =
                 this.betLevel.node.getComponent(Label).color =
                 this.coinValue.node.getComponent(Label).color =
@@ -88,11 +65,6 @@ export class CascadingHistoryItem extends ObserverComponent {
 
     @handle(gc.BetHistory.BetDetailsHandlers)
     openTicketDetail() {
-        cascadingSlotLogger.info('[CASCADING_HISTORY_ITEM] Opening ticket detail for bet:', {
-            betHistoryLogId: this.betHistoryLog?.id,
-            roundID: this.betHistoryLog?.id,
-            totalWin: this.betHistoryLog?.betwin
-        });
         this.playSoundClick();
         return this.betHistoryLog;
     }
@@ -102,6 +74,3 @@ export class CascadingHistoryItem extends ObserverComponent {
         return gc.Audios.AudioIds.CLICK;
     }
 }
-
-
-

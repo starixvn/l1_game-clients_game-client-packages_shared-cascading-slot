@@ -5,8 +5,6 @@ import Observer from "observer";
 import { TotalMultiplierView } from "../../total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
 import { CascadingSlotBoard } from "./cascading-slot-board";
-import { cascadingSlotLogger } from "../../../cascading-slot-logger";
-
 const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
@@ -18,24 +16,18 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         tumbleWinView: TumbleWinWiew,
         totalMultiplierView: TotalMultiplierView
     ) {
-        cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] handleMultiplier called with isFreeSpin: ${isFreeSpin}, winMultiplier: ${winMultiplier}, currentTotalMultiplier: ${this.currentTotalMultiplier}`);
         const needMoveTotalMultiplier = isFreeSpin && winMultiplier && this.currentTotalMultiplier > 0;
-        cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] needMoveTotalMultiplier: ${needMoveTotalMultiplier}`);
 
         if (needMoveTotalMultiplier) {
             this.setMultiplierValue(this.currentTotalMultiplier);
-            cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Set multiplier value to current total: ${this.currentTotalMultiplier}`);
         }
         if (!winMultiplier) {
-            cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] No win multiplier, returning early`);
             return;
         }
         const multiplierItems = this.getMultiplierItems();
         let accumulatedMultiplier = 0;
-        cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Processing ${multiplierItems.length} multiplier items`);
 
         for (const mItem of multiplierItems) {
-            cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Processing multiplier item with value: ${mItem.multiplier}`);
             this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
             await mItem.playAnimationGlow();
             await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
@@ -47,17 +39,13 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                 await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView);
                 accumulatedMultiplier += +mItem.multiplier;
                 totalMultiplierView.setTotalMultiplierTmp(this.currentTotalMultiplier + accumulatedMultiplier);
-                cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Moved multiplier to total, accumulated: ${accumulatedMultiplier}, temp total: ${this.currentTotalMultiplier + accumulatedMultiplier}`);
             } else {
                 await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
-                cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Moved multiplier to tumble win view`);
             }
         }
         if (this.currentTotalMultiplier > 0) {
-            cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] Moving total multiplier to total win`);
             await this.movingTotalMultipliertoTotalWin(totalMultiplierView, this.effectContainer, tumbleWinView.multiplier.node);
         }
-        cascadingSlotLogger.info(`[PortraitCascadingSlotBoard] handleMultiplier completed`);
     }
 
     movingMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
@@ -123,5 +111,3 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         return node;
     }
 }
-
-

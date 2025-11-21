@@ -4,8 +4,6 @@ import { ComponentUtils } from "db://shared-components/shared/utils";
 import { SpecialSymbol } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingSlotReelItem } from "../slot-reel/cascading-slot-reel-item";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
-
 const { ccclass, property } = _decorator;
 
 export interface CascadingSymbolPreviewType {
@@ -52,216 +50,48 @@ export class CascadingSymbolPreview extends Component {
     protected hasSymbolOdds = false;
 
     protected onLoad(): void {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] onLoad called", {
-            hasNode: !!this.node,
-            hasIcon: !!this.icon,
-            hasInfoNode: !!this.infoNode,
-            hasBorder: !!this.border,
-            hasTextImages: !!this.textImages,
-            hasMultiplierLabel: !!this.multiplierLabel,
-            hasContent: !!this.content,
-            hasScatterLabel: !!this.scatterLabel,
-            padding: this.padding,
-            isLowestRow: this.isLowestRow,
-            lowestRowY: this.LOWEST_ROW_Y,
-            hasSymbolOdds: this.hasSymbolOdds,
-            willGetBgNode: true,
-            willDeactivateScatterLabel: !!this.scatterLabel,
-            timestamp: new Date().toISOString()
-        });
-
         this.bg = this.node.getChildByName("bg");
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Background node retrieved", {
-            hasBg: !!this.bg,
-            timestamp: new Date().toISOString()
-        });
-
         this.scatterLabel && (this.scatterLabel.node.active = false);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Scatter label deactivated", {
-            hasScatterLabel: !!this.scatterLabel,
-            timestamp: new Date().toISOString()
-        });
-
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] onLoad completed", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     hidePreview() {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] hidePreview called", {
-            hasNode: !!this.node,
-            hasParent: !!this.node?.parent,
-            parentActive: this.node?.parent?.active,
-            willDeactivateParent: true,
-            willDestroyNode: true,
-            timestamp: new Date().toISOString()
-        });
-
         this.node.parent.active = false;
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Parent deactivated", {
-            timestamp: new Date().toISOString()
-        });
-
         this.node.destroy();
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Node destroyed", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     renderInfo(info: CascadingSymbolPreviewType) {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] renderInfo called", {
-            info,
-            hasSymbolItem: !!info?.symbolItem,
-            symbolItemIndex: info?.symbolItem?.index,
-            multiplierSymbol: SpecialSymbol.MULTIPLIER_SYMBOL,
-            isMultiplierSymbol: info?.symbolItem?.index >= SpecialSymbol.MULTIPLIER_SYMBOL,
-            willShowInfoNode: info?.symbolItem?.index < SpecialSymbol.MULTIPLIER_SYMBOL,
-            willRenderMultiplierSymbol: info?.symbolItem?.index >= SpecialSymbol.MULTIPLIER_SYMBOL,
-            willRenderNormalSymbol: info?.symbolItem?.index < SpecialSymbol.MULTIPLIER_SYMBOL,
-            timestamp: new Date().toISOString()
-        });
-
         const { symbolItem } = info;
         if (symbolItem.index >= SpecialSymbol.MULTIPLIER_SYMBOL) {
-            cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Rendering multiplier symbol", {
-                symbolIndex: symbolItem.index,
-                timestamp: new Date().toISOString()
-            });
             this.showInfoNode(false);
             this.renderMultiplierSymbol(info);
         } else {
-            cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Rendering normal symbol", {
-                symbolIndex: symbolItem.index,
-                timestamp: new Date().toISOString()
-            });
             this.showInfoNode(true);
             this.renderNormalSymbol(info);
         }
-
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] renderInfo completed", {
-            symbolIndex: symbolItem.index,
-            timestamp: new Date().toISOString()
-        });
     }
 
     renderMultiplierSymbol(info: CascadingSymbolPreviewType) {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] renderMultiplierSymbol called", {
-            info,
-            colorList: info?.colorList,
-            hasMultiplierLabel: !!this.multiplierLabel,
-            willSetNodeColor: true,
-            timestamp: new Date().toISOString()
-        });
-
         const { colorList } = info;
         ComponentUtils.setNodeColor(this.multiplierLabel.node, colorList[1]);
-
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Multiplier label color set", {
-            color: colorList[1],
-            timestamp: new Date().toISOString()
-        });
     }
 
     showInfoNode(status: boolean) {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] showInfoNode called", {
-            status,
-            hasInfoNode: !!this.infoNode,
-            hasMultiplierLabel: !!this.multiplierLabel,
-            currentInfoNodeActive: this.infoNode?.active,
-            currentMultiplierLabelActive: this.multiplierLabel?.node?.active,
-            willSetInfoNodeActive: true,
-            willSetMultiplierLabelActive: true,
-            timestamp: new Date().toISOString()
-        });
-
         this.infoNode.active = status;
         this.multiplierLabel.node.active = !status;
-
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Info node and multiplier label visibility set", {
-            infoNodeActive: this.infoNode.active,
-            multiplierLabelActive: this.multiplierLabel.node.active,
-            timestamp: new Date().toISOString()
-        });
     }
 
     setInfo(info: CascadingSymbolPreviewType) {
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] setInfo called", {
-            info,
-            hasOdds: !!info?.odds,
-            hasSymbolItem: !!info?.symbolItem,
-            hasColorList: !!info?.colorList,
-            hasBorderColor: !!info?.borderColor,
-            hasFreespin: !!info?.freespin,
-            coinValue: info?.coinValue,
-            betLevel: info?.betLevel,
-            willCheckSymbolOdds: true,
-            willCheckLowestRow: true,
-            willInstantiateSymbol: true,
-            willSetBorderColor: true,
-            willRenderInfo: true,
-            willScheduleBackgroundUpdate: true,
-            timestamp: new Date().toISOString()
-        });
-
         this.hasSymbolOdds = !!info.odds && Object.values(info.odds).some((value) => value.odds > 0);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Symbol odds checked", {
-            hasSymbolOdds: this.hasSymbolOdds,
-            oddsCount: info?.odds ? Object.keys(info.odds).length : 0,
-            timestamp: new Date().toISOString()
-        });
-
         log(`hasSymbolOdds `, this.hasSymbolOdds);
-
         this.isLowestRow = this.node.position.y <= this.LOWEST_ROW_Y;
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Lowest row checked", {
-            nodePositionY: this.node.position.y,
-            lowestRowY: this.LOWEST_ROW_Y,
-            isLowestRow: this.isLowestRow,
-            timestamp: new Date().toISOString()
-        });
-
         const nodeTmp = instantiate(info.symbolItem.content.children[0]);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Symbol content instantiated", {
-            hasNodeTmp: !!nodeTmp,
-            contentChildrenCount: info?.symbolItem?.content?.children?.length || 0,
-            timestamp: new Date().toISOString()
-        });
-
         this.content.addChild(nodeTmp);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Node added to content", {
-            timestamp: new Date().toISOString()
-        });
-
         const skeleton = nodeTmp.getComponent(sp.Skeleton);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Skeleton component retrieved", {
-            hasSkeleton: !!skeleton,
-            timestamp: new Date().toISOString()
-        });
-
         skeleton.setAnimation(0, "highlight", false);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Highlight animation set", {
-            animation: "highlight",
-            loop: false,
-            track: 0,
-            timestamp: new Date().toISOString()
-        });
 
         ComponentUtils.setNodeColor(this.border, info.borderColor);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Border color set", {
-            borderColor: info.borderColor,
-            timestamp: new Date().toISOString()
-        });
-
         this.renderInfo(info);
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Info rendered", {
-            timestamp: new Date().toISOString()
-        });
-
         this.scheduleOnce(this.updateBackground, 0); //trick, delay to wait labels update width
-        cascadingSlotLogger.info("[CASCADING_SYMBOL_PREVIEW] Background update scheduled", {
-            delay: 0,
-            timestamp: new Date().toISOString()
-        });
     }
 
     updateBackground() {
@@ -410,6 +240,3 @@ export class CascadingSymbolPreview extends Component {
         }
     }
 }
-
-
-

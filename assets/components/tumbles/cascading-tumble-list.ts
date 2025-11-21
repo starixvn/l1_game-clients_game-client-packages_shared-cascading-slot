@@ -5,8 +5,6 @@ import Observer from "observer";
 import { WinIconDetail } from "../../cascading-slot-utils";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
 import { CascadingTumbleItem } from "./cascading-tumble-item";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
-
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -36,7 +34,6 @@ export class CascadingTumbleList extends ObserverComponent {
     HEIGHT_CONTENT_TRIAL_MODE = 210;
 
     onLoad() {
-        cascadingSlotLogger.info(`[CascadingTumbleList] Component loaded, initializing scroll view and scheduling trial message animation`);
         super.onLoad();
         this.scrollView = this.scrollView.getComponent(ScrollView);
         this.schedule(
@@ -50,7 +47,6 @@ export class CascadingTumbleList extends ObserverComponent {
     }
 
     animTrialMsg() {
-        cascadingSlotLogger.info(`[CascadingTumbleList] animTrialMsg called - animating trial mode node`);
         // Scale animation with repeat
         const scaleAnim = tween(this.trialModeNode)
             .to(0.1, { scale: new Vec3(0.9, 0.9, 0.9) }, { easing: "sineIn" })
@@ -67,38 +63,29 @@ export class CascadingTumbleList extends ObserverComponent {
     }
 
     setHeightContent(isTrialMode: boolean) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] setHeightContent called with isTrialMode: ${isTrialMode}`);
         const scrollViewNode = this.scrollView.node;
         const mask = this.maskNode.getComponent(Mask);
         if (isTrialMode) {
             scrollViewNode.getComponent(UITransform).height = this.HEIGHT_CONTENT_TRIAL_MODE;
             mask.getComponent(UITransform).height = this.HEIGHT_CONTENT_TRIAL_MODE;
-            cascadingSlotLogger.info(`[CascadingTumbleList] Set trial mode height: ${this.HEIGHT_CONTENT_TRIAL_MODE}`);
         } else {
             scrollViewNode.getComponent(UITransform).height = this.HEIGHT_CONTENT_REAL_MODE;
             mask.getComponent(UITransform).height = this.HEIGHT_CONTENT_REAL_MODE;
-            cascadingSlotLogger.info(`[CascadingTumbleList] Set real mode height: ${this.HEIGHT_CONTENT_REAL_MODE}`);
         }
     }
 
     get itemHeight() {
-        const height = this.content.children.length > 0 ? this.content.children[0].getComponent(UITransform).height : this.HEIGHT_PER_ROW;
-        cascadingSlotLogger.info(`[CascadingTumbleList] itemHeight getter called, returning: ${height}`);
-        return height;
+        return this.content.children.length > 0 ? this.content.children[0].getComponent(UITransform).height : this.HEIGHT_PER_ROW;
     }
 
     @render(CascadingSlotTumblesStore, (store) => store.tumble)
     addIcons(tumble: any) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] addIcons called with tumble:`, tumble);
         if (!tumble) {
-            cascadingSlotLogger.info(`[CascadingTumbleList] No tumble data, returning early`);
             return;
         }
         const { icons } = tumble;
-        cascadingSlotLogger.info(`[CascadingTumbleList] Processing icons:`, icons);
         this.content.active = true;
         Object.entries(icons).forEach(([key, value]) => {
-            cascadingSlotLogger.info(`[CascadingTumbleList] Creating tumble item for key: ${key}`);
             const tumbleNode = instantiate(this.tumbleItem);
             const control = this.getTumbleItemComp(tumbleNode);
             const { count, win } = value as WinIconDetail;
@@ -115,22 +102,17 @@ export class CascadingTumbleList extends ObserverComponent {
 
     updateContentHeight() {
         const contentHeight = this.content.children.length * this.itemHeight;
-        cascadingSlotLogger.info(`[CascadingTumbleList] updateContentHeight - children: ${this.content.children.length}, itemHeight: ${this.itemHeight}, totalHeight: ${contentHeight}`);
         this.content.getComponent(UITransform).height = contentHeight;
         const enabledScrollView = contentHeight > this.scrollView.node.getComponent(UITransform).height;
         this.scrollView.enabled = enabledScrollView;
-        cascadingSlotLogger.info(`[CascadingTumbleList] Scroll view enabled: ${enabledScrollView}`);
         if (enabledScrollView) {
             this.scrollView.scrollToTop(0);
-            cascadingSlotLogger.info(`[CascadingTumbleList] Scrolled to top`);
         } else {
             this.content.position = v3(0, 0);
-            cascadingSlotLogger.info(`[CascadingTumbleList] Reset content position`);
         }
     }
 
     fall(node: Node) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] fall called for node`);
         return new Promise<void>((resolve) => {
             tween(node)
                 .to(0.4, { position: v3(0, this.itemHeight / 2, 0) }, { easing: "sineOut" })
@@ -146,25 +128,19 @@ export class CascadingTumbleList extends ObserverComponent {
 
     @render(CascadingSlotTumblesStore, (store) => store.tumbles)
     async clear(tumbles: any) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] clear called with tumbles length: ${tumbles.length}`);
         if (tumbles.length === 0) {
-            cascadingSlotLogger.info(`[CascadingTumbleList] Clearing all children with fall animation`);
             await Promise.all(this.content.children.map((child) => this.fall(child)));
             this.content.destroyAllChildren();
             this.updateContentHeight();
-            cascadingSlotLogger.info(`[CascadingTumbleList] Destroyed all children and updated content height`);
         }
     }
 
     setAnimation(node: Node, index: number) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] setAnimation called for node at index: ${index}`);
         const startY = (index + this.NUMBER_MAX_ITEM + 0.5) * this.itemHeight;
         const minY = this.scrollView.node.getComponent(UITransform).height - 0.5 * this.itemHeight;
         node.position = v3(0, Math.max(startY, minY), 0);
-        cascadingSlotLogger.info(`[CascadingTumbleList] Set initial position to: ${node.position}`);
 
         const destY = (index + 0.5) * this.itemHeight;
-        cascadingSlotLogger.info(`[CascadingTumbleList] Animating to destination Y: ${destY}`);
         tween(node)
             .to(0.2, { position: v3(0, destY, 0) }, { easing: "sineOut" })
             .to(0.1, { position: v3(0, destY + 2, 0) }, { easing: "sineOut" })
@@ -173,12 +149,10 @@ export class CascadingTumbleList extends ObserverComponent {
     }
 
     offerTrialMode(isTrialMode: boolean) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] offerTrialMode called with isTrialMode: ${isTrialMode}`);
         this.trialModeNode.active = isTrialMode;
         this.setHeightContent(isTrialMode);
         this.updateContentHeight();
         if (isTrialMode) {
-            cascadingSlotLogger.info(`[CascadingTumbleList] Scheduling trial message animation`);
             this.schedule(
                 () => {
                     this.animTrialMsg();
@@ -188,16 +162,12 @@ export class CascadingTumbleList extends ObserverComponent {
                 0
             );
         } else {
-            cascadingSlotLogger.info(`[CascadingTumbleList] Unscheduling trial message animation`);
             this.unschedule(this.animTrialMsg);
         }
     }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
-        cascadingSlotLogger.info(`[CascadingTumbleList] renderTrialMode called with isTrialMode: ${isTrialMode}`);
         this.offerTrialMode(isTrialMode);
     }
 }
-
-

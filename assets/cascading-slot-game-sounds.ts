@@ -1,7 +1,3 @@
-import { cascadingSlotLogger } from "./cascading-slot-logger";
-
-cascadingSlotLogger.info('[CASCADE_SLOT_GAME_SOUNDS] Initializing cascading slot game sound enum');
-
 export enum CascadingSlotGameSound {
     SPIN_BUTTON = "spin_button",
     FALL_OUT = "fall_out",
@@ -26,5 +22,3 @@ export enum CascadingSlotGameSound {
     CLICK = "click",
     TRANSITION = "transition",
 }
-
-cascadingSlotLogger.info('[CASCADE_SLOT_GAME_SOUNDS] Available game sounds:', Object.values(CascadingSlotGameSound));

@@ -15,12 +15,10 @@ export class SliderCtrl extends Component {
     // labelTotalBet: Label = null;
 
     start() {
-        cascadingSlotLogger.info(`[SliderCtrl] Component initialized, stopValue: ${this._stopValue}`);
         // Your initialization goes here.
     }
 
     sliderChange(slider: Slider) {
-        cascadingSlotLogger.info(`[SliderCtrl] Slider changed, progress: ${slider.progress}, stopValue: ${this._stopValue}`);
 
         const spriteComp = this.getComponent(Sprite)!;
         this._color.set(spriteComp.color);
@@ -28,13 +26,10 @@ export class SliderCtrl extends Component {
         spriteComp.color = this._color;
         this._label.string = gc.FormatUtils.numberWithCommas(slider.progress, 2, true);
 
-        cascadingSlotLogger.info(`[SliderCtrl] Updated color alpha to: ${this._color.a}, label text: ${this._label.string}`);
     }
 
     // update (deltaTime: number) {
     //     // Your update function goes here.
     // }
 }
-
-
 

@@ -1,7 +1,5 @@
 import { cascadingSlotLogger } from "./cascading-slot-logger";
 
-cascadingSlotLogger.info(`[GameServiceMessageCascading] Module loaded - Game message definitions initialized`);
-
 export namespace GameServiceMessageCascading {
     export class CascadingSlotFinish {
         roundId: number;
