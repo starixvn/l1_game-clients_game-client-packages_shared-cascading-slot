@@ -45,9 +45,9 @@ export class CascadingHistoryItem extends ObserverComponent {
         this.time.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.roundID.string = betHistoryLog.id;
         this.betLevel.string = betHistoryLog.betLevel;
-        this.coinValue.string = gc.FormatUtils.numberWithCommas(betHistoryLog.coinValue * xMode, 2);
-        this.totalBet.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 2);
-        this.totalWin.string = gc.FormatUtils.numberWithCommas(win * xMode, 2, false);
+        this.coinValue.string = gc.FormatUtils.numberWithCommas(betHistoryLog.coinValue * xMode, 6);
+        this.totalBet.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 6);
+        this.totalWin.string = gc.FormatUtils.numberWithCommas(win * xMode, 6);
         this.data = betHistoryLog;
 
         if (betHistoryLog.betwin > 0) {

@@ -95,7 +95,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
         });
         this.handleMultiplierData(betHistoryLog);
-        this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin * xMode, 2, false);
+        this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin * xMode, 6);
         this.reachMaxText.node.active = isReachMaxWin;
     }
 

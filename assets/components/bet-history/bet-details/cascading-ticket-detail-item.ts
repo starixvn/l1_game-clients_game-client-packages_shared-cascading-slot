@@ -97,7 +97,7 @@ export class CascadingTicketDetailItem extends Component {
         const control = tumbleNode.getComponent(CascadingTumbleItem);
         control.setDataForFreeSpinTumble(data);
         this.content.addChild(tumbleNode);
-        this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 2, false);
+        this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 6);
         this.index.string = (data.index + 1).toString();
         this.calculateHeightRow(1);
         return tumbleNode;

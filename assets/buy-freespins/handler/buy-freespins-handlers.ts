@@ -53,9 +53,6 @@ export class BuyFreespinsHandler {
     }
 
     receiveBuyFsTotalWin(result: BuyFsResult) {
-        if (result) {
-            result.totalWin = Math.round(result.totalWin * this.mainPlayerStore.xMode * 100) / 100;
-        }
         this.buyFsStore.buyFsResult = result;
     }
 

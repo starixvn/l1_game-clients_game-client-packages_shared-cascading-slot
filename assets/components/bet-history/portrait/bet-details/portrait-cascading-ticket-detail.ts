@@ -117,33 +117,33 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
         }
 
         this.updateBasicDetails(betHistoryLog, xMode);
-        this.updateMultiplierDetails(betHistoryLog);
+        this.updateMultiplierDetails(betHistoryLog, xMode);
         this.updateNavigationButtons(this.betHistory);
     }
 
     private updateBasicDetails(betHistoryLog: any, xMode) {
         this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.betLevelDetail.string = betHistoryLog.betLevel;
-        this.coinValueDetail.string = gc.FormatUtils.numberWithCommas( betHistoryLog.coinValue * xMode, 2);
-        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 2);
+        this.coinValueDetail.string = gc.FormatUtils.numberWithCommas( betHistoryLog.coinValue * xMode, 6);
+        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : gc.FormatUtils.numberWithCommas(betHistoryLog.totalAmount * xMode, 6);
         this.currentId = betHistoryLog.id;
     }
 
-    private updateMultiplierDetails(betHistoryLog: any) {
+    private updateMultiplierDetails(betHistoryLog: any, xMode: number) {
         if (!this.multiplierNode.active) {
             this.multiplierDetail.node.active = false;
             return;
         }
 
-        const multiplierString = this.calculateMultiplierString(betHistoryLog);
+        const multiplierString = this.calculateMultiplierString(betHistoryLog, xMode);
         this.multiplierDetail.string = multiplierString;
         this.multiplierDetail.node.active = true;
     }
 
-    private calculateMultiplierString(betHistoryLog: any): string {
+    private calculateMultiplierString(betHistoryLog: any, xMode: number): string {
         const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
         const hasWinFreeSpin = betHistoryLog.settlementResult.freeSpins?.win > 0;
-        const totalTumbleWin = gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin, 2, false);
+        const totalTumbleWin = gc.FormatUtils.numberWithCommas(betHistoryLog.totalTumbleWin * xMode, 6);
 
         const multiplier = betHistoryLog.freeSpin ? betHistoryLog.totalMultiplier : betHistoryLog.multiplier;
         const baseString = `${totalTumbleWin}x${multiplier}`;

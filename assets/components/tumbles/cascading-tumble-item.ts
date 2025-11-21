@@ -27,7 +27,7 @@ export class CascadingTumbleItem extends Component {
 
     setData(icon: number, count: number, win: number, xMode: number) {
         this.numberIcon.string = count.toString();
-        this.winningValue.string = gc.FormatUtils.numberWithCommas(win * xMode, 2, false);
+        this.winningValue.string = gc.FormatUtils.numberWithCommas(win * xMode, 6);
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${icon}`);
     }
 
