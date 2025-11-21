@@ -33,9 +33,23 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
     handle(): boolean {
         const amount = this.betControlStore.effectiveTotalBet;
         
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] handle called - Processing hyper-spin bet", {
+            betAmount: amount,
+            effectiveTotalBet: this.betControlStore.effectiveTotalBet,
+            timestamp: new Date().toISOString()
+        });
+
         const betData = this.createHyperSpinBetData(amount);
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Created bet data for hyper-spin", {
+            betData,
+            timestamp: new Date().toISOString()
+        });
 
         const result = this.placeBetDirectly(betData, amount);
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] handle completed", {
+            result,
+            timestamp: new Date().toISOString()
+        });
 
         return result;
     }
@@ -67,6 +81,19 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
             });
         }
 
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] createHyperSpinBetData created", {
+            betData,
+            orientationStoreM: this.orientationStore.m,
+            mainPlayerName: this.mainPlayerStore.name,
+            effectiveCoinValue: this.betControlStore.effectiveCoinValue,
+            effectiveBetLevel: this.betControlStore.effectiveBetLevel,
+            totalBet: amount,
+            isFreeSpins: this.uiStore.isFreeSpins,
+            freeSpin: betData.freeSpin,
+            clientSentTime: betData.clientSentTime,
+            timestamp: new Date().toISOString()
+        });
+
         return betData;
     }
 
@@ -79,11 +106,27 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
      * @returns boolean - true if bet was successfully sent, false otherwise
      */
     private placeBetDirectly(data: any, amount: number): boolean {
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] placeBetDirectly called", {
+            data,
+            amount,
+            isTrialMode: this.uiStore.isTrialMode,
+            timestamp: new Date().toISOString()
+        });
 
         // Minimal validation: only check if already processing a bet
         if (this.betStore.isProcessingBet) {
+            cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Bet placement failed - already processing bet", {
+                timestamp: new Date().toISOString()
+            });
             return false;
         }
+
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Processing hyper-spin bet", {
+            amount,
+            willSendToTrialConnection: this.uiStore.isTrialMode,
+            willSendToMainConnection: !this.uiStore.isTrialMode,
+            timestamp: new Date().toISOString()
+        });
 
         // Set processing state
         this.uiStore.changeUserBalance = false;
@@ -91,20 +134,37 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
 
         // Send bet to appropriate connection
         if (this.uiStore.isTrialMode) {
+            cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Sending bet to trial connection", {
+                data,
+                timestamp: new Date().toISOString()
+            });
             this.connectionTrialStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
         } else {
+            cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Sending bet to main connection", {
+                data,
+                timestamp: new Date().toISOString()
+            });
             this.connectionStore.send(gc.GameClientEmitMessage.Bet.eventName, data);
         }
 
         // Update game state to SPINNING
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Changing cascading state to SPINNING", {
+            timestamp: new Date().toISOString()
+        });
         this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
 
         // Re-enable balance updates
         this.uiStore.changeUserBalance = true;
 
         // Trigger retry game handler for connection management
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Calling retry game handler", {
+            timestamp: new Date().toISOString()
+        });
         this.retryGameHandler.handle();
 
+        cascadingSlotLogger.info("[HYPER_SPIN_BET_HANDLER] Bet placement completed successfully", {
+            timestamp: new Date().toISOString()
+        });
         return true;
     }
 }

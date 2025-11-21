@@ -9,6 +9,7 @@ import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/ut
 import { random } from "lodash-es";
 import Observer from "observer";
 import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
+import { cascadingSlotLogger } from "../../../cascading-slot-logger";
 import {
     BoardSize,
     convertBoardValue,
@@ -65,28 +66,127 @@ export class CascadingSlotBoard extends ObserverComponent {
     protected readonly PEEK_EFFECT_DURATION = 1;
 
     public createReels() {
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] createReels called", {
+            hasExistingReels: this.reels.length > 0,
+            childrenCount: this.node.children.length,
+            reelItemCount: CascadingSlotConfig.reelItemCount,
+            timestamp: new Date().toISOString()
+        });
+
         if (this.reels.length > 0) {
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Reels already exist, returning", {
+                existingReelsCount: this.reels.length,
+                timestamp: new Date().toISOString()
+            });
             return;
         }
-        this.node.children.forEach((child) => {
+
+        let reelCount = 0;
+        this.node.children.forEach((child, index) => {
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Processing child node", {
+                childIndex: index,
+                childName: child.name,
+                timestamp: new Date().toISOString()
+            });
+
             const slotReel = child.getComponent(CascadingSlotReel);
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] SlotReel component check", {
+                childIndex: index,
+                hasSlotReel: !!slotReel,
+                timestamp: new Date().toISOString()
+            });
+
             if (slotReel) {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Configuring reel", {
+                    childIndex: index,
+                    reelItemCount: CascadingSlotConfig.reelItemCount,
+                    timestamp: new Date().toISOString()
+                });
+
                 slotReel.itemDisplayCount = CascadingSlotConfig.reelItemCount;
                 slotReel.createReel();
                 this.reels.push(slotReel);
+                reelCount++;
+
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Reel created and added", {
+                    childIndex: index,
+                    totalReelsNow: this.reels.length,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Child is not a reel, skipping", {
+                    childIndex: index,
+                    timestamp: new Date().toISOString()
+                });
             }
+        });
+
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] createReels completed", {
+            totalReelsCreated: reelCount,
+            finalReelsCount: this.reels.length,
+            timestamp: new Date().toISOString()
         });
     }
 
     public addItems(data: number[][], peekEffect: boolean) {
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] addItems called", {
+            dataLength: data?.length,
+            peekEffect,
+            hasReels: this.reels.length > 0,
+            reelsCount: this.reels.length,
+            hasPreviewPopup: !!this.previewPopup,
+            timestamp: new Date().toISOString()
+        });
+
         this.reels.forEach((reel, index) => {
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Processing reel for addItems", {
+                reelIndex: index,
+                reelItems: data[index],
+                itemsCount: data[index]?.length,
+                peekEffect,
+                timestamp: new Date().toISOString()
+            });
+
             const items = data[index];
             const reelItems = reel.addItems(items);
-            peekEffect && reel.peekEffectHighlightItems(reelItems);
-            const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
-            reelItems.forEach((item) => {
-                this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
+
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Reel items added", {
+                reelIndex: index,
+                reelItemsCount: reelItems?.length,
+                timestamp: new Date().toISOString()
             });
+
+            if (peekEffect) {
+                reel.peekEffectHighlightItems(reelItems);
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Peek effect applied to reel items", {
+                    reelIndex: index,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Preview popup event setup", {
+                reelIndex: index,
+                isInfoOnLeft,
+                itemsCount: reelItems?.length,
+                timestamp: new Date().toISOString()
+            });
+
+            reelItems.forEach((item, itemIndex) => {
+                this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Preview popup event added for item", {
+                    reelIndex: index,
+                    itemIndex,
+                    isInfoOnLeft,
+                    timestamp: new Date().toISOString()
+                });
+            });
+        });
+
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] addItems completed", {
+            totalReelsProcessed: this.reels.length,
+            peekEffectApplied: peekEffect,
+            timestamp: new Date().toISOString()
         });
     }
 
@@ -107,7 +207,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         const multipliers =
             resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [20], [100]] : [[3], [8], [12], [15], [18]];
         const randomIndex = random(samples.length - 1);
-        console.log(`B${randomIndex}`);
+        cascadingSlotLogger.info(`B${randomIndex}`);
         return { symbols: samples[randomIndex], multipliers: multipliers[randomIndex] };
     }
 
@@ -144,12 +244,22 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    async handleTumbles(tumbles: Tumble[], isTurbo: boolean) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean, skipAnimations: boolean = false) {
+        cascadingSlotLogger.info("[HYPER_SPIN_DEBUG] Board handleTumbles called", {
+            tumblesCount: tumbles?.length || 0,
+            isTurbo,
+            skipAnimations,
+            timestamp: new Date().toISOString()
+        });
+
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
 
-        this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
+        // Skip bottom message update during hyper-spin for faster execution
+        if (!skipAnimations) {
+            this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
+        }
 
         let multiplierCount = tumbles[0].multipliers.length;
         for (let i = 0; i < tumbles.length - 1; i++) {
@@ -166,23 +276,32 @@ export class CascadingSlotBoard extends ObserverComponent {
             const newItems = convertBoardValue(settlement.new);
 
             if (tumbleWin > 0) {
-                Object.keys(icons).forEach((iconKey) => {
-                    const winIconDetail: WinIconDetail = icons[iconKey];
-                    const node = this.getRandomWinItem(explode, +iconKey);
-                    const position = ComponentUtils.convertPosition(this.effectContainer, node);
-                    this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
-                });
-                this.setTumbles(tumbles);
-                this.handleTotalWinTumble(tumbleWin);
-                this.setTumbleIcons(tumble);
-                this.playSound(AudioIds.SYMBOL_MATCH);
+                // Skip win animations during hyper-spin
+                if (!skipAnimations) {
+                    Object.keys(icons).forEach((iconKey) => {
+                        const winIconDetail: WinIconDetail = icons[iconKey];
+                        const node = this.getRandomWinItem(explode, +iconKey);
+                        const position = ComponentUtils.convertPosition(this.effectContainer, node);
+                        this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
+                    });
+                    this.setTumbles(tumbles);
+                    this.handleTotalWinTumble(tumbleWin);
+                    this.setTumbleIcons(tumble);
+                    this.playSound(AudioIds.SYMBOL_MATCH);
+                } else {
+                    // Still update win totals even without animations
+                    this.handleTotalWinTumble(tumbleWin);
+                }
             }
 
-            await this.removeItems(explode, i);
-            await this.fallIn(false, false);
+            // Skip remove/fall animations during hyper-spin
+            if (!skipAnimations) {
+                await this.removeItems(explode, i);
+                await this.fallIn(false, false);
+            }
 
             const remains = this.reels.map((reel) => reel.getItemsData());
-            const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
+            const hasPeekEffect = !isTurbo && !skipAnimations ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
                 AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
@@ -190,10 +309,15 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.showPeekEffectInTumbles(newItems);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
+
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(hasPeekEffect, false);
-            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+
+            // Skip final fall animation during hyper-spin
+            if (!skipAnimations) {
+                await this.fallIn(hasPeekEffect, false);
+                AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+            }
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
             }
@@ -207,22 +331,45 @@ export class CascadingSlotBoard extends ObserverComponent {
         return tumbleWin;
     }
 
-    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
+    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean, skipAnimations: boolean = false) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
-        this.playSpinAudio(isTurbo);
+        cascadingSlotLogger.info("[HYPER_SPIN_DEBUG] Board spinResult called", {
+            isTurbo,
+            skipAnimations,
+            timestamp: new Date().toISOString()
+        });
 
-        await this.fallOut(isTurbo, delayEachReelFallOut);
+        // Skip audio and animations during hyper-spin for faster execution
+        if (!skipAnimations) {
+            this.playSpinAudio(isTurbo);
+        }
 
-        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
+        // Skip reel fall-out animation during hyper-spin
+        if (!skipAnimations) {
+            await this.fallOut(isTurbo, delayEachReelFallOut);
+        }
+
+        const peekEffect = !isTurbo && !skipAnimations ? this.checkPeekEffect(symbols) : null;
         for (let i = 0; i < this.reels.length; i++) {
-            if (!isTurbo && i > 0) {
+            if (!skipAnimations && !isTurbo && i > 0) {
                 await AnimationUtils.delayTime(delayEachReelFallOut);
             }
             const reelSymbols = symbols[i];
             const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
-            if (i < awaitReelIndex) {
+
+            if (skipAnimations) {
+                // During hyper-spin, instantly set symbols without animation
+                // Access the reel's internal methods to set data without spinning animation
+                if (this.reels[i] && typeof this.reels[i].setItemData === 'function') {
+                    this.reels[i].setItemData(reelSymbols, multipliers || []);
+                    // Update positions if method exists
+                    if (typeof this.reels[i].setStartPositionForItems === 'function') {
+                        this.reels[i].setStartPositionForItems();
+                    }
+                }
+            } else if (i < awaitReelIndex) {
                 this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
             } else if (i === awaitReelIndex) {
                 await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
@@ -589,20 +736,66 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     onLoad() {
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] onLoad called", {
+            nodeName: this.node.name,
+            hasEffectContainer: !!this.effectContainer,
+            effectIntroMultiplierEnabled: resourcesCache.gameFeatures?.effectIntroMultiplier,
+            peekEffectEnabled: resourcesCache.gameFeatures?.enablePeekEffect,
+            timestamp: new Date().toISOString()
+        });
+
         super.onLoad();
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] super.onLoad() completed", {
+            timestamp: new Date().toISOString()
+        });
 
         if (this.effectContainer) {
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Effect container available, checking features", {
+                timestamp: new Date().toISOString()
+            });
+
             if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Loading effect multiplier prefab", {
+                    timestamp: new Date().toISOString()
+                });
                 this.loadEffectMultiplierPrefab();
                 globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Effect multiplier event listener added", {
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Effect intro multiplier not enabled", {
+                    timestamp: new Date().toISOString()
+                });
             }
 
             if (resourcesCache.gameFeatures?.enablePeekEffect) {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Loading peek effect prefab", {
+                    timestamp: new Date().toISOString()
+                });
                 this.loadPeekEffectPrefab().then(() => {
+                    cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Peek effect prefab loaded, initializing pool", {
+                        timestamp: new Date().toISOString()
+                    });
                     this.initPeekEffectPool();
+                    cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Peek effect pool initialized", {
+                        timestamp: new Date().toISOString()
+                    });
+                });
+            } else {
+                cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] Peek effect not enabled", {
+                    timestamp: new Date().toISOString()
                 });
             }
+        } else {
+            cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] No effect container, skipping feature initialization", {
+                timestamp: new Date().toISOString()
+            });
         }
+
+        cascadingSlotLogger.info("[CASCADING_SLOT_BOARD] onLoad completed", {
+            timestamp: new Date().toISOString()
+        });
     }
 
     onDestroy(): void {
@@ -795,4 +988,6 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 }
+
+
 
