@@ -7,7 +7,6 @@ import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store"
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet, DialogName, resourcesCache, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
@@ -75,18 +74,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreeSpinsTotal(freeSpinsTotal: number) {
-        console.warn("🎰 HANDLE FREESPINS TOTAL: Called with freeSpinsTotal", {
-            freeSpinsTotal,
-            previousFreeSpinsTotal: this.uiStore.freeSpinsTotal,
-            isFSBPromotionInProgress: this.fsbPromotionUIStore.isFSBPromotionInProgress,
-            uiStoreIsHyperSpinActive: this.uiStore.isHyperSpinActive,
-            hyperSpinStoreIsHyperSpin: this.hyperSpinStore?.isHyperSpin,
-            hyperSpinStoreRoundsHyperSpin: this.hyperSpinStore?.roundsHyperSpin ?? 0,
-            isOpenHyperSpinPopup: this.hyperSpinStore?.isOpenHyperSpinPopup,
-            isOpenHyperSpinBetControlPopup: this.hyperSpinStore?.isOpenHyperSpinBetControlPopup,
-            stopOnFeature: this.hyperSpinStore?.stopOnFeature,
-            timestamp: new Date().toISOString()
-        });
 
         const previousFreeSpinsTotal = this.uiStore.freeSpinsTotal;
         this.uiStore.freeSpinsTotal = freeSpinsTotal;
@@ -96,33 +83,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         // Check if hyper-spin is active OR if hyper-spin rounds are set (handles the setup delay window)
         const isHyperSpinActiveOrSetup = this.uiStore.isHyperSpinActive || (this.hyperSpinStore?.roundsHyperSpin ?? 0) > 0;
         const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0 && isHyperSpinActiveOrSetup;
-        console.warn("🎰 FREESPIN ACTIVATION CONDITION CHECK", {
-            conditionMet,
-            previousFreeSpinsTotal,
-            freeSpinsTotal,
-            isHyperSpinActive: this.uiStore.isHyperSpinActive,
-            roundsHyperSpin: this.hyperSpinStore?.roundsHyperSpin ?? 0,
-            isHyperSpinActiveOrSetup,
-            stopOnFeature: this.hyperSpinStore?.stopOnFeature,
-            conditionBreakdown: {
-                previousWasZero: previousFreeSpinsTotal === 0,
-                nowGreaterThanZero: freeSpinsTotal > 0,
-                hyperSpinActive: this.uiStore.isHyperSpinActive,
-                roundsSet: (this.hyperSpinStore?.roundsHyperSpin ?? 0) > 0
-            },
-            willExecutePopupLogic: conditionMet && this.hyperSpinStore?.stopOnFeature,
-            timestamp: new Date().toISOString()
-        });
 
         if (conditionMet) {
-            console.warn("🎰 FREESPIN ACTIVATED: Free-spin triggered during hyper-spin batch mode", {
-                freeSpinsTotal,
-                previousFreeSpinsTotal,
-                isHyperSpinActive: this.uiStore.isHyperSpinActive,
-                stopOnFeature: this.hyperSpinStore.stopOnFeature,
-                roundsHyperSpin: this.hyperSpinStore?.roundsHyperSpin ?? 0,
-                timestamp: new Date().toISOString()
-            });
 
             // Handle popup behavior based on stopOnFeature setting
             if (this.hyperSpinStore.stopOnFeature) {
@@ -130,14 +92,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
                 // Close the hyper-spin popup since we're running freespins with normal UI
                 if (this.hyperSpinStore) {
-                    console.warn("🎰 HYPER-SPIN POPUP CLOSING: Closing hyper-spin popup for normal freespin experience", {
-                        beforeClose: {
-                            isOpenHyperSpinPopup: this.hyperSpinStore.isOpenHyperSpinPopup,
-                            isOpenHyperSpinBetControlPopup: this.hyperSpinStore.isOpenHyperSpinBetControlPopup,
-                            isHyperSpinActive: this.hyperSpinStore.isHyperSpin,
-                        },
-                        timestamp: new Date().toISOString()
-                    });
 
                     // Set popup states to false to close them
                     this.hyperSpinStore.isOpenHyperSpinPopup = false;
@@ -149,15 +103,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
                     // Verify the state changes took effect
                     setTimeout(() => {
-                        console.warn("🎰 HYPER-SPIN POPUP VERIFICATION: Checking if popup closed successfully", {
-                            afterClose: {
-                                isOpenHyperSpinPopup: this.hyperSpinStore.isOpenHyperSpinPopup,
-                                isOpenHyperSpinBetControlPopup: this.hyperSpinStore.isOpenHyperSpinBetControlPopup,
-                                isHyperSpinActive: this.hyperSpinStore.isHyperSpin,
-                            },
-                            uiStoreHyperSpinActive: this.uiStore.isHyperSpinActive,
-                            timestamp: new Date().toISOString()
-                        });
                     }, 100);
                 }
             } else {
@@ -327,13 +272,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     handleFreespinsJoinGame(freespins: any) {
         // Warn when free spins are received from service join game message
         if (freespins && (freespins.total > 0 || freespins.length > 0)) {
-            console.warn("🎰 FREESPIN JOIN GAME: Free spins received from join game service message", {
-                freespinsTotal: freespins?.total || 0,
-                freespinsLength: freespins?.length || 0,
-                source: "join_game_service_message",
-                messageType: GameServiceMessageCascading.CascadingFreeSpinsMsg.eventName,
-                timestamp: new Date().toISOString()
-            });
         }
 
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
@@ -444,18 +382,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.uiStore.haveFreeSpin = false;
         } else {
             if (haveFreeSpin && this.uiStore.isHyperSpinActive && this.hyperSpinStore.stopOnFeature) {
-                console.warn("🎰 FREESPIN TRIGGERED WITH UI: Free-spin effects will be shown in hyper-spin mode (stopOnFeature=true)", {
-                    haveFreeSpin,
-                    isHyperSpinActive: this.uiStore.isHyperSpinActive,
-                    stopOnFeature: this.hyperSpinStore.stopOnFeature,
-                    timestamp: new Date().toISOString()
-                });
             } else if (haveFreeSpin && !this.uiStore.isHyperSpinActive) {
-                console.warn("🎰 FREESPIN TRIGGERED: Free-spin effects will be shown in normal game mode", {
-                    haveFreeSpin,
-                    isHyperSpinActive: this.uiStore.isHyperSpinActive,
-                    timestamp: new Date().toISOString()
-                });
             }
             this.uiStore.haveFreeSpin = haveFreeSpin;
         }

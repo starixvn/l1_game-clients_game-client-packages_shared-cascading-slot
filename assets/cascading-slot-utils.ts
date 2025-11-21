@@ -15,6 +15,7 @@ export const SlotNotification = {
     TUMBLE_WIN: "TUMBLE_WIN",
     FREESPINS: "FREESPINS",
     AUTO_SPIN: "AUTO_SPIN",
+    HYPER_SPIN: "HYPER_SPIN",
 };
 
 export const SpinButtonState = {
@@ -151,4 +152,5 @@ export enum DialogName {
 
     BUY_CONFIRMATION = "buy-fs-confirmation",
     BUY_FS_CONGRATULATION = "buy-fs-congratulation",
+    HYPER_SPIN = "hyper-spin",
 }

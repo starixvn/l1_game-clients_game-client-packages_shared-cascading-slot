@@ -160,8 +160,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.roundsList)
     initContentRounds(roundsList: number[]) {
-        console.log("HyperSpinBetControl initContentRounds called");
-        console.log("roundsList", roundsList);
         // Validate inputs
         if (!roundsList || !Array.isArray(roundsList) || roundsList.length === 0) {
             return;
@@ -178,14 +176,10 @@ export class HyperSpinBetControl extends ObserverComponent {
         this.numberOfSpinsContent.destroyAllChildren();
 
         roundsList.forEach((round, idx) => {
-            console.log("round", round);
             const node = instantiate(this.prfNoOfRound);
             const roundNumber = node.getComponent(HyperSpinRoundNumber);
-            console.log("roundNumber", roundNumber);
-            console.log("roundNumber value", roundNumber?.value);
             if (roundNumber) {
                 roundNumber.setValue(round);
-                console.log("roundNumber value set", roundNumber.value);
             } else {
             }
 
@@ -391,11 +385,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.isOpenHyperSpinBetControlPopup)
     private setIsOpenHyperSpinBetControlPopup(isOpenHyperSpinBetControlPopup: boolean) {
-        console.warn("🎰 HYPER-SPIN BET CONTROL: setIsOpenHyperSpinBetControlPopup called", {
-            isOpenHyperSpinBetControlPopup,
-            previousIsOpenBetAmountPopup: this.isOpenBetAmountPopup,
-            timestamp: new Date().toISOString()
-        });
 
         this.isOpenBetAmountPopup = isOpenHyperSpinBetControlPopup;
 
@@ -505,7 +494,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @handle(HyperSpinHandler, (handle) => handle.toggleStopOnFeature())
     onClickStopOnFeature() {
-        console.log("onClickStopOnFeature called");
         this.playSoundClick();
     }
 
