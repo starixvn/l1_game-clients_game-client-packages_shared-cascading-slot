@@ -201,7 +201,7 @@ export class CascadingSlotReel extends Component {
     async fallWithOffsetRange(startIndex: number, endIndex: number, offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
-        let minDuration = this.getMinDuration(isTurbo, isFallOut);
+        const minDuration = this.getMinDuration(isTurbo, isFallOut);
 
         let duration = 0;
         for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
