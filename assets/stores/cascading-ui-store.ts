@@ -131,8 +131,7 @@ export class CascadingUIStore {
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }
-        const balance = this.mainPlayerStore.balance * this.mainPlayerStore.xMode;
-        return Math.round(balance * 100) / 100;
+        return gc.FormatUtils.formatXMode(this.mainPlayerStore.balance, this.mainPlayerStore.xMode);
     }
 
     get disabledTurboMode() {

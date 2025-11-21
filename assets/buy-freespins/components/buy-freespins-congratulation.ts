@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
+const { MainPlayerStore } = gc.Player;
 import Observer from "observer";
 
 import { AudioIds } from "db://assets/game/audios/AudioIds";
@@ -25,6 +26,13 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
     @property(Label)
     private readonly labelTotalFreespins: Label = null;
     private isTriggerDuringFreeSpinBonus = false;
+
+    private xMode = 1;
+
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
+    }
 
     onLoad() {
         super.onLoad();
@@ -56,7 +64,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             return;
         }
 
-        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin, 2, false);
+        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin * this.xMode, 2, false);
         this.labelTotalFreespins.string = total.numberOfFreeSpins.toString();
     }
 
