@@ -27,6 +27,9 @@ jest.mock("@sg/game-client-base", () => ({
             systemType: "test",
         })),
     },
+    FormatUtils: {
+        formatXMode: jest.fn((value: number, xMode: number) => value * xMode),
+    },
 }));
 
 describe("CascadingUIStore", () => {
