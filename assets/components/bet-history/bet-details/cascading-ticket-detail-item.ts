@@ -65,7 +65,7 @@ export class CascadingTicketDetailItem extends Component {
                 index,
                 currWinTumble,
                 extraFreeSpin: freeSpin,
-            });
+            }, xMode);
 
         } else if (tumble.win > 0) {
             Object.entries<{ count; win }>(tumble.icons).forEach(([key, value]) => {
@@ -92,10 +92,10 @@ export class CascadingTicketDetailItem extends Component {
         this.index.string = typeof index === 'string' ? index : (index + 1).toString();
     }
 
-    setDataHaveFreeSpin(data: FreeSpinData) {
+    setDataHaveFreeSpin(data: FreeSpinData, xMode: number) {
         const tumbleNode = instantiate(this.tumbleWinDetailItemPrefab);
         const control = tumbleNode.getComponent(CascadingTumbleItem);
-        control.setDataForFreeSpinTumble(data);
+        control.setDataForFreeSpinTumble(data, xMode);
         this.content.addChild(tumbleNode);
         this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 6);
         this.index.string = (data.index + 1).toString();

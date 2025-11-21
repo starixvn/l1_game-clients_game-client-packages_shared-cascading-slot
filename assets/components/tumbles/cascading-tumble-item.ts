@@ -31,10 +31,10 @@ export class CascadingTumbleItem extends Component {
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${icon}`);
     }
 
-    setDataForFreeSpinTumble(data: FreeSpinData) {
+    setDataForFreeSpinTumble(data: FreeSpinData, xMode: number) {
         if (data.win > 0 && this.scatterPayout) {
             this.scatterPayout.node.active = true;
-            this.scatterPayout.string = gc.FormatUtils.numberWithCommas(data.win, 2, false);
+            this.scatterPayout.string = gc.FormatUtils.numberWithCommas(data.win * xMode, 6);
         }
         const freeSpinTxt = data.extraFreeSpin ? "extra_free_spin" : "free_spin";
         this.numberIcon.string = data.count.toString();
