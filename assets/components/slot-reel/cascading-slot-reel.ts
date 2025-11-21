@@ -187,6 +187,13 @@ export class CascadingSlotReel extends Component {
         return 0.08 * duration;
     }
 
+    protected getMinDuration(isTurbo: boolean, isFallOut: boolean): number {
+        if (isTurbo) {
+            return isFallOut ? this.MIN_DURATION_TURBO_FALL_OUT : this.MIN_DURATION_TURBO_FALL_IN;
+        }
+        return isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
+    }
+
     async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         await this.fallWithOffsetRange(0, this.items.length, offset, isTurbo, onBottomItemEnded);
     }
@@ -194,12 +201,7 @@ export class CascadingSlotReel extends Component {
     async fallWithOffsetRange(startIndex: number, endIndex: number, offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(isTurbo, isFallOut);
-        let minDuration = 0;
-        if (isTurbo) {
-            minDuration = isFallOut ? this.MIN_DURATION_TURBO_FALL_OUT : this.MIN_DURATION_TURBO_FALL_IN;
-        } else {
-            minDuration = isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
-        }
+        let minDuration = this.getMinDuration(isTurbo, isFallOut);
 
         let duration = 0;
         for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
