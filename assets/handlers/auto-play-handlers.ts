@@ -13,7 +13,6 @@ import { BuyFreespinsHandler } from "../buy-freespins/handler/buy-freespins-hand
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, SlotNotification } from "../cascading-slot-utils";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { AutoPlayStore } from "../stores/auto-play-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HoldActionStore } from "../stores/hold-action-store";
@@ -43,44 +42,11 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
 
     constructor() {
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] AutoPlayHandler constructor called", {
-            autoPlayStoreInjected: !!this.autoPlayStore,
-            betStoreInjected: !!this.betStore,
-            noticeStoreInjected: !!this.noticeStore,
-            errorStoreInjected: !!this.errorStore,
-            roundStoreInjected: !!this.roundStore,
-            cascadingUIStoreInjected: !!this.cascadingUIStore,
-            cascadingUIHandlerInjected: !!this.cascadingUIHandler,
-            betControlStoreInjected: !!this.betControlStore,
-            holdActionStoreInjected: !!this.holdActionStore,
-            slotBetHandlerInjected: !!this.slotBetHandler,
-            fsbPromotionUIStoreInjected: !!this.fsbPromotionUIStore,
-            buyFsHandlerInjected: !!this.buyFsHandler,
-            fsbPromotionUIHandlerInjected: !!this.fsbPromotionUIHandler,
-            buyFsStoreInjected: !!this.buyFsStore,
-            betControlHandlersInjected: !!this.betControlHandlers,
-            timestamp: new Date().toISOString()
-        });
-
         mobx.makeAutoObservable(this);
-
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Setting up MobX reactions for auto-play", {
-            timestamp: new Date().toISOString()
-        });
-
         setTimeout(() => {
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Initializing MobX reactions", {
-                timestamp: new Date().toISOString()
-            });
-
             mobx.reaction(
                 () => this.errorStore.apiError,
                 (apiError) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] API error detected in reaction", {
-                        apiError,
-                        willHandleError: !!apiError,
-                        timestamp: new Date().toISOString()
-                    });
                     if (apiError) {
                         this.handleError();
                     }
@@ -89,12 +55,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             mobx.reaction(
                 () => this.betStore.lastReceivedBet,
                 (lastReceivedBet) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Last received bet changed in reaction", {
-                        lastReceivedBet,
-                        betValue: lastReceivedBet?.value,
-                        willHandleError: lastReceivedBet?.value === -1,
-                        timestamp: new Date().toISOString()
-                    });
                     if (lastReceivedBet?.value === -1) {
                         this.handleError();
                     }
@@ -103,11 +63,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             mobx.reaction(
                 () => this.cascadingUIStore.triggerCancelAutoPlay,
                 (triggerCancelAutoPlay) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Trigger cancel auto-play detected in reaction", {
-                        triggerCancelAutoPlay,
-                        willCancelAutoPlay: !!triggerCancelAutoPlay,
-                        timestamp: new Date().toISOString()
-                    });
                     if (triggerCancelAutoPlay) {
                         this.cancelAutoPlay();
                     }
@@ -115,149 +70,60 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
             );
             mobx.reaction(
                 () => this.fsbPromotionUIStore.pendingUIEvent,
-                (evt) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] FSB pending UI event detected in reaction", {
-                        pendingUIEvent: evt,
-                        willHandleFsbEvent: !!evt,
-                        timestamp: new Date().toISOString()
-                    });
-                    this.handleFsbEvent(evt);
-                }
+                (evt) => this.handleFsbEvent(evt)
             );
 
             mobx.reaction(
                 () => this.fsbPromotionUIStore.event,
-                (evt) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] FSB event detected in reaction", {
-                        fsbEvent: evt,
-                        willHandleFsbEvent: !!evt,
-                        timestamp: new Date().toISOString()
-                    });
-                    this.handleFsbEvent(evt);
-                }
+                (evt) => this.handleFsbEvent(evt)
             );
 
             mobx.reaction(
                 () => this.buyFsStore.triggerAutoPlay,
                 (triggerAutoPlay) => {
-                    cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Buy FS trigger auto-play detected in reaction", {
-                        triggerAutoPlay,
-                        willPlaceBet: !!triggerAutoPlay,
-                        timestamp: new Date().toISOString()
-                    });
                     if (triggerAutoPlay) {
                         this.placeBet();
                     }
                 }
             );
-
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] MobX reactions setup completed", {
-                timestamp: new Date().toISOString()
-            });
         }, 0);
     }
 
     handle() { }
 
     async handleAutoPlaceBet() {
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleAutoPlaceBet called", {
-            timestamp: new Date().toISOString()
-        });
-
-        const isValid = this.isValidBet();
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Bet validation result", {
-            isValid,
-            willHandleError: !isValid,
-            timestamp: new Date().toISOString()
-        });
-
-        if (!isValid) {
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Invalid bet detected, handling error", {
-                timestamp: new Date().toISOString()
-            });
+        if (!this.isValidBet()) {
             this.handleError();
             return;
         }
 
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Bet is valid, placing bet", {
-            timestamp: new Date().toISOString()
-        });
         this.placeBet();
-
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleAutoPlaceBet completed", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     handleFsbEvent(evt: { event: string; data?: any }) {
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleFsbEvent called", {
-            fsbEvent: evt,
-            eventType: evt?.event,
-            eventData: evt?.data,
-            timestamp: new Date().toISOString()
-        });
-
         if (!evt) {
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] No FSB event provided, returning", {
-                timestamp: new Date().toISOString()
-            });
             return;
         }
-
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Processing FSB event", {
-            event: evt.event,
-            timestamp: new Date().toISOString()
-        });
 
         switch (evt.event) {
             case FreeSpinsPromotionEvents.EFFECT_UNBOX_GIFT:
             case FreeSpinsPromotionEvents.OPEN_PROMOTION_ENDED_POPUP:
             case FreeSpinsPromotionEvents.OPEN_CLAIM_BONUS_NOTIFICATION:
             case FreeSpinsPromotionEvents.OPEN_FREE_SPINS_PROMOTION:
-                cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Opening dialog for FSB event", {
-                    event: evt.event,
-                    dialogName: evt.event,
-                    timestamp: new Date().toISOString()
-                });
                 this.cascadingUIHandler.triggerOpenDialog(evt.event);
                 break;
             default:
-                cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] FSB event not handled by switch statement", {
-                    event: evt.event,
-                    timestamp: new Date().toISOString()
-                });
                 break;
         }
 
         if (evt.event === FreeSpinsPromotionEvents.BEGIN_USING_FBS) {
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Beginning FSB usage, resetting total multiplier", {
-                previousTotalMultiplier: this.cascadingUIStore.totalMultiplier,
-                timestamp: new Date().toISOString()
-            });
             this.cascadingUIStore.totalMultiplier = 0;
             return;
         }
 
         if (evt.event === FreeSpinsPromotionEvents.SPIN_ON_FSB_PROMOTION_FIRST_TIME) {
             const { delayMs = 0, isPlaceBet = false } = evt.data ?? {};
-            cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Processing first time FSB promotion spin", {
-                delayMs,
-                isPlaceBet,
-                eventData: evt.data,
-                willSetTimeout: delayMs > 0,
-                timestamp: new Date().toISOString()
-            });
-
             setTimeout(() => {
-                cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] Executing delayed FSB promotion actions", {
-                    delayMs,
-                    willTryConsumeFSB: true,
-                    willHandleTriggerDuringFreeSpinBonus: true,
-                    willPlaceBet: isPlaceBet,
-                    willRemovePendingUIEvent: true,
-                    timestamp: new Date().toISOString()
-                });
-
                 this.fsbPromotionUIHandler.tryConsumeFSB();
                 this.cascadingUIHandler.handleTriggerDuringFreeSpinBonus();
                 if (isPlaceBet) {
@@ -266,34 +132,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.fsbPromotionUIStore.removePendingUIEvent();
             }, delayMs);
         }
-
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleFsbEvent completed", {
-            processedEvent: evt.event,
-            timestamp: new Date().toISOString()
-        });
     }
 
     handleError() {
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleError called - Handling auto-play error", {
-            willCallHandlePlaceBetFailed: true,
-            timestamp: new Date().toISOString()
-        });
-
         this.cascadingUIHandler.handlePlaceBetFailed();
-
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] handleError completed", {
-            timestamp: new Date().toISOString()
-        });
     }
 
     placeBet() {
-        cascadingSlotLogger.info("[AUTO_PLAY_HANDLER] placeBet called", {
-            isPlacingBet: this.cascadingUIStore.isPlacingBet,
-            isAutoplay: this.autoPlayStore.isAutoplay,
-            roundsAutoplay: this.autoPlayStore.roundsAutoplay,
-            timestamp: new Date().toISOString()
-        });
-
         if (this.cascadingUIStore.isPlacingBet) {
             return;
         }
@@ -313,41 +158,15 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
     }
 
     openAutoPlayPopup() {
-        cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.openAutoPlayPopup() - Opening auto play popup", {
-            previousState: this.autoPlayStore.isOpenAutoplayPopup,
-            roundsList: this.autoPlayStore.roundsList,
-            timestamp: new Date().toISOString()
-        });
-
         this.autoPlayStore.isOpenAutoplayPopup = true;
         this.autoPlayStore.selectedRoundOnPopup = this.autoPlayStore.roundsList[0];
-
-        cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.openAutoPlayPopup() - Popup opened successfully", {
-            isOpenAutoplayPopup: this.autoPlayStore.isOpenAutoplayPopup,
-            selectedRoundOnPopup: this.autoPlayStore.selectedRoundOnPopup
-        });
     }
 
     clickAutoPlay() {
-        cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.clickAutoPlay() - Handler called", {
-            isAutoplay: this.autoPlayStore.isAutoplay,
-            timestamp: new Date().toISOString()
-        });
-
         this.cascadingUIHandler.triggerOpenDialog(DialogName.AUTO_SPIN);
-        cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.clickAutoPlay() - Triggered open dialog for AUTO_SPIN");
-
         if (!this.autoPlayStore.isAutoplay && this.isValidBet()) {
-            cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.clickAutoPlay() - Conditions met: not autoplay and valid bet, opening popup");
             this.openAutoPlayPopup();
         } else {
-            cascadingSlotLogger.info("[AUTO_SPIN_WORKFLOW] AutoPlayHandler.clickAutoPlay() - Conditions not met, cancelling autoplay", {
-                isAutoplay: this.autoPlayStore.isAutoplay,
-                isValidBet: this.isValidBet(),
-                isEnoughMoney: this.isEnoughMoney(),
-                totalBet: this.betControlStore.totalBet,
-                availableBalance: this.betStore.availableBalance
-            });
             this.cancelAutoPlay();
             this.cascadingUIHandler.resetBottomMessageState();
         }
@@ -430,16 +249,6 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         this.fsbPromotionUIHandler.tryShowEndedPopup();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            // If hyper-spin is active, log that we're handling free spins within hyper-spin batch
-            // IMPORTANT: Free spin rounds do NOT count toward hyper-spin round count
-            if (this.cascadingUIStore.isHyperSpinActive) {
-                cascadingSlotLogger.info("[AUTO_PLAY] Free spins active during hyper-spin - placing bet for free spin round", {
-                    freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
-                    isHyperSpinActive: this.cascadingUIStore.isHyperSpinActive,
-                    note: "Free spin rounds will NOT decrement hyper-spin round count - hyper-spin continues automatically",
-                    timestamp: new Date().toISOString()
-                });
-            }
             this.placeBet();
         } else {
             this.betControlStore.resumeLastBet = false;

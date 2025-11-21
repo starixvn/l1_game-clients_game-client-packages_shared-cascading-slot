@@ -1,5 +1,3 @@
-import { cascadingSlotLogger } from "./cascading-slot-logger";
-
 export namespace GameServiceMessageCascading {
     export class CascadingSlotFinish {
         roundId: number;
