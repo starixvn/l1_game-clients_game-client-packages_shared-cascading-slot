@@ -242,7 +242,6 @@ export class CascadingSlotReel extends Component {
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
-        console.log("duration", duration);
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
         if (item.isScatterSymbol && fromOutSide) {
