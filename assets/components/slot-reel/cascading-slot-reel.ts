@@ -27,7 +27,8 @@ export class CascadingSlotReel extends Component {
 
     private readonly MIN_DURATION_FALL_IN = 0.4;
     private readonly MIN_DURATION_FALL_OUT = 0.25;
-    private readonly MIN_DURATION_TURBO = 0.1;
+    private readonly MIN_DURATION_TURBO_FALL_IN = 0.25;
+    private readonly MIN_DURATION_TURBO_FALL_OUT = 0.1;
 
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
@@ -176,11 +177,11 @@ export class CascadingSlotReel extends Component {
         return baseSpeed;
     }
 
-    protected delayFallingEachItem(duration: any) {
+    protected delayFallingEachItem(duration: any, isTurbo: boolean) {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
-        if (this.isReFillSymbols) {
+        if (this.isReFillSymbols && !isTurbo) {
             return 0.2 * duration;
         }
         return 0.08 * duration;
@@ -195,7 +196,7 @@ export class CascadingSlotReel extends Component {
         const speed = this.getSpeed(isTurbo, isFallOut);
         let minDuration = 0;
         if (isTurbo) {
-            minDuration = this.MIN_DURATION_TURBO;
+            minDuration = isFallOut ? this.MIN_DURATION_TURBO_FALL_OUT : this.MIN_DURATION_TURBO_FALL_IN;
         } else {
             minDuration = isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
         }
@@ -210,7 +211,7 @@ export class CascadingSlotReel extends Component {
             }
             duration = distance / speed;
             duration = Math.max(duration, minDuration);
-            const delay = this.delayFallingEachItem(duration);
+            const delay = this.delayFallingEachItem(duration, isTurbo);
 
             if (!isTurbo) {
                 await AnimationUtils.delayTime(delay);

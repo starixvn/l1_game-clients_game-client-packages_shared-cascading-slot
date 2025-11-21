@@ -203,7 +203,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(hasPeekEffect, false, oldItemsCount);
+            await this.fallIn(hasPeekEffect, isTurbo, oldItemsCount);
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
@@ -367,7 +367,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                         // Fall in remaining items and wait for it to finish
                         if (oldCount > 0) {
                             reel.isReFillSymbols = true;
-                            await reel.fallInRange(0, oldCount, false, null);
+                            await reel.fallInRange(0, oldCount, isTurbo, null);
                         }
 
                         // Delay 0.1s before falling in new items
@@ -376,7 +376,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                         // Fall in new items
                         if (newCount > oldCount) {
                             reel.isReFillSymbols = true;
-                            await reel.fallInRange(oldCount, newCount, false, null);
+                            await reel.fallInRange(oldCount, newCount, isTurbo, null);
                         }
 
                         resolve();
