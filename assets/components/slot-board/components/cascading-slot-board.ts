@@ -280,18 +280,38 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     getRandomWinItem(data: number[][], winIcon: number): Node {
-        const list = [];
-        for (let i = 0; i < this.reels.length; i++) {
-            const reelData = data[i];
-            for (let j = 0; j < reelData.length; j++) {
-                if (reelData[j] === winIcon) {
-                    list.push({ i, j });
+        // First, try to find symbols in middle columns (excluding first and last)
+        let matchingItems = this.findMatchingSymbols(data, winIcon, true);
+
+        // If no symbols found in middle columns, search in all columns (including first and last)
+        if (matchingItems.length === 0) {
+            matchingItems = this.findMatchingSymbols(data, winIcon, false);
+        }
+
+        const randomIndex = random(0, matchingItems.length - 1);
+        const { reelIndex, itemIndex } = matchingItems[randomIndex];
+        return this.reels[reelIndex].getItemNode(itemIndex);
+    }
+
+    private findMatchingSymbols(
+        data: number[][],
+        winIcon: number,
+        excludeEdgeColumns: boolean
+    ): Array<{ reelIndex: number; itemIndex: number }> {
+        const matchingItems: Array<{ reelIndex: number; itemIndex: number }> = [];
+        const startIndex = excludeEdgeColumns ? 1 : 0;
+        const endIndex = excludeEdgeColumns ? this.reels.length - 1 : this.reels.length;
+
+        for (let reelIndex = startIndex; reelIndex < endIndex; reelIndex++) {
+            const reelData = data[reelIndex];
+            for (let itemIndex = 0; itemIndex < reelData.length; itemIndex++) {
+                if (reelData[itemIndex] === winIcon) {
+                    matchingItems.push({ reelIndex, itemIndex });
                 }
             }
         }
-        const randomIndex = random(0, list.length - 1);
-        const randomItem = list[randomIndex];
-        return this.reels[randomItem.i].getItemNode(randomItem.j);
+
+        return matchingItems;
     }
 
     public async removeItems(data: number[][], tumbleIndex: number) {
