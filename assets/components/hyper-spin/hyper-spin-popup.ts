@@ -24,17 +24,12 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.roundsList)
     initContentRounds(roundsList: number[]) {
-
         this.nodeContent.destroyAllChildren();
 
         roundsList.forEach((round, index) => {
-
             const node = instantiate(this.prfNoOfRound);
-
             const roundNumber = node.getComponent(HyperSpinRoundNumber);
-
             roundNumber?.setValue(round);
-
             this.nodeContent.addChild(node);
         });
 
@@ -42,13 +37,9 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.selectedRoundOnPopup)
     renderSelectedRounds(noOfRounds: number) {
-
         this.nodeContent.children.forEach((child, index) => {
-
             const roundNumber = child.getComponent(HyperSpinRoundNumber);
-
             const selectedBg = roundNumber.value === noOfRounds;
-
             roundNumber.setSelectedRound(selectedBg);
         });
 
@@ -56,22 +47,17 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     @handle(HyperSpinHandler, (handle) => handle.closeHyperSpinPopup())
     onClickclosePopup() {
-
         this.playSoundClick();
-
     }
 
     @handle(HyperSpinHandler, (handle) => handle.confirmHyperSpinRoundsAndStart())
     onClickStartButton() {
-
         this.playSoundClick();
-
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         const audioId = gc.Audios.AudioIds.CLICK;
-
         return audioId;
     }
 }

@@ -7,7 +7,6 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
-import { FlashSpinStore } from "./flash-spin-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
@@ -17,16 +16,13 @@ const { injectable, inject } = inversify;
 @injectable()
 export class CascadingUIStore {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
-    @inject(FlashSpinStore) protected readonly flashSpinStore: FlashSpinStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     constructor() {
-
         mobx.makeAutoObservable(this);
-
     }
 
     checkToSpinNext = false;
@@ -79,39 +75,30 @@ export class CascadingUIStore {
     triggerDuringFreeSpinBonus = null;
     portraitshowTotalMultiplierView = false;
     get minPeekScatterCount() {
-
         if (!this.configsStore.gameConfigs) {
             return 1000; // default value
         }
-
         const freeSpinOdds = this.configsStore.gameConfigs.odds.freeSpins;
 
         const odds = this.isFreeSpins ? freeSpinOdds.additionalOdds : freeSpinOdds.initialOdds;
-
         const minOdd = odds.filter((odd) => odd.odds > 0).sort((a, b) => a.count - b.count)[0];
-        const result = minOdd.count - 1;
-
-        return result;
+        return minOdd.count - 1;
     }
 
     get isTurboMode() {
-        const result = this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
-        return result;
+        return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
 
     get isShowBigWin() {
-        const result = this.haveBigWin || !this.isBigWinCompleted;
-        return result;
+        return this.haveBigWin || !this.isBigWinCompleted;
     }
 
     get isShowHighlightScatters() {
-        const result = this.isBigWinCompleted && this.haveFreeSpin;
-        return result;
+        return this.isBigWinCompleted && this.haveFreeSpin;
     }
 
     get isShowFreeSpinEffect() {
-        const result = this.isHighlightScattersCompleted && this.haveFreeSpin;
-        return result;
+        return this.isHighlightScattersCompleted && this.haveFreeSpin;
     }
 
     get cascadingState() {
@@ -123,8 +110,7 @@ export class CascadingUIStore {
     }
 
     get isSymbolPreviewVisible() {
-        const result = this.dialogOpenEvent?.name === DialogName.PREVIEW_ODDS;
-        return result;
+        return this.dialogOpenEvent?.name === DialogName.PREVIEW_ODDS;
     }
 
     get bottomMessageState() {
@@ -136,46 +122,30 @@ export class CascadingUIStore {
     }
 
     get isHideTopMessage() {
-        const result = this.tumblesStore.tumbles.length > 1 || this.totalMultiplier > 0;
-        return result;
+        return this.tumblesStore.tumbles.length > 1 || this.totalMultiplier > 0;
     }
 
     get isFreeSpins() {
-        const result = this.freeSpinsTotal > 0;
-        return result;
+        return this.freeSpinsTotal > 0;
     }
 
     get userBalance() {
-
         if (this.isTrialMode) {
-            const trialBalance = this.configsStore.trialUser?.balance;
-
-            // Provide a default trial balance if trial user balance is not available or is 0
-            // This ensures stop-on-loss slider works in trial mode
-            const defaultTrialBalance = 100000; // 100k default for trial mode
-            const finalBalance = trialBalance || defaultTrialBalance;
-
-            return finalBalance;
+            return this.configsStore.trialUser?.balance;
         }
-
-        const mainBalance = this.mainPlayerStore.balance;
-
-        return mainBalance;
+        
+        return this.mainPlayerStore.balance;
     }
 
     get disabledTurboMode() {
-
         if (this.holdActionStore.isHolding) {
             return true;
         }
-
-        const result = this.isTrialMode;
-        return result;
+        return this.isTrialMode;
     }
 
     get haveEventGame() {
-        const result = this.haveBigWin || this.isShowFreeSpinEffect;
-        return result;
+        return this.haveBigWin || this.isShowFreeSpinEffect;
     }
 
     get spinButtonState() {
@@ -191,57 +161,63 @@ export class CascadingUIStore {
     }
 
     get disabledSpinButton() {
-        const result = (
+        return (
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.cascadingState === CascadingSlotState.NOT_READY_BET ||
             this.holdActionStore.triggerAction
         );
-
-        return result;
     }
 
     get disabledChangeTrialMode() {
-        const result = (
+        return (
             this.cascadingState === CascadingSlotState.SPINNING ||
             (this.isFreeSpins && !this.isTrialMode) ||
             this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
-
-        return result;
     }
 
     get disabledAutoPlay() {
-
         if (this.autoPlayStore.isAutoplay) {
             return false;
         }
-
-        const result = (
+        return (
             this.holdActionStore.isHolding ||
             this.isFreeSpins ||
             this.isTrialMode ||
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
-
-        return result;
     }
 
-    get disabledFlashSpin() {
+    get disabledOpenInputBet() {
+        return this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionUIStore.isFSBPromotionInProgress;
+    }
 
-        if (this.flashSpinStore.isFlashSpin) {
-            return false;
-        }
+    get isUsedFSBPromotionBonus() {
+        return this.freeSpinsTotal <= 0 && this.checkToSpinNext;
+    }
 
-        const result = (
-            this.holdActionStore.isHolding ||
+    fadeBGM = { value: true };
+
+    get disableBuyFreespins() {
+        return (
             this.isFreeSpins ||
-            this.isTrialMode ||
             this.cascadingState === CascadingSlotState.SPINNING ||
+            this.autoPlayStore.isAutoplay ||
             this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
+    }
 
-        return result;
+    get showFreeSpinsSectionsPortrait() {
+        return this.bottomMessageState === SlotNotification.FREESPINS;
+    }
+
+    get isShowAutoSpinRoundPortrait() {
+        return this.bottomMessageState === SlotNotification.AUTO_SPIN;
+    }
+
+    get isAutoSpinOrFreeSpin() {
+        return this.isFreeSpins || this.autoPlayStore.isAutoplay;
     }
 
     get disabledHyperSpin() {
@@ -252,57 +228,12 @@ export class CascadingUIStore {
         }
 
         // Otherwise, disable button when conditions are met (prevents starting new hyper-spin)
-        const result = (
+        return (
             this.holdActionStore.isHolding ||
             this.isFreeSpins ||
             this.cascadingState === CascadingSlotState.SPINNING ||
             this.fsbPromotionUIStore.isFSBPromotionInProgress
         );
-
-        return result;
-    }
-
-    get disabledOpenInputBet() {
-        const result = this.isFreeSpins || this.cascadingState === CascadingSlotState.SPINNING || this.fsbPromotionUIStore.isFSBPromotionInProgress;
-
-        return result;
-    }
-
-    get isUsedFSBPromotionBonus() {
-        const result = this.freeSpinsTotal <= 0 && this.checkToSpinNext;
-
-        return result;
-    }
-
-    fadeBGM = { value: true };
-
-    get disableBuyFreespins() {
-        const result = (
-            this.isFreeSpins ||
-            this.cascadingState === CascadingSlotState.SPINNING ||
-            this.autoPlayStore.isAutoplay ||
-            this.fsbPromotionUIStore.isFSBPromotionInProgress
-        );
-
-        return result;
-    }
-
-    get showFreeSpinsSectionsPortrait() {
-        const result = this.bottomMessageState === SlotNotification.FREESPINS;
-
-        return result;
-    }
-
-    get isShowAutoSpinRoundPortrait() {
-        const result = this.bottomMessageState === SlotNotification.AUTO_SPIN;
-
-        return result;
-    }
-
-    get isAutoSpinOrFreeSpin() {
-        const result = this.isFreeSpins || this.autoPlayStore.isAutoplay;
-
-        return result;
     }
 
     dialogOpenEvent: { name: string } = null;

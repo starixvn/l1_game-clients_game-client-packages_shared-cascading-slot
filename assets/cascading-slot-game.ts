@@ -7,7 +7,6 @@ import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
 import { cascadingSlotLogger } from "./cascading-slot-logger";
-
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import {
@@ -31,7 +30,6 @@ import { HyperSpinHandler } from "./handlers/hyper-spin-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { HyperSpinStore } from "./stores/hyper-spin-store";
-
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
@@ -73,56 +71,42 @@ export class CascadingSlotGame extends GameComponentBase {
     private stopOnFeature = false;
 
     onLoad() {
-
         this.initConfig();
         this.registerEventShowHideGame();
         this.initUserSettings();
         this.node.addComponent(GameVisibility);
         this.focusGameCanvas();
         this.addComponent(FSBPromotionUIManager);
-
     }
 
     initConfig() {
-
         resourcesCache.colorJson = this.colorInfo.json as ColorJson;
         resourcesCache.gameFeatures = this.gameFeatureInfo.json as GameFeatureJson;
-
     }
 
     start() {
-
         this.loadSlotSymbols();
         this.board.colorInfo = this.colorInfo;
         this.board.initBoardFullItems();
-
     }
 
     protected registerEventShowHideGame() {
-
         game.on(Game.EVENT_HIDE, this.onHideGame, this);
         game.on(Game.EVENT_SHOW, this.onShowGame, this);
-
     }
 
     protected clearEventShowHideGame() {
-
         game.off(Game.EVENT_HIDE, this.onHideGame, this);
         game.off(Game.EVENT_SHOW, this.onShowGame, this);
-
     }
 
     protected handleStaticNodeAndSetEmptyLabels() {
         const lblList: Label[] = [this?.lblRoundId, this?.lblMinBet, this?.lblMaxBet];
-
         if (lblList.length > 0) {
-            lblList?.forEach((label, index) => {
-
+            lblList?.forEach((label) => {
                 if (label) {
                     const component = label?.addComponent(StaticNode);
-                    if (component) {
-                        component.groupId = StaticGroupId.TextContainer;
-                    }
+                    component && (component.groupId = StaticGroupId.TextContainer);
                 }
             });
             ComponentUtils.setEmptyLabels(lblList);
@@ -131,8 +115,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
-    connectToService() {
-    }
+    connectToService() {}
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
@@ -140,16 +123,13 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @render(LogStore, (store) => store.message)
-    logInfo(message: string) {
-    }
+    logInfo(message: string) {}
 
     @handle(gc.UserSettings.UserSettingHandlers, (handle) => handle.loadStorages())
-    initUserSettings() {
-    }
+    initUserSettings() {}
 
     @handle(gc.PlayerSelections.PlayerSelectionHandlers.InitHandlers)
-    initPlayerSelections() {
-    }
+    initPlayerSelections() {}
 
     @handle(HideGame.HideGameHandler)
     onHideGame() {
@@ -171,23 +151,16 @@ export class CascadingSlotGame extends GameComponentBase {
         this.handleTrialModeWithPromo(isTrialMode);
         if (!isTrialMode) {
             this.inGame();
-        } else {
         }
     }
 
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
     inGame() {
-
-        // Check for hyper-spin batch recovery after game initialization
-        setTimeout(() => {
-            this.checkHyperSpinBatchRecovery();
-        }, 1000); // Delay to ensure all stores are initialized
     }
 
     @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
     handleTrialModeWithPromo(isTrialMode: boolean) {
-        const result = isTrialMode;
-        return result;
+        return isTrialMode;
     }
 
     @render(CascadingUIStore, (store) => store.isFreeSpins)
@@ -198,30 +171,18 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(FSBPromotionUIHandler, (handler, signal: FreeSpinSignal) => handler.handleFreeSpin(signal))
     public notifyFreeSpin(signal: FreeSpinSignal) {
-        const result = signal;
-        return result;
+        return signal;
     }
 
     loadSlotSymbols() {
-
         const cache = resourcesCache.slotSymbols || {};
-        let loadedCount = 0;
-        let skippedCount = 0;
-        let missingCount = 0;
 
         for (let index = 0; index < CascadingSlotConfig?.symbolCount; index++) {
             if (cache[index]) {
-                skippedCount++;
                 continue;
             }
             const path = `symbol-spines/symbol-${index}`;
-            const asset = bundleManager.cachedAssets[path];
-            if (asset) {
-                cache[index] = asset;
-                loadedCount++;
-            } else {
-                missingCount++;
-            }
+            cache[index] = bundleManager.cachedAssets[path];
         }
 
         resourcesCache.slotSymbols = cache;
@@ -333,46 +294,37 @@ export class CascadingSlotGame extends GameComponentBase {
 
         // Skip multiplier animations during hyper-spin for faster execution
         if (!isInHyperSpin) {
-
             winMultiplier && this.handleTriggerWinMultiplier();
             await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
-        } else {
         }
 
         if (win > 0) {
-
             this.getBalance();
             this.handleChangeUserBalance(true);
             if (winTumbles && !isInHyperSpin) {
                 await this.tumbleWinView.setTotalWinValue(actualBetwin);
             }
             this.handleTotalWin({ win: win, isActualWin: true });
-        } else {
         }
 
         // Skip UI updates during hyper-spin for maximum speed
         if (!isInHyperSpin) {
-
             this.updateTotalWinPromo({ win, totalFreeSpins });
             this.showTotalMultiplierView(totalMultiplier, isFreeSpin, winMultiplier);
             reachMaxWin && this.setReachMaxWin(true);
             this.setTotalMultiplierValue(totalMultiplier);
-        } else {
         }
 
         // Skip special effects during hyper-spin for maximum speed
         const isHaveBigWin = bigWin || megaWin || superWin;
 
         if (!isInHyperSpin) {
-
             this.handleHaveBigWin(isHaveBigWin);
             this.updateBigWinAmount(win);
             this.handleHaveFreeSpin(freeSpins > 0);
-        } else {
         }
 
         // Always update free spins data
-
         this.setFreeSpinsByRound(freeSpins);
         this.setFreeSpinsTotal(totalFreeSpins);
 
@@ -446,14 +398,12 @@ export class CascadingSlotGame extends GameComponentBase {
                 this.totalMultiplierView.total.node
             );
             const showDuration = Date.now() - showStartTime;
-        } else {
         }
     }
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
     handleFreeSpinEffectCompleted(completed: boolean) {
-        const result = completed;
-        return result;
+        return completed;
     }
 
     @render(CascadingUIStore, (store) => store.isHyperSpinActive)
@@ -479,7 +429,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
             if (delayForNextSpin > 0) {
                 await AnimationUtils.delayTime(delayForNextSpin);
-            } else {
             }
 
             const afterDelayTime = Date.now();
@@ -497,7 +446,6 @@ export class CascadingSlotGame extends GameComponentBase {
             const hyperSpinCheckStart = Date.now();
 
             this.checkHyperSpinNextRound();
-        } else {
         }
 
         const checkNextRoundDuration = Date.now() - nextRoundCheckStart;
@@ -513,14 +461,12 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
-
         if (roundId < 1) {
             this.lblRoundId && (this.lblRoundId.string = "");
             return;
         }
 
-        const roundIdString = `#${roundId}`;
-        this.lblRoundId && (this.lblRoundId.string = roundIdString);
+        this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
@@ -529,14 +475,12 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
     setFreeSpinsTotal(freespins: number) {
-        const result = freespins;
-        return result;
+        return freespins;
     }
 
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsByRound(freespins))
     setFreeSpinsByRound(freespins: number) {
-        const result = freespins;
-        return result;
+        return freespins;
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
@@ -552,13 +496,11 @@ export class CascadingSlotGame extends GameComponentBase {
     handleUpdateBalance(isUpdateBalance: boolean) {
         if (isUpdateBalance) {
             this.handleChangeUserBalance(true);
-        } else {
-        }
+        } 
     }
 
     @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))
     setBalance(data: { balance: number; changedBalance: boolean }) {
-
         if (!data || !data.changedBalance) {
             return;
         }
@@ -568,8 +510,7 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
 
-        const formattedBalance = FormatUtils.truncateFixedDecimals(value, 2).toString();
-        this.lblBalance && (this.lblBalance.string = formattedBalance);
+        this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
     }
 
     @handle(gc.Auth.AuthHandlers.GetBalance)
@@ -583,50 +524,42 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handle, multiplier: number) => handle.handleTotalMultiplier(multiplier))
     setTotalMultiplierValue(totalMultiplier: number) {
-        const result = totalMultiplier;
-        return result;
+        return totalMultiplier;
     }
 
     @handle(CascadingUIHandler, (handle, bigWin: any) => handle.handleHaveBigWin(bigWin))
     handleHaveBigWin(bigwin: boolean) {
-        const result = bigwin;
-        return result;
+        return bigwin;
     }
 
     @handle(CascadingUIHandler, (handle, isShow: any) => handle.setReachMaxWin(isShow))
     setReachMaxWin(isShow: boolean) {
-        const result = isShow;
-        return result;
+        return isShow;
     }
 
     @handle(CascadingUIHandler, (handle, win: number) => handle.handleBigWinAmount(win))
     updateBigWinAmount(win: number) {
-        const result = win;
-        return result;
+        return win;
     }
 
     @handle(CascadingUIHandler, (handle, freespin: any) => handle.handleHaveFreeSpin(freespin))
     handleHaveFreeSpin(freespin: boolean) {
-        const result = freespin;
-        return result;
+        return freespin;
     }
 
     @handle(CascadingUIHandler, (handler, changed: boolean) => handler.handleChangeUserBalance(changed))
     handleChangeUserBalance(changed: boolean) {
-        const result = changed;
-        return result;
+        return changed;
     }
 
     @handle(CascadingUIHandler, (handle, params: any) => handle.handleTotalWin(params))
     handleTotalWin(params: { win: number; isActualWin: boolean }) {
-        const result = params;
-        return result;
+        return params;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
-        const result = id;
-        return result;
+        return id;
     }
 
     private focusGameCanvas() {
@@ -636,15 +569,12 @@ export class CascadingSlotGame extends GameComponentBase {
             setTimeout(() => {
                 game.canvas.focus();
             }, 100);
-        } else {
         }
     }
 
     @render(GameVisibilityStore, (store) => store.isVisible)
     renderGameVisibility(isVisible: boolean) {
-
         if (!isVisible) {
-
             // Check if hyper-spin batch should be interrupted when game is hidden
             if (this.isHyperSpinActive) {
 
@@ -653,7 +583,6 @@ export class CascadingSlotGame extends GameComponentBase {
             }
 
             this.handleOnGameHide();
-        } else {
         }
     }
 
@@ -665,7 +594,6 @@ export class CascadingSlotGame extends GameComponentBase {
      * Handle hyper-spin interruption when game is hidden
      */
     private handleHyperSpinInterruptionDueToGameHide() {
-
         // The interruption will be detected by the HyperSpinHandler.checkHyperSpinNextRound()
         // when it next runs and finds the game is hidden
     }
@@ -680,8 +608,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
     updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {
-        const result = payload;
-        return result;
+        return payload;
     }
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.DUMMY_DIALOG))

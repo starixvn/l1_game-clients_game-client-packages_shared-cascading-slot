@@ -22,7 +22,6 @@ export class HyperSpinPopupContainer extends NodeContainer {
         });
 
         if (!isOpenHyperSpinPopup) {
-
             const nodes = this.node.children;
 
             if (nodes.length > 0) {
@@ -37,7 +36,6 @@ export class HyperSpinPopupContainer extends NodeContainer {
         }
 
         this.createNode();
-
     }
 }
 

@@ -3,9 +3,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import inversify from "inversify";
 import mobx from "mobx";
 import gc from "@sg/game-client-base";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { calculateTotalBet } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingUIStore } from "./cascading-ui-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
@@ -13,153 +11,43 @@ import { BetControlStore } from "./bet-control-store";
 const { injectable, inject } = inversify;
 const { FormatUtils } = gc;
 
-/**
- * Hyper-spin status types
- */
+// Hyper-spin status types
 export type HyperSpinStatus = "Ready" | "Playing" | "Paused" | "Interrupted";
 
-/**
- * Win tag types for multipliers
- */
+// Win tag types for multipliers
 export type WinTag = "Bronze" | "Silver" | "Gold" | "Amethyst" | null;
 
-/**
- * Single spin data within a hyper-spin batch
- */
+// Single spin data within a hyper-spin batch
 export interface HyperSpinSingleSpinData {
-    /**
-     * Spin ID - numerical order (1,2,3,4...) or free spin order with icon
-     * Free spins are marked with icon and not counted in hyper-spin round count
-     */
-    spinId: string | number;
-
-    /**
-     * Whether this is a free spin round
-     */
-    isFreeSpin: boolean;
-
-    /**
-     * Gross win amount of this round
-     * Number format: number with thousand separator and 2 decimals, ex: 1,234,567.89
-     */
-    spinWinAmount: string;
-
-    /**
-     * Raw win amount (for calculations)
-     */
-    spinWinAmountRaw: number;
-
-    /**
-     * Win multiplier of this round (Gross Win / Stake)
-     * Number format: number with thousand separators and up to 2 decimals + "x"
-     * Ex: 0x, 1.5x, 30.15x, 1,234,567.89x
-     */
-    spinWinMultiplier: string;
-
-    /**
-     * Raw multiplier value (for calculations)
-     */
-    spinWinMultiplierRaw: number;
-
-    /**
-     * Win tag for special wins (Big Win, Mega Win, Super Win, Max Win)
-     * Bronze: Big Win
-     * Silver: Super Win
-     * Gold: Mega Win
-     * Amethyst: Max Win, Jackpot win
-     */
-    winTag: WinTag;
-
-    /**
-     * Ending balance of this round
-     * Number format: number with thousand separator and up to 2 decimals, ex: 1,234,567.89
-     */
-    spinBalance: string;
-
-    /**
-     * Raw balance value (for calculations)
-     */
-    spinBalanceRaw: number;
-
-    /**
-     * Stake amount for this spin
-     */
-    stake: number;
+    spinId: string | number; // Spin ID (1,2,3...) or free spin marker
+    isFreeSpin: boolean; // Whether this is a free spin
+    spinWinAmount: string; // Formatted win amount (e.g., "1,234.56")
+    spinWinAmountRaw: number; // Raw win amount for calculations
+    spinWinMultiplier: string; // Formatted multiplier (e.g., "1.5x")
+    spinWinMultiplierRaw: number; // Raw multiplier for calculations
+    winTag: WinTag; // Win tag for special wins
+    spinBalance: string; // Formatted ending balance
+    spinBalanceRaw: number; // Raw ending balance for calculations
+    stake: number; // Stake amount for this spin
 }
 
-/**
- * Hyper-spin batch summary data
- */
+// Hyper-spin batch summary data
 export interface HyperSpinBatchSummary {
-    /**
-     * Total Bet amount placed in HyperSpin
-     * Default value: 0
-     * Number format: number with thousand separator and 2 decimals, ex: 1,234,567.89
-     */
-    totalBet: string;
-
-    /**
-     * Raw total bet value (for calculations)
-     */
-    totalBetRaw: number;
-
-    /**
-     * Hyper-spin status
-     * Ready: used when opening the pop up and after finishing all HyperSpin
-     * Playing: used when HyperSpin is running
-     * Paused: used when HyperSpin is pausing (clicking Pause button or changing Bet size while HyperSpin is running)
-     */
-    hyperSpinStatus: HyperSpinStatus;
-
-    /**
-     * Total Win amount using HyperSpin
-     * Default value: 0
-     */
-    totalWin: string;
-
-    /**
-     * Raw total win value (for calculations)
-     */
-    totalWinRaw: number;
-
-    /**
-     * Starting balance value when starting HyperSpin
-     * This field will display the starting balance when starting HyperSpin.
-     * Number format: number with thousand separator and 2 decimals, ex: 1,234,567.89
-     */
-    startingBalance: string;
-
-    /**
-     * Raw starting balance value (for calculations)
-     */
-    startingBalanceRaw: number;
-
-    /**
-     * End balance value after finishing all HyperSpins
-     * Ending balance will be shown after the last spin when finishing all HyperSpins.
-     * Number format: number with thousand separator and 2 decimals, ex: 1,234,567.89
-     */
-    endBalance: string;
-
-    /**
-     * Raw end balance value (for calculations)
-     */
-    endBalanceRaw: number;
+    totalBet: string; // Formatted total bet amount
+    totalBetRaw: number; // Raw total bet for calculations
+    hyperSpinStatus: HyperSpinStatus; // Current batch status
+    totalWin: string; // Formatted total win amount
+    totalWinRaw: number; // Raw total win for calculations
+    startingBalance: string; // Formatted starting balance
+    startingBalanceRaw: number; // Raw starting balance for calculations
+    endBalance: string; // Formatted ending balance
+    endBalanceRaw: number; // Raw ending balance for calculations
 }
 
-/**
- * Complete hyper-spin batch data
- */
+// Complete hyper-spin batch data
 export interface HyperSpinBatchData {
-    /**
-     * Batch summary information
-     */
-    summary: HyperSpinBatchSummary;
-
-    /**
-     * Array of single spin data for each spin in the batch
-     */
-    spins: HyperSpinSingleSpinData[];
+    summary: HyperSpinBatchSummary; // Batch summary info
+    spins: HyperSpinSingleSpinData[]; // Array of individual spin data
 }
 
 @injectable()
@@ -174,177 +62,115 @@ export class HyperSpinStore {
 
         mobx.makeAutoObservable(this);
 
-        mobx.reaction(
-            () => this.currentCoinIndex,
-            () => {
-                this.onChangeCoinAndBetLevel();
-            }
-        );
-        mobx.reaction(
-            () => this.currentBetLevelIndex,
-            () => {
-                this.onChangeCoinAndBetLevel();
-            }
-        );
+
+        // Clamp stop conditions when total bet changes
         mobx.reaction(
             () => this.betControlStore?.totalBet,
             () => {
-                // Only clamp if we have valid config data AND the calculated max is valid (> 0)
-                // And ensure stores are initialized
-                if (!this.betControlStore || !this.cascadingUIStore || !this.configStore) {
-                    return;
-                }
+                if (!this.betControlStore || !this.cascadingUIStore || !this.configStore) return;
 
                 const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
 
-                if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0) {
-                    // Clamp stopOnProfit when totalBet changes to ensure it doesn't exceed new max
-                    if (this.stopOnProfit > currentMaxStopOnProfit) {
-                        this.setStopOnProfit(currentMaxStopOnProfit);
-                    }
+                // Clamp stop on profit/loss to new max values
+                if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0 && this.stopOnProfit > currentMaxStopOnProfit) {
+                    this.setStopOnProfit(currentMaxStopOnProfit);
                 }
-
-                if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0) {
-                    // Clamp stopOnLoss when totalBet changes to ensure it doesn't exceed new max
-                    if (this.stopOnLoss > currentMaxStopOnLoss) {
-                        this.setStopOnLoss(currentMaxStopOnLoss);
-                    }
+                if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0 && this.stopOnLoss > currentMaxStopOnLoss) {
+                    this.setStopOnLoss(currentMaxStopOnLoss);
                 }
             }
         );
+        // Clamp stop on loss when user balance changes
         mobx.reaction(
             () => this.cascadingUIStore?.userBalance,
             () => {
-                // Clamp stopOnLoss when userBalance changes to ensure it doesn't exceed new max
-                // Only clamp if we have valid user balance data AND the calculated max is valid (> 0)
-                // And ensure stores are initialized
-                if (!this.cascadingUIStore) {
-                    return;
-                }
+                if (!this.cascadingUIStore) return;
 
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
 
                 if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0) {
-                    // Always clamp if value exceeds new max
+                    // Clamp if exceeds new max
                     if (this.stopOnLoss > currentMaxStopOnLoss) {
                         this.setStopOnLoss(currentMaxStopOnLoss);
                     }
-                    // If max decreased and stopOnLoss was at or near the old max, adjust to new max
+                    // Adjust if max decreased and stopOnLoss was at old max
                     else if (this._previousMaxStopOnLoss > 0 && currentMaxStopOnLoss < this._previousMaxStopOnLoss) {
-                        const threshold = this._previousMaxStopOnLoss * 0.99; // 99% threshold to handle floating point
+                        const threshold = this._previousMaxStopOnLoss * 0.99;
                         if (this.stopOnLoss >= threshold) {
                             this.setStopOnLoss(currentMaxStopOnLoss);
                         }
                     }
-                }
-
-                // Update previous max for next reaction
-                if (this.cascadingUIStore.userBalance > 0 && currentMaxStopOnLoss > 0) {
                     this._previousMaxStopOnLoss = currentMaxStopOnLoss;
                 }
             }
         );
+        // Clamp stop on profit when total bet changes
         mobx.reaction(
             () => this.betControlStore?.totalBet,
             () => {
-                // And ensure stores are initialized
-                if (!this.betControlStore || !this.configStore) {
-                    return;
-                }
-                // Clamp stopOnProfit when totalBet changes to ensure it doesn't exceed new max
-                // Only clamp if we have valid config data (maxWinPerRound > 0) AND the calculated max is valid (> 0)
+                if (!this.betControlStore || !this.configStore) return;
+
                 const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
 
                 if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0) {
-                    // Always clamp if value exceeds new max
+                    // Clamp if exceeds new max
                     if (this.stopOnProfit > currentMaxStopOnProfit) {
                         this.setStopOnProfit(currentMaxStopOnProfit);
                     }
-                    // If max decreased and stopOnProfit was at or near the old max, adjust to new max
+                    // Adjust if max decreased and stopOnProfit was at old max
                     else if (this._previousMaxStopOnProfit > 0 && currentMaxStopOnProfit < this._previousMaxStopOnProfit) {
-                        const threshold = this._previousMaxStopOnProfit * 0.99; // 99% threshold to handle floating point
+                        const threshold = this._previousMaxStopOnProfit * 0.99;
                         if (this.stopOnProfit >= threshold) {
                             this.setStopOnProfit(currentMaxStopOnProfit);
                         }
                     }
-                }
-
-                // Update previous max for next reaction
-                if (maxWinPerRound > 0 && currentMaxStopOnProfit > 0) {
                     this._previousMaxStopOnProfit = currentMaxStopOnProfit;
                 }
             }
         );
 
-        // Initialize previous max values after reactions are set up
-        // Use a small delay to ensure store values are initialized
+        // Initialize previous max values after stores are ready
         setTimeout(() => {
-            // Ensure stores are initialized before accessing them
-            if (!this.configStore || !this.cascadingUIStore) {
-                return;
-            }
+            if (!this.configStore || !this.cascadingUIStore) return;
 
             const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
             if (maxWinPerRound > 0) {
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
-                if (currentMaxStopOnProfit > 0) {
-                    this._previousMaxStopOnProfit = currentMaxStopOnProfit;
-                }
+                if (currentMaxStopOnProfit > 0) this._previousMaxStopOnProfit = currentMaxStopOnProfit;
             }
             if (this.cascadingUIStore.userBalance > 0) {
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
-                if (currentMaxStopOnLoss > 0) {
-                    this._previousMaxStopOnLoss = currentMaxStopOnLoss;
-                }
+                if (currentMaxStopOnLoss > 0) this._previousMaxStopOnLoss = currentMaxStopOnLoss;
             }
         }, 0);
     }
 
-    isOpenBetAmountPopup = false;
-
-    // HyperSpin bet control popup properties (separate from regular bet control)
+    // UI state
     isOpenHyperSpinBetControlPopup = false;
-
-    // HyperSpin rounds properties
-    public roundsList = [10, 50, 100, 500, 1000];
-    public isOpenHyperSpinPopup = false;
-    public selectedRoundOnPopup = this.roundsList[2]; // Default to 100 (index 2)
-    public roundsHyperSpin = 0;
-
-    public isHyperSpin = false;
-
-    public triggerBet = null;
-
-    public isClickHyperSpinToggle = false;
+    roundsList = [10, 50, 100, 500, 1000];
+    isOpenHyperSpinPopup = false;
+    selectedRoundOnPopup = this.roundsList[2]; // Default to 100
+    roundsHyperSpin = 0;
+    isHyperSpin = false;
 
     get isTurnOnHyperSpin() {
         return this.isOpenHyperSpinPopup || this.isHyperSpin;
     }
 
-    totalBetUnique = [];
-    betLevels: number[] = [];
-    coinValues: number[] = [];
-    betMultiplier = 0;
-    defaultCoinValue = 0;
-
+    // Stop conditions
     stopOnProfit = 0;
     stopOnLoss = 0;
-    public stopOnFeature = false;
-
-    resumeLastBet = false;
-
+    stopOnFeature = false;
     needClearLastSetting = false;
 
-    _lastSetting = null;
-
-    // Track previous max values to detect when values at max should be adjusted
+    // Previous max values for clamping logic
     private _previousMaxStopOnProfit = 0;
     private _previousMaxStopOnLoss = 0;
 
-    // Track hyper-spin session profit/loss
+    // Hyper-spin session tracking
     private _hyperSpinInitialBalance = 0;
     private _hyperSpinCurrentProfit = 0;
     private _hyperSpinCurrentLoss = 0;
@@ -353,59 +179,17 @@ export class HyperSpinStore {
         return this._hyperSpinInitialBalance;
     }
 
-    get lastSetting() {
-        return this._lastSetting;
-    }
-
-    set lastSetting(value: { betLevel: number; coinValue: number }) {
-        this._lastSetting = value;
-    }
-
-    get betLevel() {
-        return this.betLevels[this.currentBetLevelIndex] ?? 0;
-    }
-
-    get coinValue() {
-        return this.coinValues[this.currentCoinIndex] ?? 0;
-    }
 
     get totalBet() {
         return this.betControlStore?.totalBet ?? 0;
     }
 
-    currentBetLevelIndex = 0;
-    currentCoinIndex = 0;
     currentTotalBetIndex = 0;
 
     get disabledChangeBet() {
         return this.cascadingUIStore?.isFreeSpins || this.cascadingUIStore?.disabledOpenInputBet || false;
     }
 
-    get interactableBetLevel() {
-        if (this.disabledChangeBet) {
-            return {
-                increase: false,
-                decrease: false,
-            };
-        }
-        return {
-            increase: this.currentBetLevelIndex < this.betLevels.length - 1,
-            decrease: this.currentBetLevelIndex > 0,
-        };
-    }
-
-    get interactableCoinValue() {
-        if (this.disabledChangeBet) {
-            return {
-                increase: false,
-                decrease: false,
-            };
-        }
-        return {
-            increase: this.currentCoinIndex < this.coinValues.length - 1,
-            decrease: this.currentCoinIndex > 0,
-        };
-    }
 
     get interactableTotalBet() {
         if (this.disabledChangeBet) {
@@ -432,73 +216,36 @@ export class HyperSpinStore {
         this.currentTotalBetIndex = this.betControlStore.totalBetUnique.findIndex((detail) => +Object.keys(detail)[0] === totalBet);
     }
 
-    onChangeCoinAndBetLevel() {
-        const totalBet = calculateTotalBet(this.betLevel, this.coinValue, this.betMultiplier);
-        this.syncCurrentTotalBetIndex(totalBet);
-    }
 
     get isCollapseMenuInGame() {
         return (
             (this.cascadingUIStore?.cascadingState === CascadingSlotState.SPINNING) ||
             (this.autoPlayStore?.isOpenAutoplayPopup) ||
-            this.isOpenBetAmountPopup ||
             this.isOpenHyperSpinPopup
         );
     }
 
-    get effectiveCoinValue() {
-        return this.fsbPromotionUIStore?.isFSBPromotionInProgress ? this.fsbPromotionStore?.promotion?.coinValue : this.coinValue;
-    }
 
-    get effectiveBetLevel() {
-        return this.fsbPromotionUIStore?.isFSBPromotionInProgress ? this.fsbPromotionStore?.promotion?.betLevel : this.betLevel;
-    }
-
-    get effectiveTotalBet() {
-        return this.fsbPromotionUIStore?.isFSBPromotionInProgress
-            ? calculateTotalBet(this.fsbPromotionStore?.promotion?.betLevel, this.fsbPromotionStore?.promotion?.coinValue, this.betMultiplier)
-            : (this.betControlStore?.totalBet ?? 0);
-    }
-
-    /**
-     * Get the maximum stop on profit value (Max of Total Bet or Total Bet Per Round * Max Win)
-     * Default to 0 if maxWinPerRound is not available
-     */
     get maxStopOnProfit() {
         const maxWinPerRound = this.configStore?.gameConfigs?.maxWinPerRound ?? 0;
         const currentTotalBet = this.betControlStore?.totalBet ?? 0;
-        // Use totalBet for stop on profit calculation
         return currentTotalBet * maxWinPerRound;
     }
 
-    /**
-     * Get the minimum stop on profit value (always 0)
-     */
     get minStopOnProfit() {
         return 0;
     }
 
-    /**
-     * Get the step size for stop on profit (1 x Total Bet)
-     */
     get stopOnProfitStep() {
         return this.betControlStore?.totalBet ?? 0;
     }
 
-    /**
-     * Change stop on profit by step (increase or decrease)
-     * @param increase - true to increase, false to decrease
-     */
     changeStopOnProfit(increase: boolean) {
-        const step = this.stopOnProfitStep; // Step is equal to totalBet
+        const step = this.stopOnProfitStep;
         const newValue = increase ? this.stopOnProfit + step : this.stopOnProfit - step;
         this.setStopOnProfit(newValue);
     }
 
-    /**
-     * Set stop on profit value with bounds checking
-     * @param value - The new stop on profit value
-     */
     setStopOnProfit(value: number) {
 
         // Validate value to prevent NaN
@@ -517,43 +264,24 @@ export class HyperSpinStore {
 
     }
 
-    /**
-     * Get the maximum stop on loss value (Current Player's Balance)
-     * Default to 0 if userBalance is not available
-     */
     get maxStopOnLoss() {
-        const userBalance = this.cascadingUIStore?.userBalance ?? 0;
-        return userBalance;
+        return this.cascadingUIStore?.userBalance ?? 0;
     }
 
-    /**
-     * Get the minimum stop on loss value (always 0)
-     */
     get minStopOnLoss() {
         return 0;
     }
 
-    /**
-     * Get the step size for stop on loss (1 x Total Bet)
-     */
     get stopOnLossStep() {
         return this.betControlStore?.totalBet ?? 0;
     }
 
-    /**
-     * Change stop on loss by step (increase or decrease)
-     * @param increase - true to increase, false to decrease
-     */
     changeStopOnLoss(increase: boolean) {
-        const step = this.stopOnLossStep; // Step is equal to totalBet (1x total bet)
+        const step = this.stopOnLossStep;
         const newValue = increase ? this.stopOnLoss + step : this.stopOnLoss - step;
         this.setStopOnLoss(newValue);
     }
 
-    /**
-     * Set stop on loss value with bounds checking
-     * @param value - The new stop on loss value
-     */
     setStopOnLoss(value: number) {
 
         // Validate value to prevent NaN
@@ -572,60 +300,31 @@ export class HyperSpinStore {
 
     }
 
-    /**
-     * Start tracking profit/loss for hyper-spin session
-     */
     startHyperSpinSessionTracking() {
-
-        if (!this.cascadingUIStore) {
-            return;
-        }
+        if (!this.cascadingUIStore) return;
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
-
     }
 
-    /**
-     * Fallback method to initialize tracking if the main method is not available
-     * This is used when the browser has cached code that doesn't include the startHyperSpinSessionTracking method
-     */
+    // Fallback for cached code compatibility
     initializeHyperSpinTrackingFallback() {
-
-        if (!this.cascadingUIStore) {
-            return;
-        }
+        if (!this.cascadingUIStore) return;
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
-
     }
 
-    /**
-     * Stop tracking profit/loss for hyper-spin session
-     */
     stopHyperSpinSessionTracking() {
-
-        const finalBalance = this.cascadingUIStore?.userBalance ?? 0;
-        const totalSessionChange = finalBalance - this._hyperSpinInitialBalance;
-        const netResult = this._hyperSpinCurrentProfit - this._hyperSpinCurrentLoss;
-
         this._hyperSpinInitialBalance = 0;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
-
     }
 
-    /**
-     * Update profit/loss tracking based on current balance
-     */
     updateHyperSpinProfitLoss() {
-
-        if (this._hyperSpinInitialBalance === 0 || !this.cascadingUIStore) {
-            return; // Not tracking or store not available
-        }
+        if (this._hyperSpinInitialBalance === 0 || !this.cascadingUIStore) return;
 
         const currentBalance = this.cascadingUIStore.userBalance;
         const balanceChange = currentBalance - this._hyperSpinInitialBalance;
@@ -640,90 +339,57 @@ export class HyperSpinStore {
             this._hyperSpinCurrentProfit = 0;
             this._hyperSpinCurrentLoss = 0;
         }
-
     }
 
-    /**
-     * Get current profit during hyper-spin session
-     */
     getCurrentHyperSpinProfit(): number {
         return this._hyperSpinCurrentProfit;
     }
 
-    /**
-     * Get current loss during hyper-spin session
-     */
     getCurrentHyperSpinLoss(): number {
         return this._hyperSpinCurrentLoss;
     }
 
-    /**
-     * Set hyper-spin active state
-     * Updates all related flags: isHyperSpin and cascadingUIStore.isHyperSpinActive
-     * @param active - true to activate hyper-spin, false to deactivate
-     */
     setHyperSpinActive(active: boolean) {
-
         this.isHyperSpin = active;
 
         // Update UI store flag
         if (this.cascadingUIStore) {
             this.cascadingUIStore.isHyperSpinActive = active;
         }
-
     }
 
-    /**
-     * Get hyper-spin active state
-     * Returns true if hyper-spin is currently active
-     */
     get isHyperSpinActive(): boolean {
         return this.isHyperSpin;
     }
 
-    // Hyper-spin batch data tracking
-    private _currentBatchData: HyperSpinBatchData | null = null;
-    private _hyperSpinRoundCounter = 0; // Counter for hyper-spin rounds (excludes free spins)
-    private _freeSpinCounter = 0; // Counter for free spins
 
-    /**
-     * Get current hyper-spin batch data
-     */
+    // Batch data tracking
+    private _currentBatchData: HyperSpinBatchData | null = null;
+    private _hyperSpinRoundCounter = 0; // Hyper-spin rounds (excludes free spins)
+    private _freeSpinCounter = 0; // Free spin counter
+
     get currentBatchData(): HyperSpinBatchData | null {
         return this._currentBatchData;
     }
 
-    /**
-     * Get the length of the spins array (computed property for MobX reactivity)
-     * This ensures observers can track when spins are added
-     */
+    // Computed property for MobX reactivity
     get spinsLength(): number {
         return this._currentBatchData?.spins?.length || 0;
     }
 
-    /**
-     * Initialize a new hyper-spin batch
-     */
     initializeHyperSpinBatch() {
-
-        const initialTotalBet = this.formatNumber(0, 2);
-        const initialTotalWin = this.formatNumber(0, 2);
-
-        // Get starting balance from cascadingUIStore
         const startingBalanceRaw = this.cascadingUIStore?.userBalance ?? 0;
-        const startingBalance = this.formatNumber(startingBalanceRaw, 2);
-        const initialEndBalance = this.formatNumber(0, 2); // End balance will be set when batch completes
 
         this._currentBatchData = {
             summary: {
-                totalBet: initialTotalBet,
+                totalBet: this.formatNumber(0, 2),
                 totalBetRaw: 0,
                 hyperSpinStatus: "Ready",
-                totalWin: initialTotalWin,
+                totalWin: this.formatNumber(0, 2),
                 totalWinRaw: 0,
-                startingBalance: startingBalance,
+                startingBalance: this.formatNumber(startingBalanceRaw, 2),
                 startingBalanceRaw: startingBalanceRaw,
-                endBalance: initialEndBalance,
+                endBalance: this.formatNumber(0, 2),
                 endBalanceRaw: 0
             },
             spins: []
@@ -731,130 +397,59 @@ export class HyperSpinStore {
 
         this._hyperSpinRoundCounter = 0;
         this._freeSpinCounter = 0;
-
     }
 
-    /**
-     * Start hyper-spin batch (set status to Playing)
-     */
     startHyperSpinBatch() {
-
-        if (!this._currentBatchData) {
-            this.initializeHyperSpinBatch();
-        }
-
-        if (this._currentBatchData) {
-            const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
-            this._currentBatchData.summary.hyperSpinStatus = "Playing";
-
-        }
+        if (!this._currentBatchData) this.initializeHyperSpinBatch();
+        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Playing";
     }
 
-    /**
-     * Pause hyper-spin batch (set status to Paused)
-     */
     pauseHyperSpinBatch() {
-
-        if (this._currentBatchData) {
-            const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
-            this._currentBatchData.summary.hyperSpinStatus = "Paused";
-
-        }
+        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Paused";
     }
 
-    /**
-     * Resume hyper-spin batch (set status to Playing)
-     */
     resumeHyperSpinBatch() {
-
-        if (this._currentBatchData) {
-            const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
-            this._currentBatchData.summary.hyperSpinStatus = "Playing";
-
-        }
+        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Playing";
     }
 
-    /**
-     * Complete hyper-spin batch (set status to Ready)
-     */
     completeHyperSpinBatch() {
-
         if (this._currentBatchData) {
-            const previousStatus = this._currentBatchData.summary.hyperSpinStatus;
             this._currentBatchData.summary.hyperSpinStatus = "Ready";
 
-            // Get end balance from cascadingUIStore
             const endBalanceRaw = this.cascadingUIStore?.userBalance ?? 0;
-            const endBalance = this.formatNumber(endBalanceRaw, 2);
-            this._currentBatchData.summary.endBalance = endBalance;
+            this._currentBatchData.summary.endBalance = this.formatNumber(endBalanceRaw, 2);
             this._currentBatchData.summary.endBalanceRaw = endBalanceRaw;
-
         }
     }
 
-    /**
-     * Add a spin to the current batch
-     * @param spinData - The spin data to add
-     */
     addSpinToBatch(spinData: HyperSpinSingleSpinData) {
-
-        if (!this._currentBatchData) {
-            this.initializeHyperSpinBatch();
-        }
+        if (!this._currentBatchData) this.initializeHyperSpinBatch();
 
         if (this._currentBatchData) {
-            const previousTotalBet = this._currentBatchData.summary.totalBet;
-            const previousTotalWin = this._currentBatchData.summary.totalWin;
-
             this._currentBatchData.spins.push(spinData);
 
-            // Update total bet (accumulate stake amounts)
+            // Update totals
             this._currentBatchData.summary.totalBetRaw += spinData.stake;
             this._currentBatchData.summary.totalBet = this.formatNumber(
-                this._currentBatchData.summary.totalBetRaw,
-                2
+                this._currentBatchData.summary.totalBetRaw, 2
             );
 
-            // Update total win (accumulate win amounts)
             this._currentBatchData.summary.totalWinRaw += spinData.spinWinAmountRaw;
             this._currentBatchData.summary.totalWin = this.formatNumber(
-                this._currentBatchData.summary.totalWinRaw,
-                2
+                this._currentBatchData.summary.totalWinRaw, 2
             );
-
         }
     }
 
-    /**
-     * Format number with thousand separator and specified decimal places
-     * @param value - The number to format
-     * @param decimals - Number of decimal places (default: 2)
-     * @returns Formatted string (e.g., "1,234,567.89")
-     */
     private formatNumber(value: number, decimals: number = 2): string {
         return FormatUtils.numberWithCommas(value, decimals, true);
     }
 
-    /**
-     * Format multiplier with "x" suffix
-     * @param multiplier - The multiplier value
-     * @returns Formatted string (e.g., "1.5x", "1,234,567.89x")
-     */
     formatMultiplier(multiplier: number): string {
         const formatted = FormatUtils.numberWithCommas(multiplier, 2, true);
         return `${formatted}x`;
     }
 
-    /**
-     * Determine win tag based on win amount and thresholds
-     * @param winAmount - Gross win amount
-     * @param stake - Stake amount
-     * @param bigWin - Big win flag from settlement
-     * @param megaWin - Mega win flag from settlement
-     * @param superWin - Super win flag from settlement
-     * @param reachMaxWin - Max win flag from settlement
-     * @returns Win tag or null
-     */
     determineWinTag(
         winAmount: number,
         stake: number,
@@ -863,79 +458,40 @@ export class HyperSpinStore {
         superWin: boolean,
         reachMaxWin: boolean
     ): WinTag {
-        // Max Win / Jackpot win takes highest priority
-        if (reachMaxWin) {
-            return "Amethyst";
-        }
-
-        // Mega Win (Gold tag)
-        if (megaWin) {
-            return "Gold";
-        }
-
-        // Super Win (Silver tag)
-        if (superWin) {
-            return "Silver";
-        }
-
-        // Big Win (Bronze tag)
-        if (bigWin) {
-            return "Bronze";
-        }
-
+        if (reachMaxWin) return "Amethyst";
+        if (megaWin) return "Gold";
+        if (superWin) return "Silver";
+        if (bigWin) return "Bronze";
         return null;
     }
 
-    /**
-     * Get next spin ID for hyper-spin round (increments counter)
-     * Free spins are handled separately
-     */
     getNextHyperSpinId(): number {
         this._hyperSpinRoundCounter++;
         return this._hyperSpinRoundCounter;
     }
 
-    /**
-     * Get next free spin ID (increments free spin counter)
-     * Free spins are marked with icon and not counted in hyper-spin round count
-     */
     getNextFreeSpinId(): number {
         this._freeSpinCounter++;
         return this._freeSpinCounter;
     }
 
-    /**
-     * Reset batch counters
-     */
     resetBatchCounters() {
         this._hyperSpinRoundCounter = 0;
         this._freeSpinCounter = 0;
     }
 
-    /**
-     * Clear current batch data
-     */
     clearBatchData() {
         this._currentBatchData = null;
         this.resetBatchCounters();
-
     }
 
-    /**
-     * Recover an interrupted batch (called by HyperSpinHandler)
-     */
     recoverInterruptedBatch(): boolean {
-
         if (!this._currentBatchData || this._currentBatchData.summary.hyperSpinStatus !== "Interrupted") {
             return false;
         }
 
-        // Reset batch status to Playing
         this._currentBatchData.summary.hyperSpinStatus = "Playing";
-
-        // Set hyper-spin as active
         this.setHyperSpinActive(true);
-
         return true;
     }
 }

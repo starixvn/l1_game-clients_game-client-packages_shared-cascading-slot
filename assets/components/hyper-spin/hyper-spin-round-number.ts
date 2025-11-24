@@ -31,21 +31,14 @@ export default class HyperSpinRoundNumber extends ObserverComponent {
     }
 
     setValue(noOfRound: number) {
-
         this.lblNoOfRound.string = noOfRound.toString();
-
         this.node.name = noOfRound.toString();
-
     }
 
     setSelectedRound(selected: boolean) {
-
         this.sprSelectedBg.node.active = selected;
-
         const color = selected ? this.noOfRoundSelectedTextColor : this.noOfRoundNormalTextColor;
-
         this.lblNoOfRound.color = new Color().fromHEX(color);
-
     }
 
     @handle(HyperSpinHandler, (handle, rounds: number) => handle.updateHyperSpinRounds(rounds))
@@ -54,16 +47,13 @@ export default class HyperSpinRoundNumber extends ObserverComponent {
         const returnValue = +eventTargetName;
 
         this.playSoundClick();
-
         this.setSelectedRound(true);
-
         return returnValue;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         const audioId = gc.Audios.AudioIds.CLICK;
-
         return audioId;
     }
 }

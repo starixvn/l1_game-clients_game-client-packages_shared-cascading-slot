@@ -101,9 +101,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @property(Label)
     balanceLabel: Label = null;
 
-    // @property(Label)
-    // totalBetLabel: Label = null;
-
     @property(Label)
     totalWinningsLabel: Label = null;
 
@@ -137,41 +134,14 @@ export class HyperSpinBetControl extends ObserverComponent {
     private currentDialogName: string = null;
     private isOpenBetAmountPopup: boolean = false;
 
-    onLoad() {
-        super.onLoad();
-    }
-
-    start() {
-        // Initialize content rounds in start() - runs after onLoad when component is fully initialized
-
-        const container = (this as any).container;
-        if (container) {
-            try {
-                const store = container.get(HyperSpinStore);
-                if (store && store.roundsList && Array.isArray(store.roundsList) && store.roundsList.length > 0) {
-                    this.initContentRounds(store.roundsList);
-                } else {
-                }
-            } catch (error) {
-            }
-        } else {
+    @render(HyperSpinStore, (store) => {
+        return {
+            roundsList: store.roundsList,
+            selectedRoundOnPopup: store.selectedRoundOnPopup
         }
-    }
-
-    @render(HyperSpinStore, (store) => store.roundsList)
-    initContentRounds(roundsList: number[]) {
-        // Validate inputs
-        if (!roundsList || !Array.isArray(roundsList) || roundsList.length === 0) {
-            return;
-        }
-
-        if (!this.numberOfSpinsContent) {
-            return;
-        }
-
-        if (!this.prfNoOfRound) {
-            return;
-        }
+    })
+    initContentRounds(data: { roundsList: number[]; selectedRoundOnPopup: number }) {
+        const { roundsList, selectedRoundOnPopup } = data;
 
         this.numberOfSpinsContent.destroyAllChildren();
 
@@ -180,34 +150,13 @@ export class HyperSpinBetControl extends ObserverComponent {
             const roundNumber = node.getComponent(HyperSpinRoundNumber);
             if (roundNumber) {
                 roundNumber.setValue(round);
-            } else {
             }
 
             this.numberOfSpinsContent.addChild(node);
 
         });
 
-        // Ensure default selection (100) is applied after initialization
-        // Get current selectedRoundOnPopup from store and render selection
-        const container = (this as any).container;
-        if (container) {
-            try {
-                const store = container.get(HyperSpinStore);
-                if (store && store.selectedRoundOnPopup) {
-                    const defaultSelectedRound = store.selectedRoundOnPopup;
-                    this.renderSelectedRounds(defaultSelectedRound);
-                } else {
-                    // Fallback to 100 if store value is not available
-                    this.renderSelectedRounds(100);
-                }
-            } catch (error) {
-                // Fallback to 100 if store access fails
-                this.renderSelectedRounds(100);
-            }
-        } else {
-            // Fallback to 100 if container is not available
-            this.renderSelectedRounds(100);
-        }
+        this.renderSelectedRounds(selectedRoundOnPopup);
     }
 
     @render(HyperSpinStore, (store) => store.selectedRoundOnPopup)
@@ -224,10 +173,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Initialize hyper-spin records content by creating record items for each spin
-     * This method destroys all children and recreates them (used for initial setup or reset)
-     */
+    /** Initialize hyper-spin records content */
     private initHyperSpinRecords(spins: HyperSpinBatchData['spins']) {
         if (!spins || !Array.isArray(spins) || spins.length === 0) {
             return;
@@ -244,19 +190,11 @@ export class HyperSpinBetControl extends ObserverComponent {
         this.hyperSpinRecordBodyContentNode.destroyAllChildren();
 
         spins.forEach((spin, idx) => {
-            // 1. Instantiate prefab (same pattern as prfNoOfRound)
             const node = instantiate(this.prfHyperSpinRecordBodyItem);
 
-            // 2. Get component (same pattern as prfNoOfRound)
             const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
 
             if (recordBodyItem) {
-                // 3. Assign data (same pattern as prfNoOfRound.setValue)
-                // Map spin data to the component
-                // 2.1: assign spin.spinId to lbl-spin-value
-                // 2.2: assign spin.spinWinAmount to lbl-win-value
-                // 2.3: assign spin.spinBalance to lbl-balance
-                // 2.4: assign spin.spinWinMultiplier to lbl-multiplier-value
                 const spinData = {
                     spinId: spin.spinId as string | number,
                     spinWinAmount: spin.spinWinAmount || "0.00",
@@ -266,20 +204,13 @@ export class HyperSpinBetControl extends ObserverComponent {
 
                 recordBodyItem.setSpinData(spinData);
 
-            } else {
             }
 
-            // 4. Append to parent (same pattern as prfNoOfRound)
             this.hyperSpinRecordBodyContentNode.addChild(node);
-
         });
-
     }
 
-    /**
-     * Append new spin records incrementally without destroying existing records
-     * This method only adds new spins that haven't been rendered yet
-     */
+    /** Append new spin records incrementally */
     private appendNewSpinRecords(spins: HyperSpinBatchData['spins']) {
         if (!spins || !Array.isArray(spins)) {
             return;
@@ -296,27 +227,14 @@ export class HyperSpinBetControl extends ObserverComponent {
         const currentChildrenCount = this.hyperSpinRecordBodyContentNode.children?.length || 0;
         const newSpinsCount = spins.length - currentChildrenCount;
 
-        // Only append new spins that haven't been rendered yet
         if (newSpinsCount > 0) {
-            // Get the spins that need to be added (the ones after the current children count)
             const spinsToAdd = spins.slice(currentChildrenCount);
 
             spinsToAdd.forEach((spin, idx) => {
-                const actualIndex = currentChildrenCount + idx;
-
-                // 1. Instantiate prefab (same pattern as prfNoOfRound)
                 const node = instantiate(this.prfHyperSpinRecordBodyItem);
-
-                // 2. Get component (same pattern as prfNoOfRound)
                 const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
 
                 if (recordBodyItem) {
-                    // 3. Assign data (same pattern as prfNoOfRound.setValue)
-                    // Map spin data to the component
-                    // 2.1: assign spin.spinId to lbl-spin-value
-                    // 2.2: assign spin.spinWinAmount to lbl-win-value
-                    // 2.3: assign spin.spinBalance to lbl-balance
-                    // 2.4: assign spin.spinWinMultiplier to lbl-multiplier-value
                     const spinData = {
                         spinId: spin.spinId as string | number,
                         spinWinAmount: spin.spinWinAmount || "0.00",
@@ -326,29 +244,18 @@ export class HyperSpinBetControl extends ObserverComponent {
 
                     recordBodyItem.setSpinData(spinData);
 
-                } else {
                 }
 
-                // 4. Append to parent (same pattern as prfNoOfRound)
                 this.hyperSpinRecordBodyContentNode.addChild(node);
-
             });
 
         } else if (newSpinsCount < 0) {
-            // If spins array is shorter than current children, reset and rebuild
             this.initHyperSpinRecords(spins);
-        } else {
         }
     }
 
-    /**
-     * Render hyper-spin records when the batch data spins change
-     * Uses observer pattern similar to TotalBet/TotalWin updates
-     * Appends new records incrementally instead of recreating all records
-     * Observes spinsLength computed property to detect when spins are added
-     */
+    /** Render hyper-spin records when batch data changes */
     @render(HyperSpinStore, (store) => {
-        // Access spinsLength computed property and currentBatchData to ensure MobX tracks changes
         const spinsLength = store.spinsLength;
         const batchData = store.currentBatchData;
         return batchData ? { batchData, spinsLength } : null;
@@ -359,16 +266,12 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (spins && Array.isArray(spins)) {
             const currentChildrenCount = this.hyperSpinRecordBodyContentNode?.children?.length || 0;
 
-            // If no children exist yet, initialize all records
-            // Otherwise, append only new spins incrementally
             if (currentChildrenCount === 0) {
                 this.initHyperSpinRecords(spins);
             } else {
                 this.appendNewSpinRecords(spins);
             }
         } else {
-
-            // Clear records if no spins
             if (this.hyperSpinRecordBodyContentNode) {
                 this.hyperSpinRecordBodyContentNode.destroyAllChildren();
             }
@@ -378,54 +281,30 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(CascadingUIStore, (store) => store.dialogOpenEvent?.name)
     private setCurrentDialog(dialogName: string) {
-
         this.currentDialogName = dialogName;
-
     }
 
     @render(HyperSpinStore, (store) => store.isOpenHyperSpinBetControlPopup)
     private setIsOpenHyperSpinBetControlPopup(isOpenHyperSpinBetControlPopup: boolean) {
-
         this.isOpenBetAmountPopup = isOpenHyperSpinBetControlPopup;
-
     }
 
     @render(HyperSpinStore, (store) => {
         return {
             isOpenHyperSpinBetControlPopup: store.isOpenHyperSpinBetControlPopup,
-            roundsList: store.roundsList
+            roundsList: store.roundsList,
+            selectedRoundOnPopup: store.selectedRoundOnPopup
         }
     })
-    handleDialogVisibility(data: { isOpenHyperSpinBetControlPopup: boolean; roundsList: number[] }) {
-
+    handleDialogVisibility(data: { isOpenHyperSpinBetControlPopup: boolean; roundsList: number[]; selectedRoundOnPopup: number }) {
         // Handle hyper spin bet control visibility
         this.node.active = data.isOpenHyperSpinBetControlPopup;
 
         // Initialize content rounds when component becomes active (fallback if @render didn't fire)
         if (data.isOpenHyperSpinBetControlPopup) {
             const childrenCount = this.numberOfSpinsContent?.children?.length || 0;
-
-            this.initContentRounds(data.roundsList);
-            // this.renderSelectedRounds(data.selectedRoundOnPopup);
-            if (childrenCount === 0) {
-                const container = (this as any).container;
-
-                if (container) {
-                    try {
-                        const store = container.get(HyperSpinStore);
-
-                        if (store && data.roundsList && Array.isArray(data.roundsList) && data.roundsList.length > 0) {
-                            this.initContentRounds(data.roundsList);
-                        } else {
-                        }
-                    } catch (error) {
-                    }
-                } else {
-                }
-            } else {
-            }
+            this.initContentRounds({ roundsList: data.roundsList, selectedRoundOnPopup: data.selectedRoundOnPopup });
         }
-
     }
 
     @render(CascadingUIStore, (store) => store.dialogOpenEvent, { fireImmediately: false })
@@ -438,7 +317,6 @@ export class HyperSpinBetControl extends ObserverComponent {
             if (container) {
                 const cascadingUIStore = container.get(CascadingUIStore);
                 isInHyperSpin = cascadingUIStore?.isHyperSpinActive || false;
-            } else {
             }
         } catch (error) {
         }
@@ -447,7 +325,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (dialogOpenEvent?.name !== DialogName.HYPER_SPIN && this.isOpenBetAmountPopup && !isInHyperSpin) {
             this.node.active = false;
             this.onCloseHyperSpinBetControl();
-        } else if (isInHyperSpin) {
         }
     }
 
@@ -489,7 +366,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.sprIconBgPause) {
             this.sprIconBgPause.node.active = showPauseButton;
         }
-
     }
 
     @handle(HyperSpinHandler, (handle) => handle.toggleStopOnFeature())
@@ -499,21 +375,17 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.stopOnFeature)
     updateStopOnFeatureButton(stopOnFeature: boolean) {
-
         if (!this.sprIconStopOnFeatureOff && !this.sprIconStopOnFeatureOn) {
             return;
         }
 
         if (this.sprIconStopOnFeatureOff) {
             this.sprIconStopOnFeatureOff.node.active = !stopOnFeature;
-        } else {
         }
 
         if (this.sprIconStopOnFeatureOn) {
             this.sprIconStopOnFeatureOn.node.active = stopOnFeature;
-        } else {
         }
-
     }
 
     @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
@@ -552,15 +424,13 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @handle(HyperSpinHandler, (handle, progress: number) => handle.setTotalBetFromSlider(progress))
     private handleTotalBetSliderChange(progress: number) {
-        // This method is called by the @handle decorator
         return progress;
     }
 
     /**
      * Handle total bet slider change
-     * Called when the slider is dragged or when buttons are clicked
      * @param slider - The slider component or event
-     * @param customEventData - Optional custom event data to identify button clicks
+     * @param customEventData - Optional custom event data
      */
     onTotalBetChange(slider: Slider | Event | any, customEventData?: string) {
         // This is called when the slider is dragged OR when buttons are clicked (prefab connects buttons here)
@@ -605,10 +475,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         }
     }
 
-    /**
-     * Check if the current button click is from a total-bet-per-round button
-     * by checking if we have total-bet-per-round buttons assigned and checking node hierarchy
-     */
+    /** Check if button click is from total-bet-per-round section */
     private isTotalBetPerRoundButton(): boolean {
         // First, check if total-bet-per-round buttons are assigned
         const hasTotalBetPerRoundButtons = !!(this.totalBetPerRoundDecreaseBtn || this.totalBetPerRoundIncreaseBtn);
@@ -658,7 +525,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.hyperSpinControlsNode) {
             const newActiveState = !this.hyperSpinControlsNode.active;
             this.hyperSpinControlsNode.active = newActiveState;
-        } else {
         }
     }
 
@@ -670,7 +536,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
     onClickDecreaseTotalBetPerRound() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -687,7 +552,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(true))
     onClickIncreaseTotalBetPerRound() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -716,7 +580,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeHyperSpinRounds(false))
     onClickDecreaseHyperSpinRounds() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -733,7 +596,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeHyperSpinRounds(true))
     onClickIncreaseHyperSpinRounds() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -756,7 +618,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeStopOnProfit(true))
     onClickIncreaseStopOnProfit() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -773,7 +634,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeStopOnProfit(false))
     onClickDecreaseStopOnProfit() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -796,7 +656,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeStopOnLoss(true))
     onClickIncreaseStopOnLoss() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -813,7 +672,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.changeStopOnLoss(false))
     onClickDecreaseStopOnLoss() {
         this.playSoundClick();
-        // Force update the display after change
         const container = (this as any).container;
         if (container) {
             try {
@@ -846,7 +704,6 @@ export class HyperSpinBetControl extends ObserverComponent {
                     return store.stopOnProfit;
                 }
             } catch (error) {
-                // Ignore error
             }
         }
         return 0;
@@ -860,7 +717,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         // Update button states
         this.updateStopOnProfitButtonStates(stopOnProfit, minStopOnProfit, finalMaxStopOnProfit);
 
-        // Update label with null check
         if (this.stopOnProfitLabel) {
             this.stopOnProfitLabel.string = gc.FormatUtils.numberWithCommas(stopOnProfit, 2, true);
         } else {
@@ -869,24 +725,19 @@ export class HyperSpinBetControl extends ObserverComponent {
         // Find the slider - try multiple methods (only search for stop-on-profit slider)
         let slider: Slider = null;
 
-        // Method 1: Try stopOnProfitSliderCtrl if assigned
         if (this.stopOnProfitSliderCtrl) {
             slider = this.stopOnProfitSliderCtrl.getComponent(Slider);
             if (slider) {
             }
         }
 
-        // Method 2: Try to find slider node by name (specific to stop-on-profit)
         if (!slider) {
             const sliderNode = this.node.getChildByName("stop-on-profit-slider");
             if (sliderNode) {
                 slider = sliderNode.getComponent(Slider);
-                if (slider) {
-                }
             }
         }
 
-        // Method 3: Search within stop-on-profit container only (find parent container first)
         if (!slider) {
             // First, try to find the parent container for stop-on-profit
             const findProfitContainer = (node: any): any => {
@@ -931,7 +782,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.stopOnProfitDecreaseBtn) {
             this.stopOnProfitDecreaseBtn.interactable = canDecrease;
         } else {
-            // Try to find button by searching children if not assigned
             const findButtonByName = (node: any, name: string): StatusButton => {
                 if (node.name === name || node.name.includes(name)) {
                     const btn = node.getComponent(StatusButton);
@@ -954,7 +804,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.stopOnProfitIncreaseBtn) {
             this.stopOnProfitIncreaseBtn.interactable = canIncrease;
         } else {
-            // Try to find button by searching children if not assigned
             const findButtonByName = (node: any, name: string): StatusButton => {
                 if (node.name === name || node.name.includes(name)) {
                     const btn = node.getComponent(StatusButton);
@@ -979,8 +828,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         const clampedProgress = Math.max(0, Math.min(1, progress));
         const currentProgress = slider.progress;
         const progressDiff = Math.abs(currentProgress - clampedProgress);
-
-        // Log the calculated slider percentage
         const sliderPercentage = (clampedProgress * 100).toFixed(2);
 
         // Update slider progress - always update to ensure it's in sync
@@ -1073,7 +920,6 @@ export class HyperSpinBetControl extends ObserverComponent {
                     return store.stopOnLoss;
                 }
             } catch (error) {
-                // Ignore error
             }
         }
         return 0;
@@ -1087,7 +933,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         // Update button states
         this.updateStopOnLossButtonStates(stopOnLoss, minStopOnLoss, finalMaxStopOnLoss);
 
-        // Update label with null check
         if (this.stopOnLossLabel) {
             this.stopOnLossLabel.string = gc.FormatUtils.numberWithCommas(stopOnLoss, 2, true);
         } else {
@@ -1096,24 +941,16 @@ export class HyperSpinBetControl extends ObserverComponent {
         // Find the slider - try multiple methods (only search for stop-on-loss slider)
         let slider: Slider = null;
 
-        // Method 1: Try stopOnLossSliderCtrl if assigned
         if (this.stopOnLossSliderCtrl) {
             slider = this.stopOnLossSliderCtrl.getComponent(Slider);
-            if (slider) {
-            }
         }
 
-        // Method 2: Try to find slider node by name (specific to stop-on-loss)
         if (!slider) {
             const sliderNode = this.node.getChildByName("stop-on-loss-slider");
             if (sliderNode) {
                 slider = sliderNode.getComponent(Slider);
-                if (slider) {
-                }
             }
         }
-
-        // Method 3: Search within stop-on-loss container only (find parent container first)
         if (!slider) {
             // First, try to find the parent container for stop-on-loss
             const findLossContainer = (node: any): any => {
@@ -1158,7 +995,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.stopOnLossDecreaseBtn) {
             this.stopOnLossDecreaseBtn.interactable = canDecrease;
         } else {
-            // Try to find button by searching children if not assigned
             const findButtonByName = (node: any, name: string): StatusButton => {
                 if (node.name === name || node.name.includes(name)) {
                     const btn = node.getComponent(StatusButton);
@@ -1181,7 +1017,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.stopOnLossIncreaseBtn) {
             this.stopOnLossIncreaseBtn.interactable = canIncrease;
         } else {
-            // Try to find button by searching children if not assigned
             const findButtonByName = (node: any, name: string): StatusButton => {
                 if (node.name === name || node.name.includes(name)) {
                     const btn = node.getComponent(StatusButton);
@@ -1206,8 +1041,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         const clampedProgress = Math.max(0, Math.min(1, progress));
         const currentProgress = slider.progress;
         const progressDiff = Math.abs(currentProgress - clampedProgress);
-
-        // Log the calculated slider percentage
         const sliderPercentage = (clampedProgress * 100).toFixed(2);
 
         // Update slider progress - always update to ensure it's in sync
@@ -1312,11 +1145,9 @@ export class HyperSpinBetControl extends ObserverComponent {
             const foundLabel = findLabelNode(this.node);
             if (foundLabel) {
                 foundLabel.string = formattedValue;
-            } else {
             }
         }
 
-        // Sync totalBetPerRoundSliderLabel with the same value
         if (this.totalBetPerRoundSliderLabel) {
             this.totalBetPerRoundSliderLabel.string = formattedValue;
         } else {
@@ -1354,11 +1185,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Update HyperSpin rounds label display
-     * Shows remaining/total format during execution (e.g., "8/10")
-     * Label is only visible when hyper spin is playing
-     */
+    /** Update HyperSpin rounds label display */
     @render(HyperSpinStore, (store) => ({ selectedRoundOnPopup: store.selectedRoundOnPopup, isHyperSpin: store.isHyperSpin, roundsHyperSpin: store.roundsHyperSpin }))
     updateHyperSpinRoundsLabel(data: { selectedRoundOnPopup: number; isHyperSpin: boolean; roundsHyperSpin: number }) {
 
@@ -1402,10 +1229,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Update totalWinningsLabel and playerTotalWinningsLabel with hyper-spin batch totalWin
-     * Both labels use the same totalWin value from batch data
-     */
+    /** Update total winnings labels with batch totalWin */
     @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.totalWin)
     private updateTotalWinningsLabels(totalWin: string) {
 
@@ -1429,9 +1253,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Update lblTotalBetValue with hyper-spin batch total bet
-     */
+    /** Update total bet label with batch totalBet */
     @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.totalBet)
     private updateLblTotalBetValue(totalBet: string) {
 
@@ -1446,9 +1268,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Update startingBalanceLabel with hyper-spin batch starting balance or current user balance
-     */
+    /** Update starting balance label */
     @render(HyperSpinStore, (store) => ({
         batchStartingBalance: store.currentBatchData?.summary?.startingBalance,
         hasBatchData: !!store.currentBatchData
@@ -1476,9 +1296,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Update endBalanceLabel with hyper-spin batch end balance or current user balance
-     */
+    /** Update end balance label */
     @render(HyperSpinStore, (store) => ({
         batchEndBalance: store.currentBatchData?.summary?.endBalance,
         hasBatchData: !!store.currentBatchData,
@@ -1530,10 +1348,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     }
 
-    /**
-     * Sync balance label from CascadingUIStore
-     * Matches the behavior of cascading-slot-game.ts setBalance method
-     */
+    /** Sync balance label from store */
     @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))
     private renderBalance(data: { balance: number; changedBalance: boolean }) {
 
@@ -1550,11 +1365,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         this.balanceLabel && (this.balanceLabel.string = formattedBalance);
     }
 
-    /**
-     * Render total bet value and update slider display
-     * Default value: current Total Bet value
-     * Number format: number with thousand separator and up to 2 decimals
-     */
+    /** Render total bet value and update slider */
     @render(BetControlStore, (store) => ({ totalBet: store.totalBet, currentTotalBetIndex: store.currentTotalBetIndex, totalBetUnique: store.totalBetUnique }))
     private renderTotalBet(data: { totalBet: number; currentTotalBetIndex: number; totalBetUnique: any[] }) {
 
@@ -1578,15 +1389,10 @@ export class HyperSpinBetControl extends ObserverComponent {
         // Find the slider - try multiple methods
         let slider: Slider = null;
 
-        // Method 1: Try to find slider node by name
         const sliderNode = this.node.getChildByName("total-bet-slider");
         if (sliderNode) {
             slider = sliderNode.getComponent(Slider);
-            if (slider) {
-            }
         }
-
-        // Method 2: Search for slider in children
         if (!slider) {
             const findSliderInNode = (node: any): Slider => {
                 const sliderComp = node.getComponent(Slider);
@@ -1644,7 +1450,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         } else {
         }
 
-        // Also update totalBetPerRoundSliderLabel and totalBetPerRoundLabel when total bet changes
         if (this.totalBetPerRoundSliderLabel) {
             this.totalBetPerRoundSliderLabel.string = formattedValue;
         }

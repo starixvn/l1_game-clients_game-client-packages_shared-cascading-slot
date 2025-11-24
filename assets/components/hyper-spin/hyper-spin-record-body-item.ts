@@ -25,7 +25,6 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
      */
     private findLabelByName(namePatterns: string[]): Label | null {
         if (!this.node) return null;
-
         const findLabel = (node: Node): Label | null => {
             // Check if node name matches any pattern
             for (const pattern of namePatterns) {

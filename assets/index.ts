@@ -24,6 +24,3 @@ export * from "./stores/hyper-spin-store";
 
 export const FEATURE_NAME = "cascading-slot";
 
-import { cascadingSlotLogger } from "./cascading-slot-logger";
-
-// Test the logger functionality

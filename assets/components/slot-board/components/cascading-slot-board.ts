@@ -68,31 +68,23 @@ export class CascadingSlotBoard extends ObserverComponent {
         if (this.reels.length > 0) {
             return;
         }
-
-        let reelCount = 0;
-        this.node.children.forEach((child, index) => {
+        this.node.children.forEach((child) => {
             const slotReel = child.getComponent(CascadingSlotReel);
             if (slotReel) {
                 slotReel.itemDisplayCount = CascadingSlotConfig.reelItemCount;
                 slotReel.createReel();
                 this.reels.push(slotReel);
-                reelCount++;
-            } 
+            }
         });
     }
 
     public addItems(data: number[][], peekEffect: boolean) {
-
         this.reels.forEach((reel, index) => {
             const items = data[index];
             const reelItems = reel.addItems(items);
-
-            if (peekEffect) {
-                reel.peekEffectHighlightItems(reelItems);}
-
+            peekEffect && reel.peekEffectHighlightItems(reelItems);
             const isInfoOnLeft = index === this.reels.length - 1 || index === this.reels.length - 2;
-
-            reelItems.forEach((item, itemIndex) => {
+            reelItems.forEach((item) => {
                 this.previewPopup.addReelItemEvent(item, isInfoOnLeft);
             });
         });
@@ -635,15 +627,13 @@ export class CascadingSlotBoard extends ObserverComponent {
             if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
                 this.loadEffectMultiplierPrefab();
                 globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
-            } 
-
+            }
             if (resourcesCache.gameFeatures?.enablePeekEffect) {
                 this.loadPeekEffectPrefab().then(() => {
                     this.initPeekEffectPool();
                 });
-            } else {
             }
-        } 
+        }
     }
 
     onDestroy(): void {
@@ -836,6 +826,3 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 }
-
-
-
