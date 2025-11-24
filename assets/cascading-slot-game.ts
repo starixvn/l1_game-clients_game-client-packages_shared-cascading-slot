@@ -312,7 +312,7 @@ export class CascadingSlotGame extends GameComponentBase {
         if (value === undefined || value === null) {
             return;
         }
-        this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
+        this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 6).toString());
     }
 
     @handle(gc.Auth.AuthHandlers.GetBalance)

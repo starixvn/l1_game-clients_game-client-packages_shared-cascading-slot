@@ -178,6 +178,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         if (freespins?.buyFreeSpins) {
             this.buyFsStore.isActive = true;
         }
+        if (freespins.xMode && freespins.xMode > 1) {
+            this.betControlStore.resumeLastBetXMode = true;
+        }
         if (total > 0) {
             this.buyFsStore.triggerAutoPlay = {};
         }

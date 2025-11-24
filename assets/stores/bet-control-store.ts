@@ -41,6 +41,7 @@ export class BetControlStore {
     _totalBet = 0;
 
     resumeLastBet = false;
+    resumeLastBetXMode = false;
 
     needClearLastSetting = false;
 
