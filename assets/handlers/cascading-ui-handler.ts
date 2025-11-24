@@ -164,10 +164,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             return;
         }
 
-        const { total, betLevel, coinValue, betMultiplier } = freespins;
+        const { total, betLevel, coinValue, betMultiplier, xMode } = freespins;
         this.handleFreeSpinsTotal(total);
         this.updateFreespinCountMsgBottom(total);
         this.handleTriggerDuringFreeSpinBonus();
+        this.handleResumeLastBetXMode(xMode);
 
         this.betControlHandlers.init(coinValue, betLevel);
         this.betControlHandlers.setTotalBet(calculateTotalBet(betLevel, coinValue, betMultiplier));
@@ -178,11 +179,14 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         if (freespins?.buyFreeSpins) {
             this.buyFsStore.isActive = true;
         }
-        if (freespins.xMode && freespins.xMode > 1) {
-            this.betControlStore.resumeLastBetXMode = true;
-        }
         if (total > 0) {
             this.buyFsStore.triggerAutoPlay = {};
+        }
+    }
+
+    handleResumeLastBetXMode(xMode: number) {
+        if (xMode && xMode > 1) {
+            this.betControlStore.resumeLastBetXMode = true;
         }
     }
 
