@@ -62,7 +62,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
 
     setTotalWinValue(value: number) {
         return new Promise<void>((resolve) => {
-            this.totalWin.string = gc.FormatUtils.numberWithCommas(value, 2, false);
+            this.totalWin.string = gc.FormatUtils.numberWithCommas(value, 6);
             this.showTotalWin(true);
 
             tween(this.totalWin.node)
