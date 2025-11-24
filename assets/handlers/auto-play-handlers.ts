@@ -251,11 +251,8 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
             this.placeBet();
         } else {
-            if (this.betControlStore.resumeLastBetXMode) {
-                this.betControlHandlers.init();
-            }
+            this.handleResumeLastBetXMode();
             this.betControlStore.resumeLastBet = false;
-            this.betControlStore.resumeLastBetXMode = false;
             this.cascadingUIStore.bottomMessageState = this.autoPlayStore.isAutoplay
                 ? SlotNotification.AUTO_SPIN
                 : SlotNotification.SETTLED;
@@ -280,6 +277,13 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
                 this.checkToSpinNextFSB();
             }
         }
+    }
+
+    handleResumeLastBetXMode() {
+        if (this.betControlStore.resumeLastBetXMode) {
+            this.betControlHandlers.init();
+        }
+        this.betControlStore.resumeLastBetXMode = false;
     }
 
     private async awaitShowBuyFsResult() {
