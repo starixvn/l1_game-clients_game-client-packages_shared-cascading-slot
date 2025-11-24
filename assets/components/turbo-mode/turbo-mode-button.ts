@@ -3,7 +3,7 @@ import { _decorator, Node, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { DialogName } from "../../cascading-slot-utils";
+import { DialogName, GameSpeed } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 
@@ -19,16 +19,16 @@ export default class TurboModeButton extends ObserverComponent {
     @property(Node)
     nodeDisabled: Node = null;
 
-    @handle(CascadingUIHandler, (handle, isTurboModeUI: boolean) => handle.handleTurboModeUI(isTurboModeUI))
+    @handle(CascadingUIHandler, (handle, gameSpeed: string) => handle.handleTurboModeUI(gameSpeed))
     onTurboModeChanged() {
         this.triggerOpenTurboMode();
-        return this.tglTurboMode.isChecked;
+        return this.tglTurboMode.isChecked ? GameSpeed.TURBO : GameSpeed.NORMAL;
     }
 
-    @render(CascadingUIStore, (store) => store.isTurboModeUI)
-    renderTurboMode(isTurboMode: boolean) {
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    renderTurboMode(gameSpeed: string) {
         this.playSoundClick();
-        this.tglTurboMode.isChecked = isTurboMode;
+        this.tglTurboMode.isChecked = gameSpeed === GameSpeed.TURBO ? true : false;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
@@ -42,5 +42,5 @@ export default class TurboModeButton extends ObserverComponent {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.TURBO_MODE))
-    triggerOpenTurboMode() { }
+    triggerOpenTurboMode() {}
 }

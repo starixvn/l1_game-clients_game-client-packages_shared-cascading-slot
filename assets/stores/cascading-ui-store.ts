@@ -4,7 +4,7 @@ import mobx from "mobx";
 
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { DialogName, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
+import { DialogName, GameSpeed, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
@@ -35,7 +35,7 @@ export class CascadingUIStore {
         return this.totalMultiplier > 0;
     }
 
-    isTurboModeUI = false;
+    gameSpeed = GameSpeed.NORMAL;
     isTrialMode = false;
 
     _cascadingState = CascadingSlotState.NOT_READY_BET;
@@ -75,7 +75,6 @@ export class CascadingUIStore {
 
     isShowMessages = true;
 
-    
     get minPeekScatterCount() {
         if (!this.configsStore.gameConfigs) {
             return 1000; // default value
@@ -88,7 +87,7 @@ export class CascadingUIStore {
     }
 
     get isTurboMode() {
-        return this.isTurboModeUI || (this.holdActionStore.isHolding && !this.isTrialMode);
+        return this.gameSpeed === GameSpeed.TURBO || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
 
     get isShowBigWin() {

@@ -17,6 +17,12 @@ export const SlotNotification = {
     AUTO_SPIN: "AUTO_SPIN",
 };
 
+export const GameSpeed = {
+    NORMAL: "NORMAL",
+    TURBO: "TURBO",
+    ULTRA_FAST: "ULTRA_FAST",
+};
+
 export const SpinButtonState = {
     IDLE: "IDLE",
     SPINNING: "SPINNING",

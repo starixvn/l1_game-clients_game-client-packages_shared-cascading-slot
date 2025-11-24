@@ -2,6 +2,7 @@ import inversify from "inversify";
 
 import gc from "@sg/game-client-base";
 import mobx from "mobx";
+import { GameSpeed } from "../cascading-slot-utils";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { injectable, inject } = inversify;
@@ -24,22 +25,28 @@ export class CascadingSlotSettingHandlers {
     @inject(gc.App.AppStore) protected readonly appStore: gc.App.AppStore;
     constructor() {
         setTimeout(() => {
-            mobx.when(() => this.mainPlayerStore.UID !== 0 && this.mainPlayerStore.currencyGroup !== "", () => {
-                mobx.reaction(
-                    () => this.gameUserSettingStore.tempStorage,
-                    (trigger) => {
-                        this.reactionTempStorage(trigger);
+            mobx.when(
+                () => this.mainPlayerStore.UID !== 0 && this.mainPlayerStore.currencyGroup !== "",
+                () => {
+                    mobx.reaction(
+                        () => this.gameUserSettingStore.tempStorage,
+                        (trigger) => {
+                            this.reactionTempStorage(trigger);
+                        }
+                    );
+                    if (this.appStore.isClearStorage) {
+                        StorageManager.remove(this.getStorageKey());
                     }
-                );
-                if (this.appStore.isClearStorage) {
-                    StorageManager.remove(this.getStorageKey());
-                };
-                this.loadTempStorage();
-                mobx.reaction(() => this.appStore.isClearStorage, () => {
-                    StorageManager.remove(this.getStorageKey());
                     this.loadTempStorage();
-                });
-            });
+                    mobx.reaction(
+                        () => this.appStore.isClearStorage,
+                        () => {
+                            StorageManager.remove(this.getStorageKey());
+                            this.loadTempStorage();
+                        }
+                    );
+                }
+            );
         }, 0);
     }
 
@@ -62,11 +69,11 @@ export class CascadingSlotSettingHandlers {
         const data = StorageManager.get(this.getStorageKey()) as IGameUserSetting;
         if (data) {
             this.cascadingUIStore.isTrialMode = data.trialMode;
-            this.cascadingUIStore.isTurboModeUI = data.turboMode;
+            this.cascadingUIStore.gameSpeed = data.turboMode ? GameSpeed.TURBO : GameSpeed.NORMAL;
             this.betControlStore.lastSetting = data.lastBetSetting;
         } else {
             this.cascadingUIStore.isTrialMode = false;
-            this.cascadingUIStore.isTurboModeUI = false;
+            this.cascadingUIStore.gameSpeed = GameSpeed.NORMAL;
             this.betControlStore.lastSetting = null;
         }
     }
@@ -74,13 +81,13 @@ export class CascadingSlotSettingHandlers {
     saveTempStorage() {
         const currentSetting = {
             trialMode: this.cascadingUIStore.isTrialMode,
-            turboMode: this.cascadingUIStore.isTurboModeUI,
+            turboMode: this.cascadingUIStore.gameSpeed,
             lastBetSetting: this.betControlStore.needClearLastSetting
                 ? null
                 : {
-                    betLevel: this.betControlStore.betLevel,
-                    coinValue: this.betControlStore.coinValue,
-                },
+                      betLevel: this.betControlStore.betLevel,
+                      coinValue: this.betControlStore.coinValue,
+                  },
         };
         this.betControlStore.needClearLastSetting = false;
         StorageManager.set(this.getStorageKey(), currentSetting);

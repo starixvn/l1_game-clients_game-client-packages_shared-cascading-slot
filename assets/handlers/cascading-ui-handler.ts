@@ -5,7 +5,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import mobx from "mobx";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { calculateTotalBet, DialogName, resourcesCache, SlotNotification } from "../cascading-slot-utils";
+import { calculateTotalBet, DialogName, GameSpeed, resourcesCache, SlotNotification } from "../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
@@ -47,7 +47,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         }, 0);
     }
 
-    handle() { }
+    handle() {}
 
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
@@ -103,8 +103,12 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     resetProcessingBet(resetBottom: boolean) {
         this.changeCascadingState(CascadingSlotState.READY_BET);
 
-        if (resetBottom || !(this.uiStore.bottomMessageState === SlotNotification.FREESPINS
-            || this.uiStore.bottomMessageState === SlotNotification.AUTO_SPIN)
+        if (
+            resetBottom ||
+            !(
+                this.uiStore.bottomMessageState === SlotNotification.FREESPINS ||
+                this.uiStore.bottomMessageState === SlotNotification.AUTO_SPIN
+            )
         ) {
             this.resetBottomMessageState();
         }
@@ -139,8 +143,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.fsbPromotionUIStore.isSpinningFSB = state === CascadingSlotState.SPINNING;
     }
 
-    handleTurboModeUI(isTurboModeUI: boolean) {
-        this.uiStore.isTurboModeUI = isTurboModeUI;
+    handleTurboModeUI(gameSpeed: string) {
+        this.uiStore.gameSpeed = gameSpeed;
     }
 
     handleBottomMessage(state: string) {
@@ -247,7 +251,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isTrialMode = isTrialMode;
         if (isTrialMode) {
             this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
-            this.uiStore.isTurboModeUI = false;
+            this.uiStore.gameSpeed = GameSpeed.NORMAL;
         } else {
             if (this.uiStore.cascadingState !== CascadingSlotState.READY_BET) {
                 this.uiStore.bottomMessageState = SlotNotification.SETTLED;

@@ -3,6 +3,7 @@ import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { GameSpeed } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingWarningMsg } from "./cascading-warning-msg";
 
@@ -15,12 +16,15 @@ export class CascadingWarningContainer extends ObserverComponent {
 
     private isTrialMode = false;
 
-    @render(CascadingUIStore, (store) => store.isTurboModeUI, { fireImmediately: false })
-    renderTurboModeMsg(isTurboMode: boolean) {
+    @render(CascadingUIStore, (store) => store.gameSpeed, { fireImmediately: false })
+    renderTurboModeMsg(gameSpeed: string) {
         if (this.isTrialMode) {
             return;
         }
-        const msg = isTurboMode ? gc.Translator.gameTranslate("enable_turbo_mode") : gc.Translator.gameTranslate("disable_turbo_mode");
+        const msg =
+            gameSpeed === GameSpeed.TURBO
+                ? gc.Translator.gameTranslate("enable_turbo_mode")
+                : gc.Translator.gameTranslate("disable_turbo_mode");
         this.addNode(msg);
     }
 

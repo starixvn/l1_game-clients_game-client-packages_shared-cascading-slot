@@ -16,10 +16,10 @@ jest.mock("mobx");
 
 // Mock stores
 const mockUIStore = stub<CascadingUIStore>();
-Object.defineProperty(mockUIStore, 'isFreeSpins', {
+Object.defineProperty(mockUIStore, "isFreeSpins", {
     get() {
         return this.freeSpinsTotal > 0;
-    }
+    },
 });
 
 const mockTumblesStore = {
@@ -93,7 +93,7 @@ describe("CascadingUIHandler", () => {
 
         // Mock inversify decorators
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
-        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => { });
+        (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
 
         uiHandler = new CascadingUIHandler();
     });
@@ -115,7 +115,7 @@ describe("CascadingUIHandler", () => {
 
     describe("handleTotalWin", () => {
         it("should accumulate win when isActualWin is false", () => {
-            mockUIStore.totalWin = 0
+            mockUIStore.totalWin = 0;
             uiHandler.handleTotalWin({ win: 100, isActualWin: false });
 
             expect(mockUIStore.isActualWin).toBe(false);
@@ -363,7 +363,7 @@ describe("CascadingUIHandler", () => {
 
             expect(mockUIStore.isTrialMode).toBe(true);
             expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN_TRIAL);
-            expect(mockUIStore.isTurboModeUI).toBe(false);
+            expect(mockUIStore.gameSpeed).toBe(false);
             expect(mockUIStore.roundId).toBe(0);
             expect(mockBetControlStore.needClearLastSetting).toBe(true);
             expect(mockGameUserSettingHandler.saveTempStorage).toHaveBeenCalled();
@@ -439,10 +439,9 @@ describe("CascadingUIHandler", () => {
     });
 
     describe("utility methods", () => {
-
         it("should handle turbo mode UI", () => {
             uiHandler.handleTurboModeUI(true);
-            expect(mockUIStore.isTurboModeUI).toBe(true);
+            expect(mockUIStore.gameSpeed).toBe(true);
         });
 
         it("should save game user settings", () => {

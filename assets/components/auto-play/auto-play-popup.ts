@@ -3,6 +3,7 @@ import { _decorator, instantiate, Node, Prefab, Toggle } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
+import { GameSpeed } from "../../cascading-slot-utils";
 import { AutoPlayHandler } from "../../handlers/auto-play-handlers";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { AutoPlayStore } from "../../stores/auto-play-store";
@@ -54,9 +55,9 @@ export default class AutoPlayPopup extends ObserverComponent {
         this.playSoundClick();
     }
 
-    @handle(CascadingUIHandler, (handle, isTurboMode: boolean) => handle.handleTurboModeUI(isTurboMode))
+    @handle(CascadingUIHandler, (handle, gameSpeed: string) => handle.handleTurboModeUI(gameSpeed))
     onTurboModeChanged() {
-        return this.tglTurboMode.isChecked;
+        return this.tglTurboMode.isChecked ? GameSpeed.TURBO : GameSpeed.NORMAL;
     }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
