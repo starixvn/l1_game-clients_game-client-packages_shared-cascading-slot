@@ -12,7 +12,7 @@ const { StorageManager, localStorageKeys } = gc;
 
 interface IGameUserSetting {
     trialMode: boolean;
-    turboMode: boolean;
+    gameSpeed: string;
     lastBetSetting: { betLevel: number; coinValue: number };
 }
 
@@ -69,7 +69,7 @@ export class CascadingSlotSettingHandlers {
         const data = StorageManager.get(this.getStorageKey()) as IGameUserSetting;
         if (data) {
             this.cascadingUIStore.isTrialMode = data.trialMode;
-            this.cascadingUIStore.gameSpeed = data.turboMode ? GameSpeed.TURBO : GameSpeed.NORMAL;
+            this.cascadingUIStore.gameSpeed = data.gameSpeed;
             this.betControlStore.lastSetting = data.lastBetSetting;
         } else {
             this.cascadingUIStore.isTrialMode = false;
@@ -81,7 +81,7 @@ export class CascadingSlotSettingHandlers {
     saveTempStorage() {
         const currentSetting = {
             trialMode: this.cascadingUIStore.isTrialMode,
-            turboMode: this.cascadingUIStore.gameSpeed,
+            gameSpeed: this.cascadingUIStore.gameSpeed,
             lastBetSetting: this.betControlStore.needClearLastSetting
                 ? null
                 : {
@@ -90,6 +90,7 @@ export class CascadingSlotSettingHandlers {
                   },
         };
         this.betControlStore.needClearLastSetting = false;
+
         StorageManager.set(this.getStorageKey(), currentSetting);
     }
 }
