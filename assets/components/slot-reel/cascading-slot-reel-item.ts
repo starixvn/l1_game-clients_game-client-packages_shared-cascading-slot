@@ -92,10 +92,14 @@ export class CascadingSlotReelItem extends Component {
         return this._effectSpine;
     }
 
-    async playEffect(animation: string) {
+    async playEffect(animation: string, isTurbo: boolean) {
         if (!this.effectSpine) {
             return;
         }
-        await AnimationUtils.playSpine(this.effectSpine, animation);
+        const duration = isTurbo
+            ? this.effectSpine.findAnimation(animation).duration * 0.25
+            : this.effectSpine.findAnimation(animation).duration;
+        console.log("duration spine", duration);
+        await AnimationUtils.playSpine(this.effectSpine, animation, false, duration);
     }
 }

@@ -115,37 +115,37 @@ export class CascadingSlotReel extends Component {
         }
     }
 
-    async highlightItem(index: number) {
+    async highlightItem(index: number, isTurbo: boolean) {
         const item = this.items[index];
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await item.playEffect("highlight");
+        await item.playEffect("highlight", isTurbo);
     }
 
-    async shakeItems() {
-        await Promise.all(this.items.map((item) => this.shakeItem(item)));
+    async shakeItems(isTurbo: boolean) {
+        await Promise.all(this.items.map((item) => this.shakeItem(item, isTurbo)));
     }
 
-    async shakeItem(item: CascadingSlotReelItem) {
+    async shakeItem(item: CascadingSlotReelItem, isTurbo: boolean) {
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await item.playEffect("shake");
+        await item.playEffect("shake", isTurbo);
         ComponentUtils.moveToOtherNode(item.node, this.node);
     }
 
-    async removeItem(index: number) {
+    async removeItem(index: number, isTurbo: boolean) {
         const item = this.items[index];
         if (resourcesCache.gameFeatures?.fixedExplodeDuration) {
-            item.playEffect("explode").then(() => {
+            item.playEffect("explode", isTurbo).then(() => {
                 item.node.destroy();
             });
             await AnimationUtils.delayTime(resourcesCache.gameFeatures.fixedExplodeDuration);
         } else {
-            await item.playEffect("explode");
+            await item.playEffect("explode", isTurbo);
             item.node.destroy();
         }
     }
 
-    async removeItemsByIndex(list: number[]) {
-        await Promise.all(list.map((index) => this.removeItem(index)));
+    async removeItemsByIndex(list: number[], isTurbo: boolean) {
+        await Promise.all(list.map((index) => this.removeItem(index, isTurbo)));
         this.items = this.items.filter((item, index) => !list.includes(index));
     }
 
@@ -293,8 +293,8 @@ export class CascadingSlotReel extends Component {
         await this.fallIn(isTurbo, onSpinEnded);
     }
 
-    async highlightItems(list: number[]) {
-        await Promise.all(list.map((index) => this.highlightItem(index)));
+    async highlightItems(list: number[], isTurbo: boolean) {
+        await Promise.all(list.map((index) => this.highlightItem(index, isTurbo)));
     }
 
     async highlightScatterItems() {

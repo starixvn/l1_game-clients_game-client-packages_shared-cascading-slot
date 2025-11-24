@@ -185,7 +185,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.playSound(AudioIds.SYMBOL_MATCH);
             }
 
-            await this.removeItems(explode, i);
+            await this.removeItems(explode, i, isTurbo);
             await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
 
             const remains = this.reels.map((reel) => reel.getItemsData());
@@ -314,7 +314,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         return matchingItems;
     }
 
-    public async removeItems(data: number[][], tumbleIndex: number) {
+    public async removeItems(data: number[][], tumbleIndex: number, isTurbo: boolean) {
         const reelItems = this.reels.map((reel, index) => {
             return data[index]
                 .map((item, index) => {
@@ -326,14 +326,14 @@ export class CascadingSlotBoard extends ObserverComponent {
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
-                return reel.highlightItems(items);
+                return reel.highlightItems(items, isTurbo);
             })
         );
         this.peekEffectOverlay.active = false;
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
-                return reel.removeItemsByIndex(items);
+                return reel.removeItemsByIndex(items, isTurbo);
             })
         );
     }
@@ -381,10 +381,10 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    public async shakeItems() {
+    public async shakeItems(isTurbo: boolean) {
         await Promise.all(
             this.reels.map((reel) => {
-                return reel.shakeItems();
+                return reel.shakeItems(isTurbo);
             })
         );
     }
