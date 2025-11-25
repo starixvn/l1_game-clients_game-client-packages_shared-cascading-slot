@@ -133,8 +133,8 @@ export const hideNode = (node: Node, options: any) => {
         .start();
 };
 
-export const getCustomDuration = (key: string, isTurboMode: boolean): number => {
-    const config = isTurboMode ? CascadingSlotConfig.turbo : CascadingSlotConfig.normal;
+export const getCustomDuration = (key: string, gameSpeed: string): number => {
+    const config = gameSpeed === GameSpeed.NORMAL ? CascadingSlotConfig.normal : CascadingSlotConfig.turbo;
     return config[key];
 };
 

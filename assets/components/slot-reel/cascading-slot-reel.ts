@@ -3,7 +3,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
-import { globalEmitter, resourcesCache, SlotClientEvent } from "../../cascading-slot-utils";
+import { GameSpeed, globalEmitter, resourcesCache, SlotClientEvent } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
@@ -40,6 +40,8 @@ export class CascadingSlotReel extends Component {
     private readonly FALL_OUT_SPEED = 2800;
     private readonly FALL_IN_NORMAL_SPEED = 1700;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
+
+    public isReFillSymbols = false;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -115,56 +117,56 @@ export class CascadingSlotReel extends Component {
         }
     }
 
-    async highlightItem(index: number, isTurbo: boolean) {
+    async highlightItem(index: number, gameSpeed: string) {
         const item = this.items[index];
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await item.playEffect("highlight", isTurbo);
+        await item.playEffect("highlight", gameSpeed);
     }
 
-    async shakeItems(isTurbo: boolean) {
-        await Promise.all(this.items.map((item) => this.shakeItem(item, isTurbo)));
+    async shakeItems(gameSpeed: string) {
+        await Promise.all(this.items.map((item) => this.shakeItem(item, gameSpeed)));
     }
 
-    async shakeItem(item: CascadingSlotReelItem, isTurbo: boolean) {
+    async shakeItem(item: CascadingSlotReelItem, gameSpeed: string) {
         ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
-        await item.playEffect("shake", isTurbo);
+        await item.playEffect("shake", gameSpeed);
         ComponentUtils.moveToOtherNode(item.node, this.node);
     }
 
-    async removeItem(index: number, isTurbo: boolean) {
+    async removeItem(index: number, gameSpeed: string) {
         const item = this.items[index];
         if (resourcesCache.gameFeatures?.fixedExplodeDuration) {
-            item.playEffect("explode", isTurbo).then(() => {
+            item.playEffect("explode", gameSpeed).then(() => {
                 item.node.destroy();
             });
             await AnimationUtils.delayTime(resourcesCache.gameFeatures.fixedExplodeDuration);
         } else {
-            await item.playEffect("explode", isTurbo);
+            await item.playEffect("explode", gameSpeed);
             item.node.destroy();
         }
     }
 
-    async removeItemsByIndex(list: number[], isTurbo: boolean) {
-        await Promise.all(list.map((index) => this.removeItem(index, isTurbo)));
+    async removeItemsByIndex(list: number[], gameSpeed: string) {
+        await Promise.all(list.map((index) => this.removeItem(index, gameSpeed)));
         this.items = this.items.filter((item, index) => !list.includes(index));
     }
 
-    async fallOut(isTurbo: boolean) {
-        await this.fallWithOffset(-this.itemDisplayCount, isTurbo, null);
+    async fallOut(gameSpeed: string) {
+        await this.fallWithOffset(-this.itemDisplayCount, gameSpeed, null);
     }
 
-    async fallIn(isTurbo: boolean, onEnded: () => void) {
-        await this.fallWithOffset(0, isTurbo, onEnded);
+    async fallIn(gameSpeed: string, onEnded: () => void) {
+        await this.fallWithOffset(0, gameSpeed, onEnded);
     }
 
-    async fallInRange(startIndex: number, endIndex: number, isTurbo: boolean, onEnded?: () => void) {
-        await this.fallWithOffsetRange(startIndex, endIndex, 0, isTurbo, onEnded);
+    async fallInRange(startIndex: number, endIndex: number, gameSpeed: string, onEnded?: () => void) {
+        await this.fallWithOffsetRange(startIndex, endIndex, 0, gameSpeed, onEnded);
     }
 
-    protected getSpeed(isTurbo: boolean, isFallOut: boolean): number {
+    protected getSpeed(gameSpeed: string, isFallOut: boolean): number {
         const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
 
-        if (isTurbo) {
+        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA_FAST) {
             return baseSpeed * 1.5;
         }
 
@@ -175,32 +177,31 @@ export class CascadingSlotReel extends Component {
         return baseSpeed;
     }
 
-    protected delayFallingEachItem(duration: any, isTurbo: boolean, isFallOut: boolean) {
+    protected delayFallingEachItem(duration: any, gameSpeed: string) {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
-        if (isFallOut) {
-            return 0.08 * duration;
+        if (this.isReFillSymbols && gameSpeed === GameSpeed.NORMAL) {
+            return 0.2 * duration;
         }
-
-        return 0.2 * duration;
+        return 0.08 * duration;
     }
 
-    protected getMinDuration(isTurbo: boolean, isFallOut: boolean): number {
-        if (isTurbo) {
+    protected getMinDuration(gameSpeed: string, isFallOut: boolean): number {
+        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA_FAST) {
             return isFallOut ? this.MIN_DURATION_TURBO_FALL_OUT : this.MIN_DURATION_TURBO_FALL_IN;
         }
         return isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
     }
 
-    async fallWithOffset(offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
-        await this.fallWithOffsetRange(0, this.items.length, offset, isTurbo, onBottomItemEnded);
+    async fallWithOffset(offset: number, gameSpeed: string, onBottomItemEnded?: () => void) {
+        await this.fallWithOffsetRange(0, this.items.length, offset, gameSpeed, onBottomItemEnded);
     }
 
-    async fallWithOffsetRange(startIndex: number, endIndex: number, offset: number, isTurbo: boolean, onBottomItemEnded?: () => void) {
+    async fallWithOffsetRange(startIndex: number, endIndex: number, offset: number, gameSpeed: string, onBottomItemEnded?: () => void) {
         const isFallOut = offset < 0;
-        const speed = this.getSpeed(isTurbo, isFallOut);
-        const minDuration = this.getMinDuration(isTurbo, isFallOut);
+        const speed = this.getSpeed(gameSpeed, isFallOut);
+        const minDuration = this.getMinDuration(gameSpeed, isFallOut);
 
         let duration = 0;
         for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
@@ -212,9 +213,9 @@ export class CascadingSlotReel extends Component {
             }
             duration = distance / speed;
             duration = Math.max(duration, minDuration);
-            const delay = this.delayFallingEachItem(duration, isTurbo, isFallOut);
+            const delay = this.delayFallingEachItem(duration, gameSpeed);
 
-            if (!isTurbo) {
+            if (gameSpeed === GameSpeed.NORMAL) {
                 await AnimationUtils.delayTime(delay);
             }
             const isBottomItem = i === 0;
@@ -287,14 +288,15 @@ export class CascadingSlotReel extends Component {
         });
     }
 
-    async spin(data: number[], multiplier: number[], isTurbo: boolean, onSpinEnded: () => void) {
+    async spin(data: number[], multiplier: number[], gameSpeed: string, onSpinEnded: () => void) {
+        this.isReFillSymbols = false;
         this.setItemData(data, multiplier);
         this.setStartPositionForItems();
-        await this.fallIn(isTurbo, onSpinEnded);
+        await this.fallIn(gameSpeed, onSpinEnded);
     }
 
-    async highlightItems(list: number[], isTurbo: boolean) {
-        await Promise.all(list.map((index) => this.highlightItem(index, isTurbo)));
+    async highlightItems(list: number[], gameSpeed: string) {
+        await Promise.all(list.map((index) => this.highlightItem(index, gameSpeed)));
     }
 
     async highlightScatterItems() {

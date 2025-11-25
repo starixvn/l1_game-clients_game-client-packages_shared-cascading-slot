@@ -12,6 +12,7 @@ import { CascadingSlotConfig } from "../../../cascading-slot-base-configs";
 import {
     BoardSize,
     convertBoardValue,
+    GameSpeed,
     globalEmitter,
     resourcesCache,
     SlotClientEvent,
@@ -131,16 +132,16 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    protected async fallOut(isTurbo: boolean, delay: number) {
+    protected async fallOut(gameSpeed: string, delay: number) {
         for (let i = 0; i < this.reels.length; i++) {
-            if (!isTurbo && i > 0) {
+            if (gameSpeed === GameSpeed.NORMAL && i > 0) {
                 await AnimationUtils.delayTime(delay);
             }
 
             if (i < this.reels.length - 1) {
-                this.reels[i].fallOut(isTurbo);
+                this.reels[i].fallOut(gameSpeed);
             } else {
-                await this.reels[i].fallOut(isTurbo);
+                await this.reels[i].fallOut(gameSpeed);
             }
         }
     }
@@ -150,7 +151,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         return isShowMessages;
     }
 
-    async handleTumbles(tumbles: Tumble[], isTurbo: boolean, tumbleWinView?: TumbleWinWiew) {
+    async handleTumbles(tumbles: Tumble[], gameSpeed: string, tumbleWinView?: TumbleWinWiew) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -185,15 +186,17 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.playSound(AudioIds.SYMBOL_MATCH);
             }
 
-            await this.removeItems(explode, i, isTurbo);
-            await AnimationUtils.delayTime(isTurbo ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL);
+            await this.removeItems(explode, i, gameSpeed);
+            await AnimationUtils.delayTime(
+                gameSpeed === GameSpeed.TURBO ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL
+            );
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             // Store old items count before adding new items
             const oldItemsCount = this.reels.map((reel) => reel.getItems().length);
-            const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
+            const hasPeekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffectInTumbles(remains) : null;
             if (hasPeekEffect) {
-                await this.fallInConcurrently(false);
+                await this.fallInConcurrently(gameSpeed);
                 this.reels.forEach((reel) => reel.peekEffectScatterItems());
                 AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
 
@@ -203,7 +206,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
             this.addItems(newItems, hasPeekEffect);
             this.updateMultiplierItems(tumbleMultipliers);
-            await this.fallIn(hasPeekEffect, isTurbo, oldItemsCount);
+            await this.fallIn(hasPeekEffect, gameSpeed, oldItemsCount);
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
@@ -218,26 +221,27 @@ export class CascadingSlotBoard extends ObserverComponent {
         return tumbleWin;
     }
 
-    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
+    public async spinResult(symbolsBoard: SymbolBoard, gameSpeed: string) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const delayEachReelFallIn = this.reels[0].DELAY_EACH_ITEM_FALL_IN_DELAY;
         const { symbols, multipliers } = symbolsBoard;
+        console.time("spinResult");
 
-        this.playSpinAudio(isTurbo);
+        this.playSpinAudio(gameSpeed);
 
-        await this.fallOut(isTurbo, delayEachReelFallOut);
+        await this.fallOut(gameSpeed, delayEachReelFallOut);
 
-        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
+        const peekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffect(symbols) : null;
         for (let i = 0; i < this.reels.length; i++) {
-            if (!isTurbo && i > 0) {
+            if (gameSpeed === GameSpeed.NORMAL && i > 0) {
                 await AnimationUtils.delayTime(delayEachReelFallIn);
             }
             const reelSymbols = symbols[i];
             const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
             if (i < awaitReelIndex) {
-                this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+                this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
             } else if (i === awaitReelIndex) {
-                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
             } else {
                 this.showScattersOnPreviousReels(i);
                 const begin = i === awaitReelIndex + 1;
@@ -245,9 +249,10 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.showPeekEffect(false, i);
                 await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
                 this.reels[i].peekEffectHighlightAllItems();
-                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
             }
         }
+        console.timeEnd("spinResult");
         AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
         this.hidePeekEffects();
     }
@@ -271,11 +276,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         };
     }
 
-    private playSpinAudio(isTurbo: boolean) {
-        if (isTurbo) {
-            this.playSound(AudioIds.SPINNING_TURBO);
-        } else {
+    private playSpinAudio(gameSpeed: string) {
+        if (gameSpeed === GameSpeed.NORMAL) {
             this.playSound(AudioIds.SPINNING_NORMAL);
+        } else {
+            this.playSound(AudioIds.SPINNING_TURBO);
         }
     }
 
@@ -314,7 +319,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         return matchingItems;
     }
 
-    public async removeItems(data: number[][], tumbleIndex: number, isTurbo: boolean) {
+    public async removeItems(data: number[][], tumbleIndex: number, gameSpeed: string) {
         const reelItems = this.reels.map((reel, index) => {
             return data[index]
                 .map((item, index) => {
@@ -326,31 +331,31 @@ export class CascadingSlotBoard extends ObserverComponent {
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
-                return reel.highlightItems(items, isTurbo);
+                return reel.highlightItems(items, gameSpeed);
             })
         );
         this.peekEffectOverlay.active = false;
         await Promise.all(
             reelItems.map((items, index) => {
                 const reel = this.reels[index];
-                return reel.removeItemsByIndex(items, isTurbo);
+                return reel.removeItemsByIndex(items, gameSpeed);
             })
         );
     }
 
-    public async fallInConcurrently(isTurbo: boolean) {
+    public async fallInConcurrently(gameSpeed: string) {
         await Promise.all(
             this.reels.map((reel) => {
-                return reel.fallIn(isTurbo, null);
+                return reel.fallIn(gameSpeed, null);
             })
         );
     }
 
-    public async fallIn(peekEffect: boolean, isTurbo: boolean, remainSymbolsCount?: number[]) {
+    public async fallIn(peekEffect: boolean, gameSpeed: string, remainSymbolsCount?: number[]) {
         if (peekEffect) {
             for (let i = 0; i < this.reels.length; i++) {
                 const reel = this.reels[i];
-                await reel.fallIn(isTurbo, null);
+                await reel.fallIn(gameSpeed, null);
                 reel.moveItemsBackToReelNode();
                 reel.peekEffectScatterItems();
                 this.hidePeekEffectAtIndex(i);
@@ -358,33 +363,40 @@ export class CascadingSlotBoard extends ObserverComponent {
         } else {
             // For each reel: fall in remaining items, wait for it to finish, delay 0.1s, then fall in new items
             // Each reel starts 0.1s after the previous reel starts (reels run in parallel, not waiting for completion)
-            const reelPromises = this.reels.map(async (reel, reelIndex) => {
-                await AnimationUtils.delayTime(reelIndex * 0.1);
-                const oldCount = remainSymbolsCount[reelIndex];
-                const newCount = reel.getItems().length;
+            const reelPromises = this.reels.map((reel, reelIndex) => {
+                return new Promise<void>((resolve) => {
+                    setTimeout(async () => {
+                        const oldCount = remainSymbolsCount[reelIndex];
+                        const newCount = reel.getItems().length;
 
-                // Fall in remaining items and wait for it to finish
-                if (oldCount > 0) {
-                    await reel.fallInRange(0, oldCount, isTurbo, null);
-                }
+                        // Fall in remaining items and wait for it to finish
+                        if (oldCount > 0) {
+                            reel.isReFillSymbols = true;
+                            await reel.fallInRange(0, oldCount, gameSpeed, null);
+                        }
 
-                // Delay 0.1s before falling in new items
-                await AnimationUtils.delayTime(0.1);
+                        // Delay 0.1s before falling in new items
+                        await AnimationUtils.delayTime(0.1);
 
-                // Fall in new items
-                if (newCount > oldCount) {
-                    await reel.fallInRange(oldCount, newCount, isTurbo, null);
-                }
+                        // Fall in new items
+                        if (newCount > oldCount) {
+                            reel.isReFillSymbols = true;
+                            await reel.fallInRange(oldCount, newCount, gameSpeed, null);
+                        }
+
+                        resolve();
+                    }, reelIndex * 100);
+                });
             });
 
             await Promise.all(reelPromises);
         }
     }
 
-    public async shakeItems(isTurbo: boolean) {
+    public async shakeItems(gameSpeed: string) {
         await Promise.all(
             this.reels.map((reel) => {
-                return reel.shakeItems(isTurbo);
+                return reel.shakeItems(gameSpeed);
             })
         );
     }

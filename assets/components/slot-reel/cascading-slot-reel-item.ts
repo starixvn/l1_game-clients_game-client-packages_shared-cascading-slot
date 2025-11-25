@@ -1,6 +1,6 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp, warn } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
+import { GameSpeed, resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
 const { ccclass, property } = _decorator;
@@ -92,14 +92,16 @@ export class CascadingSlotReelItem extends Component {
         return this._effectSpine;
     }
 
-    async playEffect(animation: string, isTurbo: boolean) {
+    async playEffect(animation: string, gameSpeed: string) {
         if (!this.effectSpine) {
             return;
         }
-        const duration = isTurbo
-            ? this.effectSpine.findAnimation(animation).duration * 0.25
-            : this.effectSpine.findAnimation(animation).duration;
-        console.log("duration spine", duration);
+        const ratioSpeed = {
+            [GameSpeed.TURBO]: 0.5,
+            [GameSpeed.NORMAL]: 1,
+            [GameSpeed.ULTRA_FAST]: 0.25,
+        };
+        const duration = this.effectSpine.findAnimation(animation).duration * ratioSpeed[gameSpeed];
         await AnimationUtils.playSpine(this.effectSpine, animation, false, duration);
     }
 }
