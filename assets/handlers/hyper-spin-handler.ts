@@ -397,7 +397,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        if (!this.hyperSpinStore.isHyperSpin) return;
+        if (!this.hyperSpinStore.isHyperSpin) {
+            return;
+        }
 
         const currentTime = Date.now();
 
@@ -502,7 +504,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return null;
         }
 
-        const batchData = this.hyperSpinStore.currentBatchData!;
+        const batchData = this.hyperSpinStore.currentBatchData;
         const totalRounds = this.hyperSpinStore.roundsList[this.hyperSpinStore.roundsList.indexOf(this.hyperSpinStore.selectedRoundOnPopup)] || this.hyperSpinStore.selectedRoundOnPopup;
         const completedRounds = totalRounds - this.hyperSpinStore.roundsHyperSpin;
 

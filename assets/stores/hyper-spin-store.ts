@@ -153,7 +153,9 @@ export class HyperSpinStore {
             }
             if (this.cascadingUIStore.userBalance > 0) {
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
-                if (currentMaxStopOnLoss > 0) this._previousMaxStopOnLoss = currentMaxStopOnLoss;
+                if (currentMaxStopOnLoss > 0) {
+                    this._previousMaxStopOnLoss = currentMaxStopOnLoss;
+                }
             }
         }, 0);
     }
@@ -358,13 +360,7 @@ export class HyperSpinStore {
 
     // Fallback for cached code compatibility
     initializeHyperSpinTrackingFallback() {
-        if (!this.cascadingUIStore) {
-            return;
-        }
-
-        this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
-        this._hyperSpinCurrentProfit = 0;
-        this._hyperSpinCurrentLoss = 0;
+        this.startHyperSpinSessionTracking();
     }
 
     stopHyperSpinSessionTracking() {
@@ -374,7 +370,9 @@ export class HyperSpinStore {
     }
 
     updateHyperSpinProfitLoss() {
-        if (this._hyperSpinInitialBalance === 0 || !this.cascadingUIStore) return;
+        if (this._hyperSpinInitialBalance === 0 || !this.cascadingUIStore) {
+            return;
+        }
 
         const currentBalance = this.cascadingUIStore.userBalance;
         const balanceChange = currentBalance - this._hyperSpinInitialBalance;
@@ -450,8 +448,12 @@ export class HyperSpinStore {
     }
 
     startHyperSpinBatch() {
-        if (!this._currentBatchData) this.initializeHyperSpinBatch();
-        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        if (!this._currentBatchData) {
+            this.initializeHyperSpinBatch();
+        }
+        if (this._currentBatchData) {
+            this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        }
     }
 
     pauseHyperSpinBatch() {
@@ -495,7 +497,7 @@ export class HyperSpinStore {
         }
     }
 
-    private formatNumber(value: number, decimals: number = 2): string {
+    private formatNumber(value: number, decimals = 2): string {
         return FormatUtils.numberWithCommas(value, decimals, true);
     }
 
@@ -512,10 +514,18 @@ export class HyperSpinStore {
         superWin: boolean,
         reachMaxWin: boolean
     ): WinTag {
-        if (reachMaxWin) return "Amethyst";
-        if (megaWin) return "Gold";
-        if (superWin) return "Silver";
-        if (bigWin) return "Bronze";
+        if (reachMaxWin) {
+            return "Amethyst";
+        }
+        if (megaWin) {
+            return "Gold";
+        }
+        if (superWin) {
+            return "Silver";
+        }
+        if (bigWin) {
+            return "Bronze";
+        }
         return null;
     }
 

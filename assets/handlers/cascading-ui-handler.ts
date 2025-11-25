@@ -69,40 +69,51 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         const previousFreeSpinsTotal = this.uiStore.freeSpinsTotal;
         this.uiStore.freeSpinsTotal = freeSpinsTotal;
 
-        // Handle free-spin activation during hyper-spin
+        this.handleFreeSpinActivation(previousFreeSpinsTotal, freeSpinsTotal);
+        this.handleFreeSpinDeactivation(freeSpinsTotal);
+    }
+
+    private handleFreeSpinActivation(previousFreeSpinsTotal: number, freeSpinsTotal: number) {
         const isHyperSpinActiveOrSetup = this.uiStore.isHyperSpinActive || (this.hyperSpinStore?.roundsHyperSpin ?? 0) > 0;
         const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0 && isHyperSpinActiveOrSetup;
 
-        if (conditionMet) {
-            // Handle popup behavior based on stopOnFeature setting
-            if (this.hyperSpinStore.stopOnFeature) {
-                // Close hyper-spin popup and run free spins normally with UI
-                if (this.hyperSpinStore) {
-                    this.hyperSpinStore.isOpenHyperSpinPopup = false;
-                    this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
-                    this.hyperSpinStore.setHyperSpinActive(false);
-                    this.uiStore.isHyperSpinActive = false;
-                }
-            } else {
-                // Keep hyper-spin popup open for batch mode monitoring
-                if (this.hyperSpinStore) {
-                    const wasHyperSpinActive = this.hyperSpinStore.isHyperSpinActive;
-                    if (wasHyperSpinActive && !this.hyperSpinStore.isHyperSpinActive) {
-                        this.hyperSpinStore.setHyperSpinActive(true);
-                    }
-                }
-            }
-
-            // Update free-spin count message (similar to buy-freespins workflow)
-            this.updateFreespinCountMsgBottom(freeSpinsTotal);
-
-            // Set up free-spin trigger (similar to buy-freespins workflow)
-            this.handleTriggerDuringFreeSpinBonus();
-
-            // Trigger free-spin auto-start
-            this.uiStore.isFreeSpinEffectCompleted = true;
+        if (!conditionMet) {
+            return;
         }
 
+        this.handleHyperSpinPopupBehavior();
+        this.updateFreespinCountMsgBottom(freeSpinsTotal);
+        this.handleTriggerDuringFreeSpinBonus();
+        this.uiStore.isFreeSpinEffectCompleted = true;
+    }
+
+    private handleHyperSpinPopupBehavior() {
+        if (!this.hyperSpinStore) {
+            return;
+        }
+
+        if (this.hyperSpinStore.stopOnFeature) {
+            this.closeHyperSpinPopup();
+        } else {
+            this.ensureHyperSpinActive();
+        }
+    }
+
+    private closeHyperSpinPopup() {
+        this.hyperSpinStore.isOpenHyperSpinPopup = false;
+        this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
+        this.hyperSpinStore.setHyperSpinActive(false);
+        this.uiStore.isHyperSpinActive = false;
+    }
+
+    private ensureHyperSpinActive() {
+        const wasHyperSpinActive = this.hyperSpinStore.isHyperSpinActive;
+        if (wasHyperSpinActive && !this.hyperSpinStore.isHyperSpinActive) {
+            this.hyperSpinStore.setHyperSpinActive(true);
+        }
+    }
+
+    private handleFreeSpinDeactivation(freeSpinsTotal: number) {
         const shouldTriggerFreeSpinBonusEnd = freeSpinsTotal === 0 && !this.fsbPromotionUIStore.isFSBPromotionInProgress;
 
         if (shouldTriggerFreeSpinBonusEnd) {
@@ -426,8 +437,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
             // For now, directly call the store method since we have access to it
             const recoverySuccess = this.hyperSpinStore?.recoverInterruptedBatch();
-            if (recoverySuccess) {
-            } else {
+            if (!recoverySuccess) {
                 this.showRecoveryFailedMessage();
             }
         } else {

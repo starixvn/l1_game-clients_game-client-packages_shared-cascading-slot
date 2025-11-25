@@ -37,7 +37,9 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
             // Search children recursively
             for (const child of node.children) {
                 const found = findLabel(child);
-                if (found) return found;
+                if (found) {
+                    return found;
+                }
             }
             return null;
         };
