@@ -1,3 +1,5 @@
+import gc from "@sg/game-client-base";
+const { MainPlayerStore } = gc.Player;
 import { _decorator, Label } from "cc";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
 import { AnimationUtils } from "db://shared-components/shared/utils";
@@ -16,6 +18,12 @@ export class TotalMultiplierView extends FadeAppearanceNode {
         super.onLoad();
     }
 
+    private xMode = 1;
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
+    }
+
     @render(CascadingUIStore, (store) => store.totalMultiplier)
     setValue(totalMultiplier: number, animated = true) {
         if (totalMultiplier === 0) {
@@ -32,6 +40,7 @@ export class TotalMultiplierView extends FadeAppearanceNode {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
+                xMode: this.xMode,
             });
         } else {
             this.total.string = totalMultiplier > 0 ? `x${totalMultiplier}` : "";

@@ -1,3 +1,5 @@
+import gc from "@sg/game-client-base";
+const { MainPlayerStore } = gc.Player;
 import { _decorator, Color, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
@@ -17,6 +19,13 @@ export class CascadingBottomArea extends ObserverComponent {
 
     protected colorConfig: any;
 
+    private xMode = 1;
+
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
+    }
+
     onLoad(): void {
         this.colorConfig = resourcesCache.colorJson;
         this.updateColor();
@@ -31,7 +40,7 @@ export class CascadingBottomArea extends ObserverComponent {
             this.totalWinLabel.string = totalTumbleWin.toString();
             return;
         }
-        AnimationUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
+        AnimationUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: this.xMode });
     }
 
     updateColor() {

@@ -1,4 +1,5 @@
 import gc from "@sg/game-client-base";
+const { MainPlayerStore } = gc.Player;
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -53,15 +54,19 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private readonly MAX_SKIP_CLICK_COUNT = 2;
     private bigWinRange = [];
 
+    private xMode = 1;
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
+    }
     setAmount(data: BigWinType) {
         const { amount } = data;
         const duration = data.duration ?? 0;
         const delayTime = data.delayTime ?? 0;
-        const noZeroSuffix = data.noZeroSuffix ?? false;
 
         tween(this.lblWinAmount.node)
             .delay(delayTime)
-            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: noZeroSuffix }))
+            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: true, xMode: this.xMode }))
             .start();
     }
 

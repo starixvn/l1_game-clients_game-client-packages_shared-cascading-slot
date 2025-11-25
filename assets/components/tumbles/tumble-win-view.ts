@@ -1,4 +1,5 @@
 import gc from "@sg/game-client-base";
+const { MainPlayerStore } = gc.Player;
 import { _decorator, Label, Layout, Node, tween, UIOpacity, UITransform, v3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
@@ -23,6 +24,12 @@ export class TumbleWinWiew extends FadeAppearanceNode {
     totalWin: Label = null;
 
     readonly mulitiplierEffectDuration = 0.2;
+
+    private xMode = 1;
+    @render(MainPlayerStore, (store) => store.xMode)
+    setXMode(value: number) {
+        this.xMode = value;
+    }
 
     onLoad() {
         super.onLoad();
@@ -57,7 +64,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
             this.tumbleLabel.string = "";
             return;
         }
-        AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: false });
+        AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: this.xMode });
     }
 
     setTotalWinValue(value: number) {
