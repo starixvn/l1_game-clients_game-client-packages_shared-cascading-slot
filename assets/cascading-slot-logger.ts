@@ -61,21 +61,21 @@ export interface LogOptions {
 }
 
 class CascadingSlotLogger {
-    private isEnabled: boolean = false;
+    private isEnabled = false;
     private readonly featureName: string = 'CASCADING_SLOT';
     private readonly storageKey: string = 'cascading-slot-logs';
     private readonly fileSettingsKey: string = 'cascading-slot-logger-file-settings';
-    private maxLogs: number = 1000; // Maximum number of logs to keep in memory
+    private readonly maxLogs: number = 1000; // Maximum number of logs to keep in memory
     private fileSettings: Map<string, boolean> = new Map(); // Per-file enable/disable settings
 
     // Async write queue system to prevent blocking
     private logQueue: string[] = []; // Queue of log messages waiting to be written
-    private writePending: boolean = false; // Flag to prevent multiple simultaneous writes
+    private writePending = false; // Flag to prevent multiple simultaneous writes
     private writeTimer: ReturnType<typeof setTimeout> | null = null; // Timer for deferred writes
     private readonly writeBatchSize: number = 10; // Number of logs to batch before writing
     private readonly writeDelayMs: number = 100; // Delay before writing (ms)
     private logCache: string[] | null = null; // In-memory cache of logs to avoid frequent localStorage reads
-    private cacheValid: boolean = false; // Flag to track if cache is valid
+    private cacheValid = false; // Flag to track if cache is valid
 
     constructor() {
         this.loadFileSettings();
@@ -149,7 +149,7 @@ class CascadingSlotLogger {
      */
     public getFileEnabled(fileIdentifier: string): boolean {
         if (this.fileSettings.has(fileIdentifier)) {
-            return this.fileSettings.get(fileIdentifier)!;
+            return this.fileSettings.get(fileIdentifier) ?? false;
         }
         return this.isEnabled; // Default to global setting
     }
@@ -244,11 +244,9 @@ class CascadingSlotLogger {
                     console.warn(logMessage);
                     break;
                 case 'debug':
-                    // console.debug(logMessage);
                     break;
                 case 'info':
                 default:
-                    // console.log(logMessage);
                     break;
             }
         }
@@ -393,7 +391,7 @@ class CascadingSlotLogger {
      * @param forceRefresh - If true, bypass cache and read from localStorage
      * @returns Array of log messages
      */
-    private getStoredLogs(forceRefresh: boolean = false): string[] {
+    private getStoredLogs(forceRefresh = false): string[] {
         // Use cache if valid and not forcing refresh
         if (!forceRefresh && this.cacheValid && this.logCache !== null) {
             return [...this.logCache];
@@ -662,8 +660,7 @@ export function getFileIdentifier(): string {
 
         const stackLines = stack.split('\n');
         // Find the first line that references a file in shared-cascading-slot
-        for (let i = 0; i < stackLines.length; i++) {
-            const line = stackLines[i];
+        for (const line of stackLines) {
             const match = line.match(/shared-cascading-slot[^:]*:(\d+):(\d+)/);
             if (match) {
                 // Extract the file path

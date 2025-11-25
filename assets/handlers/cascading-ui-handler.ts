@@ -54,10 +54,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     handleTotalWin({ win, isActualWin = false }) {
         this.uiStore.isActualWin = isActualWin;
         if (!this.uiStore.isActualWin) {
-            const previousTotalWin = this.uiStore.totalWin;
             this.uiStore.totalWin += win;
         } else {
-            const previousTotalWin = this.uiStore.totalWin;
             this.uiStore.totalWin = win;
         }
     }
@@ -213,8 +211,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     handleFreespinsJoinGame(freespins: any) {
         // Warn when free spins are received from service join game message
-        if (freespins && (freespins.total > 0 || freespins.length > 0)) {
-        }
 
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
 
@@ -415,7 +411,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     /** Show recovery dialog for interrupted batch */
     private showBatchRecoveryDialog() {
         // For now, show a notification. In a full implementation, this would show a proper dialog
-        const message = "An interrupted Hyper-Spin batch was detected. The batch will be available for recovery.";
 
         // Update UI state to indicate recovery is available
         if (this.uiStore) {
@@ -443,7 +438,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     /** Show message when recovery fails */
     private showRecoveryFailedMessage() {
-        const message = "Failed to recover the interrupted Hyper-Spin batch. Please start a new batch.";
         // Could show a notice here if noticeStore is available
     }
 

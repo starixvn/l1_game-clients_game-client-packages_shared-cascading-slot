@@ -1,8 +1,5 @@
-import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
 
 const { ccclass, property } = _decorator;
 
@@ -24,7 +21,9 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
      * Find label by name pattern (fallback if @property is not assigned in prefab)
      */
     private findLabelByName(namePatterns: string[]): Label | null {
-        if (!this.node) return null;
+        if (!this.node) {
+            return null;
+        }
         const findLabel = (node: Node): Label | null => {
             // Check if node name matches any pattern
             for (const pattern of namePatterns) {
@@ -36,8 +35,8 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
                 }
             }
             // Search children recursively
-            for (let i = 0; i < node.children.length; i++) {
-                const found = findLabel(node.children[i]);
+            for (const child of node.children) {
+                const found = findLabel(child);
                 if (found) return found;
             }
             return null;
@@ -61,28 +60,24 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
         const lblSpinValue = this.lblSpinValue || this.findLabelByName(["lbl-spin-value", "spin-value", "spin"]);
         if (lblSpinValue) {
             lblSpinValue.string = spinData.spinId.toString();
-        } else {
         }
 
         // 2.2: assign spin.spinWinAmount to lbl-win-value
         const lblWinValue = this.lblWinValue || this.findLabelByName(["lbl-win-value", "win-value", "win"]);
         if (lblWinValue) {
             lblWinValue.string = spinData.spinWinAmount;
-        } else {
         }
 
         // 2.3: assign spin.spinBalance to lbl-balance
         const lblBalance = this.lblBalance || this.findLabelByName(["lbl-balance", "balance"]);
         if (lblBalance) {
             lblBalance.string = spinData.spinBalance;
-        } else {
         }
 
         // 2.4: assign spin.spinWinMultiplier to lbl-multiplier-value
         const lblMultiplierValue = this.lblMultiplierValue || this.findLabelByName(["lbl-multiplier-value", "multiplier-value", "multiplier"]);
         if (lblMultiplierValue) {
             lblMultiplierValue.string = spinData.spinWinMultiplier;
-        } else {
         }
 
     }

@@ -1,22 +1,22 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Slider, Sprite, Prefab, Node, Component } from "cc";
+import { _decorator, instantiate, Label, Slider, Sprite, Prefab, Node } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { DialogName } from "../../cascading-slot-utils";
 import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
-import { HyperSpinStore } from "../../stores/hyper-spin-store";
+import { HyperSpinStore, HyperSpinBatchData } from "../../stores/hyper-spin-store";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { SliderCtrl } from "./slider-ctrl";
 import HyperSpinRoundNumber from "../hyper-spin/hyper-spin-round-number";
 import HyperSpinRecordBodyItem from "../hyper-spin/hyper-spin-record-body-item";
-import { HyperSpinBatchData } from "../../stores/hyper-spin-store";
 
 const { ccclass, menu, property } = _decorator;
 const { observer, render, handle } = Observer;
+
+type SliderEventType = Slider | Event | any;
 
 export type TotalBetType = { coin: number; level: number; totalBet: number; increase: boolean; decrease: boolean };
 
@@ -135,7 +135,7 @@ export class HyperSpinBetControl extends ObserverComponent {
     hyperSpinControlsNode: Node = null;
 
     private currentDialogName: string = null;
-    private isOpenBetAmountPopup: boolean = false;
+    private isOpenBetAmountPopup = false;
 
     @render(HyperSpinStore, (store) => {
         return {
@@ -196,7 +196,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
             if (recordBodyItem) {
                 const spinData = {
-                    spinId: spin.spinId as string | number,
+                    spinId: spin.spinId,
                     spinWinAmount: spin.spinWinAmount || "0.00",
                     spinBalance: spin.spinBalance || "0.00",
                     spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
@@ -234,7 +234,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
                 if (recordBodyItem) {
                     const spinData = {
-                        spinId: spin.spinId as string | number,
+                        spinId: spin.spinId,
                         spinWinAmount: spin.spinWinAmount || "0.00",
                         spinBalance: spin.spinBalance || "0.00",
                         spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
@@ -394,7 +394,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         return progress;
     }
 
-    onTotalBetChange(slider: Slider | Event | any) {
+    onTotalBetChange(slider: SliderEventType) {
         if (slider && typeof slider.progress === "number" && !isNaN(slider.progress)) {
             this.handleTotalBetSliderChange(slider.progress);
         }
@@ -653,7 +653,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     }))
     private updateStartingBalanceLabel(data: { batchStartingBalance: string; hasBatchData: boolean }) {
         if (this.startingBalanceLabel) {
-            const previousValue = this.startingBalanceLabel.string;
             let displayValue: string;
 
             if (data.hasBatchData && data.batchStartingBalance) {

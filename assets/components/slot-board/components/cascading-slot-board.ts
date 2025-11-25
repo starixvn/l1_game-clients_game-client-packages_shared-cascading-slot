@@ -143,7 +143,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         }
     }
 
-    async handleTumbles(tumbles: Tumble[], isTurbo: boolean, skipAnimations: boolean = false) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean, skipAnimations = false) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
@@ -223,7 +223,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         return tumbleWin;
     }
 
-    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean, skipAnimations: boolean = false) {
+    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean, skipAnimations = false) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 

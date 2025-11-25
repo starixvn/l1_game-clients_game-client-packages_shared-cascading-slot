@@ -4,7 +4,6 @@ import { NodeContainer } from "db://shared-components/shared/common-components/n
 import Observer from "observer";
 
 import { HyperSpinStore } from "../../stores/hyper-spin-store";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -29,7 +28,6 @@ export class HyperSpinPopupContainer extends NodeContainer {
                 const dialogComponent = firstNode.getComponent(Dialog);
 
                 dialogComponent?.hide();
-            } else {
             }
 
             return;

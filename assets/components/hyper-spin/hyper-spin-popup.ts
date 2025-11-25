@@ -4,11 +4,8 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
-import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { HyperSpinStore } from "../../stores/hyper-spin-store";
-import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import HyperSpinRoundNumber from "./hyper-spin-round-number";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;
@@ -57,8 +54,7 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        const audioId = gc.Audios.AudioIds.CLICK;
-        return audioId;
+        return gc.Audios.AudioIds.CLICK;
     }
 }
 

@@ -1,4 +1,4 @@
-import { Slider, Node, _decorator } from "cc";
+import { Slider, _decorator } from "cc";
 const { ccclass, property } = _decorator;
 
 export enum SliderState {

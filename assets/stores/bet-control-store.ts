@@ -164,7 +164,9 @@ export class BetControlStore {
 
     // Computed properties for UI state
     get totalBetSliderProgress(): number {
-        if (!this.totalBetUnique || this.totalBetUnique.length === 0) return 0;
+        if (!this.totalBetUnique || this.totalBetUnique.length === 0) {
+            return 0;
+        }
 
         const betValues = this.totalBetUnique.map(item => +Object.keys(item)[0]);
         const minBet = Math.min(...betValues);

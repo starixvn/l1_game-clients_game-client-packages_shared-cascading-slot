@@ -1,6 +1,5 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { DialogName, SlotNotification } from "../cascading-slot-utils";
@@ -16,13 +15,13 @@ const { injectable, inject } = inversify;
 @injectable()
 export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     // Timing tracking for hyper-spin batch
-    private hyperSpinBatchStartTime: number = 0;
-    private hyperSpinBatchEndTime: number = 0;
+    private hyperSpinBatchStartTime = 0;
+    private hyperSpinBatchEndTime = 0;
 
     // Interruption detection and timeout protection
     private settlementWaitTimeout: number | null = null;
     private readonly SETTLEMENT_WAIT_TIMEOUT_MS = 10000; // 10 second timeout
-    private lastSettlementCheckTime: number = 0;
+    private lastSettlementCheckTime = 0;
     private isBatchInterrupted = false;
     private isCompletionPending = false;
 
@@ -92,10 +91,14 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     setTotalBetFromSlider(sliderProgress: number) {
-        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) return;
+        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) {
+            return;
+        }
 
         const totalBetUnique = this.betControlStore.totalBetUnique;
-        if (!totalBetUnique || totalBetUnique.length === 0) return;
+        if (!totalBetUnique || totalBetUnique.length === 0) {
+            return;
+        }
 
         const clampedProgress = Math.max(0, Math.min(1, sliderProgress));
         const betValues = totalBetUnique.map(item => +Object.keys(item)[0]);
@@ -126,7 +129,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     setStopOnProfitFromSlider(sliderProgress: number) {
-        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) return;
+        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) {
+            return;
+        }
 
         const min = this.hyperSpinStore.minStopOnProfit;
         const max = this.hyperSpinStore.maxStopOnProfit;
@@ -141,7 +146,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     setStopOnLossFromSlider(sliderProgress: number) {
-        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) return;
+        if (typeof sliderProgress !== "number" || isNaN(sliderProgress)) {
+            return;
+        }
 
         const min = this.hyperSpinStore.minStopOnLoss;
         const max = this.hyperSpinStore.maxStopOnLoss;
@@ -382,7 +389,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.checkHyperSpinNextRound();
     }
 
-    private lastSpinTimestamp: number = 0;
+    private lastSpinTimestamp = 0;
 
     checkHyperSpinNextRound() {
         if (this.isBatchInterrupted) {
@@ -484,7 +491,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
     }
 
-    hasInterruptedBatch(): boolean {
+    hasInterruptedBatch() {
         return !!(this.hyperSpinStore.currentBatchData &&
             this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus === "Interrupted" &&
             this.hyperSpinStore.roundsHyperSpin > 0);
@@ -517,9 +524,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // Reset timing if hyper-spin was cancelled
         if (this.hyperSpinBatchStartTime > 0 && this.hyperSpinBatchEndTime === 0) {
             this.hyperSpinBatchEndTime = Date.now();
-            const batchDuration = this.hyperSpinBatchEndTime - this.hyperSpinBatchStartTime;
-            const endTimestamp = new Date(this.hyperSpinBatchEndTime).toISOString();
-
         }
 
         // Set hyper-spin inactive using HyperSpinStore method

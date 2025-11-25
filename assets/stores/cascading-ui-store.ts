@@ -1,8 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import mobx from "mobx";
-
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, SlotNotification, SpinButtonState } from "../cascading-slot-utils";

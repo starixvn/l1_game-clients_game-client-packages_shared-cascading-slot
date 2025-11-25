@@ -4,7 +4,6 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
-import { cascadingSlotLogger } from "../../cascading-slot-logger";
 
 const { Connection } = gc;
 const { ccclass, property } = _decorator;
@@ -26,8 +25,7 @@ export default class HyperSpinRoundNumber extends ObserverComponent {
 
     get value() {
         const nodeName = this.node.name;
-        const numericValue = +nodeName;
-        return numericValue;
+        return +nodeName;
     }
 
     setValue(noOfRound: number) {
@@ -44,17 +42,15 @@ export default class HyperSpinRoundNumber extends ObserverComponent {
     @handle(HyperSpinHandler, (handle, rounds: number) => handle.updateHyperSpinRounds(rounds))
     onRoundNumberItemClick(event) {
         const eventTargetName = event.target.name;
-        const returnValue = +eventTargetName;
 
         this.playSoundClick();
         this.setSelectedRound(true);
-        return returnValue;
+        return +eventTargetName;
     }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
-        const audioId = gc.Audios.AudioIds.CLICK;
-        return audioId;
+        return gc.Audios.AudioIds.CLICK;
     }
 }
 

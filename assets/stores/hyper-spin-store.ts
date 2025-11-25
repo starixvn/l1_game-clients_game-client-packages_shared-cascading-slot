@@ -67,7 +67,9 @@ export class HyperSpinStore {
         mobx.reaction(
             () => this.betControlStore?.totalBet,
             () => {
-                if (!this.betControlStore || !this.cascadingUIStore || !this.configStore) return;
+                if (!this.betControlStore || !this.cascadingUIStore || !this.configStore) {
+                    return;
+                }
 
                 const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
@@ -86,7 +88,9 @@ export class HyperSpinStore {
         mobx.reaction(
             () => this.cascadingUIStore?.userBalance,
             () => {
-                if (!this.cascadingUIStore) return;
+                if (!this.cascadingUIStore) {
+                    return;
+                }
 
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
 
@@ -110,7 +114,9 @@ export class HyperSpinStore {
         mobx.reaction(
             () => this.betControlStore?.totalBet,
             () => {
-                if (!this.betControlStore || !this.configStore) return;
+                if (!this.betControlStore || !this.configStore) {
+                    return;
+                }
 
                 const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
@@ -134,12 +140,16 @@ export class HyperSpinStore {
 
         // Initialize previous max values after stores are ready
         setTimeout(() => {
-            if (!this.configStore || !this.cascadingUIStore) return;
+            if (!this.configStore || !this.cascadingUIStore) {
+                return;
+            }
 
             const maxWinPerRound = this.configStore.gameConfigs?.maxWinPerRound ?? 0;
             if (maxWinPerRound > 0) {
                 const currentMaxStopOnProfit = this.maxStopOnProfit;
-                if (currentMaxStopOnProfit > 0) this._previousMaxStopOnProfit = currentMaxStopOnProfit;
+                if (currentMaxStopOnProfit > 0) {
+                    this._previousMaxStopOnProfit = currentMaxStopOnProfit;
+                }
             }
             if (this.cascadingUIStore.userBalance > 0) {
                 const currentMaxStopOnLoss = this.maxStopOnLoss;
@@ -337,7 +347,9 @@ export class HyperSpinStore {
     }
 
     startHyperSpinSessionTracking() {
-        if (!this.cascadingUIStore) return;
+        if (!this.cascadingUIStore) {
+            return;
+        }
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
@@ -346,7 +358,9 @@ export class HyperSpinStore {
 
     // Fallback for cached code compatibility
     initializeHyperSpinTrackingFallback() {
-        if (!this.cascadingUIStore) return;
+        if (!this.cascadingUIStore) {
+            return;
+        }
 
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
@@ -441,11 +455,15 @@ export class HyperSpinStore {
     }
 
     pauseHyperSpinBatch() {
-        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Paused";
+        if (this._currentBatchData) {
+            this._currentBatchData.summary.hyperSpinStatus = "Paused";
+        }
     }
 
     resumeHyperSpinBatch() {
-        if (this._currentBatchData) this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        if (this._currentBatchData) {
+            this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        }
     }
 
     completeHyperSpinBatch() {

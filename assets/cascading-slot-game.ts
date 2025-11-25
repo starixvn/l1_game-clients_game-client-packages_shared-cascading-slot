@@ -6,7 +6,6 @@ import { StaticGroupId } from "db://shared-components/shared/common-components/s
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
-import { cascadingSlotLogger } from "./cascading-slot-logger";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import {
@@ -115,7 +114,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
-    connectToService() {}
+    connectToService() { }
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
@@ -123,13 +122,13 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @render(LogStore, (store) => store.message)
-    logInfo(message: string) {}
+    logInfo(message: string) { }
 
     @handle(gc.UserSettings.UserSettingHandlers, (handle) => handle.loadStorages())
-    initUserSettings() {}
+    initUserSettings() { }
 
     @handle(gc.PlayerSelections.PlayerSelectionHandlers.InitHandlers)
-    initPlayerSelections() {}
+    initPlayerSelections() { }
 
     @handle(HideGame.HideGameHandler)
     onHideGame() {
@@ -191,7 +190,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
     async handleSettlement(finishData: any) {
-        const settlementStartTime = Date.now();
 
         if (!finishData) {
             return;
@@ -214,80 +212,14 @@ export class CascadingSlotGame extends GameComponentBase {
             freeSpins,
         } = finishData;
 
-        // Check if we're in hyper-spin batch mode to skip animations for faster execution
-        // In hyper-spin batch mode, free-spin should play WITHOUT free UI (no animations, no popup)
-        // This ensures fast batch execution while keeping hyper-spin popup open
-        let isInHyperSpin = false;
-        // Use CascadingUIStore.isHyperSpinActive which is synced with HyperSpinStore.isHyperSpinActive
-        // via HyperSpinStore.setHyperSpinActive() method
-        // Access via the reactive render property
-        const isHyperSpinActive = this.isHyperSpinActive;
-        // Check if free-spin is active (either this round is a free-spin or there are remaining free-spins)
-        const isFreeSpinActive = isFreeSpin || totalFreeSpins > 0;
-
-        // Add console.warn when freespin is active
-        if (isFreeSpinActive) {
-            console.warn("🎰 FREESPIN PLAYING: Free-spin detected in settlement", {
-                isFreeSpin,
-                totalFreeSpins,
-                isFreeSpinActive,
-                isHyperSpinActive,
-                roundId: finishData.roundId,
-                win,
-                timestamp: new Date().toISOString()
-            });
-        }
-
-        // Animation skipping logic for hyper-spin batch mode:
-        // - Skip animations if hyper-spin is active AND free-spin is NOT active (normal hyper-spin)
-        // - Skip animations if hyper-spin is active AND free-spin is active AND stopOnFeature is false (batch mode: no free UI)
-        // - Play animations if hyper-spin is active AND free-spin is active AND stopOnFeature is true (normal free UI)
-        // - Play animations if hyper-spin is NOT active (normal game mode)
-        // When stopOnFeature = true, free spins should run normally with UI effects even in hyper-spin mode
-        if (isHyperSpinActive && isFreeSpinActive && !this.stopOnFeature) {
-            // Hyper-spin batch mode with free-spin and stopOnFeature=false: Skip all animations (no free UI)
-            console.warn("🎰 FREESPIN BATCH MODE: Playing free-spin without UI in hyper-spin batch (stopOnFeature=false)", {
-                isFreeSpin,
-                totalFreeSpins,
-                isHyperSpinActive,
-                stopOnFeature: this.stopOnFeature,
-                roundId: finishData.roundId,
-                timestamp: new Date().toISOString()
-            });
-            isInHyperSpin = true;
-        } else if (isHyperSpinActive && isFreeSpinActive && this.stopOnFeature) {
-            // Hyper-spin mode with free-spin and stopOnFeature=true: Play animations normally
-            console.warn("🎰 FREESPIN NORMAL UI: Playing free-spin with UI effects in hyper-spin mode (stopOnFeature=true)", {
-                isFreeSpin,
-                totalFreeSpins,
-                isHyperSpinActive,
-                stopOnFeature: this.stopOnFeature,
-                roundId: finishData.roundId,
-                timestamp: new Date().toISOString()
-            });
-            isInHyperSpin = false;
-        } else if (isHyperSpinActive && !isFreeSpinActive) {
-            // Hyper-spin batch mode without free-spin: Skip animations
-            isInHyperSpin = true;
-        } else {
-            // Normal game mode: Play animations
-            isInHyperSpin = false;
-        }
-
-        const spinResultStartTime = Date.now();
+        // Determine if we're in hyper-spin mode
+        const isInHyperSpin = this.shouldSkipAnimationsForHyperSpin(isFreeSpin, totalFreeSpins, finishData);
 
         const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
 
         await this.board.spinResult(symbolsBoard, this.isTurboMode, isInHyperSpin);
 
-        const tumbleStartTime = Date.now();
-        const spinResultDuration = tumbleStartTime - spinResultStartTime;
-
         await this.board.handleTumbles(tumbles, this.isTurboMode, isInHyperSpin);
-
-        const settlementCompleteTime = Date.now();
-        const tumbleDuration = settlementCompleteTime - tumbleStartTime;
-        const totalSettlementDuration = settlementCompleteTime - spinResultStartTime;
 
         const winTumbles = tumbles.length > 1;
         const winMultiplier = multiplier > 0 && winTumbles;
@@ -329,6 +261,7 @@ export class CascadingSlotGame extends GameComponentBase {
         this.setFreeSpinsTotal(totalFreeSpins);
 
         const noWinMoreFreespins = freeSpins <= 0;
+        const isFreeSpinActive = isFreeSpin || totalFreeSpins > 0;
 
         let shouldHandleFreeSpinEffectCompleted = noWinMoreFreespins && !isHaveBigWin;
 
@@ -355,23 +288,6 @@ export class CascadingSlotGame extends GameComponentBase {
             console.warn("[CASCADING_SLOT_GAME] Handling free spin effect completion");
             this.handleFreeSpinEffectCompleted(true);
         }
-        // else {
-        //     cascadingSlotLogger.info("[CASCADING_SLOT_GAME] Skipping free spin effect completion - continuing hyper-spin batch", {
-        //         isInHyperSpin,
-        //         shouldHandleFreeSpinEffectCompleted,
-        //         timestamp: new Date().toISOString()
-        //     });
-
-        //     this.handleFreeSpinEffectCompleted(false);
-
-        //     // In hyper-spin mode, when we skip free spin effects, we need to continue the batch directly
-        //     if (isInHyperSpin) {
-        //         cascadingSlotLogger.info("[CASCADING_SLOT_GAME] Continuing hyper-spin batch after skipping free spin effects", {
-        //             timestamp: new Date().toISOString()
-        //         });
-        //         this.checkHyperSpinNextRound();
-        //     }
-        // }
 
         // Record spin data for hyper-spin batch tracking
         if (isInHyperSpin) {
@@ -380,14 +296,61 @@ export class CascadingSlotGame extends GameComponentBase {
 
     }
 
+    private shouldSkipAnimationsForHyperSpin(isFreeSpin: boolean, totalFreeSpins: number, finishData: any): boolean {
+        const isHyperSpinActive = this.isHyperSpinActive;
+        const isFreeSpinActive = isFreeSpin || totalFreeSpins > 0;
+
+        // Add console.warn when freespin is active
+        if (isFreeSpinActive) {
+            console.warn("🎰 FREESPIN PLAYING: Free-spin detected in settlement", {
+                isFreeSpin,
+                totalFreeSpins,
+                isFreeSpinActive,
+                isHyperSpinActive,
+                roundId: finishData.roundId,
+                win: finishData.win,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Animation skipping logic for hyper-spin batch mode:
+        // - Skip animations if hyper-spin is active AND free-spin is NOT active (normal hyper-spin)
+        // - Skip animations if hyper-spin is active AND free-spin is active AND stopOnFeature is false (batch mode: no free UI)
+        // - Play animations if hyper-spin is active AND free-spin is active AND stopOnFeature is true (normal free UI)
+        // - Play animations if hyper-spin is NOT active (normal game mode)
+        if (isHyperSpinActive && isFreeSpinActive && !this.stopOnFeature) {
+            console.warn("🎰 FREESPIN BATCH MODE: Playing free-spin without UI in hyper-spin batch (stopOnFeature=false)", {
+                isFreeSpin,
+                totalFreeSpins,
+                isHyperSpinActive,
+                stopOnFeature: this.stopOnFeature,
+                roundId: finishData.roundId,
+                timestamp: new Date().toISOString()
+            });
+            return true;
+        } else if (isHyperSpinActive && isFreeSpinActive && this.stopOnFeature) {
+            console.warn("🎰 FREESPIN NORMAL UI: Playing free-spin with UI effects in hyper-spin mode (stopOnFeature=true)", {
+                isFreeSpin,
+                totalFreeSpins,
+                isHyperSpinActive,
+                stopOnFeature: this.stopOnFeature,
+                roundId: finishData.roundId,
+                timestamp: new Date().toISOString()
+            });
+            return false;
+        } else if (isHyperSpinActive && !isFreeSpinActive) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @handle(HyperSpinHandler, (handler, finishData: any) => handler.handleRecordSpinData(finishData))
     recordHyperSpinSpinData(finishData: any) {
         return finishData;
     }
 
     protected async showTotalMultiplierView(totalMultiplier: number, isFreeSpin: boolean, winMultiplier: boolean) {
-        const showStartTime = Date.now();
-
         const needShowTotalMultiplier = totalMultiplier > 0;
 
         if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
@@ -397,7 +360,6 @@ export class CascadingSlotGame extends GameComponentBase {
                 this.effectContainer,
                 this.totalMultiplierView.total.node
             );
-            const showDuration = Date.now() - showStartTime;
         }
     }
 
@@ -431,9 +393,6 @@ export class CascadingSlotGame extends GameComponentBase {
                 await AnimationUtils.delayTime(delayForNextSpin);
             }
 
-            const afterDelayTime = Date.now();
-            const actualDelay = afterDelayTime - nextRoundCheckStart;
-
             // Enable autoplay when free spin effect is completed
             this.enableAutoPlayOnFreeSpinCompleted();
 
@@ -443,12 +402,8 @@ export class CascadingSlotGame extends GameComponentBase {
             this.handleEndGameApiError();
             this.checkSpinNextRound();
 
-            const hyperSpinCheckStart = Date.now();
-
             this.checkHyperSpinNextRound();
         }
-
-        const checkNextRoundDuration = Date.now() - nextRoundCheckStart;
     }
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
@@ -496,7 +451,7 @@ export class CascadingSlotGame extends GameComponentBase {
     handleUpdateBalance(isUpdateBalance: boolean) {
         if (isUpdateBalance) {
             this.handleChangeUserBalance(true);
-        } 
+        }
     }
 
     @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))

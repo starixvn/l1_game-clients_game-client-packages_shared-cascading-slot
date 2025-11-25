@@ -2,7 +2,6 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingSlotState } from "../cascading-slot-state";
-import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
