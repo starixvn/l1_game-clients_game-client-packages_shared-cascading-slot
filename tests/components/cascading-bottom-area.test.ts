@@ -223,7 +223,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
 
@@ -236,7 +237,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
 
@@ -249,7 +251,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
 
@@ -262,7 +265,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: totalTumbleWin,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
     });
@@ -419,7 +423,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: 1000,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
 
@@ -464,7 +469,8 @@ describe("CascadingBottomArea", () => {
                 label: mockTotalWinLabel,
                 amount: largeValue,
                 duration: 0.5,
-                noZeroSuffix: false,
+                noZeroSuffix: true,
+                xMode: 1,
             });
         });
 

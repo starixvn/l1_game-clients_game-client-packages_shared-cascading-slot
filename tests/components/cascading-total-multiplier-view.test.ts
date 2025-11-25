@@ -118,6 +118,8 @@ describe("TotalMultiplierView", () => {
     let mockUIOpacity: UIOpacity;
 
     beforeEach(() => {
+        jest.clearAllMocks();
+        
         // Create mock UIOpacity
         mockUIOpacity = {
             opacity: 255,
@@ -170,6 +172,7 @@ describe("TotalMultiplierView", () => {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
+                xMode: 1,
             });
         });
 
@@ -209,6 +212,7 @@ describe("TotalMultiplierView", () => {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
+                xMode: 1,
             });
         });
     });
@@ -244,6 +248,7 @@ describe("TotalMultiplierView", () => {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
+                xMode: 1,
             });
 
             // Test setting zero value
@@ -292,6 +297,7 @@ describe("TotalMultiplierView", () => {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
+                xMode: 1,
             });
         });
 
