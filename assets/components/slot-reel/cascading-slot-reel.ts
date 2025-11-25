@@ -175,9 +175,12 @@ export class CascadingSlotReel extends Component {
         return baseSpeed;
     }
 
-    protected delayFallingEachItem(duration: any, isTurbo: boolean) {
+    protected delayFallingEachItem(duration: any, isTurbo: boolean, isFallOut: boolean) {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
+        }
+        if (isFallOut) {
+            return 0.08 * duration;
         }
 
         return 0.2 * duration;
@@ -209,7 +212,7 @@ export class CascadingSlotReel extends Component {
             }
             duration = distance / speed;
             duration = Math.max(duration, minDuration);
-            const delay = this.delayFallingEachItem(duration, isTurbo);
+            const delay = this.delayFallingEachItem(duration, isTurbo, isFallOut);
 
             if (!isTurbo) {
                 await AnimationUtils.delayTime(delay);
