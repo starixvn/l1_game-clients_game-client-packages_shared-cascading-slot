@@ -178,14 +178,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     private calculateTumbleMultipliers(tumbles: Tumble[], tumbleIndex: number): number[] {
-        let multiplierCount = tumbles[0].multipliers.length;
-        const newTumbleMultipliers = [...tumbles[tumbleIndex + 1].multipliers];
-
-        if (newTumbleMultipliers.length > multiplierCount) {
-            multiplierCount = newTumbleMultipliers.length;
-        }
-
-        return newTumbleMultipliers;
+        return [...tumbles[tumbleIndex + 1].multipliers];
     }
 
     private async handleTumbleWin(tumble: Tumble, explode: any[], skipAnimations: boolean) {
@@ -255,7 +248,17 @@ export class CascadingSlotBoard extends ObserverComponent {
         const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
 
         for (let i = 0; i < this.reels.length; i++) {
-            await this.processReelSpin(i, symbols[i], multipliers, isTurbo, skipAnimations, delayEachReelFallOut, awaitReelIndex, peekEffect);
+            const reelSpinParams = {
+                reelIndex: i,
+                reelSymbols: symbols[i],
+                multipliers,
+                isTurbo,
+                skipAnimations,
+                delayEachReelFallOut,
+                awaitReelIndex,
+                peekEffect
+            };
+            await this.processReelSpin(reelSpinParams);
         }
 
         this.finalizeSpinResult();
@@ -272,16 +275,18 @@ export class CascadingSlotBoard extends ObserverComponent {
         return !isTurbo && !skipAnimations;
     }
 
-    private async processReelSpin(
-        reelIndex: number,
-        reelSymbols: any[],
-        multipliers: number[] | undefined,
-        isTurbo: boolean,
-        skipAnimations: boolean,
-        delayEachReelFallOut: number,
-        awaitReelIndex: number,
-        peekEffect: any
-    ) {
+    private async processReelSpin(params: {
+        reelIndex: number;
+        reelSymbols: any[];
+        multipliers: number[] | undefined;
+        isTurbo: boolean;
+        skipAnimations: boolean;
+        delayEachReelFallOut: number;
+        awaitReelIndex: number;
+        peekEffect: any;
+    }) {
+        const { reelIndex, reelSymbols, multipliers, isTurbo, skipAnimations, delayEachReelFallOut, awaitReelIndex } = params;
+
         if (!skipAnimations && !isTurbo && reelIndex > 0) {
             await AnimationUtils.delayTime(delayEachReelFallOut);
         }

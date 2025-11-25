@@ -479,7 +479,9 @@ export class HyperSpinStore {
     }
 
     addSpinToBatch(spinData: HyperSpinSingleSpinData) {
-        if (!this._currentBatchData) this.initializeHyperSpinBatch();
+        if (!this._currentBatchData) {
+            this.initializeHyperSpinBatch();
+        }
 
         if (this._currentBatchData) {
             this._currentBatchData.spins.push(spinData);
