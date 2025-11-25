@@ -300,6 +300,42 @@ export class HyperSpinStore {
 
     }
 
+    // Computed properties for UI state - Stop On Profit
+    get interactableStopOnProfit(): { increase: boolean; decrease: boolean } {
+        return {
+            increase: this.stopOnProfit < this.maxStopOnProfit,
+            decrease: this.stopOnProfit > this.minStopOnProfit
+        };
+    }
+
+    get stopOnProfitSliderProgress(): number {
+        const min = this.minStopOnProfit;
+        const max = this.maxStopOnProfit;
+        return max > min ? Math.max(0, Math.min(1, (this.stopOnProfit - min) / (max - min))) : 0;
+    }
+
+    get formattedStopOnProfit(): string {
+        return FormatUtils.numberWithCommas(this.stopOnProfit, 2, true);
+    }
+
+    // Computed properties for UI state - Stop On Loss
+    get interactableStopOnLoss(): { increase: boolean; decrease: boolean } {
+        return {
+            increase: this.stopOnLoss < this.maxStopOnLoss,
+            decrease: this.stopOnLoss > this.minStopOnLoss
+        };
+    }
+
+    get stopOnLossSliderProgress(): number {
+        const min = this.minStopOnLoss;
+        const max = this.maxStopOnLoss;
+        return max > min ? Math.max(0, Math.min(1, (this.stopOnLoss - min) / (max - min))) : 0;
+    }
+
+    get formattedStopOnLoss(): string {
+        return FormatUtils.numberWithCommas(this.stopOnLoss, 2, true);
+    }
+
     startHyperSpinSessionTracking() {
         if (!this.cascadingUIStore) return;
 
