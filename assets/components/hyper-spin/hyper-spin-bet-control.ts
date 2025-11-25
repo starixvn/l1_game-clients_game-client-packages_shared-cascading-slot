@@ -114,13 +114,7 @@ export class HyperSpinBetControl extends ObserverComponent {
     sprIconPlay: Sprite = null;
 
     @property(Sprite)
-    sprIconBgPlay: Sprite = null;
-
-    @property(Sprite)
     sprIconPause: Sprite = null;
-
-    @property(Sprite)
-    sprIconBgPause: Sprite = null;
 
     @property(Sprite)
     sprIconStopOnFeatureOff: Sprite = null;
@@ -338,19 +332,12 @@ export class HyperSpinBetControl extends ObserverComponent {
         const showPlayButton = !isHyperSpin || (isHyperSpin && isPaused);
         if (this.sprIconPlay) {
             this.sprIconPlay.node.active = showPlayButton;
-        }
-
-        if (this.sprIconBgPlay) {
-            this.sprIconBgPlay.node.active = showPlayButton;
+            this.numberOfSpinsContent.active = false;
         }
 
         const showPauseButton = isHyperSpin && !isPaused;
         if (this.sprIconPause) {
             this.sprIconPause.node.active = showPauseButton;
-        }
-
-        if (this.sprIconBgPause) {
-            this.sprIconBgPause.node.active = showPauseButton;
         }
     }
 
