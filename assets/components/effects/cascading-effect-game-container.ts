@@ -6,7 +6,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
 import Observer from "observer";
-import { GameFeatureJson, GameSpeed, getCustomDuration, resourcesCache } from "../../cascading-slot-utils";
+import { GameFeatureJson, GameSpeed, getConfigGameSpeed, resourcesCache } from "../../cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../game-messages-cascading";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingSlotConfigsStore } from "../../stores/cascading-slot-configs-store";
@@ -106,7 +106,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         const transition = instantiate(this.pfbEffectTransition);
         this.playSound(AudioIds.TRANSITION);
         this.node.addChild(transition);
-        const duration = getCustomDuration("transition", this.gameSpeed);
+        const duration = getConfigGameSpeed("transition", this.gameSpeed);
         await AnimationUtils.delayTime(duration);
         transition.destroy();
     }
@@ -115,7 +115,7 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         if (!this.gameConfig.turnOnEventMascot) {
             return;
         }
-        const duration = getCustomDuration("eventMascot", this.gameSpeed);
+        const duration = getConfigGameSpeed("eventMascot", this.gameSpeed);
         await AnimationUtils.delayTime(duration);
     }
 

@@ -99,7 +99,7 @@ export class CascadingSlotReelItem extends Component {
         const ratioSpeed = {
             [GameSpeed.TURBO]: 0.5,
             [GameSpeed.NORMAL]: 1,
-            [GameSpeed.ULTRA_FAST]: 0.25,
+            [GameSpeed.ULTRA]: 0.25,
         };
         const duration = this.effectSpine.findAnimation(animation).duration * ratioSpeed[gameSpeed];
         await AnimationUtils.playSpine(this.effectSpine, animation, false, duration);

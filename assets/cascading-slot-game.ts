@@ -20,7 +20,7 @@ import { GameComponentBase } from "db://shared-components/game/scripts/component
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
-import { ColorJson, convertData, DialogName, GameFeatureJson, GameSpeed, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
+import { ColorJson, convertData, DialogName, GameFeatureJson, GameSpeed, getConfigGameSpeed, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
@@ -251,7 +251,7 @@ export class CascadingSlotGame extends GameComponentBase {
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
         if (isFreeSpinEffectCompleted) {
-            const delayForNextSpin = getCustomDuration("delayForNextSpin", this.gameSpeed);
+            const delayForNextSpin = getConfigGameSpeed("delayForNextSpin", this.gameSpeed);
             await AnimationUtils.delayTime(delayForNextSpin);
 
             // Enable autoplay when free spin effect is completed

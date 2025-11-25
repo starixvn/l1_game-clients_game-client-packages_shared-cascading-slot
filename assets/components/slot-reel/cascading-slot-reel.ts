@@ -3,7 +3,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import { CascadingSlotConfig } from "../../cascading-slot-base-configs";
-import { GameSpeed, globalEmitter, resourcesCache, SlotClientEvent } from "../../cascading-slot-utils";
+import { GameSpeed, getConfigGameSpeed, globalEmitter, resourcesCache, SlotClientEvent } from "../../cascading-slot-utils";
 import { CascadingSlotReelItem } from "./cascading-slot-reel-item";
 const { ccclass, property } = _decorator;
 
@@ -25,11 +25,6 @@ export class CascadingSlotReel extends Component {
     protected items: CascadingSlotReelItem[] = [];
     public peekEffect = false;
 
-    private readonly MIN_DURATION_FALL_IN = 0.4;
-    private readonly MIN_DURATION_FALL_OUT = 0.25;
-    private readonly MIN_DURATION_TURBO_FALL_IN = 0.25;
-    private readonly MIN_DURATION_TURBO_FALL_OUT = 0.1;
-
     private readonly DELAY_EACH_ITEM_PEEK_EFFECT = 0.33;
 
     private readonly ITEM_BACK_DURATION = 0.24;
@@ -40,8 +35,6 @@ export class CascadingSlotReel extends Component {
     private readonly FALL_OUT_SPEED = 2800;
     private readonly FALL_IN_NORMAL_SPEED = 1700;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
-
-    public isReFillSymbols = false;
 
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
@@ -166,7 +159,7 @@ export class CascadingSlotReel extends Component {
     protected getSpeed(gameSpeed: string, isFallOut: boolean): number {
         const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
 
-        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA_FAST) {
+        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA) {
             return baseSpeed * 1.5;
         }
 
@@ -177,21 +170,22 @@ export class CascadingSlotReel extends Component {
         return baseSpeed;
     }
 
-    protected delayFallingEachItem(duration: any, gameSpeed: string) {
+    protected delayFallingEachItem(duration: any, gameSpeed: string, isFallOut: boolean) {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
-        if (this.isReFillSymbols && gameSpeed === GameSpeed.NORMAL) {
-            return 0.2 * duration;
+        if (gameSpeed === GameSpeed.ULTRA) {
+            return 0;
         }
-        return 0.08 * duration;
+        if (isFallOut) {
+            return 0.08 * duration;
+        }
+
+        return 0.2 * duration;
     }
 
     protected getMinDuration(gameSpeed: string, isFallOut: boolean): number {
-        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA_FAST) {
-            return isFallOut ? this.MIN_DURATION_TURBO_FALL_OUT : this.MIN_DURATION_TURBO_FALL_IN;
-        }
-        return isFallOut ? this.MIN_DURATION_FALL_OUT : this.MIN_DURATION_FALL_IN;
+        return getConfigGameSpeed(isFallOut ? "minDurationFallOut" : "minDurationFallIn", gameSpeed);
     }
 
     async fallWithOffset(offset: number, gameSpeed: string, onBottomItemEnded?: () => void) {
@@ -212,8 +206,8 @@ export class CascadingSlotReel extends Component {
                 continue;
             }
             duration = distance / speed;
-            duration = Math.max(duration, minDuration);
-            const delay = this.delayFallingEachItem(duration, gameSpeed);
+            duration = gameSpeed === GameSpeed.ULTRA ? minDuration : Math.max(duration, minDuration);
+            const delay = this.delayFallingEachItem(duration, gameSpeed, isFallOut);
 
             if (gameSpeed === GameSpeed.NORMAL) {
                 await AnimationUtils.delayTime(delay);
@@ -289,7 +283,6 @@ export class CascadingSlotReel extends Component {
     }
 
     async spin(data: number[], multiplier: number[], gameSpeed: string, onSpinEnded: () => void) {
-        this.isReFillSymbols = false;
         this.setItemData(data, multiplier);
         this.setStartPositionForItems();
         await this.fallIn(gameSpeed, onSpinEnded);

@@ -5,7 +5,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { GameSpeed, getCustomDuration } from "../../cascading-slot-utils";
+import { GameSpeed, getConfigGameSpeed } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -278,7 +278,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.scheduleOnce(() => this.playSound(AudioIds.WINCOUNT_STOP), 0.1);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
 
-        const duration = getCustomDuration("bigWin", this.gameSpeed);
+        const duration = getConfigGameSpeed("bigWin", this.gameSpeed);
         this.tweenDelay = tween({})
             .delay(duration)
             .call(() => {

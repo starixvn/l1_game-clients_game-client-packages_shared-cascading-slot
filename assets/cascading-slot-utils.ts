@@ -20,7 +20,7 @@ export const SlotNotification = {
 export const GameSpeed = {
     NORMAL: "NORMAL",
     TURBO: "TURBO",
-    ULTRA_FAST: "ULTRA_FAST",
+    ULTRA: "ULTRA",
 };
 
 export const SpinButtonState = {
@@ -133,8 +133,8 @@ export const hideNode = (node: Node, options: any) => {
         .start();
 };
 
-export const getCustomDuration = (key: string, gameSpeed: string): number => {
-    const config = gameSpeed === GameSpeed.NORMAL ? CascadingSlotConfig.normal : CascadingSlotConfig.turbo;
+export const getConfigGameSpeed = (key: string, gameSpeed: string): number => {
+    const config = CascadingSlotConfig[gameSpeed.toLowerCase()];
     return config[key];
 };
 
