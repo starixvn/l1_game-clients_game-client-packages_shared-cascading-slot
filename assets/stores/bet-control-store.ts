@@ -1,3 +1,4 @@
+import gc from "@sg/game-client-base";
 import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
@@ -14,6 +15,7 @@ export class BetControlStore {
     @inject(AutoPlayStore) protected readonly autoPlayStore: AutoPlayStore;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
     @inject(FSBPromotionStore) protected readonly fsbPromotionStore: FSBPromotionStore;
+    @inject(gc.Player.MainPlayerStore) protected readonly mainPlayerStore: gc.Player.MainPlayerStore;
     constructor() {
         mobx.makeAutoObservable(this);
         mobx.reaction(
@@ -42,6 +44,7 @@ export class BetControlStore {
 
     resumeLastBet = false;
     resumeLastBetXMode = false;
+    xModeFreeSpin = 1;
 
     needClearLastSetting = false;
 
@@ -69,7 +72,7 @@ export class BetControlStore {
 
     get totalBet() {
         if (this.resumeLastBet) {
-            return this._totalBet;
+            return this.totalBetWithXMode();
         }
 
         if (
@@ -82,6 +85,10 @@ export class BetControlStore {
         const item = this.totalBetUnique[this.currentTotalBetIndex];
         const total = Object.keys(item)[0];
         return +total;
+    }
+
+    totalBetWithXMode() {
+        return this.mainPlayerStore.xMode > 1 && this.xModeFreeSpin === 1 ? this._totalBet * this.mainPlayerStore.xMode : this._totalBet;
     }
 
     currentBetLevelIndex = 0;
