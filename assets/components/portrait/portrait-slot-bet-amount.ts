@@ -13,7 +13,7 @@ export class PortraitSlotBetAmount extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.lblBetAmount.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
+        this.lblBetAmount.string = gc.FormatUtils.numberWithCommas(totalBet, 6, true);
 
     }
 }

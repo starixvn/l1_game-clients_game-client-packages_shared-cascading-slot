@@ -24,7 +24,7 @@ export class PortraitTotalBetWarningContainer extends ObserverComponent {
             const warningNode = instantiate(this.prefabTotalBetWarning);
             const comp = warningNode.getComponent(CascadingWarningMsg);
             this.node.addChild(warningNode);
-            comp.setData(gc.FormatUtils.numberWithCommas(totalBet, 2, true)
+            comp.setData(gc.FormatUtils.numberWithCommas(totalBet, 6, true)
             );
         }
     }

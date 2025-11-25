@@ -44,7 +44,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.totalBetLabel.string = gc.FormatUtils.numberWithCommas(totalBet, 2, true);
+        this.totalBetLabel.string = gc.FormatUtils.numberWithCommas(totalBet, 6, true);
     }
 
     @render(BetControlStore, (store) => store.interactableTotalBet)
