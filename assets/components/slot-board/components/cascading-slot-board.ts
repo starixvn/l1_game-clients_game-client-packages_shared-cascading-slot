@@ -358,30 +358,23 @@ export class CascadingSlotBoard extends ObserverComponent {
         } else {
             // For each reel: fall in remaining items, wait for it to finish, delay 0.1s, then fall in new items
             // Each reel starts 0.1s after the previous reel starts (reels run in parallel, not waiting for completion)
-            const reelPromises = this.reels.map((reel, reelIndex) => {
-                return new Promise<void>((resolve) => {
-                    setTimeout(async () => {
-                        const oldCount = remainSymbolsCount[reelIndex];
-                        const newCount = reel.getItems().length;
+            const reelPromises = this.reels.map(async (reel, reelIndex) => {
+                await AnimationUtils.delayTime(reelIndex * 0.1);
+                const oldCount = remainSymbolsCount[reelIndex];
+                const newCount = reel.getItems().length;
 
-                        // Fall in remaining items and wait for it to finish
-                        if (oldCount > 0) {
-                            reel.isReFillSymbols = true;
-                            await reel.fallInRange(0, oldCount, isTurbo, null);
-                        }
+                // Fall in remaining items and wait for it to finish
+                if (oldCount > 0) {
+                    await reel.fallInRange(0, oldCount, isTurbo, null);
+                }
 
-                        // Delay 0.1s before falling in new items
-                        await AnimationUtils.delayTime(0.1);
+                // Delay 0.1s before falling in new items
+                await AnimationUtils.delayTime(0.1);
 
-                        // Fall in new items
-                        if (newCount > oldCount) {
-                            reel.isReFillSymbols = true;
-                            await reel.fallInRange(oldCount, newCount, isTurbo, null);
-                        }
-
-                        resolve();
-                    }, reelIndex * 100);
-                });
+                // Fall in new items
+                if (newCount > oldCount) {
+                    await reel.fallInRange(oldCount, newCount, isTurbo, null);
+                }
             });
 
             await Promise.all(reelPromises);

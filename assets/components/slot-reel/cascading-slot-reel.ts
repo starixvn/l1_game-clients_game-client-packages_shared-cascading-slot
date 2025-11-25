@@ -41,8 +41,6 @@ export class CascadingSlotReel extends Component {
     private readonly FALL_IN_NORMAL_SPEED = 1700;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
-    public isReFillSymbols = false;
-
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
             const item = this.addItem();
@@ -181,10 +179,8 @@ export class CascadingSlotReel extends Component {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
-        if (this.isReFillSymbols && !isTurbo) {
-            return 0.2 * duration;
-        }
-        return 0.08 * duration;
+
+        return 0.2 * duration;
     }
 
     protected getMinDuration(isTurbo: boolean, isFallOut: boolean): number {
@@ -289,7 +285,6 @@ export class CascadingSlotReel extends Component {
     }
 
     async spin(data: number[], multiplier: number[], isTurbo: boolean, onSpinEnded: () => void) {
-        this.isReFillSymbols = false;
         this.setItemData(data, multiplier);
         this.setStartPositionForItems();
         await this.fallIn(isTurbo, onSpinEnded);
