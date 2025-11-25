@@ -48,8 +48,11 @@ jest.mock("@sg/game-client-base", () => {
             RoundStore: {},
         },
         Shared: {
-            IHandler: class { },
-            IMultipleHandlers: class { },
+            utils: {
+                StorageManager: {
+                    setPrefixKey: jest.fn(),
+                },
+            },
         },
         UserSettings: {
             UserSettingHandlers: class {

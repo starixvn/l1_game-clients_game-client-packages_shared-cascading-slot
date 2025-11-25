@@ -37,6 +37,13 @@ jest.mock("@sg/game-client-base", () => ({
             AutoSignOutHandler: jest.fn(() => ({})),
         },
     },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
 }));
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({

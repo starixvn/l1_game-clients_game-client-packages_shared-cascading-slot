@@ -106,6 +106,13 @@ jest.mock("@sg/game-client-base", () => ({
             },
         })),
     },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
 }));
 
 // Mock setTimeout to avoid actual delays in tests

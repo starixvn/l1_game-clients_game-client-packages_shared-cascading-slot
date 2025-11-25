@@ -78,6 +78,13 @@ jest.mock("@sg/game-client-base", () => ({
             playSFX: jest.fn(),
         })),
     },
+    Shared: {
+        utils: {
+            StorageManager: {
+                setPrefixKey: jest.fn(),
+            },
+        },
+    },
 }));
 
 // Mock the dependencies
