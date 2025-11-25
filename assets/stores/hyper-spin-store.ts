@@ -176,6 +176,7 @@ export class HyperSpinStore {
     stopOnProfit = 0;
     stopOnLoss = 0;
     stopOnFeature = false;
+    isSettingsOpen = false;
     needClearLastSetting = false;
 
     // Previous max values for clamping logic

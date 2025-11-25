@@ -162,6 +162,10 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.stopOnFeature = !this.hyperSpinStore.stopOnFeature;
     }
 
+    toggleSettings() {
+        this.hyperSpinStore.isSettingsOpen = !this.hyperSpinStore.isSettingsOpen;
+    }
+
     closeHyperSpinPopup() {
         this.hyperSpinStore.isOpenHyperSpinPopup = false;
         this.cancelHyperSpin();

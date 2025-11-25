@@ -122,8 +122,11 @@ export class HyperSpinBetControl extends ObserverComponent {
     @property(Sprite)
     sprIconStopOnFeatureOn: Sprite = null;
 
-    @property(StatusButton)
-    controlToggleButton: StatusButton = null;
+    @property(Sprite)
+    sprIconSettingsOff: Sprite = null;
+
+    @property(Sprite)
+    sprIconSettingsOn: Sprite = null;
 
     @property(Node)
     hyperSpinControlsNode: Node = null;
@@ -158,7 +161,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.selectedRoundOnPopup)
     renderSelectedRounds(noOfRounds: number) {
-
         this.numberOfSpinsContent.children.forEach((child, idx) => {
             const roundNumber = child.getComponent(HyperSpinRoundNumber);
             if (!roundNumber) {
@@ -332,7 +334,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         const showPlayButton = !isHyperSpin || (isHyperSpin && isPaused);
         if (this.sprIconPlay) {
             this.sprIconPlay.node.active = showPlayButton;
-            this.numberOfSpinsContent.active = false;
+            this.hyperSpinRoundsLabel.node.active = false;
         }
 
         const showPauseButton = isHyperSpin && !isPaused;
@@ -353,6 +355,28 @@ export class HyperSpinBetControl extends ObserverComponent {
 
         if (this.sprIconStopOnFeatureOn) {
             this.sprIconStopOnFeatureOn.node.active = stopOnFeature;
+        }
+    }
+
+    @render(HyperSpinStore, (store) => store.isSettingsOpen)
+    updateSettingsButton(isOpenSettings: boolean) {
+        if (!this.sprIconSettingsOff && !this.sprIconSettingsOn) {
+            return;
+        }
+
+        if (this.sprIconSettingsOff) {
+            this.sprIconSettingsOff.node.active = !isOpenSettings;
+        }
+
+        if (this.sprIconSettingsOn) {
+            this.sprIconSettingsOn.node.active = isOpenSettings;
+        }
+    }
+
+    @render(HyperSpinStore, (store) => store.isSettingsOpen)
+    updateHyperSpinControlsVisibility(isSettingsOpen: boolean) {
+        if (this.hyperSpinControlsNode) {
+            this.hyperSpinControlsNode.active = isSettingsOpen;
         }
     }
 
@@ -399,13 +423,9 @@ export class HyperSpinBetControl extends ObserverComponent {
         this.playSoundClick();
     }
 
+    @handle(HyperSpinHandler, (handle) => handle.toggleSettings())
     onClickControlToggle() {
         this.playSoundClick();
-
-        if (this.hyperSpinControlsNode) {
-            const newActiveState = !this.hyperSpinControlsNode.active;
-            this.hyperSpinControlsNode.active = newActiveState;
-        }
     }
 
     @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
