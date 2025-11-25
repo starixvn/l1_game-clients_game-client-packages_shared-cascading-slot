@@ -2,6 +2,7 @@ import { instantiate, Prefab } from "cc";
 import Observer from "observer";
 
 import gc from "@sg/game-client-base";
+import { GameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { CascadingWarningContainer } from "../../assets/components/cascading-warning-container";
 import { CascadingWarningMsg } from "../../assets/components/cascading-warning-msg";
@@ -18,9 +19,9 @@ jest.mock("@sg/game-client-base", () => ({
     Translator: {
         gameTranslate: jest.fn((key: string) => {
             const translations = {
-                "enable_turbo_mode": "Turbo Mode Enabled",
-                "disable_turbo_mode": "Turbo Mode Disabled",
-                "reach_max_win": "Maximum Win Reached"
+                enable_turbo_mode: "Turbo Mode Enabled",
+                disable_turbo_mode: "Turbo Mode Disabled",
+                reach_max_win: "Maximum Win Reached",
             };
             return translations[key] || key;
         }),
@@ -29,8 +30,8 @@ jest.mock("@sg/game-client-base", () => ({
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() { }
-        onDestroy() { }
+        onLoad() {}
+        onDestroy() {}
     },
 }));
 jest.mock("../../assets/stores/cascading-ui-store", () => ({
@@ -130,7 +131,7 @@ describe("CascadingWarningContainer", () => {
 
     describe("renderTurboModeMsg Method", () => {
         it("should add turbo enabled message when turbo mode is true and not in trial mode", () => {
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
@@ -138,7 +139,7 @@ describe("CascadingWarningContainer", () => {
         });
 
         it("should add turbo disabled message when turbo mode is false and not in trial mode", () => {
-            cascadingWarningContainer.renderTurboModeMsg(false);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
@@ -148,7 +149,7 @@ describe("CascadingWarningContainer", () => {
         it("should not add message when in trial mode for true turbo mode", () => {
             cascadingWarningContainer["isTrialMode"] = true;
 
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(instantiate).not.toHaveBeenCalled();
             expect(mockParentNode.addChild).not.toHaveBeenCalled();
@@ -158,7 +159,7 @@ describe("CascadingWarningContainer", () => {
         it("should not add message when in trial mode for false turbo mode", () => {
             cascadingWarningContainer["isTrialMode"] = true;
 
-            cascadingWarningContainer.renderTurboModeMsg(false);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
 
             expect(instantiate).not.toHaveBeenCalled();
             expect(mockParentNode.addChild).not.toHaveBeenCalled();
@@ -202,7 +203,7 @@ describe("CascadingWarningContainer", () => {
             cascadingWarningContainer["isTrialMode"] = true;
             cascadingWarningContainer.renderTrialMode(false);
 
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
@@ -212,13 +213,13 @@ describe("CascadingWarningContainer", () => {
 
     describe("Translator Integration", () => {
         it("should use translator for enable turbo mode messages", () => {
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("enable_turbo_mode");
         });
 
         it("should use translator for disable turbo mode messages", () => {
-            cascadingWarningContainer.renderTurboModeMsg(false);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
 
             expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("disable_turbo_mode");
         });
@@ -232,9 +233,9 @@ describe("CascadingWarningContainer", () => {
 
     describe("Integration Scenarios", () => {
         it("should handle multiple render calls in sequence", () => {
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
             cascadingWarningContainer.renderShowReachMaxWin(true);
-            cascadingWarningContainer.renderTurboModeMsg(false);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
 
             expect(instantiate).toHaveBeenCalledTimes(3);
             expect(mockParentNode.addChild).toHaveBeenCalledTimes(3);
@@ -245,7 +246,7 @@ describe("CascadingWarningContainer", () => {
 
         it("should maintain trial mode state across multiple calls", () => {
             cascadingWarningContainer.renderTrialMode(true);
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
             cascadingWarningContainer.renderShowReachMaxWin(true);
 
             expect(instantiate).toHaveBeenCalledTimes(1);
@@ -254,9 +255,9 @@ describe("CascadingWarningContainer", () => {
 
         it("should handle trial mode toggle correctly", () => {
             cascadingWarningContainer.renderTrialMode(true);
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
             cascadingWarningContainer.renderTrialMode(false);
-            cascadingWarningContainer.renderTurboModeMsg(true);
+            cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(instantiate).toHaveBeenCalledTimes(1);
             expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_ENABLED_MSG);
@@ -266,7 +267,7 @@ describe("CascadingWarningContainer", () => {
     describe("Decorators", () => {
         it("should have observer decorators properly configured", () => {
             expect(Observer.render).toBeDefined();
-            expect(typeof Observer.render).toBe('function');
+            expect(typeof Observer.render).toBe("function");
         });
     });
 });

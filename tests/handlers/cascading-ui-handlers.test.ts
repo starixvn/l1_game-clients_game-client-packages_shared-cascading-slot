@@ -5,7 +5,7 @@ import inversify from "inversify";
 import { stub } from "jest-auto-stub";
 import mobx from "mobx";
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
-import { SlotNotification } from "../../assets/cascading-slot-utils";
+import { GameSpeed, SlotNotification } from "../../assets/cascading-slot-utils";
 import { GameServiceMessageCascading } from "../../assets/game-messages-cascading";
 import { CascadingUIHandler } from "../../assets/handlers/cascading-ui-handler";
 
@@ -363,7 +363,7 @@ describe("CascadingUIHandler", () => {
 
             expect(mockUIStore.isTrialMode).toBe(true);
             expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN_TRIAL);
-            expect(mockUIStore.gameSpeed).toBe(false);
+            expect(mockUIStore.gameSpeed).toBe(GameSpeed.NORMAL);
             expect(mockUIStore.roundId).toBe(0);
             expect(mockBetControlStore.needClearLastSetting).toBe(true);
             expect(mockGameUserSettingHandler.saveTempStorage).toHaveBeenCalled();
@@ -440,8 +440,8 @@ describe("CascadingUIHandler", () => {
 
     describe("utility methods", () => {
         it("should handle turbo mode UI", () => {
-            uiHandler.handleTurboModeUI(true);
-            expect(mockUIStore.gameSpeed).toBe(true);
+            uiHandler.handleTurboModeUI(GameSpeed.TURBO);
+            expect(mockUIStore.gameSpeed).toBe(GameSpeed.TURBO);
         });
 
         it("should save game user settings", () => {

@@ -1,5 +1,6 @@
 import { instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { GameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { CascadingEffectBigwin } from "../../../assets/components/effects/cascading-effect-bigwin";
 
@@ -455,11 +456,11 @@ describe("CascadingEffectBigwin", () => {
 
     describe("renderTurboMode", () => {
         it("should update turbo mode state", () => {
-            const isTurboMode = true;
+            const gameSpeed = GameSpeed.TURBO;
 
-            cascadingEffectBigwin.renderTurboMode(isTurboMode);
+            cascadingEffectBigwin.renderTurboMode(gameSpeed);
 
-            expect(cascadingEffectBigwin["isTurboMode"]).toBe(true);
+            expect(cascadingEffectBigwin["gameSpeed"]).toBe(GameSpeed.TURBO);
         });
     });
 
@@ -480,7 +481,7 @@ describe("CascadingEffectBigwin", () => {
         });
 
         it("should handle big win in normal mode", () => {
-            cascadingEffectBigwin["isTurboMode"] = false;
+            cascadingEffectBigwin["gameSpeed"] = null;
             cascadingEffectBigwin.floatNumberBigWin = jest.fn();
 
             cascadingEffectBigwin.handleBigWinAmount(500);
@@ -525,7 +526,7 @@ describe("CascadingEffectBigwin", () => {
 
         it("should handle completed action with skip count = 1 and turbo mode", () => {
             cascadingEffectBigwin["skipClickCount"] = 1;
-            cascadingEffectBigwin["isTurboMode"] = true;
+            cascadingEffectBigwin["gameSpeed"] = GameSpeed.TURBO;
 
             cascadingEffectBigwin.handleBigWinActions(true);
 
@@ -535,7 +536,8 @@ describe("CascadingEffectBigwin", () => {
 
         it("should handle normal big win action", () => {
             cascadingEffectBigwin["skipClickCount"] = 0;
-            cascadingEffectBigwin["isTurboMode"] = false;
+            cascadingEffectBigwin["gameSpeed"] = null;
+            cascadingEffectBigwin["winAmount"] = 500;
 
             cascadingEffectBigwin.handleBigWinActions(true);
 

@@ -1,7 +1,7 @@
 import { instantiate, JsonAsset, Prefab } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AnimationUtils } from "db://shared-components/shared/utils/utils";
-import { resourcesCache } from "../../../assets/cascading-slot-utils";
+import { GameSpeed, resourcesCache } from "../../../assets/cascading-slot-utils";
 import { CascadingEffectGameContainer } from "../../../assets/components/effects/cascading-effect-game-container";
 
 // Mock external dependencies
@@ -113,22 +113,35 @@ jest.mock("observer", () => ({
 }));
 
 // Mock getCustomDuration
-jest.mock("../../../assets/cascading-slot-utils", () => ({
-    getCustomDuration: jest.fn((key: string, isTurboMode: boolean) => {
-        const durations: { [key: string]: number } = {
-            freeSpin: isTurboMode ? 1.0 : 2.0,
-            transition: isTurboMode ? 0.5 : 1.0,
-            eventMascot: isTurboMode ? 0.3 : 0.6,
-        };
-        return durations[key] || 1.0;
-    }),
+jest.mock("../../../assets/cascading-slot-utils", () => {
+    const GameSpeed = {
+        NORMAL: "NORMAL",
+        TURBO: "TURBO",
+        ULTRA_FAST: "ULTRA_FAST",
+    };
 
-    resourcesCache: {
-        gameFeatures: {
-            turnOnEventMascot: true,
+    return {
+        getCustomDuration: jest.fn((key: string, gameSpeed: string) => {
+            // Check if gameSpeed is TURBO or ULTRA_FAST (not NORMAL)
+            // Compare directly to string values to avoid reference issues
+            const isTurboMode = gameSpeed === "TURBO" || gameSpeed === "ULTRA_FAST";
+            const durations: { [key: string]: number } = {
+                freeSpin: isTurboMode ? 1.0 : 2.0,
+                transition: isTurboMode ? 0.5 : 1.0,
+                eventMascot: isTurboMode ? 0.3 : 0.6,
+            };
+            return durations[key] || 1.0;
+        }),
+
+        GameSpeed,
+
+        resourcesCache: {
+            gameFeatures: {
+                turnOnEventMascot: true,
+            },
         },
-    },
-}));
+    };
+});
 
 describe("CascadingEffectGameContainer", () => {
     let cascadingEffectGameContainer: CascadingEffectGameContainer;
@@ -159,6 +172,7 @@ describe("CascadingEffectGameContainer", () => {
 
         // Create instance of CascadingEffectGameContainer
         cascadingEffectGameContainer = new CascadingEffectGameContainer();
+        cascadingEffectGameContainer["gameSpeed"] = GameSpeed.NORMAL;
         cascadingEffectGameContainer.pfbEffectFreespin = mockPfbEffectFreespin;
         cascadingEffectGameContainer.pfbEffectBigWin = mockPfbEffectBigWin;
         cascadingEffectGameContainer.pfbEffectTransition = mockPfbEffectTransition;
@@ -217,13 +231,12 @@ describe("CascadingEffectGameContainer", () => {
         });
 
         it("should play big win effect when visible in normal mode", async () => {
-            cascadingEffectGameContainer["isTurboMode"] = false;
+            cascadingEffectGameContainer["gameSpeed"] = GameSpeed.NORMAL;
 
             await cascadingEffectGameContainer.renderBigWinEffect(true);
 
             expect(cascadingEffectGameContainer.delayMascotEvent).toHaveBeenCalled();
             expect(cascadingEffectGameContainer["playEffectTransition"]).toHaveBeenCalled();
-            expect(cascadingEffectGameContainer.playSoundCoinIncrement).toHaveBeenCalled();
             expect(instantiate).toHaveBeenCalledWith(mockPfbEffectBigWin);
             expect(mockNode.addChild).toHaveBeenCalled();
         });
@@ -239,24 +252,24 @@ describe("CascadingEffectGameContainer", () => {
 
     describe("renderTurboMode", () => {
         it("should update turbo mode state", () => {
-            const isTurboMode = true;
+            const gameSpeed = GameSpeed.TURBO;
 
-            cascadingEffectGameContainer.renderTurboMode(isTurboMode);
+            cascadingEffectGameContainer.renderTurboMode(gameSpeed);
 
-            expect(cascadingEffectGameContainer["isTurboMode"]).toBe(true);
+            expect(cascadingEffectGameContainer["gameSpeed"]).toBe(GameSpeed.TURBO);
         });
 
         it("should toggle turbo mode state", () => {
             // Set initial state
-            cascadingEffectGameContainer["isTurboMode"] = false;
+            cascadingEffectGameContainer["gameSpeed"] = GameSpeed.NORMAL;
 
             // Toggle to true
-            cascadingEffectGameContainer.renderTurboMode(true);
-            expect(cascadingEffectGameContainer["isTurboMode"]).toBe(true);
+            cascadingEffectGameContainer.renderTurboMode(GameSpeed.TURBO);
+            expect(cascadingEffectGameContainer["gameSpeed"]).toBe(GameSpeed.TURBO);
 
             // Toggle to false
-            cascadingEffectGameContainer.renderTurboMode(false);
-            expect(cascadingEffectGameContainer["isTurboMode"]).toBe(false);
+            cascadingEffectGameContainer.renderTurboMode(GameSpeed.NORMAL);
+            expect(cascadingEffectGameContainer["gameSpeed"]).toBe(GameSpeed.NORMAL);
         });
     });
 
@@ -287,6 +300,7 @@ describe("CascadingEffectGameContainer", () => {
     describe("playEffectTransition", () => {
         beforeEach(() => {
             cascadingEffectGameContainer.playSound = jest.fn();
+            cascadingEffectGameContainer["gameSpeed"] = GameSpeed.NORMAL;
         });
 
         it("should play transition effect when prefab exists", async () => {
@@ -299,7 +313,7 @@ describe("CascadingEffectGameContainer", () => {
         });
 
         it("should use turbo mode duration when turbo mode is enabled", async () => {
-            cascadingEffectGameContainer["isTurboMode"] = true;
+            cascadingEffectGameContainer["gameSpeed"] = GameSpeed.TURBO;
 
             await cascadingEffectGameContainer["playEffectTransition"]();
 

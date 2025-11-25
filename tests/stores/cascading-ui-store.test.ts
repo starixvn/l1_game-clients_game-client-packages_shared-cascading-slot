@@ -1,5 +1,5 @@
 import { CascadingSlotState } from "../../assets/cascading-slot-state";
-import { SlotNotification, SpinButtonState } from "../../assets/cascading-slot-utils";
+import { GameSpeed, SlotNotification, SpinButtonState } from "../../assets/cascading-slot-utils";
 import { AutoPlayStore } from "../../assets/stores/auto-play-store";
 import { CascadingSlotConfigsStore } from "../../assets/stores/cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "../../assets/stores/cascading-slot-tumbles-store";
@@ -79,7 +79,7 @@ describe("CascadingUIStore", () => {
             expect(store.multiplier).toBe(0);
             expect(store.totalMultiplier).toBe(0);
             expect(store.isShowTotalMultiplierJoinGame).toBe(false);
-            expect(store.gameSpeed).toBe(false);
+            expect(store.gameSpeed).toBe(GameSpeed.NORMAL);
             expect(store.isTrialMode).toBe(false);
             expect(store.cascadingState).toBe(CascadingSlotState.NOT_READY_BET);
             expect(store.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN);
@@ -153,26 +153,26 @@ describe("CascadingUIStore", () => {
 
     describe("isTurboMode computed property", () => {
         it("should return true when isTurboModeUI is true", () => {
-            store.gameSpeed = true;
+            store.gameSpeed = GameSpeed.TURBO;
             expect(store.isTurboMode).toBe(true);
         });
 
         it("should return true when holdActionStore.isHolding is true and not in trial mode", () => {
-            store.gameSpeed = false;
+            store.gameSpeed = GameSpeed.NORMAL;
             store.isTrialMode = false;
             mockHoldActionStore.isHolding = true;
             expect(store.isTurboMode).toBe(true);
         });
 
         it("should return false when holdActionStore.isHolding is true but in trial mode", () => {
-            store.gameSpeed = false;
+            store.gameSpeed = GameSpeed.NORMAL;
             store.isTrialMode = true;
             mockHoldActionStore.isHolding = true;
             expect(store.isTurboMode).toBe(false);
         });
 
         it("should return false when both conditions are false", () => {
-            store.gameSpeed = false;
+            store.gameSpeed = GameSpeed.NORMAL;
             store.isTrialMode = false;
             mockHoldActionStore.isHolding = false;
             expect(store.isTurboMode).toBe(false);
@@ -512,7 +512,7 @@ describe("CascadingUIStore", () => {
             store.isActualWin = true;
             store.multiplier = 3;
             store.totalMultiplier = 10;
-            store.gameSpeed = true;
+            store.gameSpeed = GameSpeed.TURBO;
             store.isTrialMode = true;
 
             expect(store.totalWin).toBe(500);
@@ -520,7 +520,7 @@ describe("CascadingUIStore", () => {
             expect(store.isActualWin).toBe(true);
             expect(store.multiplier).toBe(3);
             expect(store.totalMultiplier).toBe(10);
-            expect(store.gameSpeed).toBe(true);
+            expect(store.gameSpeed).toBe(GameSpeed.TURBO);
             expect(store.isTrialMode).toBe(true);
         });
 

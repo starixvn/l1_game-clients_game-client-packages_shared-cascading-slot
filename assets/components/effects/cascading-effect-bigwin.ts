@@ -5,7 +5,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { getCustomDuration } from "../../cascading-slot-utils";
+import { GameSpeed, getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
@@ -45,7 +45,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private isChangeLevelBig = true;
     private totalBet = 0;
     private coinValue = 0;
-    private isTurboMode = false;
+    private gameSpeed = GameSpeed.NORMAL;
     private tweenBigWin: Tween<Node> = null;
     private tweenDelay = null;
 
@@ -229,9 +229,9 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.handleBigWinActions(true);
     }
 
-    @render(CascadingUIStore, (store) => store.isTurboMode)
-    renderTurboMode(isTurboMode: boolean) {
-        this.isTurboMode = isTurboMode;
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    renderTurboMode(gameSpeed: string) {
+        this.gameSpeed = gameSpeed;
     }
 
     @render(CascadingUIStore, (store) => store.bigWinAmount)
@@ -240,7 +240,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             return;
         }
         this.winAmount = win;
-        if (this.isTurboMode) {
+        if (this.gameSpeed) {
             this.isChangeLevelBig = true;
             this.isChangeLevelSuper = true;
             this.isChangeLevelMega = true;
@@ -267,18 +267,18 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     handleBigWinActions(completed: boolean) {
         this.tweenDelay?.stop();
-        if (this.skipClickCount > 1 || (this.skipClickCount === 1 && this.isTurboMode)) {
+        if (this.skipClickCount > 1 || (this.skipClickCount === 1 && this.gameSpeed)) {
             this.setBigWinCompleted(completed);
             return;
         }
 
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
-        !this.isTurboMode && this.stopSoundCoinIncrement();
+        !this.gameSpeed && this.stopSoundCoinIncrement();
         this.scheduleOnce(() => this.playSound(AudioIds.WINCOUNT_STOP), 0.1);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
 
-        const duration = getCustomDuration("bigWin", this.isTurboMode);
+        const duration = getCustomDuration("bigWin", this.gameSpeed);
         this.tweenDelay = tween({})
             .delay(duration)
             .call(() => {
