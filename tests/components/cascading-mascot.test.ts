@@ -50,6 +50,22 @@ jest.mock("../../assets/cascading-slot-utils", () => ({
             bottomAreaWinAmountColor: "#00FF00",
         },
     },
+    GameSpeed: {
+        NORMAL: "NORMAL",
+        TURBO: "TURBO",
+        ULTRA: "ULTRA",
+    },
+    getConfigGameSpeed: jest.fn((key: string, gameSpeed: string) => {
+        return 1; // Default duration
+    }),
+    globalEmitter: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+    },
+    SlotClientEvent: {
+        EFFECT_INTRO_MULTIPLIER: "effectIntroMultiplier",
+    },
 }));
 
 // Import after mocks are set up
