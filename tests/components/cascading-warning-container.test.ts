@@ -22,6 +22,8 @@ jest.mock("@sg/game-client-base", () => ({
                 enable_turbo_mode: "Turbo Mode Enabled",
                 disable_turbo_mode: "Turbo Mode Disabled",
                 reach_max_win: "Maximum Win Reached",
+                speed_turbo: "speed_turbo",
+                speed_normal: "speed_normal",
             };
             return translations[key] || key;
         }),
@@ -52,8 +54,9 @@ describe("CascadingWarningContainer", () => {
     let mockWarningComponent: any;
     let mockParentNode: any;
 
-    const TURBO_ENABLED_MSG = "Turbo Mode Enabled";
-    const TURBO_DISABLED_MSG = "Turbo Mode Disabled";
+    const SPEED_TURBO = "Speed Turbo";
+    const SPEED_NORMAL = "Speed Normal";
+    const SPEED_ULTRA = "Speed Ultra";
     const REACH_MAX_WIN_MSG = "Maximum Win Reached";
     const CUSTOM_MESSAGE = "Custom warning message";
 
@@ -135,7 +138,7 @@ describe("CascadingWarningContainer", () => {
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_ENABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_turbo");
         });
 
         it("should add turbo disabled message when turbo mode is false and not in trial mode", () => {
@@ -143,7 +146,7 @@ describe("CascadingWarningContainer", () => {
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_DISABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_normal");
         });
 
         it("should not add message when in trial mode for true turbo mode", () => {
@@ -207,7 +210,7 @@ describe("CascadingWarningContainer", () => {
 
             expect(instantiate).toHaveBeenCalledWith(mockPrefab);
             expect(mockParentNode.addChild).toHaveBeenCalledWith(mockWarningNode);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_ENABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_turbo");
         });
     });
 
@@ -215,13 +218,13 @@ describe("CascadingWarningContainer", () => {
         it("should use translator for enable turbo mode messages", () => {
             cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
-            expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("enable_turbo_mode");
+            expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("speed_turbo");
         });
 
         it("should use translator for disable turbo mode messages", () => {
             cascadingWarningContainer.renderTurboModeMsg(GameSpeed.NORMAL);
 
-            expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("disable_turbo_mode");
+            expect(gc.Translator.gameTranslate).toHaveBeenCalledWith("speed_normal");
         });
 
         it("should use translator for reach max win messages", () => {
@@ -239,9 +242,9 @@ describe("CascadingWarningContainer", () => {
 
             expect(instantiate).toHaveBeenCalledTimes(3);
             expect(mockParentNode.addChild).toHaveBeenCalledTimes(3);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_ENABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_turbo");
             expect(mockWarningComponent.setData).toHaveBeenCalledWith(REACH_MAX_WIN_MSG);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_DISABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_normal");
         });
 
         it("should maintain trial mode state across multiple calls", () => {
@@ -260,7 +263,7 @@ describe("CascadingWarningContainer", () => {
             cascadingWarningContainer.renderTurboModeMsg(GameSpeed.TURBO);
 
             expect(instantiate).toHaveBeenCalledTimes(1);
-            expect(mockWarningComponent.setData).toHaveBeenCalledWith(TURBO_ENABLED_MSG);
+            expect(mockWarningComponent.setData).toHaveBeenCalledWith("speed_turbo");
         });
     });
 
