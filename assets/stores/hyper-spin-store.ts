@@ -401,6 +401,11 @@ export class HyperSpinStore {
     setHyperSpinActive(active: boolean) {
         this.isHyperSpin = active;
 
+        // Collapse settings when hyper-spin batch play starts
+        if (active) {
+            this.isSettingsOpen = false;
+        }
+
         // Update UI store flag
         if (this.cascadingUIStore) {
             this.cascadingUIStore.isHyperSpinActive = active;
