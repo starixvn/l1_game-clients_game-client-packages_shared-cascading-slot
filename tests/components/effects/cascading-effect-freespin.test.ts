@@ -142,41 +142,9 @@ describe("CascadingEffectFreespin", () => {
         });
     });
 
-    describe("renderTurboMode", () => {
-        it("should update turbo mode state to true", () => {
-            const isTurboMode = true;
-
-            cascadingEffectFreespin.renderTurboMode(isTurboMode);
-
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(true);
-        });
-
-        it("should update turbo mode state to false", () => {
-            const isTurboMode = false;
-
-            cascadingEffectFreespin.renderTurboMode(isTurboMode);
-
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(false);
-        });
-
-        it("should toggle turbo mode state", () => {
-            // Set initial state
-            cascadingEffectFreespin["isTurboMode"] = false;
-
-            // Toggle to true
-            cascadingEffectFreespin.renderTurboMode(true);
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(true);
-
-            // Toggle to false
-            cascadingEffectFreespin.renderTurboMode(false);
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(false);
-        });
-    });
-
     describe("initial state", () => {
         it("should have correct initial values", () => {
             expect(cascadingEffectFreespin.freeSpinsCount).toBe(0);
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(false);
         });
     });
 
@@ -184,11 +152,6 @@ describe("CascadingEffectFreespin", () => {
         it("should allow access to public properties", () => {
             cascadingEffectFreespin.freeSpinsCount = 10;
             expect(cascadingEffectFreespin.freeSpinsCount).toBe(10);
-        });
-
-        it("should allow access to private properties via bracket notation", () => {
-            cascadingEffectFreespin["isTurboMode"] = true;
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(true);
         });
     });
 
@@ -225,20 +188,6 @@ describe("CascadingEffectFreespin", () => {
                 expect(cascadingEffectFreespin.freeSpinsCount).toBe(value);
                 expect(mockLblFreeSpinCount.string).toBe(value.toString());
             });
-        });
-
-        it("should maintain turbo mode state across multiple updates", () => {
-            // Set turbo mode
-            cascadingEffectFreespin.renderTurboMode(true);
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(true);
-
-            // Update free spins count multiple times
-            cascadingEffectFreespin.renderFreeSpinsCount(1);
-            cascadingEffectFreespin.renderFreeSpinsCount(2);
-            cascadingEffectFreespin.renderFreeSpinsCount(3);
-
-            // Turbo mode should remain unchanged
-            expect(cascadingEffectFreespin["isTurboMode"]).toBe(true);
         });
     });
 });
