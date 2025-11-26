@@ -259,7 +259,7 @@ export class CascadingSlotGame extends GameComponentBase {
         const winMultiplier = settlementData.multiplier > 0 && winTumbles;
 
         // Skip multiplier animations during hyper-spin for faster execution
-        if (!isInHyperSpin) {
+        if (!isInHyperSpin && this.tumbleWinView) {
             if (winMultiplier) {
                 this.handleTriggerWinMultiplier();
             }
@@ -269,7 +269,7 @@ export class CascadingSlotGame extends GameComponentBase {
         if (settlementData.win > 0) {
             this.getBalance();
             this.handleChangeUserBalance(true);
-            if (winTumbles && !isInHyperSpin) {
+            if (winTumbles && !isInHyperSpin && this.tumbleWinView) {
                 await this.tumbleWinView.setTotalWinValue(settlementData.actualBetwin);
             }
             this.handleTotalWin({ win: settlementData.win, isActualWin: true });
@@ -344,7 +344,7 @@ export class CascadingSlotGame extends GameComponentBase {
     protected async showTotalMultiplierView(totalMultiplier: number, isFreeSpin: boolean, winMultiplier: boolean) {
         const needShowTotalMultiplier = totalMultiplier > 0;
 
-        if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
+        if (winMultiplier && isFreeSpin && needShowTotalMultiplier && this.tumbleWinView) {
             await this.totalMultiplierView.showView(true);
             await this.board.movingMultiplier(
                 this.tumbleWinView.multiplier.node,
@@ -400,13 +400,17 @@ export class CascadingSlotGame extends GameComponentBase {
         this.stopOnFeature = stopOnFeature;
     }
 
-    @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
-    async checkNextRound(isFreeSpinEffectCompleted: boolean) {
+    @render(CascadingUIStore, (store) => ({ 
+        isFreeSpinEffectCompleted: store.isFreeSpinEffectCompleted,
+        isHyperSpinActive: store.isHyperSpinActive 
+    }))
+    async checkNextRound(data: { isFreeSpinEffectCompleted: boolean; isHyperSpinActive: boolean }) {
+        const { isFreeSpinEffectCompleted, isHyperSpinActive } = data;
         if (isFreeSpinEffectCompleted) {
 
             // Skip delay entirely for hyper-spin mode to achieve faster spinning
-            // Use reactive render property for hyper-spin detection
-            const isInHyperSpin = this.isHyperSpinActive;
+            // Use store state directly (more reliable than local property)
+            const isInHyperSpin = isHyperSpinActive;
             const delayForNextSpin = isInHyperSpin ? 0 : getCustomDuration("delayForNextSpin", this.isTurboMode);
 
             if (delayForNextSpin > 0) {
@@ -423,14 +427,32 @@ export class CascadingSlotGame extends GameComponentBase {
             this.checkSpinNextRound();
 
             // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
-            // Use local property which is updated reactively from store
+            // Use store state directly to avoid race conditions with local property
             console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
-                isHyperSpinActive: this.isHyperSpinActive,
+                isHyperSpinActive,
                 isFreeSpinEffectCompleted,
                 timestamp: new Date().toISOString()
             });
             
-            if (this.isHyperSpinActive) {
+            // ✅ Check cancellation flag before calling checkHyperSpinNextRound()
+            // The handler method will also check cancellation, but this prevents unnecessary calls
+            if (isHyperSpinActive) {
+                // Access handler via container to check cancellation flag
+                try {
+                    const container = (this as any).container;
+                    if (container) {
+                        const hyperSpinHandler = container.get(HyperSpinHandler);
+                        if (hyperSpinHandler && hyperSpinHandler.isBatchCancelled) {
+                            console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - batch cancelled", {
+                                timestamp: new Date().toISOString()
+                            });
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    // If we can't access handler, proceed (handler will check cancellation internally)
+                }
+                
                 console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
                     timestamp: new Date().toISOString()
                 });

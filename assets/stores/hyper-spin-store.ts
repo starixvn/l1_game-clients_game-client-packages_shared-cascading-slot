@@ -12,7 +12,7 @@ const { injectable, inject } = inversify;
 const { FormatUtils } = gc;
 
 // Hyper-spin status types
-export type HyperSpinStatus = "Ready" | "Playing" | "Paused" | "Interrupted";
+export type HyperSpinStatus = "Ready" | "Playing" | "Paused" | "Interrupted" | "Cancel";
 
 // Win tag types for multipliers
 export type WinTag = "Bronze" | "Silver" | "Gold" | "Amethyst" | null;
