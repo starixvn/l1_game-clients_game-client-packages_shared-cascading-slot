@@ -3,7 +3,6 @@ import Observer from "observer";
 
 import gc from "@sg/game-client-base";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
-import { GameSpeed } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingWarningMsg } from "./cascading-warning-msg";
 
@@ -21,10 +20,7 @@ export class CascadingWarningContainer extends ObserverComponent {
         if (this.isTrialMode) {
             return;
         }
-        const msg =
-            gameSpeed === GameSpeed.TURBO
-                ? gc.Translator.gameTranslate("enable_turbo_mode")
-                : gc.Translator.gameTranslate("disable_turbo_mode");
+        const msg = gc.Translator.gameTranslate(`speed_${gameSpeed.toLowerCase()}`);
         this.addNode(msg);
     }
 
