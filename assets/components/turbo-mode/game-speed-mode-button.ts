@@ -12,7 +12,7 @@ const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
 @ccclass
-export default class PortraitTurboModeButton extends ObserverComponent {
+export default class GameSpeedModeButton extends ObserverComponent {
     @property(Node)
     nodeDisabled: Node = null;
 
