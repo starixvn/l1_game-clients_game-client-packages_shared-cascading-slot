@@ -8,12 +8,14 @@ import { CascadingSlotBoard } from "./cascading-slot-board";
 import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { CascadingUIHandler } from "db://shared-cascading-slot/handlers/cascading-ui-handler";
+import { GameSpeed, getConfigGameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
 const { render , handle } = Observer;
 const { ccclass } = _decorator;
 
 @ccclass
 export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     private totalTumbleWin = 0;
+    private gameSpeed = GameSpeed.NORMAL;
     async handleMultiplier(
         isFreeSpin: boolean,
         winMultiplier: boolean,
@@ -56,6 +58,11 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         this.totalTumbleWin = totalTumbleWin;
     }
 
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    renderTurboMode(gameSpeed: string) {
+        this.gameSpeed = gameSpeed;
+    }
+
     async flyWinLabelAnimation(node: Node, tumbleWinView?: PortraitTumbleWinWiew) {
         if (tumbleWinView) {
             await new Promise<void>((resolve) => {
@@ -70,8 +77,12 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                 });
                 await AnimationUtils.delayTime(0.5);
                 
+                if (!node || !node.isValid) {
+                    return;
+                }
+                
                 const isBottomPosition = this.isNodeAtBottomBoard(node);
-                const moveDuration = isBottomPosition ? 0.3 : 0.6;
+                const moveDuration = isBottomPosition ? getConfigGameSpeed("bottomMessageAnimDuration", this.gameSpeed) : getConfigGameSpeed("totalWinLabelAnimDuration", this.gameSpeed);
                 
                 await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node, moveDuration);
                 tumbleWinView.totalWinNode.active = true;
@@ -81,13 +92,16 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
     private isNodeAtBottomBoard(node: Node): boolean {
         const threshold = 150; 
+        if (!node || !node.isValid) {
+            return false;
+        }
         if (!this.reels || this.reels.length === 0) {
             return false;
         }
         const bottomItems = this.reels.map(reel => {
             const items = reel.getItems();
             return items.length > 0 ? items[0] : null;
-        }).filter(item => item !== null);
+        }).filter(item => item !== null && item.node && item.node.isValid);
         if (bottomItems.length === 0) {
             return false;
         }
@@ -95,7 +109,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         return Math.abs(node.worldPosition.y - avgBottomY) < threshold;
     }
 
-    movingLabelToTotalWin(multiplierNode: Node, container: Node, destNode: Node, duration : number) {
+    movingLabelToTotalWin(multiplierNode: Node, container: Node, destNode: Node, duration: number) {
         return new Promise<void>((resolve) => {
             const destPosTmp = ComponentUtils.convertPosition(container, destNode);
             const destPos = v3(destPosTmp.x, destPosTmp.y, destPosTmp.z);
@@ -107,8 +121,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         return new Promise<void>((resolve) => {
             const node = this.initStartNode(multiplierNode, container);
             const destPos = ComponentUtils.convertPosition(container, destNode);
-            const duration = 0.5;
-
+            const duration = getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);;
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
@@ -119,8 +132,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             const destPosTmp = ComponentUtils.convertPosition(container, totalMultiplierView.total.node);
             const totalValueWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
             const destPos = v3(destPosTmp.x - totalValueWidth / 2, destPosTmp.y, 0);
-            const duration = 0.5;
-
+            const duration = getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
@@ -131,8 +143,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             const destPosTmp = ComponentUtils.convertPosition(container, totalWinView);
             const totalMultipierWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
             const destPos = v3(destPosTmp.x + totalMultipierWidth, destPosTmp.y, 0);
-            const duration = 0.5;
-
+            const duration = getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
@@ -164,6 +175,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         if (!uiOpacity) {
             node.addComponent(UIOpacity);
         }
+        
         
         tween(node)
             .to(duration * 0.8, { position: position })

@@ -13,6 +13,9 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         minDurationFallOut: 0.25,
         ratioEventMascotSpeed: 1,
         delayBeforeRefillSymbols: 0.2,
+        totalMultiplierAnimDuration: 0.6,
+        totalWinLabelAnimDuration: 0.6,
+        bottomMessageAnimDuration: 0.3,
     },
 
     turbo: {
@@ -29,6 +32,9 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         minDurationFallOut: 0.1,
         ratioEventMascotSpeed: 1,
         delayBeforeRefillSymbols: 0.1,
+        totalMultiplierAnimDuration: 0.6,
+        totalWinLabelAnimDuration: 0.6,
+        bottomMessageAnimDuration: 0.3,
     },
 
     ultra: {
@@ -45,6 +51,9 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         minDurationFallOut: 0.05,
         ratioEventMascotSpeed: 0.5,
         delayBeforeRefillSymbols: 0,
+        totalMultiplierAnimDuration: 0.15,
+        totalWinLabelAnimDuration: 0.1,
+        bottomMessageAnimDuration: 0.1
     },
 
     itemTypeCount: 11,
@@ -75,4 +84,7 @@ export interface CascadingSlotConfigDuration {
     minDurationFallOut: number;
     ratioEventMascotSpeed?: number;
     delayBeforeRefillSymbols?: number;
+    totalMultiplierAnimDuration: number;
+    bottomMessageAnimDuration: number;
+    totalWinLabelAnimDuration: number;
 }
