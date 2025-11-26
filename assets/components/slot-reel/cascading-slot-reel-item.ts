@@ -30,6 +30,11 @@ export class CascadingSlotReelItem extends Component {
     }
 
     protected replaceItem(index: number) {
+        if (!this.content) {
+            console.error("replaceItem: content node is null");
+            return;
+        }
+
         this.content.children.forEach((child) => child.destroy());
         this._effectSpine = null;
 
@@ -42,10 +47,17 @@ export class CascadingSlotReelItem extends Component {
         this.content.addChild(node);
         const reelSymbol = node.getComponent(CascadingSlotReelSymbol);
 
-        reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
+        if (reelSymbol) {
+            reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
+        } else {
+            console.error("replaceItem: CascadingSlotReelSymbol component not found on instantiated node");
+        }
     }
 
     getMultiplierItem() {
+        if (!this.content) {
+            return null;
+        }
         const validChildren = this.content.children.filter((child) => child.isValid && child.activeInHierarchy);
         const items = validChildren.map((child) => child.getComponent(MultiplierItem)).filter((item) => item !== null);
         if (items.length > 0) {
@@ -86,7 +98,7 @@ export class CascadingSlotReelItem extends Component {
     }
 
     get effectSpine(): sp.Skeleton {
-        if (!this._effectSpine) {
+        if (!this._effectSpine && this.content) {
             this._effectSpine = this.content.getComponentInChildren(sp.Skeleton);
         }
         return this._effectSpine;

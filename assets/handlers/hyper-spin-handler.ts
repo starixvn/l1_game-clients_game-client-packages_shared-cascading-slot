@@ -111,6 +111,19 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 timestamp: new Date().toISOString()
             });
         }
+
+        // ✅ NEW: Clear batch data if status is "Cancel" to allow fresh start
+        if (this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel") {
+            this.hyperSpinStore.clearBatchData();
+            console.warn("🔄 [HYPER_SPIN] Cleared cancelled batch data on popup open", {
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // ✅ NEW: Ensure isHyperSpin is false when popup opens (if not active)
+        if (!this.hyperSpinStore.isHyperSpin) {
+            this.hyperSpinStore.setHyperSpinActive(false);
+        }
     }
 
     closeHyperSpinBetControl() {
@@ -284,16 +297,21 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Ready" ||
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel");
 
-        const isValid = hasEnoughMoney && hasValidRounds && isValidGameState;
+        // ✅ NEW: Ensure hyper-spin is not active (should be false when starting)
+        const isNotActive = !this.hyperSpinStore.isHyperSpin;
+
+        const isValid = hasEnoughMoney && hasValidRounds && isValidGameState && isNotActive;
 
         console.warn("🔍 [HYPER_SPIN] isValidHyperSpinBet() validation", {
             hasEnoughMoney,
             hasValidRounds,
             isValidGameState,
+            isNotActive,
             isPlacingBet: this.cascadingUIStore.isPlacingBet,
             cascadingState: this.cascadingUIStore.cascadingState,
             batchDataExists: !!this.hyperSpinStore.currentBatchData,
             batchStatus: this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus,
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
             totalBet: this.betControlStore.totalBet,
             userBalance: this.cascadingUIStore.userBalance,
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
@@ -438,7 +456,31 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 this.isCompletionPending = true;
             }
         } else {
-            this.stopHyperSpin();
+            // ✅ IMPROVED: Don't stop batch immediately on bet failure
+            // Only stop if it's a critical error (e.g., insufficient balance)
+            // Otherwise, retry after delay
+            const hasEnoughMoney = this.betControlStore.totalBet <= this.cascadingUIStore.userBalance;
+
+            if (!hasEnoughMoney) {
+                // Critical error - insufficient balance, stop batch
+                console.warn("🛑 [HYPER_SPIN] Bet failed - insufficient balance, stopping batch", {
+                    totalBet: this.betControlStore.totalBet,
+                    userBalance: this.cascadingUIStore.userBalance,
+                    timestamp: new Date().toISOString()
+                });
+                this.stopHyperSpin();
+            } else {
+                // Non-critical error - retry after delay
+                console.warn("⚠️ [HYPER_SPIN] Bet failed, retrying after delay", {
+                    roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                    timestamp: new Date().toISOString()
+                });
+                setTimeout(() => {
+                    if (!this.isCancelled && this.hyperSpinStore.isHyperSpin) {
+                        this.placeHyperSpinBet();
+                    }
+                }, 1000);
+            }
         }
     }
 
@@ -523,6 +565,28 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private stopHyperSpin() {
+        // ✅ NEW: Guard - Don't stop if batch just started (within 1 second)
+        const batchAge = Date.now() - this.hyperSpinBatchStartTime;
+        if (batchAge < 1000 && this.hyperSpinBatchStartTime > 0) {
+            console.warn("⚠️ [HYPER_SPIN] Preventing premature stop - batch just started", {
+                batchAge,
+                batchStartTime: this.hyperSpinBatchStartTime,
+                timestamp: new Date().toISOString()
+            });
+            return;
+        }
+
+        // ✅ NEW: Comprehensive logging to track when and why stopHyperSpin() is called
+        console.warn("🛑 [HYPER_SPIN] stopHyperSpin() called", {
+            isCancelled: this.isCancelled,
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            batchStartTime: this.hyperSpinBatchStartTime,
+            batchAge: this.hyperSpinBatchStartTime > 0 ? Date.now() - this.hyperSpinBatchStartTime : 0,
+            stackTrace: new Error().stack?.split('\n').slice(1, 5).join('\n'),
+            timestamp: new Date().toISOString()
+        });
+
         // Clear all pending timeouts when stopping
         this.clearAllPendingTimeouts();
 
