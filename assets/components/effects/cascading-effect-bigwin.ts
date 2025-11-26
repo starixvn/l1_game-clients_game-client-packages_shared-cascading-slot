@@ -267,14 +267,15 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     handleBigWinActions(completed: boolean) {
         this.tweenDelay?.stop();
-        if (this.skipClickCount > 1 || (this.skipClickCount === 1 && this.gameSpeed)) {
+        const fastSpeed = this.gameSpeed === GameSpeed.ULTRA || this.gameSpeed === GameSpeed.TURBO;
+        if (this.skipClickCount > 1 || (this.skipClickCount === 1 && fastSpeed)) {
             this.setBigWinCompleted(completed);
             return;
         }
 
         this.tweenBigWin?.stop();
         this.winAmountForNoAnim(this.winAmount);
-        !this.gameSpeed && this.stopSoundCoinIncrement();
+        !fastSpeed && this.stopSoundCoinIncrement();
         this.scheduleOnce(() => this.playSound(AudioIds.WINCOUNT_STOP), 0.1);
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_WINCOUNT);
 

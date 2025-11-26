@@ -3,6 +3,7 @@ import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
+import { GameSpeed } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
@@ -14,11 +15,16 @@ export class CascadingEffectFreespin extends ObserverComponent {
     lblFreeSpinCount: Label = null;
 
     freeSpinsCount = 0;
-    private isTurboMode = false;
+    private gameSpeed = GameSpeed.NORMAL;
 
     onLoad() {
         this.initButtonSkip();
         super.onLoad();
+        if (this.gameSpeed === GameSpeed.ULTRA) {
+            this.scheduleOnce(() => {
+                this.setFreeSpinEffectCompleted(true);
+            }, 3);
+        }
     }
 
     initButtonSkip() {
@@ -36,6 +42,11 @@ export class CascadingEffectFreespin extends ObserverComponent {
         AudioUtils.stopStoppableSFX(AudioIds.STINGER_FREESPIN_WIN);
         this.setFreeSpinEffectCompleted(true);
         this.handleTriggerDuringFreeSpinBonus();
+    }
+
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    getGameSpeed(gameSpeed: string) {
+        this.gameSpeed = gameSpeed;
     }
 
     @handle(CascadingUIHandler, (handler, completed: boolean) => handler.handleFreeSpinEffectCompleted(completed))
