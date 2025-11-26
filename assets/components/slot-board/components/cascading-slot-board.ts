@@ -358,10 +358,11 @@ export class CascadingSlotBoard extends ObserverComponent {
                 this.hidePeekEffectAtIndex(i);
             }
         } else {
+            const delay = gameSpeed === GameSpeed.ULTRA ? 0 : 0.1;
             // For each reel: fall in remaining items, wait for it to finish, delay 0.1s, then fall in new items
             // Each reel starts 0.1s after the previous reel starts (reels run in parallel, not waiting for completion)
             const reelPromises = this.reels.map(async (reel, reelIndex) => {
-                await AnimationUtils.delayTime(reelIndex * 0.1);
+                await AnimationUtils.delayTime(reelIndex * delay);
                 const oldCount = remainSymbolsCount[reelIndex];
                 const newCount = reel.getItems().length;
 
@@ -371,7 +372,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 }
 
                 // Delay 0.1s before falling in new items
-                await AnimationUtils.delayTime(0.1);
+                await AnimationUtils.delayTime(delay);
 
                 // Fall in new items
                 if (newCount > oldCount) {

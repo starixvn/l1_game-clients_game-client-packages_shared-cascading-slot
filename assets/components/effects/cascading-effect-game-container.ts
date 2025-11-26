@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Prefab } from "cc";
+import { _decorator, instantiate, Prefab, sp } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -105,8 +105,12 @@ export class CascadingEffectGameContainer extends ObserverComponent {
         }
         const transition = instantiate(this.pfbEffectTransition);
         this.playSound(AudioIds.TRANSITION);
+        const spineTransition = transition.getComponentInChildren(sp.Skeleton);
+        const ratioSpeed = getConfigGameSpeed("ratioEventSpineSpeed", this.gameSpeed);
+        const duration = getConfigGameSpeed("transition", this.gameSpeed) / ratioSpeed;
+        spineTransition.timeScale = ratioSpeed;
         this.node.addChild(transition);
-        const duration = getConfigGameSpeed("transition", this.gameSpeed);
+
         await AnimationUtils.delayTime(duration);
         transition.destroy();
     }

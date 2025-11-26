@@ -47,7 +47,7 @@ export class CascadingMascot extends ObserverComponent {
         if (isPlayingAnim) {
             return;
         }
-        const duration = getConfigGameSpeed("ratioEventMascotSpeed", this.gameSpeed);
+        const duration = getConfigGameSpeed("ratioEventSpineSpeed", this.gameSpeed);
         await AnimationUtils.playSpine(this.spineMascot, anim, false, duration);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }

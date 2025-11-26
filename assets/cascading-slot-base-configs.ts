@@ -11,7 +11,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         ratioMascotAnimSpeed: 1,
         minDurationFallIn: 0.4,
         minDurationFallOut: 0.25,
-        ratioEventMascotSpeed: 1,
+        ratioEventSpineSpeed: 1,
         delayBeforeRefillSymbols: 0.2,
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
@@ -30,7 +30,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         ratioMascotAnimSpeed: 0.5,
         minDurationFallIn: 0.25,
         minDurationFallOut: 0.1,
-        ratioEventMascotSpeed: 1,
+        ratioEventSpineSpeed: 1,
         delayBeforeRefillSymbols: 0.1,
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
@@ -44,16 +44,16 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         bigWinFloatNumber: 0.3,
         delayForNextSpin: 0.1,
         transition: 1.16,
-        eventMascot: 2,
+        eventMascot: 1,
         ratioSymbolMatchAndExplosion: 0.25,
         ratioMascotAnimSpeed: 2,
         minDurationFallIn: 0.05,
         minDurationFallOut: 0.05,
-        ratioEventMascotSpeed: 0.5,
+        ratioEventSpineSpeed: 2,
         delayBeforeRefillSymbols: 0,
         totalMultiplierAnimDuration: 0.15,
         totalWinLabelAnimDuration: 0.1,
-        bottomMessageAnimDuration: 0.1
+        bottomMessageAnimDuration: 0.1,
     },
 
     itemTypeCount: 11,
@@ -82,7 +82,7 @@ export interface CascadingSlotConfigDuration {
     ratioMascotAnimSpeed?: number;
     minDurationFallIn: number;
     minDurationFallOut: number;
-    ratioEventMascotSpeed?: number;
+    ratioEventSpineSpeed?: number;
     delayBeforeRefillSymbols?: number;
     totalMultiplierAnimDuration: number;
     bottomMessageAnimDuration: number;
