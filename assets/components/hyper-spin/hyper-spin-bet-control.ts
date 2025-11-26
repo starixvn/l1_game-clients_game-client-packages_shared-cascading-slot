@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Slider, Sprite, Prefab, Node } from "cc";
+import { _decorator, instantiate, Label, Slider, Sprite, Prefab, Node, Button } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -239,18 +239,28 @@ export class HyperSpinBetControl extends ObserverComponent {
         }
     }
 
-    @render(HyperSpinStore, (store) => store.isSettingsOpen)
-    updateSettingsButton(isOpenSettings: boolean) {
+    @render(HyperSpinStore, (store) => ({
+        isSettingsOpen: store.isSettingsOpen,
+        hyperSpinStatus: store.currentBatchData?.summary.hyperSpinStatus
+    }))
+    updateSettingsButton(data: { isSettingsOpen: boolean; hyperSpinStatus: string }) {
+        const { isSettingsOpen, hyperSpinStatus } = data;
+        const isPlaying = hyperSpinStatus === "Playing";
+
         if (!this.sprIconSettingsOff && !this.sprIconSettingsOn) {
             return;
         }
 
         if (this.sprIconSettingsOff) {
-            this.sprIconSettingsOff.node.active = !isOpenSettings;
+            this.sprIconSettingsOff.node.active = !isSettingsOpen;
+            const buttonOff = this.sprIconSettingsOff.node.getComponent(Button);
+            if (buttonOff) {
+                buttonOff.interactable = !isPlaying;
+            }
         }
 
         if (this.sprIconSettingsOn) {
-            this.sprIconSettingsOn.node.active = isOpenSettings;
+            this.sprIconSettingsOn.node.active = isSettingsOpen;
         }
     }
 

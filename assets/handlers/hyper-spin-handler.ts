@@ -212,6 +212,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     toggleSettings() {
+        // Prevent settings toggle when hyper-spin is actively playing
+        if (this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Playing") {
+            return;
+        }
+
         this.hyperSpinStore.isSettingsOpen = !this.hyperSpinStore.isSettingsOpen;
     }
 

@@ -63,6 +63,7 @@ export class HyperSpinBetRecords extends ObserverComponent {
                 const spinData = {
                     spinId: spin.spinId,
                     spinWinAmount: spin.spinWinAmount || "0.00",
+                    spinWinAmountRaw: spin.spinWinAmountRaw || 0,
                     spinBalance: spin.spinBalance || "0.00",
                     spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
                 };
@@ -101,6 +102,7 @@ export class HyperSpinBetRecords extends ObserverComponent {
                     const spinData = {
                         spinId: spin.spinId,
                         spinWinAmount: spin.spinWinAmount || "0.00",
+                        spinWinAmountRaw: spin.spinWinAmountRaw || 0,
                         spinBalance: spin.spinBalance || "0.00",
                         spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
                     };
