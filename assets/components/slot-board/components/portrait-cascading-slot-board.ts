@@ -75,8 +75,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                     })
                     .start();
                 });
-                await AnimationUtils.delayTime(0.5);
-                
+                await AnimationUtils.delayTime(getConfigGameSpeed("zoomInValueDuration", this.gameSpeed));
                 if (!node || !node.isValid) {
                     return;
                 }

@@ -16,6 +16,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
         bottomMessageAnimDuration: 0.3,
+        zoomInValueDuration: 0.5,
     },
 
     turbo: {
@@ -35,6 +36,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
         bottomMessageAnimDuration: 0.3,
+        zoomInValueDuration: 0.3,
     },
 
     ultra: {
@@ -54,6 +56,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.15,
         totalWinLabelAnimDuration: 0.1,
         bottomMessageAnimDuration: 0.1,
+        zoomInValueDuration: 0.1,
     },
 
     itemTypeCount: 11,
@@ -87,4 +90,5 @@ export interface CascadingSlotConfigDuration {
     totalMultiplierAnimDuration: number;
     bottomMessageAnimDuration: number;
     totalWinLabelAnimDuration: number;
+    zoomInValueDuration: number;
 }
