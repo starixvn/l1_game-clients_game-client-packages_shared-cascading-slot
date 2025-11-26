@@ -63,11 +63,6 @@ export class CascadingEffectFreespin extends ObserverComponent {
         this.lblFreeSpinCount.string = this.freeSpinsCount.toString();
     }
 
-    @render(CascadingUIStore, (store) => store.isTurboMode)
-    renderTurboMode(isTurboMode: boolean) {
-        this.isTurboMode = isTurboMode;
-    }
-
     @handle(CascadingUIHandler, (handler, fadeBGM: boolean) => handler.handleFadeBGM(fadeBGM))
     handleFadeBGM(fadeBGM: boolean) {
         return fadeBGM;
