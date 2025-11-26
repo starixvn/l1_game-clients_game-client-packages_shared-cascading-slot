@@ -67,6 +67,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     public isTurboMode = false;
     private isHyperSpinActive = false;
+    private wasHyperSpinActive = false; // Track previous state to detect transitions
     private stopOnFeature = false;
 
     onLoad() {
@@ -195,9 +196,10 @@ export class CascadingSlotGame extends GameComponentBase {
         }
 
         const settlementData = this.extractSettlementData(finishData);
-        const isInHyperSpin = this.shouldSkipAnimationsForHyperSpin(settlementData.isFreeSpin, settlementData.totalFreeSpins, finishData);
+        const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
+        const isInHyperSpin = this.isHyperSpinActive;
 
-        await this.handleSpinAndTumbleResults(settlementData, isInHyperSpin);
+        await this.handleSpinAndTumbleResults(settlementData, isInHyperSpin, isFreeSpinActive);
         await this.handleWinProcessing(settlementData, isInHyperSpin);
         this.handleUIUpdates(settlementData, isInHyperSpin);
         this.handleSpecialEffects(settlementData, isInHyperSpin);
@@ -228,7 +230,7 @@ export class CascadingSlotGame extends GameComponentBase {
         };
     }
 
-    private async handleSpinAndTumbleResults(settlementData: any, isInHyperSpin: boolean) {
+    private async handleSpinAndTumbleResults(settlementData: any, isInHyperSpin: boolean, isFreeSpinActive: boolean) {
         const symbolsBoard = {
             symbols: convertData(settlementData.result),
             multipliers: settlementData.tumbles[0]?.multipliers,
@@ -236,8 +238,20 @@ export class CascadingSlotGame extends GameComponentBase {
             tumbles: settlementData.tumbles
         };
 
-        await this.board.spinResult(symbolsBoard, this.isTurboMode, isInHyperSpin);
-        await this.board.handleTumbles(settlementData.tumbles, this.isTurboMode, isInHyperSpin);
+        await this.board.spinResult(
+            symbolsBoard,
+            this.isTurboMode,
+            isInHyperSpin,
+            this.stopOnFeature,
+            isFreeSpinActive
+        );
+        await this.board.handleTumbles(
+            settlementData.tumbles,
+            this.isTurboMode,
+            isInHyperSpin,
+            this.stopOnFeature,
+            isFreeSpinActive
+        );
     }
 
     private async handleWinProcessing(settlementData: any, isInHyperSpin: boolean) {
@@ -321,54 +335,6 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-    private shouldSkipAnimationsForHyperSpin(isFreeSpin: boolean, totalFreeSpins: number, finishData: any): boolean {
-        const isHyperSpinActive = this.isHyperSpinActive;
-        const isFreeSpinActive = isFreeSpin || totalFreeSpins > 0;
-
-        // Add console.warn when freespin is active
-        if (isFreeSpinActive) {
-            console.warn("🎰 FREESPIN PLAYING: Free-spin detected in settlement", {
-                isFreeSpin,
-                totalFreeSpins,
-                isFreeSpinActive,
-                isHyperSpinActive,
-                roundId: finishData.roundId,
-                win: finishData.win,
-                timestamp: new Date().toISOString()
-            });
-        }
-
-        // Animation skipping logic for hyper-spin batch mode:
-        // - Skip animations if hyper-spin is active AND free-spin is NOT active (normal hyper-spin)
-        // - Skip animations if hyper-spin is active AND free-spin is active AND stopOnFeature is false (batch mode: no free UI)
-        // - Play animations if hyper-spin is active AND free-spin is active AND stopOnFeature is true (normal free UI)
-        // - Play animations if hyper-spin is NOT active (normal game mode)
-        if (isHyperSpinActive && isFreeSpinActive && !this.stopOnFeature) {
-            console.warn("🎰 FREESPIN BATCH MODE: Playing free-spin without UI in hyper-spin batch (stopOnFeature=false)", {
-                isFreeSpin,
-                totalFreeSpins,
-                isHyperSpinActive,
-                stopOnFeature: this.stopOnFeature,
-                roundId: finishData.roundId,
-                timestamp: new Date().toISOString()
-            });
-            return true;
-        } else if (isHyperSpinActive && isFreeSpinActive && this.stopOnFeature) {
-            console.warn("🎰 FREESPIN NORMAL UI: Playing free-spin with UI effects in hyper-spin mode (stopOnFeature=true)", {
-                isFreeSpin,
-                totalFreeSpins,
-                isHyperSpinActive,
-                stopOnFeature: this.stopOnFeature,
-                roundId: finishData.roundId,
-                timestamp: new Date().toISOString()
-            });
-            return false;
-        } else if (isHyperSpinActive && !isFreeSpinActive) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     @handle(HyperSpinHandler, (handler, finishData: any) => handler.handleRecordSpinData(finishData))
     recordHyperSpinSpinData(finishData: any) {
@@ -395,7 +361,38 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingUIStore, (store) => store.isHyperSpinActive)
     renderHyperSpinActive(isHyperSpinActive: boolean) {
+        const previousState = this.isHyperSpinActive;
         this.isHyperSpinActive = isHyperSpinActive;
+
+        // Detect transition from hyper-spin to normal mode
+        if (previousState && !isHyperSpinActive) {
+            this.handleHyperSpinDeactivated();
+        }
+
+        this.wasHyperSpinActive = isHyperSpinActive;
+    }
+
+    /**
+     * Handles the transition from hyper-spin mode back to normal mode.
+     * Restores the board to a ready state when hyper-spin is cancelled or completed.
+     */
+    private handleHyperSpinDeactivated() {
+        // Only restore if we're not currently spinning
+        // Check cascading state via UI store or handler
+        this.restoreBoardToNormalMode();
+    }
+
+    /**
+     * Restores the board to normal mode by reinitializing it with random items.
+     * This ensures the board is populated when returning from hyper-spin mode.
+     */
+    private restoreBoardToNormalMode() {
+        if (!this.board) {
+            return;
+        }
+
+        // Restore board to initial state with random items
+        this.board.initBoardFullItems();
     }
 
     @render(HyperSpinStore, (store) => store.stopOnFeature)
@@ -425,7 +422,24 @@ export class CascadingSlotGame extends GameComponentBase {
             this.handleEndGameApiError();
             this.checkSpinNextRound();
 
-            this.checkHyperSpinNextRound();
+            // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
+            // Use local property which is updated reactively from store
+            console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
+                isHyperSpinActive: this.isHyperSpinActive,
+                isFreeSpinEffectCompleted,
+                timestamp: new Date().toISOString()
+            });
+            
+            if (this.isHyperSpinActive) {
+                console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
+                    timestamp: new Date().toISOString()
+                });
+                this.checkHyperSpinNextRound();
+            } else {
+                console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - hyper-spin not active", {
+                    timestamp: new Date().toISOString()
+                });
+            }
         }
     }
 
@@ -468,6 +482,11 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(HyperSpinHandler, (handler) => handler.checkHyperSpinNextRound())
     checkHyperSpinNextRound() {
         // The @handle decorator will automatically call the HyperSpinHandler.checkHyperSpinNextRound() method
+        console.warn("🔄 [GAME] checkHyperSpinNextRound() called via @handle decorator", {
+            isHyperSpinActive: this.isHyperSpinActive,
+            timestamp: new Date().toISOString(),
+            stackTrace: new Error().stack?.split('\n').slice(1, 5).join('\n')
+        });
     }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)

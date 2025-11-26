@@ -24,6 +24,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private lastSettlementCheckTime = 0;
     private isBatchInterrupted = false;
     private isCompletionPending = false;
+    
+    // Timeout tracking for cancellation cleanup
+    private checkNextRoundTimeout: number | null = null;
+    private placeBetTimeout: number | null = null;
+    private isCancelled = false; // Cancellation flag to prevent operations after cancel
 
     @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
     @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
@@ -167,6 +172,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     closeHyperSpinPopup() {
+        console.warn("🛑 [HYPER_SPIN] closeHyperSpinPopup() called", {
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            hasPendingTimeouts: !!(this.checkNextRoundTimeout || this.placeBetTimeout || this.settlementWaitTimeout),
+            timestamp: new Date().toISOString()
+        });
+        
         this.hyperSpinStore.isOpenHyperSpinPopup = false;
         this.cancelHyperSpin();
     }
@@ -214,6 +226,12 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private startHyperSpinWithCurrentSettings() {
+        // Reset cancellation flag when starting new batch
+        this.isCancelled = false;
+        console.warn("▶️ [HYPER_SPIN] Starting new batch - cancellation flag reset", {
+            timestamp: new Date().toISOString()
+        });
+        
         this.hyperSpinBatchStartTime = Date.now();
 
         this.hyperSpinStore.setHyperSpinActive(true);
@@ -236,6 +254,25 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private placeHyperSpinBet() {
+        console.warn("🎰 [HYPER_SPIN] placeHyperSpinBet() called", {
+            isCancelled: this.isCancelled,
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            stackTrace: new Error().stack?.split('\n').slice(1, 4).join('\n'),
+            timestamp: new Date().toISOString()
+        });
+
+        // Check cancellation flag first - prevents execution after cancellation
+        if (this.isCancelled) {
+            console.warn("🛑 [HYPER_SPIN] placeHyperSpinBet() BLOCKED by cancellation flag");
+            return;
+        }
+
+        console.warn("✅ [HYPER_SPIN] placeHyperSpinBet() PROCEEDING", {
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            timestamp: new Date().toISOString()
+        });
+
         this.lastSpinTimestamp = Date.now();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
@@ -347,6 +384,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private stopHyperSpin() {
+        // Clear all pending timeouts when stopping
+        this.clearAllPendingTimeouts();
+        
         this.hyperSpinBatchEndTime = Date.now();
 
         this.hyperSpinStore.setHyperSpinActive(false);
@@ -362,6 +402,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private completeHyperSpin() {
+        // Clear all pending timeouts when completing
+        this.clearAllPendingTimeouts();
+        
         this.hyperSpinBatchEndTime = Date.now();
 
         this.hyperSpinStore.setHyperSpinActive(false);
@@ -389,6 +432,18 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     resumeHyperSpinBatch() {
+        console.warn("▶️ [HYPER_SPIN] resumeHyperSpinBatch() called", {
+            isCancelled: this.isCancelled,
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Check cancellation flag before resuming
+        if (this.isCancelled) {
+            console.warn("🛑 [HYPER_SPIN] resumeHyperSpinBatch() BLOCKED by cancellation flag");
+            return;
+        }
+        
         this.hyperSpinStore.resumeHyperSpinBatch();
         this.checkHyperSpinNextRound();
     }
@@ -396,14 +451,36 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private lastSpinTimestamp = 0;
 
     checkHyperSpinNextRound() {
+        console.warn("🔄 [HYPER_SPIN] checkHyperSpinNextRound() called", {
+            isCancelled: this.isCancelled,
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            isBatchInterrupted: this.isBatchInterrupted,
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            stackTrace: new Error().stack?.split('\n').slice(1, 4).join('\n'),
+            timestamp: new Date().toISOString()
+        });
+
+        // Check cancellation flag first - prevents execution after cancellation
+        if (this.isCancelled) {
+            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by cancellation flag");
+            return;
+        }
+
         if (this.isBatchInterrupted) {
+            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by interruption");
             this.handleBatchInterruption();
             return;
         }
 
         if (!this.hyperSpinStore.isHyperSpin) {
+            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED - isHyperSpin is false");
             return;
         }
+
+        console.warn("✅ [HYPER_SPIN] checkHyperSpinNextRound() PROCEEDING", {
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            timestamp: new Date().toISOString()
+        });
 
         const currentTime = Date.now();
 
@@ -422,12 +499,32 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
             if (!this.settlementWaitTimeout) {
                 this.settlementWaitTimeout = window.setTimeout(() => {
-                    this.isBatchInterrupted = true;
-                    this.handleBatchInterruption();
+                    if (!this.isCancelled) {
+                        this.isBatchInterrupted = true;
+                        this.handleBatchInterruption();
+                    }
                 }, this.SETTLEMENT_WAIT_TIMEOUT_MS);
             }
 
-            setTimeout(() => this.checkHyperSpinNextRound(), 0);
+            // Store timeout ID for cleanup
+            const timeoutId = window.setTimeout(() => {
+                console.warn("⏰ [HYPER_SPIN] checkNextRoundTimeout executed", {
+                    isCancelled: this.isCancelled,
+                    isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                    timestamp: new Date().toISOString()
+                });
+                this.checkNextRoundTimeout = null;
+                if (!this.isCancelled) {
+                    this.checkHyperSpinNextRound();
+                } else {
+                    console.warn("🛑 [HYPER_SPIN] checkNextRoundTimeout BLOCKED by cancellation flag");
+                }
+            }, 0);
+            this.checkNextRoundTimeout = timeoutId;
+            console.warn("⏰ [HYPER_SPIN] Scheduled checkNextRoundTimeout", {
+                timeoutId,
+                timestamp: new Date().toISOString()
+            });
             return;
         }
 
@@ -450,9 +547,29 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Continue or stop
         if (this.shouldStopHyperSpin()) {
+            console.warn("🛑 [HYPER_SPIN] shouldStopHyperSpin() returned true - stopping");
             this.stopHyperSpin();
         } else {
-            setTimeout(() => this.placeHyperSpinBet(), 0);
+            // Store timeout ID for cleanup
+            const timeoutId = window.setTimeout(() => {
+                console.warn("⏰ [HYPER_SPIN] placeBetTimeout executed", {
+                    isCancelled: this.isCancelled,
+                    isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                    timestamp: new Date().toISOString()
+                });
+                this.placeBetTimeout = null;
+                if (!this.isCancelled) {
+                    this.placeHyperSpinBet();
+                } else {
+                    console.warn("🛑 [HYPER_SPIN] placeBetTimeout BLOCKED by cancellation flag");
+                }
+            }, 0);
+            this.placeBetTimeout = timeoutId;
+            console.warn("⏰ [HYPER_SPIN] Scheduled placeBetTimeout", {
+                timeoutId,
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 
@@ -525,25 +642,110 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
     /**
      * Cancel HyperSpin
+     * Stops the batch immediately and cleans up all pending operations.
      */
     cancelHyperSpin() {
-        // Reset timing if hyper-spin was cancelled
+        console.warn("🛑 [HYPER_SPIN] cancelHyperSpin() called", {
+            isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            checkNextRoundTimeout: this.checkNextRoundTimeout,
+            placeBetTimeout: this.placeBetTimeout,
+            settlementWaitTimeout: this.settlementWaitTimeout,
+            isCancelled: this.isCancelled,
+            timestamp: new Date().toISOString()
+        });
+
+        // 1. Set cancellation flag immediately to prevent new operations
+        this.isCancelled = true;
+        console.warn("🛑 [HYPER_SPIN] Cancellation flag set to true");
+
+        // 2. Clear all pending timeouts to stop recursive calls
+        this.clearAllPendingTimeouts();
+
+        // 3. Reset timing if hyper-spin was cancelled
         if (this.hyperSpinBatchStartTime > 0 && this.hyperSpinBatchEndTime === 0) {
             this.hyperSpinBatchEndTime = Date.now();
         }
 
-        // Set hyper-spin inactive using HyperSpinStore method
+        // 4. Set hyper-spin inactive using HyperSpinStore method
+        console.warn("🛑 [HYPER_SPIN] Setting isHyperSpin to false", {
+            before: this.hyperSpinStore.isHyperSpin,
+            timestamp: new Date().toISOString()
+        });
         this.hyperSpinStore.setHyperSpinActive(false);
+        console.warn("🛑 [HYPER_SPIN] isHyperSpin set to false", {
+            after: this.hyperSpinStore.isHyperSpin,
+            cascadingUIStoreIsHyperSpinActive: this.cascadingUIStore.isHyperSpinActive,
+            timestamp: new Date().toISOString()
+        });
+        
         this.updateHyperSpinRounds(0);
-        this.isCompletionPending = false; // Reset pending completion
+        this.isCompletionPending = false;
 
-        // Clear batch data
+        // 5. Clear batch data
         this.hyperSpinStore.clearBatchData();
+        console.warn("🛑 [HYPER_SPIN] Batch data cleared", {
+            timestamp: new Date().toISOString()
+        });
 
-        // Reset timing variables for next batch
+        // 6. Reset all timing variables
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
+        this.lastSettlementCheckTime = 0;
 
+        // 7. Reset interruption flags
+        this.isBatchInterrupted = false;
+
+        // 8. Reset cancellation flag after a short delay
+        // (allows any in-flight operations to complete and check the flag)
+        setTimeout(() => {
+            this.isCancelled = false;
+        }, 100);
+    }
+
+    /**
+     * Clears all pending timeouts to prevent batch from continuing after cancellation.
+     */
+    private clearAllPendingTimeouts() {
+        let clearedCount = 0;
+        
+        // Clear recursive checkHyperSpinNextRound timeout
+        if (this.checkNextRoundTimeout !== null) {
+            console.warn("🛑 [HYPER_SPIN] Clearing checkNextRoundTimeout", {
+                timeoutId: this.checkNextRoundTimeout,
+                timestamp: new Date().toISOString()
+            });
+            clearTimeout(this.checkNextRoundTimeout);
+            this.checkNextRoundTimeout = null;
+            clearedCount++;
+        }
+
+        // Clear placeHyperSpinBet timeout
+        if (this.placeBetTimeout !== null) {
+            console.warn("🛑 [HYPER_SPIN] Clearing placeBetTimeout", {
+                timeoutId: this.placeBetTimeout,
+                timestamp: new Date().toISOString()
+            });
+            clearTimeout(this.placeBetTimeout);
+            this.placeBetTimeout = null;
+            clearedCount++;
+        }
+
+        // Clear settlement wait timeout
+        if (this.settlementWaitTimeout !== null) {
+            console.warn("🛑 [HYPER_SPIN] Clearing settlementWaitTimeout", {
+                timeoutId: this.settlementWaitTimeout,
+                timestamp: new Date().toISOString()
+            });
+            clearTimeout(this.settlementWaitTimeout);
+            this.settlementWaitTimeout = null;
+            clearedCount++;
+        }
+
+        console.warn("🛑 [HYPER_SPIN] clearAllPendingTimeouts() completed", {
+            clearedCount,
+            timestamp: new Date().toISOString()
+        });
     }
 
     handleRecordSpinData(finishData: any) {
