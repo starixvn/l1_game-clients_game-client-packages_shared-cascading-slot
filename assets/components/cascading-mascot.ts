@@ -2,7 +2,7 @@ import { _decorator, sp } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
-import { globalEmitter, resourcesCache, SlotClientEvent } from "../cascading-slot-utils";
+import { GameSpeed, getConfigGameSpeed, globalEmitter, resourcesCache, SlotClientEvent } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 
 const { ccclass, property } = _decorator;
@@ -19,6 +19,7 @@ export class CascadingMascot extends ObserverComponent {
     spineMascot: sp.Skeleton = null;
 
     private gameConfig: any;
+    private gameSpeed = GameSpeed.NORMAL;
 
     onLoad() {
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
@@ -36,12 +37,18 @@ export class CascadingMascot extends ObserverComponent {
         this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.multiplierMascotAnimationName, mixDuration);
     }
 
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    getGameSpeed(gameSpeed: string) {
+        this.gameSpeed = gameSpeed;
+    }
+
     async handleAnimTransition(anim: string) {
         const isPlayingAnim = AnimationUtils.isAnimationPlaying(this.spineMascot, anim);
         if (isPlayingAnim) {
             return;
         }
-        await AnimationUtils.playSpine(this.spineMascot, anim, false);
+        const duration = getConfigGameSpeed("ratioEventMascotSpeed", this.gameSpeed);
+        await AnimationUtils.playSpine(this.spineMascot, anim, false, duration);
         AnimationUtils.playSpine(this.spineMascot, "idle", true);
     }
 

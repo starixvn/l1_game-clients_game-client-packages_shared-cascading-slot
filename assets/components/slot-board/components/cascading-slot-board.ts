@@ -13,6 +13,7 @@ import {
     BoardSize,
     convertBoardValue,
     GameSpeed,
+    getConfigGameSpeed,
     globalEmitter,
     resourcesCache,
     SlotClientEvent,
@@ -64,8 +65,6 @@ export class CascadingSlotBoard extends ObserverComponent {
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
-    protected readonly DELAY_BEFORE_REFILL_NORMAL = 0.3;
-    protected readonly DELAY_BEFORE_REFILL_TURBO = 0.1;
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -187,9 +186,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             await this.removeItems(explode, i, gameSpeed);
-            await AnimationUtils.delayTime(
-                gameSpeed === GameSpeed.TURBO ? this.DELAY_BEFORE_REFILL_TURBO : this.DELAY_BEFORE_REFILL_NORMAL
-            );
+            await AnimationUtils.delayTime(getConfigGameSpeed("delayBeforeRefillSymbols", gameSpeed));
 
             const remains = this.reels.map((reel) => reel.getItemsData());
             // Store old items count before adding new items
