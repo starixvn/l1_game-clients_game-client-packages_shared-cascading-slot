@@ -407,62 +407,69 @@ export class CascadingSlotGame extends GameComponentBase {
     async checkNextRound(data: { isFreeSpinEffectCompleted: boolean; isHyperSpinActive: boolean }) {
         const { isFreeSpinEffectCompleted, isHyperSpinActive } = data;
         if (isFreeSpinEffectCompleted) {
+            await this.handleFreeSpinEffectCompletion(isHyperSpinActive);
+            this.handleHyperSpinCheck(isHyperSpinActive);
+        }
+    }
 
-            // Skip delay entirely for hyper-spin mode to achieve faster spinning
-            // Use store state directly (more reliable than local property)
-            const isInHyperSpin = isHyperSpinActive;
-            const delayForNextSpin = isInHyperSpin ? 0 : getCustomDuration("delayForNextSpin", this.isTurboMode);
+    private async handleFreeSpinEffectCompletion(isHyperSpinActive: boolean) {
+        // Skip delay entirely for hyper-spin mode to achieve faster spinning
+        // Use store state directly (more reliable than local property)
+        const isInHyperSpin = isHyperSpinActive;
+        const delayForNextSpin = isInHyperSpin ? 0 : getCustomDuration("delayForNextSpin", this.isTurboMode);
 
-            if (delayForNextSpin > 0) {
-                await AnimationUtils.delayTime(delayForNextSpin);
-            }
+        if (delayForNextSpin > 0) {
+            await AnimationUtils.delayTime(delayForNextSpin);
+        }
 
-            // Enable autoplay when free spin effect is completed
-            this.enableAutoPlayOnFreeSpinCompleted();
+        // Enable autoplay when free spin effect is completed
+        this.enableAutoPlayOnFreeSpinCompleted();
 
-            // When the free spin effect is completed, handle the next round
-            // by automatically spinning
+        // When the free spin effect is completed, handle the next round
+        // by automatically spinning
+        this.handleEndGameApiError();
+        this.checkSpinNextRound();
+    }
 
-            this.handleEndGameApiError();
-            this.checkSpinNextRound();
+    private handleHyperSpinCheck(isHyperSpinActive: boolean) {
+        // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
+        // Use store state directly to avoid race conditions with local property
+        console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
+            isHyperSpinActive,
+            timestamp: new Date().toISOString()
+        });
 
-            // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
-            // Use store state directly to avoid race conditions with local property
-            console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
-                isHyperSpinActive,
-                isFreeSpinEffectCompleted,
+        if (isHyperSpinActive) {
+            this.callHyperSpinNextRoundIfNotCancelled();
+        } else {
+            console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - hyper-spin not active", {
                 timestamp: new Date().toISOString()
             });
-            
-            // ✅ Check cancellation flag before calling checkHyperSpinNextRound()
-            // The handler method will also check cancellation, but this prevents unnecessary calls
-            if (isHyperSpinActive) {
-                // Access handler via container to check cancellation flag
-                try {
-                    const container = (this as any).container;
-                    if (container) {
-                        const hyperSpinHandler = container.get(HyperSpinHandler);
-                        if (hyperSpinHandler && hyperSpinHandler.isBatchCancelled) {
-                            console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - batch cancelled", {
-                                timestamp: new Date().toISOString()
-                            });
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    // If we can't access handler, proceed (handler will check cancellation internally)
-                }
-                
-                console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
-                    timestamp: new Date().toISOString()
-                });
-                this.checkHyperSpinNextRound();
-            } else {
-                console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - hyper-spin not active", {
-                    timestamp: new Date().toISOString()
-                });
-            }
         }
+    }
+
+    private callHyperSpinNextRoundIfNotCancelled() {
+        // ✅ Check cancellation flag before calling checkHyperSpinNextRound()
+        // The handler method will also check cancellation, but this prevents unnecessary calls
+        try {
+            const container = (this as any).container;
+            if (container) {
+                const hyperSpinHandler = container.get(HyperSpinHandler);
+                if (hyperSpinHandler && hyperSpinHandler.isBatchCancelled) {
+                    console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - batch cancelled", {
+                        timestamp: new Date().toISOString()
+                    });
+                    return;
+                }
+            }
+        } catch (error) {
+            // If we can't access handler, proceed (handler will check cancellation internally)
+        }
+
+        console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
+            timestamp: new Date().toISOString()
+        });
+        this.checkHyperSpinNextRound();
     }
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())

@@ -663,21 +663,40 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             timestamp: new Date().toISOString()
         });
 
+        if (!this.isHyperSpinValidForNextRound()) {
+            return;
+        }
+
+        if (this.shouldWaitForSettlementEffects()) {
+            this.scheduleSettlementWaitTimeout();
+            return;
+        }
+
+        this.clearSettlementTimeoutIfNeeded();
+
+        if (this.shouldSkipDueToFreeSpinsOrPause()) {
+            return;
+        }
+
+        this.handleContinueOrStopHyperSpin();
+    }
+
+    private isHyperSpinValidForNextRound(): boolean {
         // Check cancellation flag first - prevents execution after cancellation
         if (this.isCancelled) {
             console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by cancellation flag");
-            return;
+            return false;
         }
 
         if (this.isBatchInterrupted) {
             console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by interruption");
             this.handleBatchInterruption();
-            return;
+            return false;
         }
 
         if (!this.hyperSpinStore.isHyperSpin) {
             console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED - isHyperSpin is false");
-            return;
+            return false;
         }
 
         console.warn("✅ [HYPER_SPIN] checkHyperSpinNextRound() PROCEEDING", {
@@ -685,69 +704,81 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             timestamp: new Date().toISOString()
         });
 
+        return true;
+    }
+
+    private shouldWaitForSettlementEffects(): boolean {
+        return this.hyperSpinStore.stopOnFeature !== false && !this.cascadingUIStore.isFreeSpinEffectCompleted;
+    }
+
+    private scheduleSettlementWaitTimeout() {
         const currentTime = Date.now();
 
-        // Wait for settlement effects unless stopOnFeature is disabled
-        if (this.hyperSpinStore.stopOnFeature !== false && !this.cascadingUIStore.isFreeSpinEffectCompleted) {
-            if (this.lastSettlementCheckTime === 0) {
-                this.lastSettlementCheckTime = currentTime;
-            }
+        if (this.lastSettlementCheckTime === 0) {
+            this.lastSettlementCheckTime = currentTime;
+        }
 
-            const timeWaiting = currentTime - this.lastSettlementCheckTime;
-            if (timeWaiting >= this.SETTLEMENT_WAIT_TIMEOUT_MS) {
-                this.isBatchInterrupted = true;
-                this.handleBatchInterruption();
-                return;
-            }
-
-            if (!this.settlementWaitTimeout) {
-                this.settlementWaitTimeout = window.setTimeout(() => {
-                    if (!this.isCancelled) {
-                        this.isBatchInterrupted = true;
-                        this.handleBatchInterruption();
-                    }
-                }, this.SETTLEMENT_WAIT_TIMEOUT_MS);
-            }
-
-            // Store timeout ID for cleanup
-            const timeoutId = window.setTimeout(() => {
-                console.warn("⏰ [HYPER_SPIN] checkNextRoundTimeout executed", {
-                    isCancelled: this.isCancelled,
-                    isHyperSpin: this.hyperSpinStore.isHyperSpin,
-                    timestamp: new Date().toISOString()
-                });
-                this.checkNextRoundTimeout = null;
-                if (!this.isCancelled) {
-                    this.checkHyperSpinNextRound();
-                } else {
-                    console.warn("🛑 [HYPER_SPIN] checkNextRoundTimeout BLOCKED by cancellation flag");
-                }
-            }, 0);
-            this.checkNextRoundTimeout = timeoutId;
-            console.warn("⏰ [HYPER_SPIN] Scheduled checkNextRoundTimeout", {
-                timeoutId,
-                timestamp: new Date().toISOString()
-            });
+        const timeWaiting = currentTime - this.lastSettlementCheckTime;
+        if (timeWaiting >= this.SETTLEMENT_WAIT_TIMEOUT_MS) {
+            this.isBatchInterrupted = true;
+            this.handleBatchInterruption();
             return;
         }
 
+        if (!this.settlementWaitTimeout) {
+            this.settlementWaitTimeout = window.setTimeout(() => {
+                if (!this.isCancelled) {
+                    this.isBatchInterrupted = true;
+                    this.handleBatchInterruption();
+                }
+            }, this.SETTLEMENT_WAIT_TIMEOUT_MS);
+        }
+
+        // Store timeout ID for cleanup
+        const timeoutId = window.setTimeout(() => {
+            console.warn("⏰ [HYPER_SPIN] checkNextRoundTimeout executed", {
+                isCancelled: this.isCancelled,
+                isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                timestamp: new Date().toISOString()
+            });
+            this.checkNextRoundTimeout = null;
+            if (!this.isCancelled) {
+                this.checkHyperSpinNextRound();
+            } else {
+                console.warn("🛑 [HYPER_SPIN] checkNextRoundTimeout BLOCKED by cancellation flag");
+            }
+        }, 0);
+        this.checkNextRoundTimeout = timeoutId;
+        console.warn("⏰ [HYPER_SPIN] Scheduled checkNextRoundTimeout", {
+            timeoutId,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    private clearSettlementTimeoutIfNeeded() {
         // Clear timeout if settlement completed
         if (this.settlementWaitTimeout) {
             clearTimeout(this.settlementWaitTimeout);
             this.settlementWaitTimeout = null;
             this.lastSettlementCheckTime = 0;
         }
+    }
 
+    private shouldSkipDueToFreeSpinsOrPause(): boolean {
         // Handle free spins
         if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            return; // Let normal flow handle free spins
+            return true; // Let normal flow handle free spins
         }
 
         // Check if paused
         if (this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Paused") {
-            return;
+            return true;
         }
 
+        return false;
+    }
+
+    private handleContinueOrStopHyperSpin() {
         // Continue or stop
         if (this.shouldStopHyperSpin()) {
             console.warn("🛑 [HYPER_SPIN] shouldStopHyperSpin() returned true - stopping");

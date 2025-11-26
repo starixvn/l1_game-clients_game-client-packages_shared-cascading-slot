@@ -177,9 +177,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     async handleTumbles(
         tumbles: Tumble[],
         isTurbo: boolean,
-        isHyperSpinActive: boolean = false,
-        stopOnFeature: boolean = false,
-        isFreeSpinActive: boolean = false
+        isHyperSpinActive = false,
+        stopOnFeature = false,
+        isFreeSpinActive = false
     ) {
         if (!tumbles || tumbles.length <= 1) {
             return;
@@ -280,9 +280,9 @@ export class CascadingSlotBoard extends ObserverComponent {
     public async spinResult(
         symbolsBoard: SymbolBoard,
         isTurbo: boolean,
-        isHyperSpinActive: boolean = false,
-        stopOnFeature: boolean = false,
-        isFreeSpinActive: boolean = false
+        isHyperSpinActive = false,
+        stopOnFeature = false,
+        isFreeSpinActive = false
     ) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
