@@ -13,7 +13,6 @@ const { render } = Observer;
 @ccclass("HyperSpinBetRecords")
 @menu('UI/HyperSpinBetRecords')
 export class HyperSpinBetRecords extends ObserverComponent {
-
     @property(Prefab)
     prfNoOfRound: Prefab = null;
 
@@ -34,6 +33,12 @@ export class HyperSpinBetRecords extends ObserverComponent {
 
     @property(Label)
     lblTotalBetValue: Label = null;
+
+    @property(Label)
+    lblHyperSpinStatus: Label = null;
+
+    @property(Node)
+    endBalanceNode: Node = null;
 
     private initHyperSpinRecords(spins: HyperSpinBatchData['spins']) {
         if (!spins || !Array.isArray(spins) || spins.length === 0) {
@@ -193,6 +198,30 @@ export class HyperSpinBetRecords extends ObserverComponent {
             }
 
             this.endBalanceLabel.string = displayValue;
+        }
+    }
+
+    @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.hyperSpinStatus)
+    private updateHyperSpinStatusLabel(hyperSpinStatus: string) {
+        if (this.lblHyperSpinStatus) {
+            const displayValue = hyperSpinStatus?.toUpperCase() || "";
+            this.lblHyperSpinStatus.string = displayValue;
+        }
+    }
+
+    @render(HyperSpinStore, (store) => ({
+        batchStatus: store.currentBatchData?.summary?.hyperSpinStatus,
+        batchEndBalance: store.currentBatchData?.summary?.endBalance,
+        hasBatchData: !!store.currentBatchData
+    }))
+    private updateEndBalanceNodeVisibility(data: { batchStatus: string; batchEndBalance: string; hasBatchData: boolean }) {
+        if (this.endBalanceNode) {
+            // Show endBalanceNode only when batch is completed (Ready status) and endBalance is set
+            const shouldShow = data.hasBatchData &&
+                data.batchStatus === "Ready" &&
+                data.batchEndBalance &&
+                data.batchEndBalance !== "0.00";
+            this.endBalanceNode.active = shouldShow;
         }
     }
 
