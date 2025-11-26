@@ -147,6 +147,34 @@ jest.mock("observer", () => ({
     }),
 }));
 
+// Mock getConfigGameSpeed
+jest.mock("../../../assets/cascading-slot-utils", () => {
+    const GameSpeed = {
+        NORMAL: "NORMAL",
+        TURBO: "TURBO",
+        ULTRA: "ULTRA",
+    };
+
+    return {
+        getConfigGameSpeed: jest.fn((key: string, gameSpeed: string | null) => {
+            if (!gameSpeed) {
+                return 1.0; // Default duration when gameSpeed is null
+            }
+            // Check if gameSpeed is TURBO or ULTRA (not NORMAL)
+            const isTurboMode = gameSpeed === "TURBO" || gameSpeed === "ULTRA";
+            const durations: { [key: string]: number } = {
+                freeSpin: isTurboMode ? 1.0 : 2.0,
+                transition: isTurboMode ? 0.5 : 1.0,
+                eventMascot: isTurboMode ? 0.3 : 0.6,
+                bigWin: isTurboMode ? 0.5 : 1.0,
+            };
+            return durations[key] || 1.0;
+        }),
+
+        GameSpeed,
+    };
+});
+
 // Mock tween
 jest.mock("cc", () => {
     const originalModule = jest.requireActual("cc");

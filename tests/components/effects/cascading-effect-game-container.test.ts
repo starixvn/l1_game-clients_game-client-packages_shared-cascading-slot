@@ -112,19 +112,19 @@ jest.mock("observer", () => ({
     }),
 }));
 
-// Mock getCustomDuration
+// Mock getConfigGameSpeed
 jest.mock("../../../assets/cascading-slot-utils", () => {
     const GameSpeed = {
         NORMAL: "NORMAL",
         TURBO: "TURBO",
-        ULTRA_FAST: "ULTRA_FAST",
+        ULTRA: "ULTRA",
     };
 
     return {
-        getCustomDuration: jest.fn((key: string, gameSpeed: string) => {
+        getConfigGameSpeed: jest.fn((key: string, gameSpeed: string) => {
             // Check if gameSpeed is TURBO or ULTRA_FAST (not NORMAL)
             // Compare directly to string values to avoid reference issues
-            const isTurboMode = gameSpeed === "TURBO" || gameSpeed === "ULTRA_FAST";
+            const isTurboMode = gameSpeed === "TURBO" || gameSpeed === "ULTRA";
             const durations: { [key: string]: number } = {
                 freeSpin: isTurboMode ? 1.0 : 2.0,
                 transition: isTurboMode ? 0.5 : 1.0,
