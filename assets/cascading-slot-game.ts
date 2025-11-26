@@ -19,6 +19,8 @@ import { GameVisibility } from "db://shared-components/shared/common-components/
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { ColorJson, convertData, DialogName, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
+import { SlotModeContext } from "./mode/slot-mode-context";
+import { SlotModeContextFactory } from "./mode/slot-mode-context-factory";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
@@ -230,6 +232,22 @@ export class CascadingSlotGame extends GameComponentBase {
         };
     }
 
+    /**
+     * Create mode context based on current game state.
+     * Centralizes the logic for determining which mode context to use.
+     */
+    private createModeContext(isInHyperSpin: boolean, isFreeSpinActive: boolean): SlotModeContext {
+        if (isInHyperSpin) {
+            return SlotModeContextFactory.createHyperSpin(this.stopOnFeature, isFreeSpinActive);
+        }
+
+        if (this.isTurboMode) {
+            return SlotModeContextFactory.createTurbo();
+        }
+
+        return SlotModeContextFactory.createNormal();
+    }
+
     private async handleSpinAndTumbleResults(settlementData: any, isInHyperSpin: boolean, isFreeSpinActive: boolean) {
         const symbolsBoard = {
             symbols: convertData(settlementData.result),
@@ -238,20 +256,11 @@ export class CascadingSlotGame extends GameComponentBase {
             tumbles: settlementData.tumbles
         };
 
-        await this.board.spinResult(
-            symbolsBoard,
-            this.isTurboMode,
-            isInHyperSpin,
-            this.stopOnFeature,
-            isFreeSpinActive
-        );
-        await this.board.handleTumbles(
-            settlementData.tumbles,
-            this.isTurboMode,
-            isInHyperSpin,
-            this.stopOnFeature,
-            isFreeSpinActive
-        );
+        // Create mode context once and reuse for both calls
+        const modeContext = this.createModeContext(isInHyperSpin, isFreeSpinActive);
+
+        await this.board.spinResult(symbolsBoard, modeContext);
+        await this.board.handleTumbles(settlementData.tumbles, modeContext);
     }
 
     private async handleWinProcessing(settlementData: any, isInHyperSpin: boolean) {
@@ -400,9 +409,9 @@ export class CascadingSlotGame extends GameComponentBase {
         this.stopOnFeature = stopOnFeature;
     }
 
-    @render(CascadingUIStore, (store) => ({ 
+    @render(CascadingUIStore, (store) => ({
         isFreeSpinEffectCompleted: store.isFreeSpinEffectCompleted,
-        isHyperSpinActive: store.isHyperSpinActive 
+        isHyperSpinActive: store.isHyperSpinActive
     }))
     async checkNextRound(data: { isFreeSpinEffectCompleted: boolean; isHyperSpinActive: boolean }) {
         const { isFreeSpinEffectCompleted, isHyperSpinActive } = data;

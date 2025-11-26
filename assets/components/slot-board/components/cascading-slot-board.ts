@@ -20,6 +20,7 @@ import {
     SymbolBoard,
     WinIconDetail,
 } from "../../../cascading-slot-utils";
+import { SlotModeContext } from "../../../mode/slot-mode-context";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
@@ -65,34 +66,17 @@ export class CascadingSlotBoard extends ObserverComponent {
     protected readonly PEEK_EFFECT_DURATION = 1;
 
     /**
-     * Determines if animations should be skipped based on hyper-spin mode and settings.
+     * Determines if animations should be skipped based on mode context.
      * 
      * Animation skipping logic:
-     * - Skip animations if hyper-spin is active AND free-spin is NOT active (normal hyper-spin)
-     * - Skip animations if hyper-spin is active AND free-spin is active AND stopOnFeature is false (batch mode)
-     * - Play animations if hyper-spin is active AND free-spin is active AND stopOnFeature is true (normal free UI)
-     * - Play animations if hyper-spin is NOT active (normal game mode)
+     * - Normal/Turbo mode: Always play animations (skipAnimations = false)
+     * - Hyper-spin mode: Skip animations UNLESS free spins are active AND stopOnFeature is enabled
      * 
-     * @param isHyperSpinActive - Whether hyper-spin mode is currently active
-     * @param stopOnFeature - Whether to stop and show UI when features trigger
-     * @param isFreeSpinActive - Whether free spins are currently active
+     * @param context - Mode context containing all mode-related information
      * @returns true if animations should be skipped, false otherwise
      */
-    protected shouldSkipAnimations(
-        isHyperSpinActive: boolean,
-        stopOnFeature: boolean,
-        isFreeSpinActive: boolean
-    ): boolean {
-        if (!isHyperSpinActive) {
-            return false; // Normal mode: always play animations
-        }
-
-        // Hyper-spin mode: skip animations unless free spins + stopOnFeature
-        if (isFreeSpinActive && stopOnFeature) {
-            return false; // Show free spin UI even in hyper-spin
-        }
-
-        return true; // Skip animations in hyper-spin mode
+    protected shouldSkipAnimations(context: SlotModeContext): boolean {
+        return context.skipAnimations;
     }
 
     public createReels() {
@@ -176,23 +160,20 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     async handleTumbles(
         tumbles: Tumble[],
-        isTurbo: boolean,
-        isHyperSpinActive = false,
-        stopOnFeature = false,
-        isFreeSpinActive = false
+        modeContext: SlotModeContext
     ) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
 
-        const skipAnimations = this.shouldSkipAnimations(isHyperSpinActive, stopOnFeature, isFreeSpinActive);
+        const skipAnimations = this.shouldSkipAnimations(modeContext);
 
         if (!skipAnimations) {
             this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
         }
 
         for (let i = 0; i < tumbles.length - 1; i++) {
-            await this.processSingleTumble(tumbles, i, isTurbo, skipAnimations);
+            await this.processSingleTumble(tumbles, i, modeContext.isTurbo, skipAnimations);
         }
 
         this.hidePeekEffects();
@@ -279,19 +260,16 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public async spinResult(
         symbolsBoard: SymbolBoard,
-        isTurbo: boolean,
-        isHyperSpinActive = false,
-        stopOnFeature = false,
-        isFreeSpinActive = false
+        modeContext: SlotModeContext
     ) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
-        const skipAnimations = this.shouldSkipAnimations(isHyperSpinActive, stopOnFeature, isFreeSpinActive);
+        const skipAnimations = this.shouldSkipAnimations(modeContext);
 
-        await this.handleSpinSetup(isTurbo, skipAnimations, delayEachReelFallOut);
+        await this.handleSpinSetup(modeContext.isTurbo, skipAnimations, delayEachReelFallOut);
 
-        const peekEffect = this.shouldCheckPeekEffect(isTurbo, skipAnimations) ? this.checkPeekEffect(symbols) : null;
+        const peekEffect = this.shouldCheckPeekEffect(modeContext.isTurbo, skipAnimations) ? this.checkPeekEffect(symbols) : null;
         const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
 
         for (let i = 0; i < this.reels.length; i++) {
@@ -299,7 +277,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 reelIndex: i,
                 reelSymbols: symbols[i],
                 multipliers,
-                isTurbo,
+                isTurbo: modeContext.isTurbo,
                 skipAnimations,
                 delayEachReelFallOut,
                 awaitReelIndex,
