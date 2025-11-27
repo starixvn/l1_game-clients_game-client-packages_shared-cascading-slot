@@ -164,9 +164,8 @@ export class CascadingSlotReel extends Component {
         if (gameSpeed === GameSpeed.TURBO) {
             return baseSpeed * 1.5;
         }
-
         if (gameSpeed === GameSpeed.ULTRA) {
-            return baseSpeed * 3;
+            return baseSpeed * 6;
         }
 
         if (this.peekEffect) {
@@ -213,10 +212,9 @@ export class CascadingSlotReel extends Component {
             duration = distance / speed;
             duration = Math.max(duration, minDuration);
             const delay = this.delayFallingEachItem(duration, isFallOut);
-
+            gameSpeed === GameSpeed.NORMAL && (await AnimationUtils.delayTime(delay));
             const isBottomItem = i === 0;
             if (isFallOut) {
-                gameSpeed === GameSpeed.NORMAL && (await AnimationUtils.delayTime(delay));
                 tween(item.node)
                     .to(
                         duration,
@@ -227,9 +225,6 @@ export class CascadingSlotReel extends Component {
                     )
                     .start();
             } else {
-                if (gameSpeed === GameSpeed.NORMAL || this.isReFillSymbols) {
-                    await AnimationUtils.delayTime(delay);
-                }
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
