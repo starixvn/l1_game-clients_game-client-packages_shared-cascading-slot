@@ -368,6 +368,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
                 // Fall in remaining items and wait for it to finish
                 if (oldCount > 0) {
+                    reel.isReFillSymbols = true;
                     await reel.fallInRange(0, oldCount, gameSpeed, null);
                 }
 
@@ -376,6 +377,7 @@ export class CascadingSlotBoard extends ObserverComponent {
 
                 // Fall in new items
                 if (newCount > oldCount) {
+                    reel.isReFillSymbols = true;
                     await reel.fallInRange(oldCount, newCount, gameSpeed, null);
                 }
             });

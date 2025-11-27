@@ -9,6 +9,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         eventMascot: 2,
         ratioSymbolMatchAndExplosion: 1,
         ratioMascotAnimSpeed: 1,
+        ratioMatchAndExplosionSymbol: 1,
         minDurationFallIn: 0.4,
         minDurationFallOut: 0.25,
         ratioEventSpineSpeed: 1,
@@ -29,8 +30,9 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         eventMascot: 2,
         ratioSymbolMatchAndExplosion: 0.5,
         ratioMascotAnimSpeed: 0.5,
-        minDurationFallIn: 0.25,
-        minDurationFallOut: 0.1,
+        ratioMatchAndExplosionSymbol: 0.5,
+        minDurationFallIn: 0.28,
+        minDurationFallOut: 0.2,
         ratioEventSpineSpeed: 1,
         delayBeforeRefillSymbols: 0.1,
         totalMultiplierAnimDuration: 0.6,
@@ -49,8 +51,9 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         eventMascot: 1,
         ratioSymbolMatchAndExplosion: 0.25,
         ratioMascotAnimSpeed: 2,
-        minDurationFallIn: 0.05,
-        minDurationFallOut: 0.05,
+        ratioMatchAndExplosionSymbol: 0.25,
+        minDurationFallIn: 0.18,
+        minDurationFallOut: 0.08,
         ratioEventSpineSpeed: 2,
         delayBeforeRefillSymbols: 0,
         totalMultiplierAnimDuration: 0.15,
@@ -83,6 +86,7 @@ export interface CascadingSlotConfigDuration {
     eventMascot?: number;
     ratioSymbolMatchAndExplosion?: number;
     ratioMascotAnimSpeed?: number;
+    ratioMatchAndExplosionSymbol?: number;
     minDurationFallIn: number;
     minDurationFallOut: number;
     ratioEventSpineSpeed?: number;

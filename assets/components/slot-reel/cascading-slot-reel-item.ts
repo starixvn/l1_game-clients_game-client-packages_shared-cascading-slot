@@ -1,6 +1,6 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp, warn } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { GameSpeed, resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
+import { getConfigGameSpeed, resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
 const { ccclass, property } = _decorator;
@@ -96,12 +96,9 @@ export class CascadingSlotReelItem extends Component {
         if (!this.effectSpine) {
             return;
         }
-        const ratioSpeed = {
-            [GameSpeed.TURBO]: 0.5,
-            [GameSpeed.NORMAL]: 1,
-            [GameSpeed.ULTRA]: 0.25,
-        };
-        const duration = this.effectSpine.findAnimation(animation).duration * ratioSpeed[gameSpeed];
+
+        const ratioSpeed = getConfigGameSpeed("ratioMatchAndExplosionSymbol", gameSpeed);
+        const duration = this.effectSpine.findAnimation(animation).duration * ratioSpeed;
         await AnimationUtils.playSpine(this.effectSpine, animation, false, duration);
     }
 }

@@ -36,6 +36,8 @@ export class CascadingSlotReel extends Component {
     private readonly FALL_IN_NORMAL_SPEED = 1700;
     private readonly FALL_IN_PEEK_EFFECT_SPEED = 2500;
 
+    public isReFillSymbols = false;
+
     createReel() {
         for (let i = 0; i < this.itemDisplayCount; i++) {
             const item = this.addItem();
@@ -159,8 +161,12 @@ export class CascadingSlotReel extends Component {
     protected getSpeed(gameSpeed: string, isFallOut: boolean): number {
         const baseSpeed = isFallOut ? this.FALL_OUT_SPEED : this.FALL_IN_NORMAL_SPEED;
 
-        if (gameSpeed === GameSpeed.TURBO || gameSpeed === GameSpeed.ULTRA) {
+        if (gameSpeed === GameSpeed.TURBO) {
             return baseSpeed * 1.5;
+        }
+
+        if (gameSpeed === GameSpeed.ULTRA) {
+            return baseSpeed * 3;
         }
 
         if (this.peekEffect) {
@@ -170,13 +176,11 @@ export class CascadingSlotReel extends Component {
         return baseSpeed;
     }
 
-    protected delayFallingEachItem(duration: any, gameSpeed: string, isFallOut: boolean) {
+    protected delayFallingEachItem(duration: any, isFallOut: boolean) {
         if (this.peekEffect) {
             return this.DELAY_EACH_ITEM_PEEK_EFFECT;
         }
-        if (gameSpeed === GameSpeed.ULTRA) {
-            return 0;
-        }
+
         if (isFallOut) {
             return 0.08 * duration;
         }
@@ -196,24 +200,23 @@ export class CascadingSlotReel extends Component {
         const isFallOut = offset < 0;
         const speed = this.getSpeed(gameSpeed, isFallOut);
         const minDuration = this.getMinDuration(gameSpeed, isFallOut);
-
         let duration = 0;
         for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
             const item = this.items[i];
             const posY = this.getItemPosY(i + offset);
+
             const distance = Math.abs(posY - item.node.position.y);
+
             if (distance < 1) {
                 continue;
             }
             duration = distance / speed;
-            duration = gameSpeed === GameSpeed.ULTRA ? minDuration : Math.max(duration, minDuration);
-            const delay = this.delayFallingEachItem(duration, gameSpeed, isFallOut);
+            duration = Math.max(duration, minDuration);
+            const delay = this.delayFallingEachItem(duration, isFallOut);
 
-            if (gameSpeed === GameSpeed.NORMAL) {
-                await AnimationUtils.delayTime(delay);
-            }
             const isBottomItem = i === 0;
             if (isFallOut) {
+                gameSpeed === GameSpeed.NORMAL && (await AnimationUtils.delayTime(delay));
                 tween(item.node)
                     .to(
                         duration,
@@ -224,6 +227,9 @@ export class CascadingSlotReel extends Component {
                     )
                     .start();
             } else {
+                if (gameSpeed === GameSpeed.NORMAL || this.isReFillSymbols) {
+                    await AnimationUtils.delayTime(delay);
+                }
                 this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
             }
         }
@@ -283,6 +289,7 @@ export class CascadingSlotReel extends Component {
     }
 
     async spin(data: number[], multiplier: number[], gameSpeed: string, onSpinEnded: () => void) {
+        this.isReFillSymbols = false;
         this.setItemData(data, multiplier);
         this.setStartPositionForItems();
         await this.fallIn(gameSpeed, onSpinEnded);
