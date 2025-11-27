@@ -751,4 +751,117 @@ export class HyperSpinStore {
     getCurrentCascadeData() {
         return this._currentCascadeData;
     }
+
+    // Mock data for testing hyper-spin batch with 50 rounds including all cases
+    private createMockHyperSpinBatchData(): HyperSpinBatchData {
+        const mockSpins: HyperSpinSingleSpinData[] = [];
+        let totalBet = 0;
+        let totalWin = 0;
+        const stake = 10; // Mock stake amount
+
+        for (let i = 1; i <= 50; i++) {
+            const spinId = i;
+            const isFreeSpin = Math.random() < 0.1; // 10% chance of free spin
+            const hasWin = Math.random() < 0.4; // 40% chance of win
+
+            let winAmount = 0;
+            let winTag: WinTag = null;
+            let cascadeRecords: CascadeRecord[] | undefined;
+
+            if (hasWin) {
+                // Determine win type and amount
+                const winType = Math.random();
+                if (winType < 0.1) {
+                    // Amethyst (max win) - 10%
+                    winAmount = stake * 100;
+                    winTag = "Amethyst";
+                } else if (winType < 0.2) {
+                    // Gold (super win) - 10%
+                    winAmount = stake * 50;
+                    winTag = "Gold";
+                } else if (winType < 0.3) {
+                    // Silver (mega win) - 10%
+                    winAmount = stake * 25;
+                    winTag = "Silver";
+                } else if (winType < 0.5) {
+                    // Bronze (big win) - 20%
+                    winAmount = stake * 10;
+                    winTag = "Bronze";
+                } else {
+                    // Small win (no tag) - 50%
+                    winAmount = stake * (Math.random() * 3 + 1); // 1x to 4x stake
+                    winTag = null;
+                }
+
+                // For winning spins with winTag, sometimes add cascade records
+                if (winTag && Math.random() < 0.7) { // 70% of tagged wins have cascades
+                    cascadeRecords = [];
+                    const numCascades = Math.floor(Math.random() * 3) + 1; // 1-3 cascade steps
+                    let remainingWin = winAmount;
+
+                    for (let step = 1; step <= numCascades; step++) {
+                        const stepWin = step === numCascades ?
+                            remainingWin :
+                            Math.floor(remainingWin * (0.3 + Math.random() * 0.4)); // 30-70% of remaining
+
+                        const stepMultiplier = stake > 0 ? stepWin / stake : 0;
+
+                        cascadeRecords.push({
+                            step,
+                            winAmount: stepWin,
+                            winAmountFormatted: FormatUtils.numberWithCommas(stepWin, 2, false),
+                            multiplier: stepMultiplier,
+                            multiplierFormatted: FormatUtils.numberWithCommas(stepMultiplier, 2, false),
+                            hasScatterTrigger: Math.random() < 0.3, // 30% chance
+                            hasMultiplier: Math.random() < 0.4 // 40% chance
+                        });
+
+                        remainingWin -= stepWin;
+                    }
+                }
+
+                totalWin += winAmount;
+            }
+
+            totalBet += stake;
+
+            const endingBalance = 1000 - totalBet + totalWin; // Mock balance calculation
+
+            mockSpins.push({
+                spinId: isFreeSpin ? `FS${Math.floor(Math.random() * 5) + 1}` : spinId,
+                isFreeSpin,
+                spinWinAmount: FormatUtils.numberWithCommas(winAmount, 2, false),
+                spinWinAmountRaw: winAmount,
+                spinWinMultiplier: FormatUtils.numberWithCommas(winAmount / stake, 2, false),
+                spinWinMultiplierRaw: winAmount / stake,
+                winTag,
+                spinBalance: FormatUtils.numberWithCommas(endingBalance, 2, false),
+                spinBalanceRaw: endingBalance,
+                stake,
+                cascadeRecords
+            });
+        }
+
+        return {
+            summary: {
+                totalBet: FormatUtils.numberWithCommas(totalBet, 2),
+                totalBetRaw: totalBet,
+                hyperSpinStatus: "Ready",
+                totalWin: FormatUtils.numberWithCommas(totalWin, 2),
+                totalWinRaw: totalWin,
+                startingBalance: FormatUtils.numberWithCommas(1000, 2),
+                startingBalanceRaw: 1000,
+                endBalance: FormatUtils.numberWithCommas(1000 - totalBet + totalWin, 2),
+                endBalanceRaw: 1000 - totalBet + totalWin
+            },
+            spins: mockSpins
+        };
+    }
+
+    // Use mock data instead of real service data
+    useMockDataForTesting = true;
+
+    getMockBatchData(): HyperSpinBatchData {
+        return this.createMockHyperSpinBatchData();
+    }
 }
