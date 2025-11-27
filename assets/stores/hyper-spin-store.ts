@@ -23,7 +23,7 @@ export interface CascadeRecord {
     winAmount: number; // Win amount for this step
     winAmountFormatted: string; // Formatted win amount
     multiplier: number; // Multiplier for this step
-    multiplierFormatted: string; // Formatted multiplier
+    multiplierFormatted: string; // Formatted multiplier with "x" suffix (e.g., "1.5x")
     hasScatterTrigger: boolean; // Whether this step triggered scatters
     hasMultiplier: boolean; // Whether this step has multipliers
 }
@@ -717,7 +717,7 @@ export class HyperSpinStore {
         const mainSpinRecord = cascadeData.mainSpinRecord!;
         mainSpinRecord.spinWinAmount = FormatUtils.numberWithCommas(cascadeData.accumulatedWin, 2, false);
         mainSpinRecord.spinWinAmountRaw = cascadeData.accumulatedWin;
-        mainSpinRecord.spinWinMultiplier = FormatUtils.numberWithCommas(multiplier, 2, false);
+        mainSpinRecord.spinWinMultiplier = FormatUtils.numberWithCommas(multiplier, 2, false) + "x";
         mainSpinRecord.spinWinMultiplierRaw = multiplier;
         mainSpinRecord.winTag = winTag;
         mainSpinRecord.spinBalance = FormatUtils.numberWithCommas(currentBalance, 2, false);
@@ -811,7 +811,7 @@ export class HyperSpinStore {
                             winAmount: stepWin,
                             winAmountFormatted: FormatUtils.numberWithCommas(stepWin, 2, false),
                             multiplier: stepMultiplier,
-                            multiplierFormatted: FormatUtils.numberWithCommas(stepMultiplier, 2, false),
+                            multiplierFormatted: FormatUtils.numberWithCommas(stepMultiplier, 2, false) + "x",
                             hasScatterTrigger: Math.random() < 0.3, // 30% chance
                             hasMultiplier: Math.random() < 0.4 // 40% chance
                         });
@@ -832,7 +832,7 @@ export class HyperSpinStore {
                 isFreeSpin,
                 spinWinAmount: FormatUtils.numberWithCommas(winAmount, 2, false),
                 spinWinAmountRaw: winAmount,
-                spinWinMultiplier: FormatUtils.numberWithCommas(winAmount / stake, 2, false),
+                spinWinMultiplier: FormatUtils.numberWithCommas(winAmount / stake, 2, false) + "x",
                 spinWinMultiplierRaw: winAmount / stake,
                 winTag,
                 spinBalance: FormatUtils.numberWithCommas(endingBalance, 2, false),

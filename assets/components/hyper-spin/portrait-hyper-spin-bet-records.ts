@@ -120,7 +120,8 @@ export class HyperSpinBetRecords extends ObserverComponent {
                 spinWinAmountRaw: spin.spinWinAmountRaw || 0,
                 spinBalance: spin.spinBalance || "0.00",
                 spinWinMultiplier: spin.spinWinMultiplier || "0.00x",
-                isCascadeRecord: false // Main spin records are not cascade records
+                isCascadeRecord: false, // Main spin records are not cascade records
+                winTag: spin.winTag // Pass winTag for sprite activation
             };
 
             recordBodyItem.setSpinData(spinData);
