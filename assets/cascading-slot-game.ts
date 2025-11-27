@@ -199,18 +199,82 @@ export class CascadingSlotGame extends GameComponentBase {
 
         const settlementData = this.extractSettlementData(finishData);
         const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
-        const isInHyperSpin = this.isHyperSpinActive;
 
-        await this.handleSpinAndTumbleResults(settlementData, isInHyperSpin, isFreeSpinActive);
-        await this.handleWinProcessing(settlementData, isInHyperSpin);
-        this.handleUIUpdates(settlementData, isInHyperSpin);
-        this.handleSpecialEffects(settlementData, isInHyperSpin);
-        this.handleFreeSpinLogic(settlementData, isInHyperSpin);
+        if (this.isHyperSpinActive) {
+            await this.handleHyperSpinSettlement(settlementData, isFreeSpinActive, finishData);
+        } else {
+            await this.handleNormalSettlement(settlementData, isFreeSpinActive);
+        }
+    }
+
+    /**
+     * Handle settlement for hyper-spin mode.
+     * Optimized for speed - skips UI effects and animations.
+     */
+    private async handleHyperSpinSettlement(settlementData: any, isFreeSpinActive: boolean, finishData: any) {
+        const symbolsBoard = {
+            symbols: convertData(settlementData.result),
+            multipliers: settlementData.tumbles[0]?.multipliers,
+            isTurbo: false,
+            tumbles: settlementData.tumbles
+        };
+
+        // Create hyper-spin mode context
+        const modeContext = SlotModeContextFactory.createHyperSpin(this.stopOnFeature, isFreeSpinActive);
+
+        // Handle spin and tumble results with hyper-spin optimizations
+        await this.board.spinResult(symbolsBoard, modeContext);
+        await this.board.handleTumbles(settlementData.tumbles, modeContext);
+
+        // Skip win processing animations and UI updates for maximum speed
+        // Only update essential win data
+        if (settlementData.win > 0) {
+            this.getBalance();
+            this.handleChangeUserBalance(true);
+            this.handleTotalWin({ win: settlementData.win, isActualWin: true });
+        }
+
+        // Handle free spin logic for hyper-spin mode (essential for batch continuation)
+        this.handleHyperSpinFreeSpinLogic(settlementData);
 
         // Record spin data for hyper-spin batch tracking
-        if (isInHyperSpin) {
-            this.recordHyperSpinSpinData(finishData);
+        this.recordHyperSpinSpinData(finishData);
+    }
+
+    /**
+     * Handle free spin logic specifically for hyper-spin mode.
+     * Forces effect completion to ensure batch continues without UI delays.
+     */
+    private handleHyperSpinFreeSpinLogic(settlementData: any) {
+        // Always update free spins data
+        this.setFreeSpinsByRound(settlementData.freeSpins);
+        this.setFreeSpinsTotal(settlementData.totalFreeSpins);
+
+        const noWinMoreFreespins = settlementData.freeSpins <= 0;
+        const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
+        const isHaveBigWin = settlementData.bigWin || settlementData.megaWin || settlementData.superWin;
+
+        // In hyper-spin mode, immediately mark effects as completed since we don't show UI anyway
+        // This prevents the batch from getting stuck waiting for non-existent free spin effects
+        if (noWinMoreFreespins) {
+            this.handleFreeSpinEffectCompleted(true);
+        } else if (isFreeSpinActive && !noWinMoreFreespins) {
+            // In hyper-spin mode with active free spins, force effect completion to continue the batch
+            // This ensures free spin rounds progress automatically without waiting for UI effects
+            this.handleFreeSpinEffectCompleted(true);
         }
+    }
+
+    /**
+     * Handle settlement for normal mode.
+     * Includes full UI effects, animations, and normal game flow.
+     */
+    private async handleNormalSettlement(settlementData: any, isFreeSpinActive: boolean) {
+        await this.handleSpinAndTumbleResults(settlementData, isFreeSpinActive);
+        await this.handleWinProcessing(settlementData);
+        this.handleUIUpdates(settlementData);
+        this.handleSpecialEffects(settlementData);
+        this.handleFreeSpinLogic(settlementData);
     }
 
     private extractSettlementData(finishData: any) {
@@ -248,7 +312,7 @@ export class CascadingSlotGame extends GameComponentBase {
         return SlotModeContextFactory.createNormal();
     }
 
-    private async handleSpinAndTumbleResults(settlementData: any, isInHyperSpin: boolean, isFreeSpinActive: boolean) {
+    private async handleSpinAndTumbleResults(settlementData: any, isFreeSpinActive: boolean) {
         const symbolsBoard = {
             symbols: convertData(settlementData.result),
             multipliers: settlementData.tumbles[0]?.multipliers,
@@ -256,19 +320,19 @@ export class CascadingSlotGame extends GameComponentBase {
             tumbles: settlementData.tumbles
         };
 
-        // Create mode context once and reuse for both calls
-        const modeContext = this.createModeContext(isInHyperSpin, isFreeSpinActive);
+        // Create mode context for normal mode (normal or turbo)
+        const modeContext = this.createModeContext(false, isFreeSpinActive);
 
         await this.board.spinResult(symbolsBoard, modeContext);
         await this.board.handleTumbles(settlementData.tumbles, modeContext);
     }
 
-    private async handleWinProcessing(settlementData: any, isInHyperSpin: boolean) {
+    private async handleWinProcessing(settlementData: any) {
         const winTumbles = settlementData.tumbles.length > 1;
         const winMultiplier = settlementData.multiplier > 0 && winTumbles;
 
-        // Skip multiplier animations during hyper-spin for faster execution
-        if (!isInHyperSpin && this.tumbleWinView) {
+        // Handle multiplier animations and effects (normal mode only)
+        if (this.tumbleWinView) {
             if (winMultiplier) {
                 this.handleTriggerWinMultiplier();
             }
@@ -278,37 +342,34 @@ export class CascadingSlotGame extends GameComponentBase {
         if (settlementData.win > 0) {
             this.getBalance();
             this.handleChangeUserBalance(true);
-            if (winTumbles && !isInHyperSpin && this.tumbleWinView) {
+            if (winTumbles && this.tumbleWinView) {
                 await this.tumbleWinView.setTotalWinValue(settlementData.actualBetwin);
             }
             this.handleTotalWin({ win: settlementData.win, isActualWin: true });
         }
     }
 
-    private handleUIUpdates(settlementData: any, isInHyperSpin: boolean) {
-        // Skip UI updates during hyper-spin for maximum speed
-        if (!isInHyperSpin) {
-            this.updateTotalWinPromo({ win: settlementData.win, totalFreeSpins: settlementData.totalFreeSpins });
-            this.showTotalMultiplierView(settlementData.totalMultiplier, settlementData.isFreeSpin, settlementData.multiplier > 0 && settlementData.tumbles.length > 1);
-            if (settlementData.reachMaxWin) {
-                this.setReachMaxWin(true);
-            }
-            this.setTotalMultiplierValue(settlementData.totalMultiplier);
+    private handleUIUpdates(settlementData: any) {
+        // Handle UI updates for normal mode
+        this.updateTotalWinPromo({ win: settlementData.win, totalFreeSpins: settlementData.totalFreeSpins });
+        this.showTotalMultiplierView(settlementData.totalMultiplier, settlementData.isFreeSpin, settlementData.multiplier > 0 && settlementData.tumbles.length > 1);
+        if (settlementData.reachMaxWin) {
+            this.setReachMaxWin(true);
         }
+        this.setTotalMultiplierValue(settlementData.totalMultiplier);
     }
 
-    private handleSpecialEffects(settlementData: any, isInHyperSpin: boolean) {
-        // Skip special effects during hyper-spin for maximum speed
+    private handleSpecialEffects(settlementData: any) {
+        // Handle special effects for normal mode
         const isHaveBigWin = settlementData.bigWin || settlementData.megaWin || settlementData.superWin;
 
-        if (!isInHyperSpin) {
-            this.handleHaveBigWin(isHaveBigWin);
-            this.updateBigWinAmount(settlementData.win);
-            this.handleHaveFreeSpin(settlementData.freeSpins > 0);
-        }
+        this.handleHaveBigWin(isHaveBigWin);
+        this.updateBigWinAmount(settlementData.win);
+        this.handleHaveFreeSpin(settlementData.freeSpins > 0);
     }
 
-    private handleFreeSpinLogic(settlementData: any, isInHyperSpin: boolean) {
+    private handleFreeSpinLogic(settlementData: any) {
+        // Handle free spin logic for normal mode
         // Always update free spins data
         this.setFreeSpinsByRound(settlementData.freeSpins);
         this.setFreeSpinsTotal(settlementData.totalFreeSpins);
@@ -317,24 +378,12 @@ export class CascadingSlotGame extends GameComponentBase {
         const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
         const isHaveBigWin = settlementData.bigWin || settlementData.megaWin || settlementData.superWin;
 
-        let shouldHandleFreeSpinEffectCompleted = noWinMoreFreespins && !isHaveBigWin;
-
-        // In hyper-spin mode, immediately mark effects as completed since we don't show UI anyway
-        // This prevents the batch from getting stuck waiting for non-existent free spin effects
-        if (isInHyperSpin && noWinMoreFreespins) {
-            this.handleFreeSpinEffectCompleted(true);
-            shouldHandleFreeSpinEffectCompleted = false; // Don't call it again
-        } else if (isInHyperSpin && isFreeSpinActive && !noWinMoreFreespins) {
-            // In hyper-spin mode with active free spins, force effect completion to continue the batch
-            // This ensures free spin rounds progress automatically without waiting for UI effects
-            this.handleFreeSpinEffectCompleted(true);
-        }
+        const shouldHandleFreeSpinEffectCompleted = noWinMoreFreespins && !isHaveBigWin;
 
         if (shouldHandleFreeSpinEffectCompleted) {
             console.warn("🎰 FREESPIN COMPLETED: Free spin effects completed, proceeding to next round", {
                 noWinMoreFreespins,
                 isHaveBigWin,
-                isInHyperSpin,
                 freeSpins: settlementData.freeSpins,
                 totalFreeSpins: settlementData.totalFreeSpins,
                 timestamp: new Date().toISOString()
