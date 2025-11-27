@@ -4,6 +4,7 @@ import inversify from "inversify";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { HyperSpinStore } from "../stores/hyper-spin-store";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 
 const { injectable, inject } = inversify;
@@ -15,6 +16,7 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
     @inject(CascadingUIHandler) protected readonly uiHandler: CascadingUIHandler;
     @inject(gc.Connection.ConnectionTrialStore) protected readonly connectionTrialStore: gc.Connection.ConnectionTrialStore;
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
+    @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
 
     handle(): boolean {
         const amount = this.betControlStore.effectiveTotalBet;

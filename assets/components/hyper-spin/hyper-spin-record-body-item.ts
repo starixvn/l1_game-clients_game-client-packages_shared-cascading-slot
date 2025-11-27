@@ -20,6 +20,12 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
     @property(Node)
     winningBgNode: Node = null;
 
+    @property(Node)
+    cascadeArrowIcon: Node = null;
+
+    @property(Node)
+    cascadeRecordBgNode: Node = null; // Background for cascade records
+
     /**
      * Set the spin record data
      * Follows the same pattern as HyperSpinRoundNumber.setValue
@@ -30,11 +36,33 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
         spinWinAmountRaw: number;
         spinBalance: string;
         spinWinMultiplier: string;
+        isCascadeRecord?: boolean;
     }) {
 
-        // 2.1: assign spin.spinId to lbl-spin-value
+        // Check if this is a cascade record
+        const isCascadeRecord = spinData.isCascadeRecord === true;
+
+        // 2.1: handle spinId display - show arrow icon for cascade records
         if (this.lblSpinValue) {
-            this.lblSpinValue.string = spinData.spinId.toString();
+            if (isCascadeRecord) {
+                // For cascade records, show the step identifier (e.g., "↳ 1")
+                this.lblSpinValue.node.active = true;
+                this.lblSpinValue.string = spinData.spinId.toString();
+            } else {
+                // For regular records, show the spin ID
+                this.lblSpinValue.node.active = true;
+                this.lblSpinValue.string = spinData.spinId.toString();
+            }
+        }
+
+        // Show/hide cascade arrow icon (for down arrow icon)
+        if (this.cascadeArrowIcon) {
+            this.cascadeArrowIcon.active = false; // Not used in new structure
+        }
+
+        // Show/hide cascade record background
+        if (this.cascadeRecordBgNode) {
+            this.cascadeRecordBgNode.active = isCascadeRecord;
         }
 
         // 2.2: assign spin.spinWinAmount to lbl-win-value
@@ -52,7 +80,7 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
             this.lblMultiplierValue.string = spinData.spinWinMultiplier;
         }
 
-        // 2.5: activate winningBgNode if this is a winning record
+        // 2.5: activate winningBgNode for winning records (including cascade records as children of winning records)
         if (this.winningBgNode) {
             this.winningBgNode.active = spinData.spinWinAmountRaw > 0;
         }

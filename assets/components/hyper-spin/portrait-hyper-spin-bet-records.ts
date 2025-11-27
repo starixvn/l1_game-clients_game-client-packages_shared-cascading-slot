@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { HyperSpinStore, HyperSpinBatchData } from "../../stores/hyper-spin-store";
+import { HyperSpinStore, HyperSpinBatchData, HyperSpinSingleSpinData, CascadeRecord } from "../../stores/hyper-spin-store";
 import HyperSpinRecordBodyItem from "../hyper-spin/hyper-spin-record-body-item";
 
 const { ccclass, menu, property } = _decorator;
@@ -55,23 +55,19 @@ export class HyperSpinBetRecords extends ObserverComponent {
 
         this.hyperSpinRecordBodyContentNode.destroyAllChildren();
 
+        // For decreasing sort order, render cascade records first, then main records
+        // This ensures cascade records appear below their parent when sorted in reverse
         spins.forEach((spin, idx) => {
-            const node = instantiate(this.prfHyperSpinRecordBodyItem);
-            const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
-
-            if (recordBodyItem) {
-                const spinData = {
-                    spinId: spin.spinId,
-                    spinWinAmount: spin.spinWinAmount || "0.00",
-                    spinWinAmountRaw: spin.spinWinAmountRaw || 0,
-                    spinBalance: spin.spinBalance || "0.00",
-                    spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
-                };
-
-                recordBodyItem.setSpinData(spinData);
+            // First render cascade records (they will appear below parent in reverse sort)
+            // Only render for winning spins that have winTag and cascade records
+            if (spin.cascadeRecords && spin.cascadeRecords.length > 0 && spin.winTag) {
+                spin.cascadeRecords.forEach((cascadeRecord) => {
+                    this.renderCascadeRecord(spin.spinId, cascadeRecord);
+                });
             }
 
-            this.hyperSpinRecordBodyContentNode.addChild(node);
+            // Then render main spin record
+            this.renderSpinRecord(spin);
         });
     }
 
@@ -89,34 +85,66 @@ export class HyperSpinBetRecords extends ObserverComponent {
         }
 
         const currentChildrenCount = this.hyperSpinRecordBodyContentNode.children?.length || 0;
-        const newSpinsCount = spins.length - currentChildrenCount;
 
-        if (newSpinsCount > 0) {
-            const spinsToAdd = spins.slice(currentChildrenCount);
-
-            spinsToAdd.forEach((spin, idx) => {
-                const node = instantiate(this.prfHyperSpinRecordBodyItem);
-                const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
-
-                if (recordBodyItem) {
-                    const spinData = {
-                        spinId: spin.spinId,
-                        spinWinAmount: spin.spinWinAmount || "0.00",
-                        spinWinAmountRaw: spin.spinWinAmountRaw || 0,
-                        spinBalance: spin.spinBalance || "0.00",
-                        spinWinMultiplier: spin.spinWinMultiplier || "0.00x"
-                    };
-
-                    recordBodyItem.setSpinData(spinData);
-
-                }
-
-                this.hyperSpinRecordBodyContentNode.addChild(node);
-            });
-
-        } else if (newSpinsCount < 0) {
+        // For simplicity, if the counts don't match, re-initialize everything
+        // In a more complex implementation, we could track which records are cascade records
+        // and only append the new ones. For now, we'll re-init when there are changes.
+        const expectedCount = this.calculateExpectedRecordCount(spins);
+        if (expectedCount !== currentChildrenCount) {
             this.initHyperSpinRecords(spins);
         }
+    }
+
+    private calculateExpectedRecordCount(spins: HyperSpinBatchData['spins']): number {
+        let count = 0;
+        spins.forEach(spin => {
+            count++; // Main spin record
+            if (spin.cascadeRecords && spin.cascadeRecords.length > 0 && spin.winTag) {
+                count += spin.cascadeRecords.length; // Cascade records only for winning spins with winTag
+            }
+        });
+        return count;
+    }
+
+    private renderSpinRecord(spin: HyperSpinSingleSpinData) {
+        const node = instantiate(this.prfHyperSpinRecordBodyItem);
+        const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
+
+        if (recordBodyItem) {
+            const spinData = {
+                spinId: spin.spinId,
+                spinWinAmount: spin.spinWinAmount || "0.00",
+                spinWinAmountRaw: spin.spinWinAmountRaw || 0,
+                spinBalance: spin.spinBalance || "0.00",
+                spinWinMultiplier: spin.spinWinMultiplier || "0.00x",
+                isCascadeRecord: false // Main spin records are not cascade records
+            };
+
+            recordBodyItem.setSpinData(spinData);
+        }
+
+        this.hyperSpinRecordBodyContentNode.addChild(node);
+    }
+
+    private renderCascadeRecord(parentSpinId: string | number, cascadeRecord: CascadeRecord) {
+        const node = instantiate(this.prfHyperSpinRecordBodyItem);
+        const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
+
+        if (recordBodyItem) {
+            // For cascade records, show step number and cascade win data
+            const spinData = {
+                spinId: `↳ ${cascadeRecord.step}`, // Arrow + step number
+                spinWinAmount: cascadeRecord.winAmountFormatted,
+                spinWinAmountRaw: cascadeRecord.winAmount,
+                spinBalance: "-", // No balance change for cascade steps
+                spinWinMultiplier: cascadeRecord.multiplierFormatted,
+                isCascadeRecord: true // Mark as cascade record for special styling
+            };
+
+            recordBodyItem.setSpinData(spinData);
+        }
+
+        this.hyperSpinRecordBodyContentNode.addChild(node);
     }
 
     @render(HyperSpinStore, (store) => {
@@ -128,13 +156,9 @@ export class HyperSpinBetRecords extends ObserverComponent {
         const spins = data?.batchData?.spins;
 
         if (spins && Array.isArray(spins)) {
-            const currentChildrenCount = this.hyperSpinRecordBodyContentNode?.children?.length || 0;
-
-            if (currentChildrenCount === 0) {
-                this.initHyperSpinRecords(spins);
-            } else {
-                this.appendNewSpinRecords(spins);
-            }
+            // Always re-initialize for now since the structure is more complex
+            // with cascade records mixed in. Could be optimized later.
+            this.initHyperSpinRecords(spins);
         } else {
             if (this.hyperSpinRecordBodyContentNode) {
                 this.hyperSpinRecordBodyContentNode.destroyAllChildren();

@@ -420,6 +420,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+            hasActiveCascade: this.hyperSpinStore.isCascadeTrackingActive(),
             stackTrace: new Error().stack?.split('\n').slice(1, 4).join('\n'),
             timestamp: new Date().toISOString()
         });
@@ -430,6 +431,16 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
+        // Don't place new bets if cascade is still active (free spins in progress)
+        if (this.hyperSpinStore.isCascadeTrackingActive() && this.cascadingUIStore.freeSpinsTotal > 0) {
+            console.warn("⏳ [HYPER_SPIN] placeHyperSpinBet() BLOCKED - cascade still active with free spins", {
+                freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                accumulatedWin: this.hyperSpinStore.getCurrentCascadeData()?.accumulatedWin || 0,
+                timestamp: new Date().toISOString()
+            });
+            return;
+        }
+
         console.warn("✅ [HYPER_SPIN] placeHyperSpinBet() PROCEEDING", {
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             timestamp: new Date().toISOString()
@@ -437,8 +448,12 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         this.lastSpinTimestamp = Date.now();
 
-        if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            return; // Skip during free spins
+        if (this.cascadingUIStore.freeSpinsTotal > 0 && !this.hyperSpinStore.isCascadeTrackingActive()) {
+            console.warn("⏳ [HYPER_SPIN] Skipping bet placement - free spins active but no cascade tracking", {
+                freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                timestamp: new Date().toISOString()
+            });
+            return; // Skip during free spins that aren't part of current cascade
         }
 
         if (this.shouldStopHyperSpin()) {
@@ -454,12 +469,21 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.betControlStore.totalBet = originalTotalBet;
 
         if (success) {
-            this.hyperSpinStore.roundsHyperSpin--;
+            // Only decrement rounds if this is a new hyper-spin round (not a free spin continuation)
+            if (!this.hyperSpinStore.isCascadeTrackingActive()) {
+                this.hyperSpinStore.roundsHyperSpin--;
 
-            if (this.hyperSpinStore.roundsHyperSpin <= 0) {
-                // Mark completion as pending until after spin data is recorded
-                this.isCompletionPending = true;
+                if (this.hyperSpinStore.roundsHyperSpin <= 0) {
+                    // Mark completion as pending until after cascade data is recorded
+                    this.isCompletionPending = true;
+                }
             }
+
+            console.warn("🎯 [HYPER_SPIN] Bet placed successfully", {
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                isNewRound: !this.hyperSpinStore.isCascadeTrackingActive(),
+                timestamp: new Date().toISOString()
+            });
         } else {
             // ✅ IMPROVED: Don't stop batch immediately on bet failure
             // Only stop if it's a critical error (e.g., insufficient balance)
@@ -1016,75 +1040,84 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             totalFreeSpins = 0,
         } = finishData;
 
-        // Warn when freespins play in hyper-spin batch mode
-        if (isFreeSpin) {
-            console.warn("🎰 FREESPIN BATCH RECORD: Freespin detected and recorded in hyper-spin batch", {
-                isFreeSpin,
-                freeSpins,
-                totalFreeSpins,
-                win,
-                stake: this.betControlStore.totalBet || 0,
-                roundId: finishData.roundId,
-                note: "Freespin recorded in batch data without UI effects",
-                timestamp: new Date().toISOString()
-            });
-
-        }
-
         // Determine stake amount (use totalBet for hyper-spin)
         const stake = this.betControlStore.totalBet || 0;
 
-        // Calculate multiplier (Gross Win / Stake)
-        const multiplier = stake > 0 ? win / stake : 0;
+        // Check if this is the start of a new cascade (no active cascade tracking)
+        if (!this.hyperSpinStore.isCascadeTrackingActive()) {
+            // Start tracking a new cascade
+            let spinId: string | number;
+            if (isFreeSpin) {
+                const freeSpinId = this.hyperSpinStore.getNextFreeSpinId();
+                spinId = `FS${freeSpinId}`;
+            } else {
+                spinId = this.hyperSpinStore.getNextHyperSpinId();
+            }
 
-        // Determine win tag
-        const winTag = this.hyperSpinStore.determineWinTag(
+            this.hyperSpinStore.startCascadeTracking(spinId, isFreeSpin, stake);
+
+            console.warn("🎯 [HYPER_SPIN] Started new cascade tracking for spin", {
+                spinId,
+                isFreeSpin,
+                stake,
+                win,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Accumulate win data for this cascade step
+        // For now, we'll infer scatter/multiplier info from available data
+        // This can be enhanced with more specific game state information
+        const hasScatterTrigger = freeSpins > 0;
+        const hasMultiplier = win > 0 && stake > 0 && (win / stake) > 1;
+
+        this.hyperSpinStore.accumulateCascadeWin(
             win,
-            stake,
             bigWin,
             megaWin,
             superWin,
-            reachMaxWin
+            reachMaxWin,
+            freeSpins,
+            totalFreeSpins,
+            hasScatterTrigger,
+            hasMultiplier
         );
 
-        // Get current balance
-        const currentBalance = this.cascadingUIStore.userBalance || 0;
+        // Check if cascade is complete (no more free spins pending and not in middle of settlement)
+        const isCascadeComplete = this.cascadingUIStore.freeSpinsTotal === 0 &&
+            !this.cascadingUIStore.isPlacingBet &&
+            this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING;
 
-        // Determine spin ID
-        let spinId: string | number;
-        if (isFreeSpin) {
-            // Free spin - get free spin ID and mark with icon indicator
-            // The icon will be displayed separately in the UI, here we use a prefix
-            const freeSpinId = this.hyperSpinStore.getNextFreeSpinId();
-            spinId = `FS${freeSpinId}`; // FS prefix indicates Free Spin (icon will be added in UI)
+        if (isCascadeComplete) {
+            // Complete the cascade and record the accumulated data
+            const cascadeSpinData = this.hyperSpinStore.completeCascadeTracking();
 
+            if (cascadeSpinData) {
+                // Add the complete cascade as a single spin entry to the batch
+                this.hyperSpinStore.addSpinToBatch(cascadeSpinData);
+
+                console.warn("✅ [HYPER_SPIN] Recorded complete cascade as single spin", {
+                    spinId: cascadeSpinData.spinId,
+                    totalWin: cascadeSpinData.spinWinAmountRaw,
+                    multiplier: cascadeSpinData.spinWinMultiplierRaw,
+                    winTag: cascadeSpinData.winTag,
+                    timestamp: new Date().toISOString()
+                });
+
+                // If completion was pending, complete it now that cascade data is recorded
+                if (this.isCompletionPending) {
+                    this.isCompletionPending = false;
+                    this.completeHyperSpin();
+                }
+            }
         } else {
-            // Regular hyper-spin round
-            spinId = this.hyperSpinStore.getNextHyperSpinId();
+            console.warn("⏳ [HYPER_SPIN] Cascade still in progress, continuing accumulation", {
+                freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                isPlacingBet: this.cascadingUIStore.isPlacingBet,
+                cascadingState: this.cascadingUIStore.cascadingState,
+                accumulatedWin: this.hyperSpinStore.getCurrentCascadeData()?.accumulatedWin || 0,
+                timestamp: new Date().toISOString()
+            });
         }
-
-        // Create spin data - ALWAYS record freespins in batch mode
-        const spinData: HyperSpinSingleSpinData = {
-            spinId,
-            isFreeSpin,
-            spinWinAmount: gc.FormatUtils.numberWithCommas(win, 2, false),
-            spinWinAmountRaw: win,
-            spinWinMultiplier: gc.FormatUtils.numberWithCommas(multiplier, 2, false),
-            spinWinMultiplierRaw: multiplier,
-            winTag,
-            spinBalance: gc.FormatUtils.numberWithCommas(currentBalance, 2, false),
-            spinBalanceRaw: currentBalance,
-            stake,
-        };
-
-        // Add spin to batch - freespins are always recorded in batch mode
-        this.hyperSpinStore.addSpinToBatch(spinData);
-
-        // If completion was pending, complete it now that spin data is recorded
-        if (this.isCompletionPending) {
-            this.isCompletionPending = false;
-            this.completeHyperSpin();
-        }
-
     }
 }
