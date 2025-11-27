@@ -7,9 +7,6 @@ import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui
 import { HyperSpinStore, HyperSpinBatchData, HyperSpinSingleSpinData, CascadeRecord } from "../../stores/hyper-spin-store";
 import HyperSpinRecordBodyItem from "../hyper-spin/hyper-spin-record-body-item";
 
-// Mock data flag - set to true to use mock data for testing
-const USE_MOCK_DATA = true;
-
 const { ccclass, menu, property } = _decorator;
 const { render } = Observer;
 
@@ -120,8 +117,7 @@ export class HyperSpinBetRecords extends ObserverComponent {
                 spinWinAmountRaw: spin.spinWinAmountRaw || 0,
                 spinBalance: spin.spinBalance || "0.00",
                 spinWinMultiplier: spin.spinWinMultiplier || "0.00x",
-                isCascadeRecord: false, // Main spin records are not cascade records
-                winTag: spin.winTag // Pass winTag for sprite activation
+                isCascadeRecord: false // Main spin records are not cascade records
             };
 
             recordBodyItem.setSpinData(spinData);
@@ -154,52 +150,19 @@ export class HyperSpinBetRecords extends ObserverComponent {
     @render(HyperSpinStore, (store) => {
         const spinsLength = store.spinsLength;
         const batchData = store.currentBatchData;
-        return USE_MOCK_DATA ? { useMockData: true, store } : (batchData ? { batchData, spinsLength } : null);
+        return batchData ? { batchData, spinsLength } : null;
     })
-    private renderHyperSpinRecords(data: { batchData?: HyperSpinBatchData; spinsLength?: number; useMockData?: boolean; store?: HyperSpinStore } | null) {
-        if (USE_MOCK_DATA && data?.useMockData && data?.store) {
-            // Use mock data for testing
-            this.loadMockData(data.store);
+    private renderHyperSpinRecords(data: { batchData: HyperSpinBatchData; spinsLength: number } | null) {
+        const spins = data?.batchData?.spins;
+
+        if (spins && Array.isArray(spins)) {
+            // Always re-initialize for now since the structure is more complex
+            // with cascade records mixed in. Could be optimized later.
+            this.initHyperSpinRecords(spins);
         } else {
-            const spins = data?.batchData?.spins;
-
-            if (spins && Array.isArray(spins)) {
-                // Always re-initialize for now since the structure is more complex
-                // with cascade records mixed in. Could be optimized later.
-                this.initHyperSpinRecords(spins);
-            } else {
-                if (this.hyperSpinRecordBodyContentNode) {
-                    this.hyperSpinRecordBodyContentNode.destroyAllChildren();
-                }
+            if (this.hyperSpinRecordBodyContentNode) {
+                this.hyperSpinRecordBodyContentNode.destroyAllChildren();
             }
-        }
-    }
-
-    private loadMockData(store: HyperSpinStore) {
-        // Get mock data from the store instance passed by the render decorator
-        const mockData = store.getMockBatchData();
-
-        if (mockData && mockData.spins) {
-            console.warn("🎭 [MOCK_DATA] Loading mock hyper-spin batch data", {
-                totalSpins: mockData.spins.length,
-                totalBet: mockData.summary.totalBet,
-                totalWin: mockData.summary.totalWin,
-                spinsWithCascades: mockData.spins.filter(s => s.cascadeRecords && s.cascadeRecords.length > 0).length,
-                spinsWithWinTags: mockData.spins.filter(s => s.winTag).length,
-                freeSpins: mockData.spins.filter(s => s.isFreeSpin).length
-            });
-
-            // Log some example spins for verification
-            const examples = mockData.spins.slice(0, 5).map((spin, i) => ({
-                spinId: spin.spinId,
-                winAmount: spin.spinWinAmount,
-                winTag: spin.winTag,
-                hasCascades: !!(spin.cascadeRecords && spin.cascadeRecords.length > 0),
-                isFreeSpin: spin.isFreeSpin
-            }));
-            console.warn("🎭 [MOCK_DATA] Example spins:", examples);
-
-            this.initHyperSpinRecords(mockData.spins);
         }
     }
 

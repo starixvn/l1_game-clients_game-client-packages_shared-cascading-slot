@@ -19,32 +19,9 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
     @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
 
     handle(): boolean {
-        // Use mock data for testing instead of real service calls
-        if (this.hyperSpinStore.useMockDataForTesting) {
-            return this.handleMockBet();
-        }
-
         const amount = this.betControlStore.effectiveTotalBet;
         const betData = this.createHyperSpinBetData(amount);
         return this.placeBetDirectly(betData, amount);
-    }
-
-    private handleMockBet(): boolean {
-        console.warn("[MOCK_BET_HANDLER] 🎭 Using mock data for hyper-spin testing");
-
-        // Simulate bet processing
-        this.uiStore.changeUserBalance = false;
-        this.betStore.isProcessingBet = true;
-
-        this.uiHandler.changeCascadingState(CascadingSlotState.SPINNING);
-        this.uiStore.changeUserBalance = true;
-
-        // Simulate quick completion for mock data
-        setTimeout(() => {
-            this.betStore.isProcessingBet = false;
-        }, 100);
-
-        return true;
     }
 
     private createHyperSpinBetData(amount: number) {
