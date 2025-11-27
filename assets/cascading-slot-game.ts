@@ -19,18 +19,16 @@ import { GameVisibility } from "db://shared-components/shared/common-components/
 import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { ColorJson, convertData, DialogName, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
-import { SlotModeContext } from "./mode/slot-mode-context";
-import { SlotModeContextFactory } from "./mode/slot-mode-context-factory";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
 import { TotalMultiplierView } from "./components/total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
+import { HyperSpinSettlementHandler } from "./handlers/hyper-spin-settlement-handler";
 import { HyperSpinHandler } from "./handlers/hyper-spin-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { HyperSpinStore } from "./stores/hyper-spin-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
@@ -68,9 +66,9 @@ export class CascadingSlotGame extends GameComponentBase {
     gameFeatureInfo: JsonAsset = null;
 
     public isTurboMode = false;
-    private isHyperSpinActive = false;
-    private wasHyperSpinActive = false; // Track previous state to detect transitions
-    private stopOnFeature = false;
+    private isHyperSpinActive = false; // Only used for routing check in handleSettlement
+
+    // Lazy-loaded handlers - none currently
 
     onLoad() {
         this.initConfig();
@@ -197,20 +195,95 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
 
-        const settlementData = this.extractSettlementData(finishData);
-        const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
-        const isInHyperSpin = this.isHyperSpinActive;
+        // Route to hyper-spin handler if active
+        // Use local property set via @render decorator, with fallback to container lookup
+        let isHyperSpinActive = this.isHyperSpinActive;
 
-        await this.handleSpinAndTumbleResults(settlementData, isInHyperSpin, isFreeSpinActive);
-        await this.handleWinProcessing(settlementData, isInHyperSpin);
-        this.handleUIUpdates(settlementData, isInHyperSpin);
-        this.handleSpecialEffects(settlementData, isInHyperSpin);
-        this.handleFreeSpinLogic(settlementData, isInHyperSpin);
-
-        // Record spin data for hyper-spin batch tracking
-        if (isInHyperSpin) {
-            this.recordHyperSpinSpinData(finishData);
+        // Fallback: get from container if reactive update hasn't fired yet
+        if (!isHyperSpinActive) {
+            try {
+                const container = (this as any).container;
+                if (container) {
+                    const cascadingUIStore = container.get(CascadingUIStore);
+                    if (cascadingUIStore) {
+                        isHyperSpinActive = cascadingUIStore.isHyperSpinActive;
+                    }
+                }
+            } catch (error) {
+                // Continue with local property
+            }
         }
+
+        console.warn("🎯 [GAME] handleSettlement() routing", {
+            isHyperSpinActive,
+            localIsHyperSpinActive: this.isHyperSpinActive,
+            timestamp: new Date().toISOString()
+        });
+
+        if (isHyperSpinActive) {
+            await this.handleHyperSpinSettlement(finishData, this.board, this.tumbleWinView, this.totalMultiplierView);
+            return;
+        }
+
+        // Normal mode settlement (master-branch logic)
+        await this.handleNormalSettlement(finishData);
+    }
+
+
+    /**
+     * Get handler from Observer container
+     */
+    private getHandlerFromObserver<T>(HandlerClass: new (...args: any[]) => T): T | null {
+        try {
+            // Observer stores container in its configuration
+            const observerConfig = (Observer as any).config;
+            if (observerConfig) {
+                // Try game namespace first
+                const gameNamespace = this.namespace || 'portrait-wukong';
+                let container = observerConfig[gameNamespace]?.container;
+
+                // Fallback to default namespace
+                if (!container) {
+                    container = observerConfig.default?.container;
+                }
+
+                // Fallback to any namespace
+                if (!container) {
+                    const namespaces = Object.keys(observerConfig);
+                    if (namespaces.length > 0) {
+                        container = observerConfig[namespaces[0]].container;
+                    }
+                }
+
+                if (container && typeof container.get === 'function') {
+                    const handler = container.get(HandlerClass);
+                    console.warn("🎯 [GAME] Handler retrieved from Observer container", {
+                        handlerClass: HandlerClass.name,
+                        hasHandler: !!handler,
+                        namespace: gameNamespace
+                    });
+                    return handler;
+                }
+            }
+        } catch (error) {
+            console.error("❌ [GAME] Failed to get handler from Observer container", error);
+        }
+        return null;
+    }
+
+    /**
+     * Handle settlement for normal mode (master-branch logic).
+     * This method contains the original settlement logic without hyper-spin conditionals.
+     */
+    private async handleNormalSettlement(finishData: any) {
+        const settlementData = this.extractSettlementData(finishData);
+
+        // Normal mode processing (master-branch logic)
+        await this.handleNormalSpinAndTumbleResults(settlementData);
+        await this.handleNormalWinProcessing(settlementData);
+        this.handleNormalUIUpdates(settlementData);
+        this.handleNormalSpecialEffects(settlementData);
+        this.handleNormalFreeSpinLogic(settlementData);
     }
 
     private extractSettlementData(finishData: any) {
@@ -233,42 +306,30 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     /**
-     * Create mode context based on current game state.
-     * Centralizes the logic for determining which mode context to use.
+     * Handle spin and tumble results for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
      */
-    private createModeContext(isInHyperSpin: boolean, isFreeSpinActive: boolean): SlotModeContext {
-        if (isInHyperSpin) {
-            return SlotModeContextFactory.createHyperSpin(this.stopOnFeature, isFreeSpinActive);
-        }
-
-        if (this.isTurboMode) {
-            return SlotModeContextFactory.createTurbo();
-        }
-
-        return SlotModeContextFactory.createNormal();
-    }
-
-    private async handleSpinAndTumbleResults(settlementData: any, isInHyperSpin: boolean, isFreeSpinActive: boolean) {
+    private async handleNormalSpinAndTumbleResults(settlementData: any) {
         const symbolsBoard = {
             symbols: convertData(settlementData.result),
             multipliers: settlementData.tumbles[0]?.multipliers,
-            isTurbo: false,
+            isTurbo: this.isTurboMode,
             tumbles: settlementData.tumbles
         };
 
-        // Create mode context once and reuse for both calls
-        const modeContext = this.createModeContext(isInHyperSpin, isFreeSpinActive);
-
-        await this.board.spinResult(symbolsBoard, modeContext);
-        await this.board.handleTumbles(settlementData.tumbles, modeContext);
+        await this.board.spinResult(symbolsBoard, this.isTurboMode);
+        await this.board.handleTumbles(settlementData.tumbles, this.isTurboMode);
     }
 
-    private async handleWinProcessing(settlementData: any, isInHyperSpin: boolean) {
+    /**
+     * Handle win processing for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
+     */
+    private async handleNormalWinProcessing(settlementData: any) {
         const winTumbles = settlementData.tumbles.length > 1;
         const winMultiplier = settlementData.multiplier > 0 && winTumbles;
 
-        // Skip multiplier animations during hyper-spin for faster execution
-        if (!isInHyperSpin && this.tumbleWinView) {
+        if (this.tumbleWinView) {
             if (winMultiplier) {
                 this.handleTriggerWinMultiplier();
             }
@@ -278,77 +339,58 @@ export class CascadingSlotGame extends GameComponentBase {
         if (settlementData.win > 0) {
             this.getBalance();
             this.handleChangeUserBalance(true);
-            if (winTumbles && !isInHyperSpin && this.tumbleWinView) {
+            if (winTumbles && this.tumbleWinView) {
                 await this.tumbleWinView.setTotalWinValue(settlementData.actualBetwin);
             }
             this.handleTotalWin({ win: settlementData.win, isActualWin: true });
         }
     }
 
-    private handleUIUpdates(settlementData: any, isInHyperSpin: boolean) {
-        // Skip UI updates during hyper-spin for maximum speed
-        if (!isInHyperSpin) {
-            this.updateTotalWinPromo({ win: settlementData.win, totalFreeSpins: settlementData.totalFreeSpins });
-            this.showTotalMultiplierView(settlementData.totalMultiplier, settlementData.isFreeSpin, settlementData.multiplier > 0 && settlementData.tumbles.length > 1);
-            if (settlementData.reachMaxWin) {
-                this.setReachMaxWin(true);
-            }
-            this.setTotalMultiplierValue(settlementData.totalMultiplier);
+    /**
+     * Handle UI updates for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
+     */
+    private handleNormalUIUpdates(settlementData: any) {
+        this.updateTotalWinPromo({ win: settlementData.win, totalFreeSpins: settlementData.totalFreeSpins });
+        this.showTotalMultiplierView(settlementData.totalMultiplier, settlementData.isFreeSpin, settlementData.multiplier > 0 && settlementData.tumbles.length > 1);
+        if (settlementData.reachMaxWin) {
+            this.setReachMaxWin(true);
         }
+        this.setTotalMultiplierValue(settlementData.totalMultiplier);
     }
 
-    private handleSpecialEffects(settlementData: any, isInHyperSpin: boolean) {
-        // Skip special effects during hyper-spin for maximum speed
+    /**
+     * Handle special effects for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
+     */
+    private handleNormalSpecialEffects(settlementData: any) {
         const isHaveBigWin = settlementData.bigWin || settlementData.megaWin || settlementData.superWin;
 
-        if (!isInHyperSpin) {
-            this.handleHaveBigWin(isHaveBigWin);
-            this.updateBigWinAmount(settlementData.win);
-            this.handleHaveFreeSpin(settlementData.freeSpins > 0);
-        }
+        this.handleHaveBigWin(isHaveBigWin);
+        this.updateBigWinAmount(settlementData.win);
+        this.handleHaveFreeSpin(settlementData.freeSpins > 0);
     }
 
-    private handleFreeSpinLogic(settlementData: any, isInHyperSpin: boolean) {
+    /**
+     * Handle free spin logic for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
+     */
+    private handleNormalFreeSpinLogic(settlementData: any) {
         // Always update free spins data
         this.setFreeSpinsByRound(settlementData.freeSpins);
         this.setFreeSpinsTotal(settlementData.totalFreeSpins);
 
         const noWinMoreFreespins = settlementData.freeSpins <= 0;
-        const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
         const isHaveBigWin = settlementData.bigWin || settlementData.megaWin || settlementData.superWin;
 
-        let shouldHandleFreeSpinEffectCompleted = noWinMoreFreespins && !isHaveBigWin;
-
-        // In hyper-spin mode, immediately mark effects as completed since we don't show UI anyway
-        // This prevents the batch from getting stuck waiting for non-existent free spin effects
-        if (isInHyperSpin && noWinMoreFreespins) {
-            this.handleFreeSpinEffectCompleted(true);
-            shouldHandleFreeSpinEffectCompleted = false; // Don't call it again
-        } else if (isInHyperSpin && isFreeSpinActive && !noWinMoreFreespins) {
-            // In hyper-spin mode with active free spins, force effect completion to continue the batch
-            // This ensures free spin rounds progress automatically without waiting for UI effects
-            this.handleFreeSpinEffectCompleted(true);
-        }
+        const shouldHandleFreeSpinEffectCompleted = noWinMoreFreespins && !isHaveBigWin;
 
         if (shouldHandleFreeSpinEffectCompleted) {
-            console.warn("🎰 FREESPIN COMPLETED: Free spin effects completed, proceeding to next round", {
-                noWinMoreFreespins,
-                isHaveBigWin,
-                isInHyperSpin,
-                freeSpins: settlementData.freeSpins,
-                totalFreeSpins: settlementData.totalFreeSpins,
-                timestamp: new Date().toISOString()
-            });
-            console.warn("[CASCADING_SLOT_GAME] Handling free spin effect completion");
             this.handleFreeSpinEffectCompleted(true);
         }
     }
 
 
-    @handle(HyperSpinHandler, (handler, finishData: any) => handler.handleRecordSpinData(finishData))
-    recordHyperSpinSpinData(finishData: any) {
-        return finishData;
-    }
 
     protected async showTotalMultiplierView(totalMultiplier: number, isFreeSpin: boolean, winMultiplier: boolean) {
         const needShowTotalMultiplier = totalMultiplier > 0;
@@ -368,64 +410,54 @@ export class CascadingSlotGame extends GameComponentBase {
         return completed;
     }
 
+    @handle(HyperSpinSettlementHandler, async (handler, finishData: any, board: CascadingSlotBoard, tumbleWinView: TumbleWinWiew | null, totalMultiplierView: TotalMultiplierView | null) =>
+        await handler.handleSettlement(finishData, board, tumbleWinView, totalMultiplierView))
+    async handleHyperSpinSettlement(finishData: any, board: CascadingSlotBoard, tumbleWinView: TumbleWinWiew | null, totalMultiplierView: TotalMultiplierView | null) {
+        // Handler is called via @handle decorator, parameters are passed through
+        return;
+    }
+
+    @handle(HyperSpinHandler, (handler) => handler.checkHyperSpinNextRound())
+    handleHyperSpinNextRound() {
+        // Handler is called via @handle decorator
+        return;
+    }
+
+    /**
+     * Render hyper-spin active state for routing check in handleSettlement.
+     * This is the only hyper-spin awareness needed in this file.
+     */
     @render(CascadingUIStore, (store) => store.isHyperSpinActive)
     renderHyperSpinActive(isHyperSpinActive: boolean) {
-        const previousState = this.isHyperSpinActive;
         this.isHyperSpinActive = isHyperSpinActive;
-
-        // Detect transition from hyper-spin to normal mode
-        if (previousState && !isHyperSpinActive) {
-            this.handleHyperSpinDeactivated();
-        }
-
-        this.wasHyperSpinActive = isHyperSpinActive;
     }
 
     /**
-     * Handles the transition from hyper-spin mode back to normal mode.
-     * Restores the board to a ready state when hyper-spin is cancelled or completed.
+     * Check next round - routes to hyper-spin handler if active, otherwise normal mode.
      */
-    private handleHyperSpinDeactivated() {
-        // Only restore if we're not currently spinning
-        // Check cascading state via UI store or handler
-        this.restoreBoardToNormalMode();
-    }
-
-    /**
-     * Restores the board to normal mode by reinitializing it with random items.
-     * This ensures the board is populated when returning from hyper-spin mode.
-     */
-    private restoreBoardToNormalMode() {
-        if (!this.board) {
+    @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
+    async checkNextRound(isFreeSpinEffectCompleted: boolean) {
+        if (!isFreeSpinEffectCompleted) {
             return;
         }
 
-        // Restore board to initial state with random items
-        this.board.initBoardFullItems();
-    }
-
-    @render(HyperSpinStore, (store) => store.stopOnFeature)
-    renderStopOnFeature(stopOnFeature: boolean) {
-        this.stopOnFeature = stopOnFeature;
-    }
-
-    @render(CascadingUIStore, (store) => ({
-        isFreeSpinEffectCompleted: store.isFreeSpinEffectCompleted,
-        isHyperSpinActive: store.isHyperSpinActive
-    }))
-    async checkNextRound(data: { isFreeSpinEffectCompleted: boolean; isHyperSpinActive: boolean }) {
-        const { isFreeSpinEffectCompleted, isHyperSpinActive } = data;
-        if (isFreeSpinEffectCompleted) {
-            await this.handleFreeSpinEffectCompletion(isHyperSpinActive);
-            this.handleHyperSpinCheck(isHyperSpinActive);
+        // Route to hyper-spin handler if active (for batch continuation after free spins)
+        if (this.isHyperSpinActive) {
+            await this.handleHyperSpinNextRound();
+            return;
         }
+
+        // Normal mode handling
+        await this.handleFreeSpinEffectCompletion();
     }
 
-    private async handleFreeSpinEffectCompletion(isHyperSpinActive: boolean) {
-        // Skip delay entirely for hyper-spin mode to achieve faster spinning
-        // Use store state directly (more reliable than local property)
-        const isInHyperSpin = isHyperSpinActive;
-        const delayForNextSpin = isInHyperSpin ? 0 : getCustomDuration("delayForNextSpin", this.isTurboMode);
+
+    /**
+     * Handle free spin effect completion for normal mode.
+     * Master-branch logic without hyper-spin conditionals.
+     */
+    private async handleFreeSpinEffectCompletion() {
+        const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
 
         if (delayForNextSpin > 0) {
             await AnimationUtils.delayTime(delayForNextSpin);
@@ -438,47 +470,6 @@ export class CascadingSlotGame extends GameComponentBase {
         // by automatically spinning
         this.handleEndGameApiError();
         this.checkSpinNextRound();
-    }
-
-    private handleHyperSpinCheck(isHyperSpinActive: boolean) {
-        // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
-        // Use store state directly to avoid race conditions with local property
-        console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
-            isHyperSpinActive,
-            timestamp: new Date().toISOString()
-        });
-
-        if (isHyperSpinActive) {
-            this.callHyperSpinNextRoundIfNotCancelled();
-        } else {
-            console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - hyper-spin not active", {
-                timestamp: new Date().toISOString()
-            });
-        }
-    }
-
-    private callHyperSpinNextRoundIfNotCancelled() {
-        // ✅ Check cancellation flag before calling checkHyperSpinNextRound()
-        // The handler method will also check cancellation, but this prevents unnecessary calls
-        try {
-            const container = (this as any).container;
-            if (container) {
-                const hyperSpinHandler = container.get(HyperSpinHandler);
-                if (hyperSpinHandler && hyperSpinHandler.isBatchCancelled) {
-                    console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - batch cancelled", {
-                        timestamp: new Date().toISOString()
-                    });
-                    return;
-                }
-            }
-        } catch (error) {
-            // If we can't access handler, proceed (handler will check cancellation internally)
-        }
-
-        console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
-            timestamp: new Date().toISOString()
-        });
-        this.checkHyperSpinNextRound();
     }
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
@@ -517,15 +508,6 @@ export class CascadingSlotGame extends GameComponentBase {
     checkSpinNextRound() {
     }
 
-    @handle(HyperSpinHandler, (handler) => handler.checkHyperSpinNextRound())
-    checkHyperSpinNextRound() {
-        // The @handle decorator will automatically call the HyperSpinHandler.checkHyperSpinNextRound() method
-        console.warn("🔄 [GAME] checkHyperSpinNextRound() called via @handle decorator", {
-            isHyperSpinActive: this.isHyperSpinActive,
-            timestamp: new Date().toISOString(),
-            stackTrace: new Error().stack?.split('\n').slice(1, 5).join('\n')
-        });
-    }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)
     handleUpdateBalance(isUpdateBalance: boolean) {
@@ -610,13 +592,6 @@ export class CascadingSlotGame extends GameComponentBase {
     @render(GameVisibilityStore, (store) => store.isVisible)
     renderGameVisibility(isVisible: boolean) {
         if (!isVisible) {
-            // Check if hyper-spin batch should be interrupted when game is hidden
-            if (this.isHyperSpinActive) {
-
-                // Mark batch as interrupted due to game visibility change
-                this.handleHyperSpinInterruptionDueToGameHide();
-            }
-
             this.handleOnGameHide();
         }
     }
@@ -625,21 +600,10 @@ export class CascadingSlotGame extends GameComponentBase {
     handleOnGameHide() {
     }
 
-    /**
-     * Handle hyper-spin interruption when game is hidden
-     */
-    private handleHyperSpinInterruptionDueToGameHide() {
-        // The interruption will be detected by the HyperSpinHandler.checkHyperSpinNextRound()
-        // when it next runs and finds the game is hidden
-    }
-
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
     handleTriggerWinMultiplier() {
     }
 
-    @handle(CascadingUIHandler, (handler) => handler.checkHyperSpinBatchRecovery())
-    checkHyperSpinBatchRecovery() {
-    }
 
     @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
     updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {

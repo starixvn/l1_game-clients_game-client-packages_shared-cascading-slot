@@ -12,7 +12,6 @@ import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-stor
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
-import { HyperSpinStore } from "../stores/hyper-spin-store";
 import { BetControlHandlers } from "./bet-control-handlers";
 
 const { injectable, inject } = inversify;
@@ -30,7 +29,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(gc.GameUserSettings.GameUserSettingHandler)
     protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
     @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
-    @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
 
     constructor() {
         setTimeout(() => {
@@ -74,43 +72,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     private handleFreeSpinActivation(previousFreeSpinsTotal: number, freeSpinsTotal: number) {
-        const isHyperSpinActiveOrSetup = this.uiStore.isHyperSpinActive || (this.hyperSpinStore?.roundsHyperSpin ?? 0) > 0;
-        const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0 && isHyperSpinActiveOrSetup;
+        const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0;
 
         if (!conditionMet) {
             return;
         }
 
-        this.handleHyperSpinPopupBehavior();
         this.updateFreespinCountMsgBottom(freeSpinsTotal);
         this.handleTriggerDuringFreeSpinBonus();
         this.uiStore.isFreeSpinEffectCompleted = true;
-    }
-
-    private handleHyperSpinPopupBehavior() {
-        if (!this.hyperSpinStore) {
-            return;
-        }
-
-        if (this.hyperSpinStore.stopOnFeature) {
-            this.closeHyperSpinPopup();
-        } else {
-            this.ensureHyperSpinActive();
-        }
-    }
-
-    private closeHyperSpinPopup() {
-        this.hyperSpinStore.isOpenHyperSpinPopup = false;
-        this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
-        this.hyperSpinStore.setHyperSpinActive(false);
-        this.uiStore.isHyperSpinActive = false;
-    }
-
-    private ensureHyperSpinActive() {
-        const wasHyperSpinActive = this.hyperSpinStore.isHyperSpinActive;
-        if (wasHyperSpinActive && !this.hyperSpinStore.isHyperSpinActive) {
-            this.hyperSpinStore.setHyperSpinActive(true);
-        }
     }
 
     private handleFreeSpinDeactivation(freeSpinsTotal: number) {
@@ -175,8 +145,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         // Reset settlement data
         this.settlementStore.finishData = null;
 
-        // Reset completion flags
-        this.uiStore.isFreeSpinEffectCompleted = false;
+        // Reset completion flags - but preserve free spin effects during hyper spin
+        // Don't reset isFreeSpinEffectCompleted during hyper spin to prevent race conditions
+        if (!this.uiStore.isHyperSpinActive) {
+            this.uiStore.isFreeSpinEffectCompleted = false;
+        }
         this.uiStore.isBigWinCompleted = false;
         this.uiStore.isHighlightScattersCompleted = false;
         this.uiStore.showReachMaxWin = false;
@@ -309,12 +282,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleHaveFreeSpin(haveFreeSpin: boolean) {
-        // Prevent free-spin UI effects in hyper-spin batch mode when stopOnFeature is false
-        if (this.uiStore.isHyperSpinActive && haveFreeSpin && !this.hyperSpinStore.stopOnFeature) {
-            this.uiStore.haveFreeSpin = false;
-        } else {
-            this.uiStore.haveFreeSpin = haveFreeSpin;
-        }
+        this.uiStore.haveFreeSpin = haveFreeSpin;
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {
@@ -376,11 +344,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             return;
         }
 
-        // Skip free-spin UI effects in hyper-spin batch mode when stopOnFeature is false
-        if (this.uiStore.isHyperSpinActive && trigger && !this.hyperSpinStore.stopOnFeature) {
-            return;
-        } 
-
         this.uiStore.triggerDuringFreeSpinBonus = trigger;
     }
 
@@ -396,72 +359,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.dialogOpenEvent = { name };
     }
 
-    /** Check for interrupted hyper-spin batches and offer recovery */
-    checkHyperSpinBatchRecovery() {
-        if (!this.hyperSpinStore?.currentBatchData) {
-            return;
-        }
-
-        const batchStatus = this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus;
-        const roundsRemaining = this.hyperSpinStore.roundsHyperSpin;
-
-        // Check if batch was interrupted
-        if (batchStatus === "Interrupted" && roundsRemaining > 0) {
-
-            // Show recovery dialog
-            this.showBatchRecoveryDialog();
-        } else if (batchStatus === "Playing" && !this.hyperSpinStore.isHyperSpin) {
-            // Batch was in progress but hyper-spin is not active - likely due to game restart
-
-            // Mark as interrupted and show recovery options
-            this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus = "Interrupted";
-            this.showBatchRecoveryDialog();
-        }
-    }
-
-    /** Show recovery dialog for interrupted batch */
-    private showBatchRecoveryDialog() {
-        // For now, show a notification. In a full implementation, this would show a proper dialog
-
-        // Update UI state to indicate recovery is available
-        if (this.uiStore) {
-            this.uiStore.bottomMessageState = "HYPER_SPIN_RECOVERY_AVAILABLE";
-        }
-    }
-
-    /** Handle user choice for batch recovery */
-    handleBatchRecoveryChoice(recover: boolean) {
-        if (recover) {
-            // Attempt to recover the batch using HyperSpinHandler
-            // This would typically be called through the handler system
-
-            // For now, directly call the store method since we have access to it
-            const recoverySuccess = this.hyperSpinStore?.recoverInterruptedBatch();
-            if (!recoverySuccess) {
-                this.showRecoveryFailedMessage();
-            }
-        } else {
-            // User chose not to recover - clean up the interrupted batch
-            this.cleanupInterruptedBatch();
-        }
-    }
-
-    /** Show message when recovery fails */
-    private showRecoveryFailedMessage() {
-        // Could show a notice here if noticeStore is available
-    }
-
-    /** Clean up interrupted batch data */
-    private cleanupInterruptedBatch() {
-        if (this.hyperSpinStore) {
-            this.hyperSpinStore.clearBatchData();
-            this.hyperSpinStore.setHyperSpinActive(false);
-        }
-
-        if (this.uiStore) {
-            this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
-        }
-    }
 
     eventHandleList = [
         {

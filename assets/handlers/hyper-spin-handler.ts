@@ -541,7 +541,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         const currentProfit = this.calculateCurrentProfit();
         const currentLoss = this.calculateCurrentLoss();
 
-        // Don't stop if completion is pending (final round being processed)
+        // Check if rounds are exhausted first - always stop if no rounds left
+        const roundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
+        if (roundsExhausted) {
+            return true;
+        }
+
+        // Don't stop if completion is pending (but allow stopping if rounds exhausted)
         if (this.isCompletionPending) {
             return false;
         }
@@ -566,13 +572,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             if (lossConditionMet) {
                 return true;
             }
-        }
-
-        // Check if rounds are exhausted
-        const roundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
-
-        if (roundsExhausted) {
-            return true;
         }
 
         return false;
