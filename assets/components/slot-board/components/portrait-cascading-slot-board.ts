@@ -15,7 +15,6 @@ const { ccclass } = _decorator;
 @ccclass
 export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     private totalTumbleWin = 0;
-    private gameSpeed = GameSpeed.NORMAL;
     private tumbleWinView: TumbleWinWiew = null;
     
     async handleMultiplier(
@@ -38,7 +37,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
         for (const mItem of multiplierItems) {
             this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
-            await mItem.playAnimationGlow();
+            await mItem.playAnimationGlow(this.gameSpeed);
             await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
 
             this.playSound(AudioIds.WIN);
