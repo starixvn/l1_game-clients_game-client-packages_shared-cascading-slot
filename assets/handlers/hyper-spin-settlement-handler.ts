@@ -87,8 +87,7 @@ export class HyperSpinSettlementHandler {
         // Handle free spin logic with forced completion
         this.handleFreeSpinLogic(settlementData);
 
-        // Record spin data for hyper-spin batch tracking
-        this.hyperSpinHandler.handleRecordSpinData(finishData);
+        // Note: Spin data recording is now handled in CascadingSlotGame.recordHyperSpinSpinData()
 
         // Continue to next round after settlement completes
         // Use setTimeout to ensure MobX reactivity has propagated the state changes

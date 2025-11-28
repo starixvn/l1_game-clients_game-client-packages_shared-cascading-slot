@@ -222,6 +222,8 @@ export class CascadingSlotGame extends GameComponentBase {
 
         if (isHyperSpinActive) {
             await this.handleHyperSpinSettlement(finishData, this.board, this.tumbleWinView, this.totalMultiplierView);
+            // Record hyper spin data after settlement
+            this.recordHyperSpinSpinData(finishData);
             return;
         }
 
@@ -421,6 +423,11 @@ export class CascadingSlotGame extends GameComponentBase {
     handleHyperSpinNextRound() {
         // Handler is called via @handle decorator
         return;
+    }
+
+    @handle(HyperSpinHandler, (handler, finishData: any) => handler.handleRecordSpinData(finishData))
+    recordHyperSpinSpinData(finishData: any) {
+        return finishData;
     }
 
     /**
