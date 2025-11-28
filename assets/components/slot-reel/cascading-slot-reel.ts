@@ -165,7 +165,7 @@ export class CascadingSlotReel extends Component {
             return baseSpeed * 1.5;
         }
         if (gameSpeed === GameSpeed.ULTRA) {
-            return baseSpeed * 6;
+            return baseSpeed * 4;
         }
 
         if (this.peekEffect) {
