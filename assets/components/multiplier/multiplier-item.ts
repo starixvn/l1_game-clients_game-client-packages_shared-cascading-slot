@@ -1,6 +1,6 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
-import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
+import { getConfigGameSpeed, resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -25,11 +25,12 @@ export class MultiplierItem extends Component {
         this.spine = this.node.getComponent(sp.Skeleton);
     }
 
-    async playAnimationGlow() {
+    async playAnimationGlow(gameSpeed: string) {
         try {
             const anim = "highlight";
+            const ratioSpeed = getConfigGameSpeed("ratioMatchAndExplosionSymbol", gameSpeed);
             this.spine.setAnimation(0, anim, true);
-            const duration = this.spine.findAnimation(anim)?.duration || 0;
+            const duration = (this.spine.findAnimation(anim)?.duration || 0) * ratioSpeed;
             AnimationUtils.updateSpineDuration(this.spine, anim, duration);
             if (duration > 0) {
                 await AnimationUtils.delayTime(duration);
