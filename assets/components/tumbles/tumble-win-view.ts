@@ -6,6 +6,7 @@ import { FadeAppearanceNode } from "db://shared-components/shared/common-compone
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
+import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -24,12 +25,6 @@ export class TumbleWinWiew extends FadeAppearanceNode {
     totalWin: Label = null;
 
     readonly mulitiplierEffectDuration = 0.2;
-
-    private xMode = 1;
-    @render(MainPlayerStore, (store) => store.xMode)
-    setXMode(value: number) {
-        this.xMode = value;
-    }
 
     onLoad() {
         super.onLoad();
@@ -64,7 +59,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
             this.tumbleLabel.string = "";
             return;
         }
-        AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: this.xMode });
+        AnimationUtils.floatToNumber({ label: this.tumbleLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: getXMode() });
     }
 
     setTotalWinValue(value: number) {

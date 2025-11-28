@@ -3,6 +3,7 @@ import { _decorator, Component, Label, Sprite, SpriteAtlas } from "cc";
 import { SpecialSymbol } from "db://shared-cascading-slot/cascading-slot-utils";
 import Observer from "observer";
 import { FreeSpinData } from "../bet-history/bet-details/cascading-ticket-detail-item";
+import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -25,16 +26,16 @@ export class CascadingTumbleItem extends Component {
 
     protected prefixSymbol = "symbol-";
 
-    setData(icon: number, count: number, win: number, xMode: number) {
+    setData(icon: number, count: number, win: number) {
         this.numberIcon.string = count.toString();
-        this.winningValue.string = gc.FormatUtils.numberWithCommas(win * xMode, 6);
+        this.winningValue.string = formatStringXMode(win * getXMode());
         this.symbol.spriteFrame = this.mainAtlas.getSpriteFrame(`${this.prefixSymbol}${icon}`);
     }
 
-    setDataForFreeSpinTumble(data: FreeSpinData, xMode: number) {
+    setDataForFreeSpinTumble(data: FreeSpinData) {
         if (data.win > 0 && this.scatterPayout) {
             this.scatterPayout.node.active = true;
-            this.scatterPayout.string = gc.FormatUtils.numberWithCommas(data.win * xMode, 6);
+            this.scatterPayout.string = formatStringXMode(data.win * getXMode());
         }
         const freeSpinTxt = data.extraFreeSpin ? "extra_free_spin" : "free_spin";
         this.numberIcon.string = data.count.toString();

@@ -9,6 +9,8 @@ import { ChangeNodeColor } from "db://shared-components/shared/common-components
 import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
 import { resourcesCache } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { setXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;
@@ -19,11 +21,9 @@ export class CascadingBottomArea extends ObserverComponent {
 
     protected colorConfig: any;
 
-    private xMode = 1;
-
     @render(MainPlayerStore, (store) => store.xMode)
     setXMode(value: number) {
-        this.xMode = value;
+        setXMode(value);
     }
 
     onLoad(): void {
@@ -40,7 +40,7 @@ export class CascadingBottomArea extends ObserverComponent {
             this.totalWinLabel.string = totalTumbleWin.toString();
             return;
         }
-        AnimationUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: this.xMode });
+        AnimationUtils.floatToNumber({ label: this.totalWinLabel, amount: totalTumbleWin, duration: 0.5, noZeroSuffix: true, xMode: getXMode() });
     }
 
     updateColor() {

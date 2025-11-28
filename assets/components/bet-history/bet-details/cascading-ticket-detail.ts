@@ -6,6 +6,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { CascadingTotalMultiplier } from "../cascading-total-multiplier";
 import { CascadingTicketDetailItem } from "./cascading-ticket-detail-item";
+import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { handle } = Observer;
@@ -50,8 +51,10 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     data: any = null;
 
-    setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData, xMode: number }) {
-        const { betHistoryLog, xMode } = data;
+    setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData }) {
+        const { betHistoryLog } = data;
+        const xMode = betHistoryLog.xMode;
+        const isShowActualValue = getXMode() === 1;
         if (!betHistoryLog) {
             return;
         }
@@ -80,8 +83,8 @@ export class CascadingTicketDetail extends ObserverComponent {
             const detailItem = this.loadDetailItem();
             const control = detailItem.getComponent(CascadingTicketDetailItem);
             if ((index === tumbles.length - 1 && isShowNextRow) || index < tumbles.length - 1) {
-                currWinTumble += tumble.win * xMode;
-                control.setData(tumble, index, betHistoryLog, currWinTumble, xMode);
+                currWinTumble += isShowActualValue ? tumble.win : tumble.win * xMode;
+                control.setData(tumble, index, betHistoryLog, currWinTumble);
                 this.content.addChild(detailItem);
             }
             const newTumbleMultipliers = [...tumble.multipliers];
@@ -95,7 +98,8 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
         });
         this.handleMultiplierData(betHistoryLog);
-        this.winTotal.string = gc.FormatUtils.numberWithCommas(betHistoryLog.betwin * xMode, 6);
+        const totalWin = isShowActualValue ? betHistoryLog.betwin : betHistoryLog.betwin * xMode;
+        this.winTotal.string = formatStringXMode(totalWin);
         this.reachMaxText.node.active = isReachMaxWin;
     }
 

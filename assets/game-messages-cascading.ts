@@ -81,6 +81,7 @@ export namespace GameServiceMessageCascading {
     }
 
     export interface BetDetailData {
+        xMode: number;
         id: number;
         time: string;
         betLevel: string;

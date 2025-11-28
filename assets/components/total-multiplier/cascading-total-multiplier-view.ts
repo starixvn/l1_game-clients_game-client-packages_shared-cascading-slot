@@ -5,6 +5,7 @@ import { FadeAppearanceNode } from "db://shared-components/shared/common-compone
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -16,12 +17,6 @@ export class TotalMultiplierView extends FadeAppearanceNode {
     onLoad() {
         this.showView(false, true);
         super.onLoad();
-    }
-
-    private xMode = 1;
-    @render(MainPlayerStore, (store) => store.xMode)
-    setXMode(value: number) {
-        this.xMode = value;
     }
 
     @render(CascadingUIStore, (store) => store.totalMultiplier)
@@ -40,7 +35,7 @@ export class TotalMultiplierView extends FadeAppearanceNode {
                 duration: 0.2,
                 noZeroSuffix: true,
                 prefixStr: "x",
-                xMode: this.xMode,
+                xMode: getXMode(),
             });
         } else {
             this.total.string = totalMultiplier > 0 ? `x${totalMultiplier}` : "";

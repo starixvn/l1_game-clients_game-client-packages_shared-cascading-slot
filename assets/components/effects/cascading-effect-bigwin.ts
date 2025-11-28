@@ -1,5 +1,4 @@
 import gc from "@sg/game-client-base";
-const { MainPlayerStore } = gc.Player;
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
@@ -10,6 +9,7 @@ import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
+import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -54,11 +54,6 @@ export class CascadingEffectBigwin extends ObserverComponent {
     private readonly MAX_SKIP_CLICK_COUNT = 2;
     private bigWinRange = [];
 
-    private xMode = 1;
-    @render(MainPlayerStore, (store) => store.xMode)
-    setXMode(value: number) {
-        this.xMode = value;
-    }
     setAmount(data: BigWinType) {
         const { amount } = data;
         const duration = data.duration ?? 0;
@@ -66,7 +61,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
         tween(this.lblWinAmount.node)
             .delay(delayTime)
-            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: true, xMode: this.xMode }))
+            .call(() => AnimationUtils.floatToNumber({ label: this.lblWinAmount, amount, duration, noZeroSuffix: true, xMode: getXMode() }))
             .start();
     }
 

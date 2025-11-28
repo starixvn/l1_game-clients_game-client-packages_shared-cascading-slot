@@ -1,6 +1,5 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
-const { MainPlayerStore } = gc.Player;
 import Observer from "observer";
 
 import { AudioIds } from "db://assets/game/audios/AudioIds";
@@ -14,6 +13,7 @@ import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
+import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -26,13 +26,6 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
     @property(Label)
     private readonly labelTotalFreespins: Label = null;
     private isTriggerDuringFreeSpinBonus = false;
-
-    private xMode = 1;
-
-    @render(MainPlayerStore, (store) => store.xMode)
-    setXMode(value: number) {
-        this.xMode = value;
-    }
 
     onLoad() {
         super.onLoad();
@@ -64,7 +57,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             return;
         }
 
-        this.labelTotalWin.string = gc.FormatUtils.numberWithCommas(total.totalWin * this.xMode, 6);
+        this.labelTotalWin.string = formatStringXMode(total.totalWin * getXMode());
         this.labelTotalFreespins.string = total.numberOfFreeSpins.toString();
     }
 

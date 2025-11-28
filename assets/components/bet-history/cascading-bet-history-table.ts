@@ -20,24 +20,23 @@ export class CascadingBetHistoryTable extends ObserverComponent {
         return node.getComponent(CascadingHistoryItem);
     }
 
-    buildBodyRow(bodyItemPrefab: Prefab, betHistoryLog: gc.BetHistory.BetHistoryLog, index: number, fractionalOddsFormat = false, xMode = 1): Node {
+    buildBodyRow(bodyItemPrefab: Prefab, betHistoryLog: gc.BetHistory.BetHistoryLog, index: number, fractionalOddsFormat = false): Node {
         const bodyItem = instantiate(bodyItemPrefab);
         this.getHistoryItemComponent(bodyItem)?.setData({
             betHistoryLog,
             index,
             fractionalOddsFormat,
-            xMode: xMode,
         });
         return bodyItem;
     }
 
     showBetHistory(model: any) {
-        const { data, headerPrefab, bodyItemPrefab, xMode } = model;
+        const { data, headerPrefab, bodyItemPrefab } = model;
         this.clearOldTable();
         const fractionalOddsFormat = data?.fractionalOddsFormat ?? false;
         this.header.addChild(instantiate(headerPrefab));
         data.betLogs.forEach((betLogItem, index) => {
-            this.body.addChild(this.buildBodyRow(bodyItemPrefab, betLogItem, index, fractionalOddsFormat, xMode));
+            this.body.addChild(this.buildBodyRow(bodyItemPrefab, betLogItem, index, fractionalOddsFormat));
         });
     }
 
