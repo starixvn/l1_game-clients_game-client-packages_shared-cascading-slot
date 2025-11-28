@@ -63,6 +63,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     public currentTotalMultiplier = 0;
     public colorInfo: any;
     public minPeekScatterCount = 3;
+    public gameSpeed = GameSpeed.NORMAL;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
 
@@ -698,6 +699,11 @@ export class CascadingSlotBoard extends ObserverComponent {
         return show;
     }
 
+    @render(CascadingUIStore, (store) => store.gameSpeed)
+    renderGameSpeed(gameSpeed: string) {
+        this.gameSpeed = gameSpeed;
+    }
+
     showPeekEffect(inTumble: boolean, reelIndex: number, row = 0) {
         if (!resourcesCache.gameFeatures?.enablePeekEffect) {
             return;
@@ -855,7 +861,9 @@ export class CascadingSlotBoard extends ObserverComponent {
         effectNode.active = true;
 
         const spine = effectNode.getComponentInChildren(sp.Skeleton);
-        AnimationUtils.playSpine(spine, `level${level}`).then(() => {
+        const ratioSpeed = getConfigGameSpeed("ratioMatchAndExplosionSymbol", this.gameSpeed);
+        const duration = spine.findAnimation(`level${level}`).duration * ratioSpeed;
+        AnimationUtils.playSpine(spine, `level${level}`, false, duration).then(() => {
             effectNode.destroy();
         });
     }
