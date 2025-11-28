@@ -541,15 +541,15 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         const currentProfit = this.calculateCurrentProfit();
         const currentLoss = this.calculateCurrentLoss();
 
-        // Check if rounds are exhausted first - always stop if no rounds left
+        // ✅ CHECK COMPLETION PENDING FIRST - Don't stop if completion is pending
+        if (this.isCompletionPending) {
+            return false;
+        }
+
+        // ✅ THEN check if rounds are exhausted - only stop if rounds are exhausted AND completion is not pending
         const roundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
         if (roundsExhausted) {
             return true;
-        }
-
-        // Don't stop if completion is pending (but allow stopping if rounds exhausted)
-        if (this.isCompletionPending) {
-            return false;
         }
 
         if (this.hyperSpinStore.stopOnFeature && this.cascadingUIStore.freeSpinsTotal > 0) {
@@ -722,6 +722,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return false;
         }
 
+        // NOTE: Since this method is only called from hyper-spin context,
+        // the isHyperSpin check is redundant but kept for defensive programming
         if (!this.hyperSpinStore.isHyperSpin) {
             console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED - isHyperSpin is false");
             return false;
@@ -736,6 +738,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private shouldWaitForSettlementEffects(): boolean {
+        // NOTE: This method is only called from hyper-spin context due to isolation,
+        // so the stopOnFeature check below should always be false (we disable it for hyper-spin).
+        // However, keeping the check for defensive programming in case routing changes.
         return this.hyperSpinStore.stopOnFeature !== false && !this.cascadingUIStore.isFreeSpinEffectCompleted;
     }
 
