@@ -98,7 +98,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                 const isBottomPosition = this.isNodeAtBottomBoard(node);
                 const moveDuration = isBottomPosition ? getConfigGameSpeed("bottomMessageAnimDuration", this.gameSpeed) : getConfigGameSpeed("totalWinLabelAnimDuration", this.gameSpeed);
                 await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node, moveDuration);
-                await tumbleWinView.createEffectTumbleWin('label-tumble-win' , 2.3);
+                await tumbleWinView.createEffectTumbleWin('label-tumble-win' , getConfigGameSpeed("labelTumbleWinAnimDuration", this.gameSpeed));
                 tumbleWinView.totalWinNode.active = true;
                 await tumbleWinView.setTotalWinValue(this.totalTumbleWin);
        }
@@ -174,7 +174,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             .to(duration, { position: position }, { easing: "sineOut" })
             .call(() => {
                 if (this.tumbleWinView instanceof PortraitTumbleWinWiew) {
-                    this.tumbleWinView.createEffectTumbleWin('mutiplier-tumble-win', 3);
+                    this.tumbleWinView.createEffectTumbleWin('mutiplier-tumble-win', getConfigGameSpeed("multiplierTumbleWinAnimDuration", this.gameSpeed));
                 }
             })
             .delay(0.2)
