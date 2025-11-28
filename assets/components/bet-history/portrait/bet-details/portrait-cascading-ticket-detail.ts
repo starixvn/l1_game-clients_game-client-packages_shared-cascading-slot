@@ -122,14 +122,11 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private updateBasicDetails(betHistoryLog: any) {
-        const isShowActualValue = getXMode() === 1;
-        const xMode = betHistoryLog.xMode;
+        const xMode = getXMode();
         this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.betLevelDetail.string = betHistoryLog.betLevel;
-        const coinValue = isShowActualValue ? betHistoryLog.coinValue : betHistoryLog.coinValue * xMode;
-        const totalBet = isShowActualValue ? betHistoryLog.totalAmount : betHistoryLog.totalAmount * xMode;
-        this.coinValueDetail.string = formatStringXMode(coinValue);
-        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(totalBet);
+        this.coinValueDetail.string = formatStringXMode(betHistoryLog.coinValue * xMode);
+        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount * xMode);
         this.currentId = betHistoryLog.id;
     }
 
@@ -145,12 +142,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private calculateMultiplierString(betHistoryLog: any): string {
-        const xMode = betHistoryLog.xMode;
-        const isShowActualValue = getXMode() === 1;
+        const xMode = getXMode();
         const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
         const hasWinFreeSpin = betHistoryLog.settlementResult.freeSpins?.win > 0;
-        const totalTumbleWinLog = isShowActualValue ? betHistoryLog.totalTumbleWin : betHistoryLog.totalTumbleWin * xMode;
-        const totalTumbleWin = formatStringXMode(totalTumbleWinLog);
+        const totalTumbleWin = formatStringXMode(betHistoryLog.totalTumbleWin * xMode);
 
         const multiplier = betHistoryLog.freeSpin ? betHistoryLog.totalMultiplier : betHistoryLog.multiplier;
         const baseString = `${totalTumbleWin}x${multiplier}`;

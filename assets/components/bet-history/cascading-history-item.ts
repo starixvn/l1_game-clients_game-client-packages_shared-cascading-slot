@@ -40,20 +40,16 @@ export class CascadingHistoryItem extends ObserverComponent {
     setData(data: any) {
         const { betHistoryLog, index } = data;
         this.betHistoryLog = betHistoryLog;
-        const xMode = betHistoryLog.xMode;
-        const isShowActualValue = getXMode() === 1;
         const win = betHistoryLog.betwin;
+        const xMode = getXMode();
         this.node.active = true;
         this.bg.active = index % 2 > 0;
         this.time.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.roundID.string = betHistoryLog.id;
         this.betLevel.string = betHistoryLog.betLevel;
-        const coinValue = isShowActualValue ? betHistoryLog.coinValue : betHistoryLog.coinValue * xMode;
-        const totalBet = isShowActualValue ? betHistoryLog.totalAmount : betHistoryLog.totalAmount * xMode;
-        const totalWin = isShowActualValue ? win : win * xMode;
-        this.coinValue.string = formatStringXMode(coinValue);
-        this.totalBet.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(totalBet);
-        this.totalWin.string = formatStringXMode(totalWin);
+        this.coinValue.string = formatStringXMode(betHistoryLog.coinValue * xMode);
+        this.totalBet.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount * xMode);
+        this.totalWin.string = formatStringXMode(win * xMode);
         this.data = betHistoryLog;
 
         if (betHistoryLog.betwin > 0) {

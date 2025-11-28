@@ -53,8 +53,7 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData }) {
         const { betHistoryLog } = data;
-        const xMode = betHistoryLog.xMode;
-        const isShowActualValue = getXMode() === 1;
+        const xMode = getXMode();
         if (!betHistoryLog) {
             return;
         }
@@ -83,7 +82,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             const detailItem = this.loadDetailItem();
             const control = detailItem.getComponent(CascadingTicketDetailItem);
             if ((index === tumbles.length - 1 && isShowNextRow) || index < tumbles.length - 1) {
-                currWinTumble += isShowActualValue ? tumble.win : tumble.win * xMode;
+                currWinTumble += tumble.win * xMode;
                 control.setData(tumble, index, betHistoryLog, currWinTumble);
                 this.content.addChild(detailItem);
             }
@@ -98,7 +97,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
         });
         this.handleMultiplierData(betHistoryLog);
-        const totalWin = isShowActualValue ? betHistoryLog.betwin : betHistoryLog.betwin * xMode;
+        const totalWin = betHistoryLog.betwin * xMode;
         this.winTotal.string = formatStringXMode(totalWin);
         this.reachMaxText.node.active = isReachMaxWin;
     }
