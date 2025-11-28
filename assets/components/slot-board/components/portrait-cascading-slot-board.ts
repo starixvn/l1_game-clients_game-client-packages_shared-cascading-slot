@@ -34,9 +34,18 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         }
         const multiplierItems = this.getMultiplierItems();
         let accumulatedMultiplier = 0;
-
         for (const mItem of multiplierItems) {
             this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
+            await new Promise<void>((resolve) => {
+                const duration = getConfigGameSpeed("zoomInValueDuration", this.gameSpeed);
+                tween(mItem.value.node)
+                    .to(duration * 0.5, { scale: v3(1.8, 1.8, 1.8) }, { easing: "linear" })
+                    .call(() => {
+                        resolve();
+                    })
+                    .start();
+            });
+            
             await mItem.playAnimationGlow(this.gameSpeed);
             await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
 
@@ -67,23 +76,20 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
     }
 
 
-    async getZoomInValueDuration(node: Node) { 
-        await new Promise<void>((resolve) => {
-            const duration = getConfigGameSpeed("zoomInValueDuration", this.gameSpeed);
-            tween(node)
-                .to(duration * 0.5, { scale: v3(2, 2, 2) }, { easing: "sineOut" })
-                .to(duration * 0.5, { scale: v3(1, 1, 1) }, { easing: "sineIn" })
-                .call(() => {
-                    resolve();
-                })
-                .start();
-            });
-    }
 
 
     async flyWinLabelAnimation(node: Node, tumbleWinView?: PortraitTumbleWinWiew) {
         if (tumbleWinView) {
-                await this.getZoomInValueDuration(node);
+                await new Promise<void>((resolve) => {
+                    const duration = getConfigGameSpeed("zoomInValueDuration", this.gameSpeed);
+                    tween(node)
+                        .to(duration * 0.5, { scale: v3(2, 2, 2) }, { easing: "sineOut" })
+                        .to(duration * 0.5, { scale: v3(1, 1, 1) }, { easing: "sineIn" })
+                        .call(() => {
+                            resolve();
+                        })
+                        .start();
+                });
                 await AnimationUtils.delayTime(getConfigGameSpeed("zoomInValueDuration", this.gameSpeed));
                 if (!node || !node.isValid) {
                     return;
