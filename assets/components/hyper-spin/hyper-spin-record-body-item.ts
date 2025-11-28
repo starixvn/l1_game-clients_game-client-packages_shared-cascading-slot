@@ -1,5 +1,6 @@
 import { _decorator, Label, Node, Sprite, SpriteAtlas, UITransform } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { WinTag } from "../../stores/hyper-spin-store";
 
 const { ccclass, property } = _decorator;
@@ -124,7 +125,7 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
             // Set sprite width to cover the multiplier label width
             this.setWinTagSpriteWidthToMatchMultiplierLabel();
         } else {
-            console.warn(`[HyperSpinRecordBodyItem] Sprite frame not found in atlas: ${spriteFrameName}`);
+            cascadingSlotLogger.warn(`[HyperSpinRecordBodyItem] Sprite frame not found in atlas: ${spriteFrameName}`);
             this.winTagSprite.node.active = false;
         }
     }

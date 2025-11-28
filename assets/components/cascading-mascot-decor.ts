@@ -2,6 +2,7 @@ import { _decorator, Component, instantiate, log, Node, Prefab } from "cc";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 
 const { ccclass, property } = _decorator;
 const { render } = Observer;
@@ -33,7 +34,7 @@ export class CascadingMascotDecor extends Component {
                 AnimationUtils.fadeIn(nodeMascot, this.FADE_IN_OUT_DURATION);
             }
         } catch (err) {
-            console.log(err);
+            cascadingSlotLogger.info("Error in CascadingMascotDecor", err);
         }
     }
 }

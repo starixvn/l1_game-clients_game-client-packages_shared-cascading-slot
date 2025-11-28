@@ -3,6 +3,7 @@ import { _decorator, AudioClip, AudioSource } from "cc";
 import { audioManager } from "db://shared-components/game/audios/scripts/audio-manager";
 import { AudioContainer } from "db://shared-components/game/audios/scripts/component/audio-container";
 import Observer from "observer";
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -65,7 +66,7 @@ export class CascadingAudioContainer extends AudioContainer {
 
         const sourceIndex = this.sfxIdSources.findIndex((id) => id === null);
         if (sourceIndex === -1) {
-            console.warn(`No available audio source for SFX: ${data.id}`);
+            cascadingSlotLogger.warn(`No available audio source for SFX: ${data.id}`);
             return;
         }
 
@@ -115,7 +116,7 @@ export class CascadingAudioContainer extends AudioContainer {
         // Get available source and play
         const sourceIndex = this.getAvailableSourceIndex();
         if (sourceIndex === -1) {
-            console.warn(`No available audio source for stoppable SFX: ${data.id}`);
+            cascadingSlotLogger.warn(`No available audio source for stoppable SFX: ${data.id}`);
             return;
         }
 

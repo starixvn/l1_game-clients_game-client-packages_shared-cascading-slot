@@ -1,5 +1,6 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingSlotBoard } from "../components/slot-board/components/cascading-slot-board";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
@@ -34,7 +35,7 @@ export class HyperSpinSettlementHandler {
         tumbleWinView: TumbleWinWiew | null,
         totalMultiplierView: TotalMultiplierView | null
     ) {
-        console.warn("🎯 [HYPER_SPIN_SETTLEMENT] handleSettlement() called", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN_SETTLEMENT] handleSettlement() called", {
             hasFinishData: !!finishData,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
@@ -44,14 +45,14 @@ export class HyperSpinSettlementHandler {
         // In hyper-spin mode, even with incomplete finishData (during cascades),
         // we need to ensure the batch continues. Mark effects as completed immediately.
         if (!finishData) {
-            console.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Incomplete finishData - marking effects completed for batch continuation");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Incomplete finishData - marking effects completed for batch continuation");
 
             // Mark effects as completed immediately to prevent batch from getting stuck
             this.cascadingUIStore.isFreeSpinEffectCompleted = true;
 
             // Continue to next round after a brief delay
             setTimeout(() => {
-                console.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound() for incomplete data", {
+                cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound() for incomplete data", {
                     isHyperSpin: this.hyperSpinStore.isHyperSpin,
                     roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                     timestamp: new Date().toISOString()
@@ -93,7 +94,7 @@ export class HyperSpinSettlementHandler {
         // Use setTimeout to ensure MobX reactivity has propagated the state changes
         // and all settlement processing is complete
         setTimeout(() => {
-            console.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound()", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound()", {
                 isHyperSpin: this.hyperSpinStore.isHyperSpin,
                 roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                 isFreeSpinEffectCompleted: this.cascadingUIStore.isFreeSpinEffectCompleted,
@@ -104,7 +105,7 @@ export class HyperSpinSettlementHandler {
             if (this.hyperSpinStore.isHyperSpin) {
                 this.hyperSpinHandler.checkHyperSpinNextRound();
             } else {
-                console.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Skipping checkHyperSpinNextRound() - isHyperSpin is false");
+                cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Skipping checkHyperSpinNextRound() - isHyperSpin is false");
             }
         }, 0);
     }

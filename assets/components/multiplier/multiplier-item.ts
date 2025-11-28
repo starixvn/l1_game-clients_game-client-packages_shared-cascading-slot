@@ -1,5 +1,6 @@
 import { _decorator, Animation, Component, Label, sp } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 const { ccclass, property } = _decorator;
 
@@ -36,7 +37,7 @@ export class MultiplierItem extends Component {
             }
             this.hideMultiplier();
         } catch (e) {
-            console.warn("Catch error after await method", e.message);
+            cascadingSlotLogger.warn("Catch error after await method", e.message);
         }
     }
 

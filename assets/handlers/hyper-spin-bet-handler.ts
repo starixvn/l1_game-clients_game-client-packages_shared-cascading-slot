@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
@@ -38,7 +39,7 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
         };
 
         if (isFreeSpin) {
-            console.warn("[HYPER_SPIN_BET_HANDLER] 🎰 FREE SPIN BET REQUEST", {
+            cascadingSlotLogger.warn("[HYPER_SPIN_BET_HANDLER] 🎰 FREE SPIN BET REQUEST", {
                 betData,
                 isFreeSpins: this.uiStore.isFreeSpins,
                 freeSpinsTotal: this.uiStore.freeSpinsTotal,

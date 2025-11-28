@@ -6,6 +6,7 @@ import { StaticGroupId } from "db://shared-components/shared/common-components/s
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
+import { cascadingSlotLogger } from "./cascading-slot-logger";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import {
@@ -214,7 +215,7 @@ export class CascadingSlotGame extends GameComponentBase {
             }
         }
 
-        console.warn("🎯 [GAME] handleSettlement() routing", {
+        cascadingSlotLogger.warn("🎯 [GAME] handleSettlement() routing", {
             isHyperSpinActive,
             localIsHyperSpinActive: this.isHyperSpinActive,
             timestamp: new Date().toISOString()
@@ -259,7 +260,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
                 if (container && typeof container.get === 'function') {
                     const handler = container.get(HandlerClass);
-                    console.warn("🎯 [GAME] Handler retrieved from Observer container", {
+                    cascadingSlotLogger.warn("🎯 [GAME] Handler retrieved from Observer container", {
                         handlerClass: HandlerClass.name,
                         hasHandler: !!handler,
                         namespace: gameNamespace
@@ -268,7 +269,7 @@ export class CascadingSlotGame extends GameComponentBase {
                 }
             }
         } catch (error) {
-            console.error("❌ [GAME] Failed to get handler from Observer container", error);
+            cascadingSlotLogger.error("❌ [GAME] Failed to get handler from Observer container", error);
         }
         return null;
     }

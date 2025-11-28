@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingUIHandler } from "./cascading-ui-handler";
 import { DialogName, SlotNotification } from "../cascading-slot-utils";
 import { CascadingSlotState } from "../cascading-slot-state";
@@ -97,7 +98,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // ✅ Reset selectedRoundOnPopup if it's 0 (was reset during cancellation)
         if (this.hyperSpinStore.selectedRoundOnPopup === 0) {
             this.hyperSpinStore.selectedRoundOnPopup = this.hyperSpinStore.roundsList[2]; // Default to 100
-            console.warn("🔄 [HYPER_SPIN] Reset selectedRoundOnPopup to default", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN] Reset selectedRoundOnPopup to default", {
                 selectedRoundOnPopup: this.hyperSpinStore.selectedRoundOnPopup,
                 timestamp: new Date().toISOString()
             });
@@ -107,7 +108,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // This allows user to start new batch after cancellation
         if (this.isCancelled && !this.hyperSpinStore.isHyperSpin) {
             this.isCancelled = false;
-            console.warn("🔄 [HYPER_SPIN] Cancellation flag reset - popup opened", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN] Cancellation flag reset - popup opened", {
                 timestamp: new Date().toISOString()
             });
         }
@@ -115,7 +116,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // ✅ NEW: Clear batch data if status is "Cancel" to allow fresh start
         if (this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel") {
             this.hyperSpinStore.clearBatchData();
-            console.warn("🔄 [HYPER_SPIN] Cleared cancelled batch data on popup open", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN] Cleared cancelled batch data on popup open", {
                 timestamp: new Date().toISOString()
             });
         }
@@ -221,7 +222,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     closeHyperSpinPopup() {
-        console.warn("🛑 [HYPER_SPIN] closeHyperSpinPopup() called", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] closeHyperSpinPopup() called", {
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             hasPendingTimeouts: !!(this.checkNextRoundTimeout || this.placeBetTimeout || this.settlementWaitTimeout),
@@ -233,7 +234,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     onClickPlayButton() {
-        console.warn("🎮 [HYPER_SPIN] onClickPlayButton() called", {
+        cascadingSlotLogger.warn("🎮 [HYPER_SPIN] onClickPlayButton() called", {
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             isCancelled: this.isCancelled,
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
@@ -247,13 +248,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         const isPaused = this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Paused";
 
         if (this.hyperSpinStore.isHyperSpin) {
-            console.warn("🔄 [HYPER_SPIN] onClickPlayButton() - Hyper-spin already active", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN] onClickPlayButton() - Hyper-spin already active", {
                 isPaused,
                 batchStatus: this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus,
                 timestamp: new Date().toISOString()
             });
             if (isPaused) {
-                console.warn("▶️ [HYPER_SPIN] onClickPlayButton() - Resuming paused batch", {
+                cascadingSlotLogger.warn("▶️ [HYPER_SPIN] onClickPlayButton() - Resuming paused batch", {
                     timestamp: new Date().toISOString()
                 });
                 this.resumeHyperSpinBatch();
@@ -261,7 +262,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        console.warn("✅ [HYPER_SPIN] onClickPlayButton() - Validating bet", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN] onClickPlayButton() - Validating bet", {
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
             totalBet: this.betControlStore.totalBet,
             userBalance: this.cascadingUIStore.userBalance,
@@ -269,7 +270,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         });
 
         if (!this.isValidHyperSpinBet()) {
-            console.warn("❌ [HYPER_SPIN] onClickPlayButton() - Bet validation failed", {
+            cascadingSlotLogger.warn("❌ [HYPER_SPIN] onClickPlayButton() - Bet validation failed", {
                 selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
                 totalBet: this.betControlStore.totalBet,
                 userBalance: this.cascadingUIStore.userBalance,
@@ -279,7 +280,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        console.warn("✅ [HYPER_SPIN] onClickPlayButton() - Bet validation passed, starting hyper-spin", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN] onClickPlayButton() - Bet validation passed, starting hyper-spin", {
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
             totalBet: this.betControlStore.totalBet,
             timestamp: new Date().toISOString()
@@ -307,7 +308,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         const isValid = hasEnoughMoney && hasValidRounds && isValidGameState && isNotActive;
 
-        console.warn("🔍 [HYPER_SPIN] isValidHyperSpinBet() validation", {
+        cascadingSlotLogger.warn("🔍 [HYPER_SPIN] isValidHyperSpinBet() validation", {
             hasEnoughMoney,
             hasValidRounds,
             isValidGameState,
@@ -328,7 +329,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private handleHyperSpinError() {
-        console.warn("⚠️ [HYPER_SPIN] handleHyperSpinError() called", {
+        cascadingSlotLogger.warn("⚠️ [HYPER_SPIN] handleHyperSpinError() called", {
             totalBet: this.betControlStore.totalBet,
             userBalance: this.cascadingUIStore.userBalance,
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
@@ -337,7 +338,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         const hasEnoughMoney = this.betControlStore.totalBet <= this.cascadingUIStore.userBalance;
         if (!hasEnoughMoney) {
-            console.warn("💰 [HYPER_SPIN] handleHyperSpinError() - Insufficient balance", {
+            cascadingSlotLogger.warn("💰 [HYPER_SPIN] handleHyperSpinError() - Insufficient balance", {
                 required: this.betControlStore.totalBet,
                 available: this.cascadingUIStore.userBalance,
                 shortfall: this.betControlStore.totalBet - this.cascadingUIStore.userBalance,
@@ -354,7 +355,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private startHyperSpinWithCurrentSettings() {
-        console.warn("🚀 [HYPER_SPIN] startHyperSpinWithCurrentSettings() called", {
+        cascadingSlotLogger.warn("🚀 [HYPER_SPIN] startHyperSpinWithCurrentSettings() called", {
             roundsHyperSpin: this.hyperSpinStore.roundsHyperSpin,
             selectedRounds: this.hyperSpinStore.selectedRoundOnPopup,
             totalBet: this.betControlStore.totalBet,
@@ -366,13 +367,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Reset cancellation flag when starting new batch
         this.isCancelled = false;
-        console.warn("▶️ [HYPER_SPIN] Starting new batch - cancellation flag reset", {
+        cascadingSlotLogger.warn("▶️ [HYPER_SPIN] Starting new batch - cancellation flag reset", {
             timestamp: new Date().toISOString()
         });
 
         this.hyperSpinBatchStartTime = Date.now();
 
-        console.warn("⚙️ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Initializing batch", {
+        cascadingSlotLogger.warn("⚙️ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Initializing batch", {
             batchStartTime: this.hyperSpinBatchStartTime,
             timestamp: new Date().toISOString()
         });
@@ -381,7 +382,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.initializeHyperSpinBatch();
         this.hyperSpinStore.startHyperSpinBatch();
 
-        console.warn("✅ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Batch initialized", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Batch initialized", {
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             timestamp: new Date().toISOString()
@@ -390,18 +391,18 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // Start tracking with fallback support
         try {
             if (typeof this.hyperSpinStore.startHyperSpinSessionTracking === 'function') {
-                console.warn("📊 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Starting session tracking", {
+                cascadingSlotLogger.warn("📊 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Starting session tracking", {
                     timestamp: new Date().toISOString()
                 });
                 this.hyperSpinStore.startHyperSpinSessionTracking();
             } else if (typeof this.hyperSpinStore.initializeHyperSpinTrackingFallback === 'function') {
-                console.warn("📊 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Using fallback tracking", {
+                cascadingSlotLogger.warn("📊 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Using fallback tracking", {
                     timestamp: new Date().toISOString()
                 });
                 this.hyperSpinStore.initializeHyperSpinTrackingFallback();
             }
         } catch (error) {
-            console.warn("⚠️ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Tracking failed", {
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Tracking failed", {
                 error: error instanceof Error ? error.message : String(error),
                 timestamp: new Date().toISOString()
             });
@@ -409,14 +410,14 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         this.cascadingUIStore.bottomMessageState = "HYPER_SPIN";
-        console.warn("🎯 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Placing first bet", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN] startHyperSpinWithCurrentSettings() - Placing first bet", {
             timestamp: new Date().toISOString()
         });
         this.placeHyperSpinBet();
     }
 
     private placeHyperSpinBet() {
-        console.warn("🎰 [HYPER_SPIN] placeHyperSpinBet() called", {
+        cascadingSlotLogger.warn("🎰 [HYPER_SPIN] placeHyperSpinBet() called", {
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
@@ -427,13 +428,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Check cancellation flag first - prevents execution after cancellation
         if (this.isCancelled) {
-            console.warn("🛑 [HYPER_SPIN] placeHyperSpinBet() BLOCKED by cancellation flag");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] placeHyperSpinBet() BLOCKED by cancellation flag");
             return;
         }
 
         // Don't place new bets if cascade is still active (free spins in progress)
         if (this.hyperSpinStore.isCascadeTrackingActive() && this.cascadingUIStore.freeSpinsTotal > 0) {
-            console.warn("⏳ [HYPER_SPIN] placeHyperSpinBet() BLOCKED - cascade still active with free spins", {
+            cascadingSlotLogger.warn("⏳ [HYPER_SPIN] placeHyperSpinBet() BLOCKED - cascade still active with free spins", {
                 freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
                 accumulatedWin: this.hyperSpinStore.getCurrentCascadeData()?.accumulatedWin || 0,
                 timestamp: new Date().toISOString()
@@ -441,7 +442,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        console.warn("✅ [HYPER_SPIN] placeHyperSpinBet() PROCEEDING", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN] placeHyperSpinBet() PROCEEDING", {
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             timestamp: new Date().toISOString()
         });
@@ -449,7 +450,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.lastSpinTimestamp = Date.now();
 
         if (this.cascadingUIStore.freeSpinsTotal > 0 && !this.hyperSpinStore.isCascadeTrackingActive()) {
-            console.warn("⏳ [HYPER_SPIN] Skipping bet placement - free spins active but no cascade tracking", {
+            cascadingSlotLogger.warn("⏳ [HYPER_SPIN] Skipping bet placement - free spins active but no cascade tracking", {
                 freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
                 timestamp: new Date().toISOString()
             });
@@ -479,7 +480,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 }
             }
 
-            console.warn("🎯 [HYPER_SPIN] Bet placed successfully", {
+            cascadingSlotLogger.warn("🎯 [HYPER_SPIN] Bet placed successfully", {
                 roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                 isNewRound: !this.hyperSpinStore.isCascadeTrackingActive(),
                 timestamp: new Date().toISOString()
@@ -492,7 +493,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
             if (!hasEnoughMoney) {
                 // Critical error - insufficient balance, stop batch
-                console.warn("🛑 [HYPER_SPIN] Bet failed - insufficient balance, stopping batch", {
+                cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Bet failed - insufficient balance, stopping batch", {
                     totalBet: this.betControlStore.totalBet,
                     userBalance: this.cascadingUIStore.userBalance,
                     timestamp: new Date().toISOString()
@@ -500,7 +501,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 this.stopHyperSpin();
             } else {
                 // Non-critical error - retry after delay
-                console.warn("⚠️ [HYPER_SPIN] Bet failed, retrying after delay", {
+                cascadingSlotLogger.warn("⚠️ [HYPER_SPIN] Bet failed, retrying after delay", {
                     roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                     timestamp: new Date().toISOString()
                 });
@@ -596,7 +597,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // ✅ NEW: Guard - Don't stop if batch just started (within 1 second)
         const batchAge = Date.now() - this.hyperSpinBatchStartTime;
         if (batchAge < 1000 && this.hyperSpinBatchStartTime > 0) {
-            console.warn("⚠️ [HYPER_SPIN] Preventing premature stop - batch just started", {
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN] Preventing premature stop - batch just started", {
                 batchAge,
                 batchStartTime: this.hyperSpinBatchStartTime,
                 timestamp: new Date().toISOString()
@@ -605,7 +606,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         // ✅ NEW: Comprehensive logging to track when and why stopHyperSpin() is called
-        console.warn("🛑 [HYPER_SPIN] stopHyperSpin() called", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] stopHyperSpin() called", {
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
@@ -663,7 +664,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     resumeHyperSpinBatch() {
-        console.warn("▶️ [HYPER_SPIN] resumeHyperSpinBatch() called", {
+        cascadingSlotLogger.warn("▶️ [HYPER_SPIN] resumeHyperSpinBatch() called", {
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             timestamp: new Date().toISOString()
@@ -671,7 +672,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Check cancellation flag before resuming
         if (this.isCancelled) {
-            console.warn("🛑 [HYPER_SPIN] resumeHyperSpinBatch() BLOCKED by cancellation flag");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] resumeHyperSpinBatch() BLOCKED by cancellation flag");
             return;
         }
 
@@ -682,7 +683,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private lastSpinTimestamp = 0;
 
     checkHyperSpinNextRound() {
-        console.warn("🔄 [HYPER_SPIN] checkHyperSpinNextRound() called", {
+        cascadingSlotLogger.warn("🔄 [HYPER_SPIN] checkHyperSpinNextRound() called", {
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             isBatchInterrupted: this.isBatchInterrupted,
@@ -712,12 +713,12 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private isHyperSpinValidForNextRound(): boolean {
         // Check cancellation flag first - prevents execution after cancellation
         if (this.isCancelled) {
-            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by cancellation flag");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by cancellation flag");
             return false;
         }
 
         if (this.isBatchInterrupted) {
-            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by interruption");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED by interruption");
             this.handleBatchInterruption();
             return false;
         }
@@ -725,11 +726,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // NOTE: Since this method is only called from hyper-spin context,
         // the isHyperSpin check is redundant but kept for defensive programming
         if (!this.hyperSpinStore.isHyperSpin) {
-            console.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED - isHyperSpin is false");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] checkHyperSpinNextRound() BLOCKED - isHyperSpin is false");
             return false;
         }
 
-        console.warn("✅ [HYPER_SPIN] checkHyperSpinNextRound() PROCEEDING", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN] checkHyperSpinNextRound() PROCEEDING", {
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             timestamp: new Date().toISOString()
         });
@@ -769,7 +770,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Store timeout ID for cleanup
         const timeoutId = window.setTimeout(() => {
-            console.warn("⏰ [HYPER_SPIN] checkNextRoundTimeout executed", {
+            cascadingSlotLogger.warn("⏰ [HYPER_SPIN] checkNextRoundTimeout executed", {
                 isCancelled: this.isCancelled,
                 isHyperSpin: this.hyperSpinStore.isHyperSpin,
                 timestamp: new Date().toISOString()
@@ -778,11 +779,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             if (!this.isCancelled) {
                 this.checkHyperSpinNextRound();
             } else {
-                console.warn("🛑 [HYPER_SPIN] checkNextRoundTimeout BLOCKED by cancellation flag");
+                cascadingSlotLogger.warn("🛑 [HYPER_SPIN] checkNextRoundTimeout BLOCKED by cancellation flag");
             }
         }, 0);
         this.checkNextRoundTimeout = timeoutId;
-        console.warn("⏰ [HYPER_SPIN] Scheduled checkNextRoundTimeout", {
+        cascadingSlotLogger.warn("⏰ [HYPER_SPIN] Scheduled checkNextRoundTimeout", {
             timeoutId,
             timestamp: new Date().toISOString()
         });
@@ -814,12 +815,12 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private handleContinueOrStopHyperSpin() {
         // Continue or stop
         if (this.shouldStopHyperSpin()) {
-            console.warn("🛑 [HYPER_SPIN] shouldStopHyperSpin() returned true - stopping");
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] shouldStopHyperSpin() returned true - stopping");
             this.stopHyperSpin();
         } else {
             // Store timeout ID for cleanup
             const timeoutId = window.setTimeout(() => {
-                console.warn("⏰ [HYPER_SPIN] placeBetTimeout executed", {
+                cascadingSlotLogger.warn("⏰ [HYPER_SPIN] placeBetTimeout executed", {
                     isCancelled: this.isCancelled,
                     isHyperSpin: this.hyperSpinStore.isHyperSpin,
                     timestamp: new Date().toISOString()
@@ -828,11 +829,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 if (!this.isCancelled) {
                     this.placeHyperSpinBet();
                 } else {
-                    console.warn("🛑 [HYPER_SPIN] placeBetTimeout BLOCKED by cancellation flag");
+                    cascadingSlotLogger.warn("🛑 [HYPER_SPIN] placeBetTimeout BLOCKED by cancellation flag");
                 }
             }, 0);
             this.placeBetTimeout = timeoutId;
-            console.warn("⏰ [HYPER_SPIN] Scheduled placeBetTimeout", {
+            cascadingSlotLogger.warn("⏰ [HYPER_SPIN] Scheduled placeBetTimeout", {
                 timeoutId,
                 roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                 timestamp: new Date().toISOString()
@@ -912,7 +913,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
      * Stops the batch immediately and cleans up all pending operations.
      */
     cancelHyperSpin() {
-        console.warn("🛑 [HYPER_SPIN] cancelHyperSpin() called", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] cancelHyperSpin() called", {
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
             checkNextRoundTimeout: this.checkNextRoundTimeout,
@@ -924,7 +925,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // 1. Set cancellation flag immediately to prevent new operations
         this.isCancelled = true;
-        console.warn("🛑 [HYPER_SPIN] Cancellation flag set to true");
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Cancellation flag set to true");
 
         // 2. Clear all pending timeouts to stop recursive calls
         this.clearAllPendingTimeouts();
@@ -935,12 +936,12 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         // 4. Set hyper-spin inactive using HyperSpinStore method
-        console.warn("🛑 [HYPER_SPIN] Setting isHyperSpin to false", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Setting isHyperSpin to false", {
             before: this.hyperSpinStore.isHyperSpin,
             timestamp: new Date().toISOString()
         });
         this.hyperSpinStore.setHyperSpinActive(false);
-        console.warn("🛑 [HYPER_SPIN] isHyperSpin set to false", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] isHyperSpin set to false", {
             after: this.hyperSpinStore.isHyperSpin,
             cascadingUIStoreIsHyperSpinActive: this.cascadingUIStore.isHyperSpinActive,
             timestamp: new Date().toISOString()
@@ -952,13 +953,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         // 5. Mark batch as cancelled instead of clearing it
         if (this.hyperSpinStore.currentBatchData) {
             this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus = "Cancel";
-            console.warn("🛑 [HYPER_SPIN] Batch status set to Cancel", {
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Batch status set to Cancel", {
                 timestamp: new Date().toISOString()
             });
         } else {
             // If no batch data exists, clear it
             this.hyperSpinStore.clearBatchData();
-            console.warn("🛑 [HYPER_SPIN] Batch data cleared (no batch data existed)", {
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Batch data cleared (no batch data existed)", {
                 timestamp: new Date().toISOString()
             });
         }
@@ -983,7 +984,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Clear recursive checkHyperSpinNextRound timeout
         if (this.checkNextRoundTimeout !== null) {
-            console.warn("🛑 [HYPER_SPIN] Clearing checkNextRoundTimeout", {
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Clearing checkNextRoundTimeout", {
                 timeoutId: this.checkNextRoundTimeout,
                 timestamp: new Date().toISOString()
             });
@@ -994,7 +995,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Clear placeHyperSpinBet timeout
         if (this.placeBetTimeout !== null) {
-            console.warn("🛑 [HYPER_SPIN] Clearing placeBetTimeout", {
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Clearing placeBetTimeout", {
                 timeoutId: this.placeBetTimeout,
                 timestamp: new Date().toISOString()
             });
@@ -1005,7 +1006,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         // Clear settlement wait timeout
         if (this.settlementWaitTimeout !== null) {
-            console.warn("🛑 [HYPER_SPIN] Clearing settlementWaitTimeout", {
+            cascadingSlotLogger.warn("🛑 [HYPER_SPIN] Clearing settlementWaitTimeout", {
                 timeoutId: this.settlementWaitTimeout,
                 timestamp: new Date().toISOString()
             });
@@ -1014,7 +1015,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             clearedCount++;
         }
 
-        console.warn("🛑 [HYPER_SPIN] clearAllPendingTimeouts() completed", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] clearAllPendingTimeouts() completed", {
             clearedCount,
             timestamp: new Date().toISOString()
         });
@@ -1060,7 +1061,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
             this.hyperSpinStore.startCascadeTracking(spinId, isFreeSpin, stake);
 
-            console.warn("🎯 [HYPER_SPIN] Started new cascade tracking for spin", {
+            cascadingSlotLogger.warn("🎯 [HYPER_SPIN] Started new cascade tracking for spin", {
                 spinId,
                 isFreeSpin,
                 stake,
@@ -1100,7 +1101,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 // Add the complete cascade as a single spin entry to the batch
                 this.hyperSpinStore.addSpinToBatch(cascadeSpinData);
 
-                console.warn("✅ [HYPER_SPIN] Recorded complete cascade as single spin", {
+                cascadingSlotLogger.warn("✅ [HYPER_SPIN] Recorded complete cascade as single spin", {
                     spinId: cascadeSpinData.spinId,
                     totalWin: cascadeSpinData.spinWinAmountRaw,
                     multiplier: cascadeSpinData.spinWinMultiplierRaw,
@@ -1115,7 +1116,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 }
             }
         } else {
-            console.warn("⏳ [HYPER_SPIN] Cascade still in progress, continuing accumulation", {
+            cascadingSlotLogger.warn("⏳ [HYPER_SPIN] Cascade still in progress, continuing accumulation", {
                 freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
                 isPlacingBet: this.cascadingUIStore.isPlacingBet,
                 cascadingState: this.cascadingUIStore.cascadingState,

@@ -3,6 +3,7 @@ import { Dialog } from "db://shared-components/shared/common-components/dialogs/
 import { NodeContainer } from "db://shared-components/shared/common-components/node-container/node-container";
 import Observer from "observer";
 
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { HyperSpinStore } from "../../stores/hyper-spin-store";
 
 const { ccclass, property } = _decorator;
@@ -12,7 +13,7 @@ const { render, handle } = Observer;
 export class HyperSpinPopupContainer extends NodeContainer {
     @render(HyperSpinStore, (store) => store.isOpenHyperSpinPopup)
     renderOpenPopup(isOpenHyperSpinPopup: boolean) {
-        console.warn("🎰 HYPER-SPIN POPUP CONTAINER: renderOpenPopup called", {
+        cascadingSlotLogger.warn("🎰 HYPER-SPIN POPUP CONTAINER: renderOpenPopup called", {
             isOpenHyperSpinPopup,
             hasNode: !!this.node,
             currentChildCount: this.node.children.length,

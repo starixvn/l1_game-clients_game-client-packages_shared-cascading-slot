@@ -241,7 +241,7 @@ class CascadingSlotLogger {
                     console.error(logMessage);
                     break;
                 case 'warn':
-                    console.warn(logMessage);
+                    //  console.warn(logMessage);
                     break;
                 case 'debug':
                     break;

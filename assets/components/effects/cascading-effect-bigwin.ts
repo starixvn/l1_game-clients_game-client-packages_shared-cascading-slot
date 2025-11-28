@@ -5,6 +5,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { getCustomDuration } from "../../cascading-slot-utils";
 import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
@@ -83,7 +84,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
     handleLogBigWinRange(superThreshold: number, megaThreshold: number) {
         if (typeof superThreshold !== "number" || typeof megaThreshold !== "number") {
-            console.log("[bigWinRange] is not a number", {
+            cascadingSlotLogger.info("[bigWinRange] is not a number", {
                 bigWinRange: this.bigWinRange,
             });
         }

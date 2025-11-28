@@ -1,5 +1,6 @@
 import { _decorator, Component, instantiate, Node, Prefab, sp, warn } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
+import { cascadingSlotLogger } from "../../cascading-slot-logger";
 import { resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
 import { CascadingSlotReelSymbol } from "./cascading-slot-reel-symbol";
@@ -31,7 +32,7 @@ export class CascadingSlotReelItem extends Component {
 
     protected replaceItem(index: number) {
         if (!this.content) {
-            console.error("replaceItem: content node is null");
+            cascadingSlotLogger.error("replaceItem: content node is null");
             return;
         }
 
@@ -39,7 +40,7 @@ export class CascadingSlotReelItem extends Component {
         this._effectSpine = null;
 
         if (index < 0) {
-            console.error("replaceItem wrong index: " + index);
+            cascadingSlotLogger.error("replaceItem wrong index: " + index);
             return;
         }
         const symbolPrefabIndex = index >= SpecialSymbol.MULTIPLIER_SYMBOL ? 1 : 0;
@@ -50,7 +51,7 @@ export class CascadingSlotReelItem extends Component {
         if (reelSymbol) {
             reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
         } else {
-            console.error("replaceItem: CascadingSlotReelSymbol component not found on instantiated node");
+            cascadingSlotLogger.error("replaceItem: CascadingSlotReelSymbol component not found on instantiated node");
         }
     }
 

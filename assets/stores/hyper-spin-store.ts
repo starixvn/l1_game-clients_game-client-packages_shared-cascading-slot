@@ -3,6 +3,7 @@ import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scrip
 import inversify from "inversify";
 import mobx from "mobx";
 import gc from "@sg/game-client-base";
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "./auto-play-store";
 import { CascadingUIStore } from "./cascading-ui-store";
@@ -273,7 +274,7 @@ export class HyperSpinStore {
     }
 
     setStopOnProfit(value: number) {
-        console.warn("🎯 [HYPER_SPIN_STORE] setStopOnProfit()", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN_STORE] setStopOnProfit()", {
             value,
             previousValue: this.stopOnProfit,
             min: this.minStopOnProfit,
@@ -283,7 +284,7 @@ export class HyperSpinStore {
 
         // Validate value to prevent NaN
         if (typeof value !== "number" || isNaN(value)) {
-            console.warn("⚠️ [HYPER_SPIN_STORE] setStopOnProfit() invalid value, skipping");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_STORE] setStopOnProfit() invalid value, skipping");
             return;
         }
 
@@ -296,7 +297,7 @@ export class HyperSpinStore {
 
         this.stopOnProfit = clampedValue;
 
-        console.warn("✅ [HYPER_SPIN_STORE] setStopOnProfit() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] setStopOnProfit() completed", {
             finalValue: this.stopOnProfit,
             wasClamped: clampedValue !== value,
             timestamp: new Date().toISOString()
@@ -322,7 +323,7 @@ export class HyperSpinStore {
     }
 
     setStopOnLoss(value: number) {
-        console.warn("🎯 [HYPER_SPIN_STORE] setStopOnLoss()", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN_STORE] setStopOnLoss()", {
             value,
             previousValue: this.stopOnLoss,
             min: this.minStopOnLoss,
@@ -332,7 +333,7 @@ export class HyperSpinStore {
 
         // Validate value to prevent NaN
         if (typeof value !== "number" || isNaN(value)) {
-            console.warn("⚠️ [HYPER_SPIN_STORE] setStopOnLoss() invalid value, skipping");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_STORE] setStopOnLoss() invalid value, skipping");
             return;
         }
 
@@ -345,7 +346,7 @@ export class HyperSpinStore {
 
         this.stopOnLoss = clampedValue;
 
-        console.warn("✅ [HYPER_SPIN_STORE] setStopOnLoss() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] setStopOnLoss() completed", {
             finalValue: this.stopOnLoss,
             wasClamped: clampedValue !== value,
             timestamp: new Date().toISOString()
@@ -438,7 +439,7 @@ export class HyperSpinStore {
     }
 
     setHyperSpinActive(active: boolean) {
-        console.warn("🔄 [HYPER_SPIN_STORE] setHyperSpinActive()", {
+        cascadingSlotLogger.warn("🔄 [HYPER_SPIN_STORE] setHyperSpinActive()", {
             active,
             previousState: this.isHyperSpin,
             roundsRemaining: this.roundsHyperSpin,
@@ -457,7 +458,7 @@ export class HyperSpinStore {
             this.cascadingUIStore.isHyperSpinActive = active;
         }
 
-        console.warn("✅ [HYPER_SPIN_STORE] setHyperSpinActive() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] setHyperSpinActive() completed", {
             isHyperSpin: this.isHyperSpin,
             isHyperSpinActive: this.cascadingUIStore?.isHyperSpinActive,
             timestamp: new Date().toISOString()
@@ -501,7 +502,7 @@ export class HyperSpinStore {
     }
 
     initializeHyperSpinBatch() {
-        console.warn("🎯 [HYPER_SPIN_STORE] initializeHyperSpinBatch()", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN_STORE] initializeHyperSpinBatch()", {
             roundsHyperSpin: this.roundsHyperSpin,
             selectedRoundOnPopup: this.selectedRoundOnPopup,
             timestamp: new Date().toISOString()
@@ -527,7 +528,7 @@ export class HyperSpinStore {
         this._hyperSpinRoundCounter = 0;
         this._freeSpinCounter = 0;
 
-        console.warn("✅ [HYPER_SPIN_STORE] initializeHyperSpinBatch() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] initializeHyperSpinBatch() completed", {
             startingBalance: this.formatNumber(startingBalanceRaw, 2),
             batchDataExists: !!this._currentBatchData,
             timestamp: new Date().toISOString()
@@ -535,7 +536,7 @@ export class HyperSpinStore {
     }
 
     startHyperSpinBatch() {
-        console.warn("▶️ [HYPER_SPIN_STORE] startHyperSpinBatch()", {
+        cascadingSlotLogger.warn("▶️ [HYPER_SPIN_STORE] startHyperSpinBatch()", {
             hasBatchData: !!this._currentBatchData,
             roundsHyperSpin: this.roundsHyperSpin,
             timestamp: new Date().toISOString()
@@ -548,7 +549,7 @@ export class HyperSpinStore {
             this._currentBatchData.summary.hyperSpinStatus = "Playing";
         }
 
-        console.warn("✅ [HYPER_SPIN_STORE] startHyperSpinBatch() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] startHyperSpinBatch() completed", {
             hyperSpinStatus: this._currentBatchData?.summary.hyperSpinStatus,
             isHyperSpin: this.isHyperSpin,
             timestamp: new Date().toISOString()
@@ -568,7 +569,7 @@ export class HyperSpinStore {
     }
 
     completeHyperSpinBatch() {
-        console.warn("🛑 [HYPER_SPIN_STORE] completeHyperSpinBatch()", {
+        cascadingSlotLogger.warn("🛑 [HYPER_SPIN_STORE] completeHyperSpinBatch()", {
             hasBatchData: !!this._currentBatchData,
             spinsCount: this._currentBatchData?.spins?.length || 0,
             currentStatus: this._currentBatchData?.summary.hyperSpinStatus,
@@ -582,7 +583,7 @@ export class HyperSpinStore {
             this._currentBatchData.summary.endBalance = this.formatNumber(endBalanceRaw, 2);
             this._currentBatchData.summary.endBalanceRaw = endBalanceRaw;
 
-            console.warn("✅ [HYPER_SPIN_STORE] completeHyperSpinBatch() completed", {
+            cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] completeHyperSpinBatch() completed", {
                 finalStatus: this._currentBatchData.summary.hyperSpinStatus,
                 totalSpins: this._currentBatchData.spins.length,
                 totalBet: this._currentBatchData.summary.totalBet,
@@ -594,7 +595,7 @@ export class HyperSpinStore {
     }
 
     addSpinToBatch(spinData: HyperSpinSingleSpinData) {
-        console.warn("📊 [HYPER_SPIN_STORE] addSpinToBatch()", {
+        cascadingSlotLogger.warn("📊 [HYPER_SPIN_STORE] addSpinToBatch()", {
             spinId: spinData.spinId,
             isFreeSpin: spinData.isFreeSpin,
             winAmount: spinData.spinWinAmount,
@@ -621,7 +622,7 @@ export class HyperSpinStore {
                 this._currentBatchData.summary.totalWinRaw, 2
             );
 
-            console.warn("✅ [HYPER_SPIN_STORE] addSpinToBatch() completed", {
+            cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] addSpinToBatch() completed", {
                 spinsCount: this._currentBatchData.spins.length,
                 runningTotalBet: this._currentBatchData.summary.totalBet,
                 runningTotalWin: this._currentBatchData.summary.totalWin,
@@ -694,7 +695,7 @@ export class HyperSpinStore {
 
     // Cascade tracking methods for hyper-spin mode
     startCascadeTracking(spinId: string | number, isFreeSpin: boolean, stake: number) {
-        console.warn("🎯 [HYPER_SPIN_STORE] startCascadeTracking()", {
+        cascadingSlotLogger.warn("🎯 [HYPER_SPIN_STORE] startCascadeTracking()", {
             spinId,
             isFreeSpin,
             stake,
@@ -703,7 +704,7 @@ export class HyperSpinStore {
         });
 
         if (!this.isHyperSpin) {
-            console.warn("⚠️ [HYPER_SPIN_STORE] startCascadeTracking() skipped - not in hyper spin mode");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_STORE] startCascadeTracking() skipped - not in hyper spin mode");
             return; // Only track cascades in hyper-spin mode
         }
 
@@ -741,7 +742,7 @@ export class HyperSpinStore {
             cascadeRecords: []
         };
 
-        console.warn("✅ [HYPER_SPIN_STORE] startCascadeTracking() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] startCascadeTracking() completed", {
             spinId,
             isFreeSpin,
             stake,
@@ -752,7 +753,7 @@ export class HyperSpinStore {
     }
 
     accumulateCascadeWin(winAmount: number, bigWin: boolean = false, megaWin: boolean = false, superWin: boolean = false, reachMaxWin: boolean = false, freeSpins: number = 0, totalFreeSpins: number = 0, hasScatterTrigger: boolean = false, hasMultiplier: boolean = false) {
-        console.warn("📊 [HYPER_SPIN_STORE] accumulateCascadeWin()", {
+        cascadingSlotLogger.warn("📊 [HYPER_SPIN_STORE] accumulateCascadeWin()", {
             winAmount,
             bigWin,
             megaWin,
@@ -765,7 +766,7 @@ export class HyperSpinStore {
         });
 
         if (!this._currentCascadeData) {
-            console.warn("⚠️ [HYPER_SPIN_STORE] No cascade tracking active, skipping win accumulation");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_STORE] No cascade tracking active, skipping win accumulation");
             return;
         }
 
@@ -795,7 +796,7 @@ export class HyperSpinStore {
         this._currentCascadeData.freeSpinsTriggered = Math.max(this._currentCascadeData.freeSpinsTriggered, freeSpins);
         this._currentCascadeData.totalFreeSpins = Math.max(this._currentCascadeData.totalFreeSpins, totalFreeSpins);
 
-        console.warn("✅ [HYPER_SPIN_STORE] accumulateCascadeWin() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] accumulateCascadeWin() completed", {
             spinId: this._currentCascadeData.spinId,
             step: cascadeRecord.step,
             stepWin: winAmount,
@@ -811,7 +812,7 @@ export class HyperSpinStore {
     }
 
     completeCascadeTracking(): HyperSpinSingleSpinData | null {
-        console.warn("🏁 [HYPER_SPIN_STORE] completeCascadeTracking()", {
+        cascadingSlotLogger.warn("🏁 [HYPER_SPIN_STORE] completeCascadeTracking()", {
             hasCascadeData: !!this._currentCascadeData,
             spinId: this._currentCascadeData?.spinId,
             accumulatedWin: this._currentCascadeData?.accumulatedWin,
@@ -820,7 +821,7 @@ export class HyperSpinStore {
         });
 
         if (!this._currentCascadeData) {
-            console.warn("⚠️ [HYPER_SPIN_STORE] No cascade tracking active, cannot complete");
+            cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_STORE] No cascade tracking active, cannot complete");
             return null;
         }
 
@@ -858,7 +859,7 @@ export class HyperSpinStore {
         // Clear cascade tracking
         this._currentCascadeData = null;
 
-        console.warn("✅ [HYPER_SPIN_STORE] completeCascadeTracking() completed", {
+        cascadingSlotLogger.warn("✅ [HYPER_SPIN_STORE] completeCascadeTracking() completed", {
             spinId: cascadeData.spinId,
             totalAccumulatedWin: cascadeData.accumulatedWin,
             multiplier,
