@@ -1,7 +1,9 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Label, Layout, Node, tween, v3 } from "cc";
+import { _decorator, instantiate, Label, Layout, Node, Prefab, tween, v3 } from "cc";
 import Observer from "observer";
 import { TumbleWinWiew } from "./tumble-win-view";
+import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
+
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -22,16 +24,30 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
     @property({ type: Label, visible: false, override: true })
     totalWin: Label = null;
 
+
     setTumbleWinValuewin(totalTumbleWin: number) {
         if (totalTumbleWin === 0) {
             return;
         }
     }
 
+
     setIsShowTumbleWinFrame(isShowTumbleWinFrame: boolean) {
         this.totalWinNode.active = false;
         this.node.active = isShowTumbleWinFrame;
     }
+
+    async createEffectTumbleWin(effectName: string , time: number) {
+        const prefab = await bundleManager.loadResourcesAsset<Prefab>(`prefabs/${effectName}`, Prefab);
+        const effectNode = instantiate(prefab);
+        if (prefab) {
+            this.node.addChild(effectNode);
+        }
+        this.scheduleOnce(() => {
+            effectNode.destroy();
+        }, time);
+    }
+
 
     setMultiplier(value: number) {
         //NOSONAR
