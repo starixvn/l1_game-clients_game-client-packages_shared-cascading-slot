@@ -682,8 +682,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
     private lastSpinTimestamp = 0;
 
-    checkHyperSpinNextRound() {
+    checkHyperSpinNextRound(immediate: boolean = false) {
         cascadingSlotLogger.warn("🔄 [HYPER_SPIN] checkHyperSpinNextRound() called", {
+            immediate,
             isCancelled: this.isCancelled,
             isHyperSpin: this.hyperSpinStore.isHyperSpin,
             isBatchInterrupted: this.isBatchInterrupted,
@@ -707,7 +708,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        this.handleContinueOrStopHyperSpin();
+        this.handleContinueOrStopHyperSpin(immediate);
     }
 
     private isHyperSpinValidForNextRound(): boolean {
@@ -812,32 +813,45 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         return false;
     }
 
-    private handleContinueOrStopHyperSpin() {
+    private handleContinueOrStopHyperSpin(immediate: boolean = false) {
         // Continue or stop
         if (this.shouldStopHyperSpin()) {
             cascadingSlotLogger.warn("🛑 [HYPER_SPIN] shouldStopHyperSpin() returned true - stopping");
             this.stopHyperSpin();
         } else {
-            // Store timeout ID for cleanup
-            const timeoutId = window.setTimeout(() => {
-                cascadingSlotLogger.warn("⏰ [HYPER_SPIN] placeBetTimeout executed", {
-                    isCancelled: this.isCancelled,
-                    isHyperSpin: this.hyperSpinStore.isHyperSpin,
+            if (immediate) {
+                // FAST-PATH: Call placeHyperSpinBet immediately without setTimeout delay
+                cascadingSlotLogger.warn("⚡ [HYPER_SPIN] FAST-PATH: Calling placeHyperSpinBet() immediately", {
+                    roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                     timestamp: new Date().toISOString()
                 });
-                this.placeBetTimeout = null;
                 if (!this.isCancelled) {
                     this.placeHyperSpinBet();
                 } else {
-                    cascadingSlotLogger.warn("🛑 [HYPER_SPIN] placeBetTimeout BLOCKED by cancellation flag");
+                    cascadingSlotLogger.warn("🛑 [HYPER_SPIN] placeHyperSpinBet() BLOCKED by cancellation flag");
                 }
-            }, 0);
-            this.placeBetTimeout = timeoutId;
-            cascadingSlotLogger.warn("⏰ [HYPER_SPIN] Scheduled placeBetTimeout", {
-                timeoutId,
-                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
-                timestamp: new Date().toISOString()
-            });
+            } else {
+                // NORMAL-PATH: Use setTimeout for MobX reactivity propagation
+                const timeoutId = window.setTimeout(() => {
+                    cascadingSlotLogger.warn("⏰ [HYPER_SPIN] placeBetTimeout executed", {
+                        isCancelled: this.isCancelled,
+                        isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                        timestamp: new Date().toISOString()
+                    });
+                    this.placeBetTimeout = null;
+                    if (!this.isCancelled) {
+                        this.placeHyperSpinBet();
+                    } else {
+                        cascadingSlotLogger.warn("🛑 [HYPER_SPIN] placeBetTimeout BLOCKED by cancellation flag");
+                    }
+                }, 0);
+                this.placeBetTimeout = timeoutId;
+                cascadingSlotLogger.warn("⏰ [HYPER_SPIN] Scheduled placeBetTimeout", {
+                    timeoutId,
+                    roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                    timestamp: new Date().toISOString()
+                });
+            }
         }
     }
 

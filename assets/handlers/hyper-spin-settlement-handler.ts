@@ -28,6 +28,9 @@ export class HyperSpinSettlementHandler {
     /**
      * Handle settlement for hyper-spin mode.
      * Processes settlement with animation skipping and batch tracking.
+     * 
+     * FAST-PATH: When animations are skipped, immediately trigger next spin
+     * without waiting for board operations to complete.
      */
     async handleSettlement(
         finishData: any,
@@ -50,18 +53,16 @@ export class HyperSpinSettlementHandler {
             // Mark effects as completed immediately to prevent batch from getting stuck
             this.cascadingUIStore.isFreeSpinEffectCompleted = true;
 
-            // Continue to next round after a brief delay
-            setTimeout(() => {
-                cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound() for incomplete data", {
-                    isHyperSpin: this.hyperSpinStore.isHyperSpin,
-                    roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
-                    timestamp: new Date().toISOString()
-                });
+            // Continue to next round immediately (no setTimeout delay)
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound() for incomplete data", {
+                isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                timestamp: new Date().toISOString()
+            });
 
-                if (this.hyperSpinStore.isHyperSpin) {
-                    this.hyperSpinHandler.checkHyperSpinNextRound();
-                }
-            }, 0);
+            if (this.hyperSpinStore.isHyperSpin) {
+                this.hyperSpinHandler.checkHyperSpinNextRound(true); // Pass immediate flag
+            }
 
             return;
         }
@@ -73,28 +74,56 @@ export class HyperSpinSettlementHandler {
         const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
         const skipAnimations = this.shouldSkipAnimations(isFreeSpinActive);
 
-        // Process spin and tumbles with skipped animations
+        // FAST-PATH: When animations are skipped, process minimal state and continue immediately
+        if (skipAnimations) {
+            cascadingSlotLogger.warn("⚡ [HYPER_SPIN_SETTLEMENT] FAST-PATH: Skipping settlement processing for immediate next spin", {
+                isFreeSpinActive,
+                stopOnFeature: this.hyperSpinStore.stopOnFeature,
+                timestamp: new Date().toISOString()
+            });
+
+            // Update minimal state immediately (synchronous operations only)
+            this.updateMinimalState(settlementData);
+
+            // Process board updates in background (non-blocking)
+            // This ensures board state is eventually updated but doesn't block next spin
+            this.processBoardUpdatesInBackground(board, settlementData, skipAnimations, tumbleWinView, totalMultiplierView);
+
+            // Continue to next round immediately (no setTimeout delay)
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] FAST-PATH: Calling checkHyperSpinNextRound() immediately", {
+                isHyperSpin: this.hyperSpinStore.isHyperSpin,
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                timestamp: new Date().toISOString()
+            });
+
+            if (this.hyperSpinStore.isHyperSpin) {
+                this.hyperSpinHandler.checkHyperSpinNextRound(true); // Pass immediate flag
+            }
+
+            return;
+        }
+
+        // SLOW-PATH: Process settlement normally when animations are needed
+        // (e.g., when stopOnFeature is enabled and free spins are active)
+        cascadingSlotLogger.warn("🐌 [HYPER_SPIN_SETTLEMENT] SLOW-PATH: Processing settlement with animations", {
+            isFreeSpinActive,
+            stopOnFeature: this.hyperSpinStore.stopOnFeature,
+            timestamp: new Date().toISOString()
+        });
+
+        // Process spin and tumbles with animations
         await this.handleSpinAndTumbleResults(board, settlementData, skipAnimations);
 
-        // Process wins (skip multiplier animations in hyper-spin)
+        // Process wins with animations
         await this.handleWinProcessing(board, settlementData, skipAnimations, tumbleWinView, totalMultiplierView);
-
-        // Skip UI updates during hyper-spin for maximum speed
-        // (UI updates are skipped in hyper-spin mode)
-
-        // Skip special effects during hyper-spin
-        // (Special effects are skipped in hyper-spin mode)
 
         // Handle free spin logic with forced completion
         this.handleFreeSpinLogic(settlementData);
 
-        // Note: Spin data recording is now handled in CascadingSlotGame.recordHyperSpinSpinData()
-
         // Continue to next round after settlement completes
         // Use setTimeout to ensure MobX reactivity has propagated the state changes
-        // and all settlement processing is complete
         setTimeout(() => {
-            cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Calling checkHyperSpinNextRound()", {
+            cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] SLOW-PATH: Calling checkHyperSpinNextRound()", {
                 isHyperSpin: this.hyperSpinStore.isHyperSpin,
                 roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
                 isFreeSpinEffectCompleted: this.cascadingUIStore.isFreeSpinEffectCompleted,
@@ -103,7 +132,7 @@ export class HyperSpinSettlementHandler {
             });
 
             if (this.hyperSpinStore.isHyperSpin) {
-                this.hyperSpinHandler.checkHyperSpinNextRound();
+                this.hyperSpinHandler.checkHyperSpinNextRound(false); // Normal path
             } else {
                 cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Skipping checkHyperSpinNextRound() - isHyperSpin is false");
             }
@@ -211,5 +240,59 @@ export class HyperSpinSettlementHandler {
         // This prevents the batch from getting stuck waiting for non-existent UI effects
         // and ensures batch continues automatically
         this.cascadingUIStore.isFreeSpinEffectCompleted = true;
+    }
+
+    /**
+     * Update minimal state for fast-path settlement.
+     * Only updates essential state needed for batch tracking and continuation.
+     */
+    private updateMinimalState(settlementData: any) {
+        // Update balance if there's a win
+        if (settlementData.win > 0) {
+            this.cascadingUIHandler.handleChangeUserBalance(true);
+            // Handle total win for tracking
+            this.cascadingUIHandler.handleTotalWin({ win: settlementData.win, isActualWin: true });
+        }
+
+        // Update free spin state
+        this.handleFreeSpinLogic(settlementData);
+    }
+
+    /**
+     * Process board updates in background (non-blocking).
+     * This ensures board state is eventually updated but doesn't block next spin.
+     */
+    private processBoardUpdatesInBackground(
+        board: CascadingSlotBoard,
+        settlementData: any,
+        skipAnimations: boolean,
+        tumbleWinView: TumbleWinWiew | null,
+        totalMultiplierView: TotalMultiplierView | null
+    ) {
+        // Process board updates asynchronously without blocking
+        // Use Promise.resolve().then() to ensure it runs in next tick
+        Promise.resolve().then(async () => {
+            try {
+                cascadingSlotLogger.warn("🔄 [HYPER_SPIN_SETTLEMENT] Processing board updates in background", {
+                    timestamp: new Date().toISOString()
+                });
+
+                // Process spin and tumbles with skipped animations
+                await this.handleSpinAndTumbleResults(board, settlementData, skipAnimations);
+
+                // Process wins (skip multiplier animations in hyper-spin)
+                await this.handleWinProcessing(board, settlementData, skipAnimations, tumbleWinView, totalMultiplierView);
+
+                cascadingSlotLogger.warn("✅ [HYPER_SPIN_SETTLEMENT] Board updates completed in background", {
+                    timestamp: new Date().toISOString()
+                });
+            } catch (error) {
+                cascadingSlotLogger.warn("⚠️ [HYPER_SPIN_SETTLEMENT] Error processing board updates in background", {
+                    error: error instanceof Error ? error.message : String(error),
+                    timestamp: new Date().toISOString()
+                });
+                // Don't throw - background processing errors shouldn't block batch
+            }
+        });
     }
 }
