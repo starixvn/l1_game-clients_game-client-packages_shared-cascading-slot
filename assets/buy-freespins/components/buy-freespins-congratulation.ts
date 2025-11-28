@@ -1,4 +1,3 @@
-import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
 import Observer from "observer";
 

@@ -5,7 +5,6 @@ import { InGameMenuStore } from "db://shared-components/game/in-game-menu/script
 import { NodeContainer } from "db://shared-components/shared/common-components/node-container/node-container";
 import Observer from "observer";
 import { CascadingBetHistoryTable } from "./cascading-bet-history-table";
-import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { handle, render } = Observer;
 
