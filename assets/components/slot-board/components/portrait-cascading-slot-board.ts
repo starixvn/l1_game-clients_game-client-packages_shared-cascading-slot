@@ -8,7 +8,7 @@ import { CascadingSlotBoard } from "./cascading-slot-board";
 import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { CascadingUIHandler } from "db://shared-cascading-slot/handlers/cascading-ui-handler";
-import { GameSpeed, getConfigGameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
+import { getConfigGameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
 const { render , handle } = Observer;
 const { ccclass } = _decorator;
 
