@@ -7,7 +7,6 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         delayForNextSpin: 1,
         transition: 1.16,
         eventMascot: 2,
-        ratioSymbolMatchAndExplosion: 1,
         ratioMascotAnimSpeed: 1,
         ratioMatchAndExplosionSymbol: 1,
         minDurationFallIn: 0.4,
@@ -28,7 +27,6 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         delayForNextSpin: 0.4,
         transition: 1.16,
         eventMascot: 2,
-        ratioSymbolMatchAndExplosion: 0.5,
         ratioMascotAnimSpeed: 0.5,
         ratioMatchAndExplosionSymbol: 0.5,
         minDurationFallIn: 0.28,
@@ -49,9 +47,8 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         delayForNextSpin: 0.1,
         transition: 1.16,
         eventMascot: 1,
-        ratioSymbolMatchAndExplosion: 0.25,
         ratioMascotAnimSpeed: 2,
-        ratioMatchAndExplosionSymbol: 0.25,
+        ratioMatchAndExplosionSymbol: 0.1,
         minDurationFallIn: 0.01,
         minDurationFallOut: 0.02,
         ratioEventSpineSpeed: 2,
@@ -84,7 +81,6 @@ export interface CascadingSlotConfigDuration {
     delayForNextSpin: number;
     transition?: number;
     eventMascot?: number;
-    ratioSymbolMatchAndExplosion?: number;
     ratioMascotAnimSpeed?: number;
     ratioMatchAndExplosionSymbol?: number;
     minDurationFallIn: number;

@@ -317,6 +317,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     public async removeItems(data: number[][], tumbleIndex: number, gameSpeed: string) {
+        console.time("removeItems");
         const reelItems = this.reels.map((reel, index) => {
             return data[index]
                 .map((item, index) => {
@@ -338,6 +339,7 @@ export class CascadingSlotBoard extends ObserverComponent {
                 return reel.removeItemsByIndex(items, gameSpeed);
             })
         );
+        console.timeEnd("removeItems");
     }
 
     public async fallInConcurrently(gameSpeed: string) {
@@ -523,7 +525,8 @@ export class CascadingSlotBoard extends ObserverComponent {
         isFreeSpin: boolean,
         winMultiplier: boolean,
         tumbleWinView: TumbleWinWiew,
-        totalMultiplierView: TotalMultiplierView
+        totalMultiplierView: TotalMultiplierView,
+        gameSpeed: string
     ) {
         const needMoveTotalMultiplier = isFreeSpin && winMultiplier && this.currentTotalMultiplier > 0;
 
@@ -537,7 +540,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             const multiplierItems = this.getMultiplierItems();
             for (const mItem of multiplierItems) {
                 this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
-                await mItem.playAnimationGlow();
+                await mItem.playAnimationGlow(gameSpeed);
                 await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
                 await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
                 this.playSound(AudioIds.WIN);

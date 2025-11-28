@@ -1,15 +1,15 @@
 import { _decorator, instantiate, Node, tween, UIOpacity, UITransform, v3, Vec3 } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { GameSpeed, getConfigGameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
+import { CascadingUIHandler } from "db://shared-cascading-slot/handlers/cascading-ui-handler";
+import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { AnimationUtils, ComponentUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { TotalMultiplierView } from "../../total-multiplier/cascading-total-multiplier-view";
+import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
 import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
 import { CascadingSlotBoard } from "./cascading-slot-board";
-import { PortraitTumbleWinWiew } from "../../tumbles/portrait-tumble-win-view";
-import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { CascadingUIHandler } from "db://shared-cascading-slot/handlers/cascading-ui-handler";
-import { GameSpeed, getConfigGameSpeed } from "db://shared-cascading-slot/cascading-slot-utils";
-const { render , handle } = Observer;
+const { render, handle } = Observer;
 const { ccclass } = _decorator;
 
 @ccclass
@@ -20,7 +20,8 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         isFreeSpin: boolean,
         winMultiplier: boolean,
         tumbleWinView: TumbleWinWiew,
-        totalMultiplierView: TotalMultiplierView
+        totalMultiplierView: TotalMultiplierView,
+        gameSpeed: string
     ) {
         const needMoveTotalMultiplier = isFreeSpin && winMultiplier && this.currentTotalMultiplier > 0;
 
@@ -35,7 +36,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
         for (const mItem of multiplierItems) {
             this.playSound(AudioIds.MULTIPLIER_ACTIVATE);
-            await mItem.playAnimationGlow();
+            await mItem.playAnimationGlow(gameSpeed);
             await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
 
             this.playSound(AudioIds.WIN);
@@ -74,23 +75,25 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
                         resolve();
                     })
                     .start();
-                });
-                await AnimationUtils.delayTime(getConfigGameSpeed("zoomInValueDuration", this.gameSpeed));
-                if (!node || !node.isValid) {
-                    return;
-                }
-                
-                const isBottomPosition = this.isNodeAtBottomBoard(node);
-                const moveDuration = isBottomPosition ? getConfigGameSpeed("bottomMessageAnimDuration", this.gameSpeed) : getConfigGameSpeed("totalWinLabelAnimDuration", this.gameSpeed);
-                
-                await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node, moveDuration);
-                tumbleWinView.totalWinNode.active = true;
-                await tumbleWinView.setTotalWinValue(this.totalTumbleWin);
-       }
+            });
+            await AnimationUtils.delayTime(getConfigGameSpeed("zoomInValueDuration", this.gameSpeed));
+            if (!node || !node.isValid) {
+                return;
+            }
+
+            const isBottomPosition = this.isNodeAtBottomBoard(node);
+            const moveDuration = isBottomPosition
+                ? getConfigGameSpeed("bottomMessageAnimDuration", this.gameSpeed)
+                : getConfigGameSpeed("totalWinLabelAnimDuration", this.gameSpeed);
+
+            await this.movingLabelToTotalWin(node, this.effectContainer, tumbleWinView.multiplier.node, moveDuration);
+            tumbleWinView.totalWinNode.active = true;
+            await tumbleWinView.setTotalWinValue(this.totalTumbleWin);
+        }
     }
 
     private isNodeAtBottomBoard(node: Node): boolean {
-        const threshold = 150; 
+        const threshold = 150;
         if (!node || !node.isValid) {
             return false;
         }
@@ -152,7 +155,6 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         return isShowMessages;
     }
 
-    
     animMoveMultiplier(node: Node, position: Vec3, duration: number, resolve: () => void) {
         tween(node)
             .to(duration, { position: position }, { easing: "sineOut" })

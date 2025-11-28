@@ -203,7 +203,7 @@ export class CascadingSlotGame extends GameComponentBase {
         const winTumbles = tumbles.length > 1;
         const winMultiplier = multiplier > 0 && winTumbles;
         winMultiplier && this.handleTriggerWinMultiplier();
-        await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView);
+        await this.board.handleMultiplier(isFreeSpin, winMultiplier, this.tumbleWinView, this.totalMultiplierView, this.gameSpeed);
         if (win > 0) {
             this.getBalance();
             this.handleChangeUserBalance(true);
