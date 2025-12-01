@@ -225,21 +225,28 @@ export class CascadingSlotReel extends Component {
                     )
                     .start();
             } else {
-                this.fallInWithOffset(item, duration, posY, isBottomItem, onBottomItemEnded);
+                this.fallInWithOffset(item, duration, posY, isBottomItem, gameSpeed, onBottomItemEnded);
             }
         }
 
         duration > 0 && (await AnimationUtils.delayTime(duration));
     }
 
-    fallInWithOffset(item: CascadingSlotReelItem, duration: number, posY: number, isBottomItem: boolean, onBottomItemEnded?: () => void) {
+    fallInWithOffset(
+        item: CascadingSlotReelItem,
+        duration: number,
+        posY: number,
+        isBottomItem: boolean,
+        gameSpeed: string,
+        onBottomItemEnded?: () => void
+    ) {
         this.peekEffect && AudioUtils.playSFX(AudioIds.PEEK_EFFECT_ITEM);
         const backOffsetY = this.ITEM_BACK_OFFSET_Y;
         const backDuration = this.ITEM_BACK_DURATION;
         const xNode = item.node.position.x;
         const fromOutSide = item.node.position.y >= this.reelHeight;
         const destPosition = v3(item.node.position.x, posY, 0);
-        if (item.isScatterSymbol && fromOutSide) {
+        if (item.isScatterSymbol && fromOutSide && gameSpeed !== GameSpeed.ULTRA) {
             if (this.peekEffect) {
                 AudioUtils.playSFX(AudioIds.SYMBOL_SCATTER_WIN);
             } else {
