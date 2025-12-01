@@ -33,6 +33,7 @@ import { HyperSpinHandler } from "./handlers/hyper-spin-handler";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
 import { HyperSpinStore } from "./stores/hyper-spin-store";
+import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
@@ -602,7 +603,7 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-     @render(GameVisibilityStore, (store) => store.isVisible)
+    @render(GameVisibilityStore, (store) => store.isVisible)
     renderGameVisibility(isVisible: boolean) {
         if (!isVisible) {
             // Check if hyper-spin batch should be interrupted when game is hidden
@@ -619,7 +620,7 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
     handleOnGameHide() {
     }
-  
+
 
     /**
      * Handle hyper-spin interruption when game is hidden
