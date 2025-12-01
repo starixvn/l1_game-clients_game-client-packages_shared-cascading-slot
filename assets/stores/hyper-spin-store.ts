@@ -637,17 +637,10 @@ export class HyperSpinStore {
             cascadeRecords: []
         };
 
-        console.warn("🎯 [HYPER_SPIN] Started cascade tracking", {
-            spinId,
-            isFreeSpin,
-            stake,
-            timestamp: new Date().toISOString()
-        });
     }
 
     accumulateCascadeWin(winAmount: number, bigWin: boolean = false, megaWin: boolean = false, superWin: boolean = false, reachMaxWin: boolean = false, freeSpins: number = 0, totalFreeSpins: number = 0, hasScatterTrigger: boolean = false, hasMultiplier: boolean = false) {
         if (!this._currentCascadeData) {
-            console.warn("⚠️ [HYPER_SPIN] No cascade tracking active, skipping win accumulation");
             return;
         }
 
@@ -677,23 +670,10 @@ export class HyperSpinStore {
         this._currentCascadeData.freeSpinsTriggered = Math.max(this._currentCascadeData.freeSpinsTriggered, freeSpins);
         this._currentCascadeData.totalFreeSpins = Math.max(this._currentCascadeData.totalFreeSpins, totalFreeSpins);
 
-        console.warn("📊 [HYPER_SPIN] Accumulated cascade win", {
-            spinId: this._currentCascadeData.spinId,
-            step: cascadeRecord.step,
-            stepWin: winAmount,
-            accumulatedWin: this._currentCascadeData.accumulatedWin,
-            hasBigWin: this._currentCascadeData.hasBigWin,
-            hasMegaWin: this._currentCascadeData.hasMegaWin,
-            hasSuperWin: this._currentCascadeData.hasSuperWin,
-            hasReachMaxWin: this._currentCascadeData.hasReachMaxWin,
-            freeSpinsTriggered: this._currentCascadeData.freeSpinsTriggered,
-            timestamp: new Date().toISOString()
-        });
     }
 
     completeCascadeTracking(): HyperSpinSingleSpinData | null {
         if (!this._currentCascadeData) {
-            console.warn("⚠️ [HYPER_SPIN] No cascade tracking active, cannot complete");
             return null;
         }
 
@@ -731,15 +711,6 @@ export class HyperSpinStore {
         // Clear cascade tracking
         this._currentCascadeData = null;
 
-        console.warn("✅ [HYPER_SPIN] Completed cascade tracking", {
-            spinId: cascadeData.spinId,
-            totalAccumulatedWin: cascadeData.accumulatedWin,
-            multiplier,
-            winTag,
-            cascadeSteps: cascadeData.cascadeRecords.length,
-            duration: Date.now() - cascadeData.startTime,
-            timestamp: new Date().toISOString()
-        });
 
         return mainSpinRecord;
     }

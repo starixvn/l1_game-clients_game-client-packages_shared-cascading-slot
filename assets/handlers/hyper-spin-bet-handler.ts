@@ -37,14 +37,6 @@ export class HyperSpinBetHandler extends gc.Bet.BetHandler {
             clientSentTime: new Date(),
         };
 
-        if (isFreeSpin) {
-            console.warn("[HYPER_SPIN_BET_HANDLER] 🎰 FREE SPIN BET REQUEST", {
-                betData,
-                isFreeSpins: this.uiStore.isFreeSpins,
-                freeSpinsTotal: this.uiStore.freeSpinsTotal,
-                timestamp: new Date().toISOString()
-            });
-        }
 
         return betData;
     }

@@ -12,14 +12,6 @@ const { render, handle } = Observer;
 export class HyperSpinPopupContainer extends NodeContainer {
     @render(HyperSpinStore, (store) => store.isOpenHyperSpinPopup)
     renderOpenPopup(isOpenHyperSpinPopup: boolean) {
-        console.warn("🎰 HYPER-SPIN POPUP CONTAINER: renderOpenPopup called", {
-            isOpenHyperSpinPopup,
-            hasNode: !!this.node,
-            currentChildCount: this.node.children.length,
-            childrenNames: this.node.children.map(child => child.name),
-            timestamp: new Date().toISOString()
-        });
-
         if (!isOpenHyperSpinPopup) {
             const nodes = this.node.children;
 

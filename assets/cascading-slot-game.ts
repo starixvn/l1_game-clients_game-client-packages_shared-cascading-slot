@@ -326,15 +326,6 @@ export class CascadingSlotGame extends GameComponentBase {
         }
 
         if (shouldHandleFreeSpinEffectCompleted) {
-            console.warn("🎰 FREESPIN COMPLETED: Free spin effects completed, proceeding to next round", {
-                noWinMoreFreespins,
-                isHaveBigWin,
-                isInHyperSpin,
-                freeSpins: settlementData.freeSpins,
-                totalFreeSpins: settlementData.totalFreeSpins,
-                timestamp: new Date().toISOString()
-            });
-            console.warn("[CASCADING_SLOT_GAME] Handling free spin effect completion");
             this.handleFreeSpinEffectCompleted(true);
         }
     }
@@ -438,17 +429,9 @@ export class CascadingSlotGame extends GameComponentBase {
     private handleHyperSpinCheck(isHyperSpinActive: boolean) {
         // Only check hyper-spin if it's actually active (prevents continuation after cancellation)
         // Use store state directly to avoid race conditions with local property
-        console.warn("🔄 [GAME] checkNextRound() - checking hyper-spin", {
-            isHyperSpinActive,
-            timestamp: new Date().toISOString()
-        });
 
         if (isHyperSpinActive) {
             this.callHyperSpinNextRoundIfNotCancelled();
-        } else {
-            console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - hyper-spin not active", {
-                timestamp: new Date().toISOString()
-            });
         }
     }
 
@@ -460,9 +443,6 @@ export class CascadingSlotGame extends GameComponentBase {
             if (container) {
                 const hyperSpinHandler = container.get(HyperSpinHandler);
                 if (hyperSpinHandler && hyperSpinHandler.isBatchCancelled) {
-                    console.warn("🛑 [GAME] Skipping checkHyperSpinNextRound() - batch cancelled", {
-                        timestamp: new Date().toISOString()
-                    });
                     return;
                 }
             }
@@ -470,9 +450,6 @@ export class CascadingSlotGame extends GameComponentBase {
             // If we can't access handler, proceed (handler will check cancellation internally)
         }
 
-        console.warn("✅ [GAME] Calling checkHyperSpinNextRound()", {
-            timestamp: new Date().toISOString()
-        });
         this.checkHyperSpinNextRound();
     }
 
@@ -515,11 +492,6 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(HyperSpinHandler, (handler) => handler.checkHyperSpinNextRound())
     checkHyperSpinNextRound() {
         // The @handle decorator will automatically call the HyperSpinHandler.checkHyperSpinNextRound() method
-        console.warn("🔄 [GAME] checkHyperSpinNextRound() called via @handle decorator", {
-            isHyperSpinActive: this.isHyperSpinActive,
-            timestamp: new Date().toISOString(),
-            stackTrace: new Error().stack?.split('\n').slice(1, 5).join('\n')
-        });
     }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)

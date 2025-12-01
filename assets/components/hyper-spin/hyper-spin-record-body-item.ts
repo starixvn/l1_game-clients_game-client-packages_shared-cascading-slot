@@ -124,7 +124,6 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
             // Set sprite width to cover the multiplier label width
             this.setWinTagSpriteWidthToMatchMultiplierLabel();
         } else {
-            console.warn(`[HyperSpinRecordBodyItem] Sprite frame not found in atlas: ${spriteFrameName}`);
             this.winTagSprite.node.active = false;
         }
     }
