@@ -1,10 +1,10 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Prefab, Node } from "cc";
+import { _decorator, instantiate, Label, Node, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { HyperSpinStore, HyperSpinBatchData, HyperSpinSingleSpinData, CascadeRecord } from "../../stores/hyper-spin-store";
+import { CascadeRecord, HyperSpinBatchData, HyperSpinSingleSpinData, HyperSpinStore } from "../../stores/hyper-spin-store";
 import HyperSpinRecordBodyItem from "../hyper-spin/hyper-spin-record-body-item";
 
 const { ccclass, menu, property } = _decorator;
@@ -13,9 +13,6 @@ const { render } = Observer;
 @ccclass("HyperSpinBetRecords")
 @menu('UI/HyperSpinBetRecords')
 export class HyperSpinBetRecords extends ObserverComponent {
-    @property(Prefab)
-    prfNoOfRound: Prefab = null;
-
     @property(Prefab)
     prfHyperSpinRecordBodyItem: Prefab = null;
 

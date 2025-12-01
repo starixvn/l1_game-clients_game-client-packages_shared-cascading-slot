@@ -43,12 +43,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     sprIconPause: Sprite = null;
 
     @property(Sprite)
-    sprIconStopOnFeatureOff: Sprite = null;
-
-    @property(Sprite)
-    sprIconStopOnFeatureOn: Sprite = null;
-
-    @property(Sprite)
     sprIconSettingsOff: Sprite = null;
 
     @property(Sprite)
@@ -87,21 +81,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         }
     }
 
-    @render(HyperSpinStore, (store) => store.stopOnFeature)
-    updateStopOnFeatureButton(stopOnFeature: boolean) {
-        if (!this.sprIconStopOnFeatureOff && !this.sprIconStopOnFeatureOn) {
-            return;
-        }
-
-        if (this.sprIconStopOnFeatureOff) {
-            this.sprIconStopOnFeatureOff.node.active = !stopOnFeature;
-        }
-
-        if (this.sprIconStopOnFeatureOn) {
-            this.sprIconStopOnFeatureOn.node.active = stopOnFeature;
-        }
-    }
-
     @render(HyperSpinStore, (store) => ({
         isSettingsOpen: store.isSettingsOpen,
         hyperSpinStatus: store.currentBatchData?.summary.hyperSpinStatus
@@ -137,6 +116,7 @@ export class HyperSpinBetControl extends ObserverComponent {
     @handle(HyperSpinHandler, (handle) => handle.closeHyperSpinBetControl())
     onCloseHyperSpinBetControl() {
         this.playSoundClick();
+        this.node.destroy();
     }
 
     @handle(HyperSpinHandler, (handle) => handle.toggleSettings())
@@ -193,11 +173,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.hyperSpinRoundsIncreaseBtn) {
             this.hyperSpinRoundsIncreaseBtn.interactable = canIncrease;
         }
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.toggleStopOnFeature())
-    onClickStopOnFeature() {
-        this.playSoundClick();
     }
 
     @handle(HyperSpinHandler, (handle) => handle.changeHyperSpinRounds(false))
