@@ -596,9 +596,10 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
-        if (this.gameSpeed !== GameSpeed.ULTRA) {
-            return id;
+        if (this.gameSpeed === GameSpeed.ULTRA) {
+            return;
         }
+        return id;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
