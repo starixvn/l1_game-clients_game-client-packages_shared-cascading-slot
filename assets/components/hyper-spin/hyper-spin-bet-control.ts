@@ -1,6 +1,5 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Button, Label, Node, Slider, Sprite } from "cc";
-import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
@@ -20,12 +19,6 @@ export type TotalBetType = { coin: number; level: number; totalBet: number; incr
 export class HyperSpinBetControl extends ObserverComponent {
     @property(Label)
     hyperSpinRoundsLabel: Label = null;
-
-    @property(StatusButton)
-    hyperSpinRoundsDecreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    hyperSpinRoundsIncreaseBtn: StatusButton = null;
 
     @property(Label)
     balanceLabel: Label = null;
@@ -159,30 +152,6 @@ export class HyperSpinBetControl extends ObserverComponent {
         if (this.playerTotalWinningsLabel) {
             this.playerTotalWinningsLabel.string = displayValue;
         }
-    }
-
-    @render(HyperSpinStore, (store) => ({
-        canDecrease: store.roundsList.indexOf(store.selectedRoundOnPopup) > 0,
-        canIncrease: store.roundsList.indexOf(store.selectedRoundOnPopup) < store.roundsList.length - 1
-    }))
-    updateHyperSpinRoundsButtonsInteractable({ canDecrease, canIncrease }: { canDecrease: boolean; canIncrease: boolean }) {
-        if (this.hyperSpinRoundsDecreaseBtn) {
-            this.hyperSpinRoundsDecreaseBtn.interactable = canDecrease;
-        }
-
-        if (this.hyperSpinRoundsIncreaseBtn) {
-            this.hyperSpinRoundsIncreaseBtn.interactable = canIncrease;
-        }
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeHyperSpinRounds(false))
-    onClickDecreaseHyperSpinRounds() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeHyperSpinRounds(true))
-    onClickIncreaseHyperSpinRounds() {
-        this.playSoundClick();
     }
 
     @render(CascadingUIStore, (store) => ({ balance: store.userBalance, changedBalance: store.changeUserBalance }))
