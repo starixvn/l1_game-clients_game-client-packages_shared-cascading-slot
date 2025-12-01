@@ -1,14 +1,12 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Button, instantiate, Label, Node, Prefab, Slider, Sprite } from "cc";
+import { _decorator, Button, Label, Node, Slider, Sprite } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { DialogName } from "../../cascading-slot-utils";
 import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
 import { HyperSpinStore } from "../../stores/hyper-spin-store";
-import HyperSpinRoundNumber from "../hyper-spin/hyper-spin-round-number";
 
 const { ccclass, menu, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -20,12 +18,6 @@ export type TotalBetType = { coin: number; level: number; totalBet: number; incr
 @ccclass("HyperSpinBetControl")
 @menu('UI/HyperSpinBetControl')
 export class HyperSpinBetControl extends ObserverComponent {
-    @property(Prefab)
-    prfNoOfRound: Prefab = null;
-
-    @property(Node)
-    numberOfSpinsContent: Node = null;
-
     @property(Label)
     hyperSpinRoundsLabel: Label = null;
 
@@ -65,88 +57,6 @@ export class HyperSpinBetControl extends ObserverComponent {
     @property(Node)
     settingNode: Node = null;
 
-    private currentDialogName: string = null;
-    private isOpenBetAmountPopup = false;
-
-    @render(HyperSpinStore, (store) => {
-        return {
-            roundsList: store.roundsList,
-            selectedRoundOnPopup: store.selectedRoundOnPopup
-        }
-    })
-    initContentRounds(data: { roundsList: number[]; selectedRoundOnPopup: number }) {
-        const { roundsList, selectedRoundOnPopup } = data;
-
-        this.numberOfSpinsContent.destroyAllChildren();
-
-        roundsList.forEach((round, idx) => {
-            const node = instantiate(this.prfNoOfRound);
-            const roundNumber = node.getComponent(HyperSpinRoundNumber);
-            if (roundNumber) {
-                roundNumber.setValue(round);
-            }
-
-            this.numberOfSpinsContent.addChild(node);
-
-        });
-
-        this.renderSelectedRounds(selectedRoundOnPopup);
-    }
-
-    @render(HyperSpinStore, (store) => store.selectedRoundOnPopup)
-    renderSelectedRounds(noOfRounds: number) {
-        this.numberOfSpinsContent.children.forEach((child, idx) => {
-            const roundNumber = child.getComponent(HyperSpinRoundNumber);
-            if (!roundNumber) {
-                return;
-            }
-            const selectedBg = roundNumber.value === noOfRounds;
-            roundNumber.setSelectedRound(selectedBg);
-        });
-    }
-
-    @render(CascadingUIStore, (store) => store.dialogOpenEvent?.name)
-    private setCurrentDialog(dialogName: string) {
-        this.currentDialogName = dialogName;
-    }
-
-    @render(HyperSpinStore, (store) => store.isOpenHyperSpinBetControlPopup)
-    private setIsOpenHyperSpinBetControlPopup(isOpenHyperSpinBetControlPopup: boolean) {
-        this.isOpenBetAmountPopup = isOpenHyperSpinBetControlPopup;
-    }
-
-    @render(HyperSpinStore, (store) => {
-        return {
-            isOpenHyperSpinBetControlPopup: store.isOpenHyperSpinBetControlPopup,
-            roundsList: store.roundsList,
-            selectedRoundOnPopup: store.selectedRoundOnPopup
-        }
-    })
-    handleDialogVisibility(data: { isOpenHyperSpinBetControlPopup: boolean; roundsList: number[]; selectedRoundOnPopup: number }) {
-        this.node.active = data.isOpenHyperSpinBetControlPopup;
-
-        if (data.isOpenHyperSpinBetControlPopup) {
-            this.initContentRounds({ roundsList: data.roundsList, selectedRoundOnPopup: data.selectedRoundOnPopup });
-        }
-    }
-
-    @render(CascadingUIStore, (store) => store.dialogOpenEvent, { fireImmediately: false })
-    private renderDialogOpenEvent(dialogOpenEvent: { name: string }) {
-        const container = (this as any).container;
-        let isInHyperSpin = false;
-        try {
-            if (container) {
-                const cascadingUIStore = container.get(CascadingUIStore);
-                isInHyperSpin = cascadingUIStore?.isHyperSpinActive || false;
-            }
-        } catch (error) {
-        }
-
-        if (dialogOpenEvent?.name !== DialogName.HYPER_SPIN && this.isOpenBetAmountPopup && !isInHyperSpin) {
-            this.node.active = false;
-            this.onCloseHyperSpinBetControl();
-        }
-    }
 
     @handle(HyperSpinHandler, (handle) => handle.onClickPlayButton())
     onClickPlayButton() {
