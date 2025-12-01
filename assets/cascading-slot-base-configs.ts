@@ -16,6 +16,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
         bottomMessageAnimDuration: 0.3,
+        bottomMultiplierAnimDuration: 0.4,
         zoomInValueDuration: 0.3,
         scaleDurationMultiplier: 1,
         labelTumbleWinAnimDuration: 2.3,
@@ -39,6 +40,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.6,
         totalWinLabelAnimDuration: 0.6,
         bottomMessageAnimDuration: 0.3,
+        bottomMultiplierAnimDuration: 0.4,
         zoomInValueDuration: 0.3,
         scaleDurationMultiplier: 0.5,
         labelTumbleWinAnimDuration: 1.5,
@@ -62,6 +64,7 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         totalMultiplierAnimDuration: 0.15,
         totalWinLabelAnimDuration: 0.1,
         bottomMessageAnimDuration: 0.1,
+        bottomMultiplierAnimDuration: 0.1,
         zoomInValueDuration: 0.1,
         scaleDurationMultiplier: 0.1,
         labelTumbleWinAnimDuration: 0.5,
@@ -98,6 +101,7 @@ export interface CascadingSlotConfigDuration {
     delayBeforeRefillSymbols?: number;
     totalMultiplierAnimDuration: number;
     bottomMessageAnimDuration: number;
+    bottomMultiplierAnimDuration: number;
     totalWinLabelAnimDuration: number;
     zoomInValueDuration: number;
     scaleDurationMultiplier: number;

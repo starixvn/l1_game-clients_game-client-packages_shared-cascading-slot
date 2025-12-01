@@ -52,15 +52,18 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             
             await mItem.playAnimationGlow(this.gameSpeed);
             await tumbleWinView.shiftRightTumbleWin(mItem.multiplier);
-
+            
             this.playSound(AudioIds.WIN);
             this.setMultiplierValue(mItem.multiplier);
+            
+            const isBottomPosition = this.isNodeAtBottomBoard(mItem.value.node);
+            
             if (this.currentTotalMultiplier > 0) {
-                await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView);
+                await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView, isBottomPosition);
                 accumulatedMultiplier += +mItem.multiplier;
                 totalMultiplierView.setTotalMultiplierTmp(this.currentTotalMultiplier + accumulatedMultiplier);
             } else {
-                await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
+                await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node, isBottomPosition);
             }
             
         }
@@ -136,22 +139,26 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         });
     }
 
-    movingMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
+    movingMultiplier(multiplierNode: Node, container: Node, destNode: Node, isBottomPosition?: boolean) {
         return new Promise<void>((resolve) => {
             const node = this.initStartNode(multiplierNode, container);
             const destPos = ComponentUtils.convertPosition(container, destNode);
-            const duration = getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
+            const duration = isBottomPosition 
+                ? getConfigGameSpeed("bottomMultiplierAnimDuration", this.gameSpeed)
+                : getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
 
-    movingMultiplierToTotalMultiplier(multiplierNode: Node, container: Node, totalMultiplierView: TotalMultiplierView) {
+    movingMultiplierToTotalMultiplier(multiplierNode: Node, container: Node, totalMultiplierView: TotalMultiplierView, isBottomPosition?: boolean) {
         return new Promise<void>((resolve) => {
             const node = this.initStartNode(multiplierNode, container);
             const destPosTmp = ComponentUtils.convertPosition(container, totalMultiplierView.total.node);
             const totalValueWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
             const destPos = v3(destPosTmp.x - totalValueWidth / 2, destPosTmp.y, 0);
-            const duration = getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
+            const duration = isBottomPosition 
+                ? getConfigGameSpeed("bottomMultiplierAnimDuration", this.gameSpeed)
+                : getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
