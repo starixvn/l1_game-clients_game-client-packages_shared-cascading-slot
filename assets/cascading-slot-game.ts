@@ -15,6 +15,7 @@ import {
     FreeSpinSource,
     FSBPromotionUIStore,
 } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { GameComponentBase } from "db://shared-components/game/scripts/components/game-component-base";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
@@ -318,7 +319,7 @@ export class CascadingSlotGame extends GameComponentBase {
     @handle(gc.Auth.AuthHandlers.GetBalance)
     getBalance() {}
 
-    @render(CascadingUIStore, (store) => store.gameSpeed)
+    @render(GameSpeedStore, (store) => store.gameSpeed)
     renderTurboMode(gameSpeed: string) {
         this.gameSpeed = gameSpeed;
     }

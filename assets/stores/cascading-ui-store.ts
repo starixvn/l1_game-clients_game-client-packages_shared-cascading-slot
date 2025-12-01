@@ -3,6 +3,7 @@ import inversify from "inversify";
 import mobx from "mobx";
 
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, GameSpeed, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
@@ -20,6 +21,7 @@ export class CascadingUIStore {
     @inject(CascadingSlotConfigsStore) protected readonly configsStore: CascadingSlotConfigsStore;
     @inject(HoldActionStore) protected readonly holdActionStore: HoldActionStore;
     @inject(FSBPromotionUIStore) protected readonly fsbPromotionUIStore: FSBPromotionUIStore;
+    @inject(GameSpeedStore) protected readonly gameSpeedStore: GameSpeedStore;
     constructor() {
         mobx.makeAutoObservable(this);
     }
@@ -34,9 +36,15 @@ export class CascadingUIStore {
     get isShowTotalMultiplierJoinGame() {
         return this.totalMultiplier > 0;
     }
-
-    gameSpeed = GameSpeed.NORMAL;
     isTrialMode = false;
+
+    get gameSpeed() {
+        return this.gameSpeedStore.gameSpeed;
+    }
+
+    set gameSpeed(gameSpeed: string) {
+        this.gameSpeedStore.gameSpeed = gameSpeed;
+    }
 
     _cascadingState = CascadingSlotState.NOT_READY_BET;
 
@@ -87,7 +95,7 @@ export class CascadingUIStore {
     }
 
     get isTurboMode() {
-        return this.gameSpeed === GameSpeed.TURBO || (this.holdActionStore.isHolding && !this.isTrialMode);
+        return this.gameSpeedStore.gameSpeed === GameSpeed.TURBO || (this.holdActionStore.isHolding && !this.isTrialMode);
     }
 
     get isShowBigWin() {

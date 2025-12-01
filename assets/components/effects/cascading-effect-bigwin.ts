@@ -1,6 +1,7 @@
 import gc from "@sg/game-client-base";
 import { _decorator, instantiate, Label, Node, Prefab, sp, Tween, tween } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
@@ -229,7 +230,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
         this.handleBigWinActions(true);
     }
 
-    @render(CascadingUIStore, (store) => store.gameSpeed)
+    @render(GameSpeedStore, (store) => store.gameSpeed)
     renderTurboMode(gameSpeed: string) {
         this.gameSpeed = gameSpeed;
     }

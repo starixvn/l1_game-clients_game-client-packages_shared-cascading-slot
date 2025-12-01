@@ -1,4 +1,5 @@
 import { _decorator, sp } from "cc";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
@@ -37,7 +38,7 @@ export class CascadingMascot extends ObserverComponent {
         this.spineMascot.setMix(AnimationNameMascot.idle, this.gameConfig.multiplierMascotAnimationName, mixDuration);
     }
 
-    @render(CascadingUIStore, (store) => store.gameSpeed)
+    @render(GameSpeedStore, (store) => store.gameSpeed)
     getGameSpeed(gameSpeed: string) {
         this.gameSpeed = gameSpeed;
     }

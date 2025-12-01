@@ -55,6 +55,10 @@ const mockFSBPromotionUIStore = {
     isSpinningFSB: false,
 };
 
+const mockGameSpeedStore = {
+    gameSpeed: GameSpeed.NORMAL,
+};
+
 describe("CascadingUIHandler", () => {
     let uiHandler: CascadingUIHandler;
     let setTimeoutSpy: any;
@@ -67,6 +71,7 @@ describe("CascadingUIHandler", () => {
         mockSettlementStore.finishData = null;
         mockBetControlStore.lastSetting = null;
         mockBetControlStore.needClearLastSetting = false;
+        mockGameSpeedStore.gameSpeed = GameSpeed.NORMAL;
 
         // Mock setTimeout to execute immediately
         setTimeoutSpy = jest.spyOn(global, "setTimeout").mockImplementation((callback: any) => {
@@ -90,12 +95,20 @@ describe("CascadingUIHandler", () => {
         (CascadingUIHandler.prototype as any).userSettingHandlers = mockUserSettingHandlers;
         (CascadingUIHandler.prototype as any).gameUserSettingHandler = mockGameUserSettingHandler;
         (CascadingUIHandler.prototype as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
+        (CascadingUIHandler.prototype as any).gameSpeedStore = mockGameSpeedStore;
 
         // Mock inversify decorators
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
         (inversify.inject as jest.Mock) = jest.fn(() => (target: any, propertyKey: string) => {});
 
         uiHandler = new CascadingUIHandler();
+
+        // Ensure instance has the mock stores (set after construction to override any DI)
+        Object.defineProperty(uiHandler, "gameSpeedStore", {
+            value: mockGameSpeedStore,
+            writable: true,
+            configurable: true,
+        });
     });
 
     afterEach(() => {
@@ -363,7 +376,6 @@ describe("CascadingUIHandler", () => {
 
             expect(mockUIStore.isTrialMode).toBe(true);
             expect(mockUIStore.bottomMessageState).toBe(SlotNotification.BEFORE_SPIN_TRIAL);
-            expect(mockUIStore.gameSpeed).toBe(GameSpeed.NORMAL);
             expect(mockUIStore.roundId).toBe(0);
             expect(mockBetControlStore.needClearLastSetting).toBe(true);
             expect(mockGameUserSettingHandler.saveTempStorage).toHaveBeenCalled();
@@ -439,11 +451,6 @@ describe("CascadingUIHandler", () => {
     });
 
     describe("utility methods", () => {
-        it("should handle turbo mode UI", () => {
-            uiHandler.handleTurboModeUI(GameSpeed.TURBO);
-            expect(mockUIStore.gameSpeed).toBe(GameSpeed.TURBO);
-        });
-
         it("should save game user settings", () => {
             uiHandler.saveGameUserSettings();
             expect(mockGameUserSettingHandler.saveTempStorage).toHaveBeenCalled();

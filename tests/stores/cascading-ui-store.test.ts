@@ -59,6 +59,10 @@ describe("CascadingUIStore", () => {
             isUsedFSBPromotionBonus: false,
         } as any;
 
+        const mockGameSpeedStore = {
+            gameSpeed: GameSpeed.NORMAL,
+        } as any;
+
         // Create store instance
         store = new CascadingUIStore();
 
@@ -69,6 +73,7 @@ describe("CascadingUIStore", () => {
         (store as any).holdActionStore = mockHoldActionStore;
         (store as any).mainPlayerStore = mockMainPlayerStore;
         (store as any).fsbPromotionUIStore = mockFSBPromotionUIStore;
+        (store as any).gameSpeedStore = mockGameSpeedStore;
     });
 
     describe("constructor and initial state", () => {

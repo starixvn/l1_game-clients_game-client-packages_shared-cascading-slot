@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import mobx from "mobx";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
@@ -29,6 +30,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(gc.GameUserSettings.GameUserSettingHandler)
     protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
     @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
+    @inject(GameSpeedStore) protected readonly gameSpeedStore: GameSpeedStore;
 
     constructor() {
         setTimeout(() => {
@@ -142,11 +144,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.cascadingState = state;
         this.fsbPromotionUIStore.isSpinningFSB = state === CascadingSlotState.SPINNING;
     }
-
-    handleTurboModeUI(gameSpeed: string) {
-        this.uiStore.gameSpeed = gameSpeed;
-    }
-
     handleBottomMessage(state: string) {
         if (
             this.uiStore.bottomMessageState === SlotNotification.FREESPINS ||
@@ -251,7 +248,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.isTrialMode = isTrialMode;
         if (isTrialMode) {
             this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN_TRIAL;
-            this.uiStore.gameSpeed = GameSpeed.NORMAL;
+            this.gameSpeedStore.gameSpeed = GameSpeed.NORMAL;
         } else {
             if (this.uiStore.cascadingState !== CascadingSlotState.READY_BET) {
                 this.uiStore.bottomMessageState = SlotNotification.SETTLED;

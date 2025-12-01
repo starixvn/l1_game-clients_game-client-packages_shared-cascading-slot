@@ -2,6 +2,7 @@ import { _decorator, instantiate, Prefab } from "cc";
 import Observer from "observer";
 
 import gc from "@sg/game-client-base";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { CascadingWarningMsg } from "./cascading-warning-msg";
@@ -15,7 +16,7 @@ export class CascadingWarningContainer extends ObserverComponent {
 
     private isTrialMode = false;
 
-    @render(CascadingUIStore, (store) => store.gameSpeed, { fireImmediately: false })
+    @render(GameSpeedStore, (store) => store.gameSpeed, { fireImmediately: false })
     renderTurboModeMsg(gameSpeed: string) {
         if (this.isTrialMode) {
             return;

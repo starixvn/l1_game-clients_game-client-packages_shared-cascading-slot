@@ -1,6 +1,7 @@
 import inversify from "inversify";
 
 import gc from "@sg/game-client-base";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import mobx from "mobx";
 import { GameSpeed } from "../cascading-slot-utils";
 import { BetControlStore } from "../stores/bet-control-store";
@@ -23,6 +24,7 @@ export class CascadingSlotSettingHandlers {
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(gc.App.AppStore) protected readonly appStore: gc.App.AppStore;
+    @inject(GameSpeedStore) protected readonly gameSpeedStore: GameSpeedStore;
     constructor() {
         setTimeout(() => {
             mobx.when(
@@ -69,11 +71,11 @@ export class CascadingSlotSettingHandlers {
         const data = StorageManager.get(this.getStorageKey()) as IGameUserSetting;
         if (data) {
             this.cascadingUIStore.isTrialMode = data.trialMode;
-            this.cascadingUIStore.gameSpeed = data.gameSpeed;
+            this.gameSpeedStore.gameSpeed = data.gameSpeed;
             this.betControlStore.lastSetting = data.lastBetSetting;
         } else {
             this.cascadingUIStore.isTrialMode = false;
-            this.cascadingUIStore.gameSpeed = GameSpeed.NORMAL;
+            this.gameSpeedStore.gameSpeed = GameSpeed.NORMAL;
             this.betControlStore.lastSetting = null;
         }
     }
@@ -81,7 +83,7 @@ export class CascadingSlotSettingHandlers {
     saveTempStorage() {
         const currentSetting = {
             trialMode: this.cascadingUIStore.isTrialMode,
-            gameSpeed: this.cascadingUIStore.gameSpeed,
+            gameSpeed: this.gameSpeedStore.gameSpeed,
             lastBetSetting: this.betControlStore.needClearLastSetting
                 ? null
                 : {

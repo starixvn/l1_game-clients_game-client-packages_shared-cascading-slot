@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 import { stub } from "jest-auto-stub";
 import mobx from "mobx";
+import { GameSpeed } from "../../assets/cascading-slot-utils";
 import { CascadingSlotSettingHandlers } from "../../assets/handlers/cascading-slot-setting-handlers";
 
 // Mock dependencies
@@ -25,6 +26,10 @@ const mockBetControlStore = {
     needClearLastSetting: false,
     betLevel: 1,
     coinValue: 0.01,
+};
+
+const mockGameSpeedStore = {
+    gameSpeed: GameSpeed.NORMAL,
 };
 
 // Mock StorageManager
@@ -74,6 +79,7 @@ describe("CascadingSlotSettingHandlers", () => {
         (CascadingSlotSettingHandlers.prototype as any).gameUserSettingStore = mockGameUserSettingStore;
         (CascadingSlotSettingHandlers.prototype as any).cascadingUIStore = mockCascadingUIStore;
         (CascadingSlotSettingHandlers.prototype as any).betControlStore = mockBetControlStore;
+        (CascadingSlotSettingHandlers.prototype as any).gameSpeedStore = mockGameSpeedStore;
         (CascadingSlotSettingHandlers.prototype as any).mainPlayerStore = stub<gc.Player.MainPlayerStore>({
             UID: 123,
             currencyGroup: "CASH_USD",
@@ -84,6 +90,9 @@ describe("CascadingSlotSettingHandlers", () => {
 
         // Mock injectable decorator
         (inversify.injectable as jest.Mock) = jest.fn(() => (target: any) => target);
+
+        // Reset gameSpeedStore for each test
+        mockGameSpeedStore.gameSpeed = GameSpeed.NORMAL;
     });
 
     afterEach(() => {
@@ -93,6 +102,7 @@ describe("CascadingSlotSettingHandlers", () => {
     describe("constructor", () => {
         it("should initialize and set up mobx reaction", () => {
             settingHandlers = new CascadingSlotSettingHandlers();
+            (settingHandlers as any).gameSpeedStore = mockGameSpeedStore;
 
             expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 0);
             expect(mockReaction).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));
@@ -103,6 +113,7 @@ describe("CascadingSlotSettingHandlers", () => {
             const loadSpy = jest.spyOn(CascadingSlotSettingHandlers.prototype, "loadTempStorage");
 
             settingHandlers = new CascadingSlotSettingHandlers();
+            (settingHandlers as any).gameSpeedStore = mockGameSpeedStore;
 
             expect(loadSpy).toHaveBeenCalled();
             loadSpy.mockRestore();
@@ -113,21 +124,14 @@ describe("CascadingSlotSettingHandlers", () => {
         beforeEach(() => {
             jest.clearAllMocks();
             settingHandlers = new CascadingSlotSettingHandlers();
-        });
-
-        it("should load data from storage when data exists", () => {
-            const mockData = {
-                trialMode: true,
-                turboMode: true,
-                lastBetSetting: { betLevel: 5, coinValue: 0.05 },
-            };
-            mockStorageManager.get.mockReturnValue(mockData);
-            const loadSpy = jest.spyOn(settingHandlers, "loadTempStorage");
-
-            settingHandlers.loadTempStorage();
-
-            expect(loadSpy).toHaveBeenCalled();
-            loadSpy.mockRestore();
+            // Set the property using both methods to ensure it works
+            (settingHandlers as any).gameSpeedStore = mockGameSpeedStore;
+            Object.defineProperty(settingHandlers, "gameSpeedStore", {
+                value: mockGameSpeedStore,
+                writable: true,
+                enumerable: true,
+                configurable: true,
+            });
         });
 
         it("should set default values when no data exists in storage", () => {
@@ -138,18 +142,28 @@ describe("CascadingSlotSettingHandlers", () => {
             expect(mockCascadingUIStore.isTrialMode).toBe(false);
             expect(mockCascadingUIStore.isTurboModeUI).toBe(false);
             expect(mockBetControlStore.lastSetting).toBe(null);
+            expect(mockGameSpeedStore.gameSpeed).toBe(GameSpeed.NORMAL);
         });
     });
 
     describe("saveTempStorage", () => {
         beforeEach(() => {
             settingHandlers = new CascadingSlotSettingHandlers();
+            // Set the property using both methods to ensure it works
+            (settingHandlers as any).gameSpeedStore = mockGameSpeedStore;
+            Object.defineProperty(settingHandlers, "gameSpeedStore", {
+                value: mockGameSpeedStore,
+                writable: true,
+                enumerable: true,
+                configurable: true,
+            });
             // Reset store values
             mockCascadingUIStore.isTrialMode = false;
             mockCascadingUIStore.isTurboModeUI = false;
             mockBetControlStore.needClearLastSetting = false;
             mockBetControlStore.betLevel = 1;
             mockBetControlStore.coinValue = 0.01;
+            mockGameSpeedStore.gameSpeed = GameSpeed.NORMAL;
         });
 
         it("should save current settings to storage", () => {

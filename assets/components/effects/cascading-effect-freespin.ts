@@ -1,5 +1,6 @@
 import { _decorator, Button, Label } from "cc";
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { GameSpeedStore } from "db://shared-common-slot/game-speed";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -44,7 +45,7 @@ export class CascadingEffectFreespin extends ObserverComponent {
         this.handleTriggerDuringFreeSpinBonus();
     }
 
-    @render(CascadingUIStore, (store) => store.gameSpeed)
+    @render(GameSpeedStore, (store) => store.gameSpeed)
     getGameSpeed(gameSpeed: string) {
         this.gameSpeed = gameSpeed;
     }
