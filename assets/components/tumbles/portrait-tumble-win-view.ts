@@ -24,6 +24,7 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
     @property({ type: Label, visible: false, override: true })
     totalWin: Label = null;
 
+    private effectNodes: Node[] = [];
 
     setTumbleWinValuewin(totalTumbleWin: number) {
         if (totalTumbleWin === 0) {
@@ -42,10 +43,24 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
         const effectNode = instantiate(prefab);
         if (prefab) {
             this.node.addChild(effectNode);
+            this.effectNodes.push(effectNode);
         }
         this.scheduleOnce(() => {
+            const index = this.effectNodes.indexOf(effectNode);
+            if (index > -1) {
+                this.effectNodes.splice(index, 1);
+            }
             effectNode.destroy();
         }, time);
+    }
+
+    clearAllEffects() {
+        this.effectNodes.forEach(node => {
+            if (node && node.isValid) {
+                node.destroy();
+            }
+        });
+        this.effectNodes = [];
     }
 
 

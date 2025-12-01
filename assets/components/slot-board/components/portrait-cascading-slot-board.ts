@@ -32,6 +32,10 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         if (!winMultiplier) {
             return;
         }
+        if (this.tumbleWinView instanceof PortraitTumbleWinWiew) {
+            this.tumbleWinView.clearAllEffects();
+        }
+        
         const multiplierItems = this.getMultiplierItems();
         let accumulatedMultiplier = 0;
         for (const mItem of multiplierItems) {
@@ -80,6 +84,7 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
 
     async flyWinLabelAnimation(node: Node, tumbleWinView?: PortraitTumbleWinWiew) {
         if (tumbleWinView) {
+                tumbleWinView.clearAllEffects();
                 await new Promise<void>((resolve) => {
                     const duration = getConfigGameSpeed("zoomInValueDuration", this.gameSpeed);
                     tween(node)
