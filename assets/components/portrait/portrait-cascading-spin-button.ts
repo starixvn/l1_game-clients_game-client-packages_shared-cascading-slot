@@ -47,6 +47,9 @@ export class PortraitCascadingSpinButton extends CascadingSpinButton {
     }
 
     onButtonStateChanged(state: ButtonState) {
+        if (!this.spineAutoSpin) {
+            return;
+        }
         if (state === ButtonState.HOVER) {
             this.spineAutoSpin.setAnimation(1, "hover", true);
         } else {

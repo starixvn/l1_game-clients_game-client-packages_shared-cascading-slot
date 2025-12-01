@@ -1,13 +1,13 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
-import { CascadingUIHandler } from "./cascading-ui-handler";
-import { DialogName, SlotNotification } from "../cascading-slot-utils";
 import { CascadingSlotState } from "../cascading-slot-state";
-import { HyperSpinStore, HyperSpinSingleSpinData } from "../stores/hyper-spin-store";
-import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { DialogName, SlotNotification } from "../cascading-slot-utils";
 import { BetControlStore } from "../stores/bet-control-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { HyperSpinStore } from "../stores/hyper-spin-store";
 import { BetControlHandlers } from "./bet-control-handlers";
+import { CascadingUIHandler } from "./cascading-ui-handler";
 import { SlotBetHandler } from "./slot-bet-handler";
 
 const { injectable, inject } = inversify;
@@ -51,10 +51,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     handle() { }
 
     clickHyperSpin() {
-
         this.cascadingUIHandler.triggerOpenDialog(DialogName.HYPER_SPIN);
         this.showHyperSpinBetControl();
-
     }
 
     openHyperSpinPopup() {

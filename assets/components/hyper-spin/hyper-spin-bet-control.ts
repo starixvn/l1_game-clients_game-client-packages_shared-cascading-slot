@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, instantiate, Label, Slider, Sprite, Prefab, Node, Button } from "cc";
+import { _decorator, Button, instantiate, Label, Node, Prefab, Slider, Sprite } from "cc";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
@@ -8,8 +8,6 @@ import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui
 import { DialogName } from "../../cascading-slot-utils";
 import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
 import { HyperSpinStore } from "../../stores/hyper-spin-store";
-import { BetControlStore } from "../../stores/bet-control-store";
-import { SliderCtrl } from "./slider-ctrl";
 import HyperSpinRoundNumber from "../hyper-spin/hyper-spin-round-number";
 
 const { ccclass, menu, property } = _decorator;
@@ -22,56 +20,11 @@ export type TotalBetType = { coin: number; level: number; totalBet: number; incr
 @ccclass("HyperSpinBetControl")
 @menu('UI/HyperSpinBetControl')
 export class HyperSpinBetControl extends ObserverComponent {
-    @property(SliderCtrl)
-    stopOnProfitSliderCtrl: SliderCtrl = null;
-
-    @property(SliderCtrl)
-    stopOnLossSliderCtrl: SliderCtrl = null;
-
-    @property(SliderCtrl)
-    totalBetSliderCtrl: SliderCtrl = null;
-
     @property(Prefab)
     prfNoOfRound: Prefab = null;
 
     @property(Node)
     numberOfSpinsContent: Node = null;
-
-    @property(Label)
-    stopOnProfitLabel: Label = null;
-
-    @property(Label)
-    stopOnLossLabel: Label = null;
-
-    @property(StatusButton)
-    stopOnProfitDecreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    stopOnProfitIncreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    stopOnLossDecreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    stopOnLossIncreaseBtn: StatusButton = null;
-
-    @property(Label)
-    totalBetPerRoundLabel: Label = null;
-
-    @property(StatusButton)
-    totalBetPerRoundDecreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    totalBetPerRoundIncreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    totalBetPerRoundSliderDecreaseBtn: StatusButton = null;
-
-    @property(StatusButton)
-    totalBetPerRoundSliderIncreaseBtn: StatusButton = null;
-
-    @property(Label)
-    totalBetPerRoundSliderLabel: Label = null;
 
     @property(Label)
     hyperSpinRoundsLabel: Label = null;
@@ -110,7 +63,7 @@ export class HyperSpinBetControl extends ObserverComponent {
     sprIconSettingsOn: Sprite = null;
 
     @property(Node)
-    hyperSpinControlsNode: Node = null;
+    settingNode: Node = null;
 
     private currentDialogName: string = null;
     private isOpenBetAmountPopup = false;
@@ -266,47 +219,9 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.isSettingsOpen)
     updateHyperSpinControlsVisibility(isSettingsOpen: boolean) {
-        if (this.hyperSpinControlsNode) {
-            this.hyperSpinControlsNode.active = isSettingsOpen;
+        if (this.settingNode) {
+            this.settingNode.active = isSettingsOpen;
         }
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
-    onClickDecreaseTotalBet() {
-        const isTotalBetPerRoundButton = this.isTotalBetPerRoundButton();
-        if (isTotalBetPerRoundButton) {
-            this.onClickDecreaseTotalBetPerRound();
-            return;
-        }
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(true))
-    onClickIncreaseTotalBet() {
-        const isTotalBetPerRoundButton = this.isTotalBetPerRoundButton();
-        if (isTotalBetPerRoundButton) {
-            this.onClickIncreaseTotalBetPerRound();
-            return;
-        }
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle, progress: number) => handle.setTotalBetFromSlider(progress))
-    private handleTotalBetSliderChange(progress: number) {
-        return progress;
-    }
-
-    onTotalBetChange(slider: SliderEventType) {
-        if (slider && typeof slider.progress === "number" && !isNaN(slider.progress)) {
-            this.handleTotalBetSliderChange(slider.progress);
-        }
-    }
-
-    private isTotalBetPerRoundButton(): boolean {
-        const hasTotalBetPerRoundButtons = !!(this.totalBetPerRoundDecreaseBtn || this.totalBetPerRoundIncreaseBtn);
-        const hasTotalBetPerRoundLabel = !!this.totalBetPerRoundLabel;
-
-        return hasTotalBetPerRoundButtons && hasTotalBetPerRoundLabel;
     }
 
     @handle(HyperSpinHandler, (handle) => handle.closeHyperSpinBetControl())
@@ -319,181 +234,10 @@ export class HyperSpinBetControl extends ObserverComponent {
         this.playSoundClick();
     }
 
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
-    onClickDecreaseTotalBetPerRound() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(true))
-    onClickIncreaseTotalBetPerRound() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(false))
-    onClickDecreaseTotalBetPerRoundSlider() {
-        this.onClickDecreaseTotalBetPerRound();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeTotalBet(true))
-    onClickIncreaseTotalBetPerRoundSlider() {
-        this.onClickIncreaseTotalBetPerRound();
-    }
-
-    @handle(HyperSpinHandler, (handle, progress: number) => handle.setStopOnProfitFromSlider(progress))
-    private handleStopOnProfitSliderChange(progress: number) {
-        return progress;
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeStopOnProfit(true))
-    onClickIncreaseStopOnProfit() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeStopOnProfit(false))
-    onClickDecreaseStopOnProfit() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle, progress: number) => handle.setStopOnLossFromSlider(progress))
-    private handleStopOnLossSliderChange(progress: number) {
-        return progress;
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeStopOnLoss(true))
-    onClickIncreaseStopOnLoss() {
-        this.playSoundClick();
-    }
-
-    @handle(HyperSpinHandler, (handle) => handle.changeStopOnLoss(false))
-    onClickDecreaseStopOnLoss() {
-        this.playSoundClick();
-    }
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSoundClick() {
         return gc.Audios.AudioIds.CLICK;
-    }
-
-    @render(HyperSpinStore, (store) => ({
-        formattedStopOnProfit: store.formattedStopOnProfit,
-        sliderProgress: store.stopOnProfitSliderProgress,
-        interactable: store.interactableStopOnProfit
-    }))
-    private renderStopOnProfit(data: {
-        formattedStopOnProfit: string;
-        sliderProgress: number;
-        interactable: { increase: boolean; decrease: boolean };
-    }) {
-        this.updateStopOnProfitDisplay(data);
-    }
-
-    private updateStopOnProfitDisplay(data: {
-        formattedStopOnProfit: string;
-        sliderProgress: number;
-        interactable: { increase: boolean; decrease: boolean };
-    }) {
-        if (this.stopOnProfitLabel) {
-            this.stopOnProfitLabel.string = data.formattedStopOnProfit;
-        }
-
-        if (this.stopOnProfitDecreaseBtn) {
-            this.stopOnProfitDecreaseBtn.interactable = data.interactable.decrease;
-        }
-        if (this.stopOnProfitIncreaseBtn) {
-            this.stopOnProfitIncreaseBtn.interactable = data.interactable.increase;
-        }
-
-        if (this.stopOnProfitSliderCtrl) {
-            const currentProgress = this.stopOnProfitSliderCtrl.progress;
-            const progressDiff = Math.abs(currentProgress - data.sliderProgress);
-            if (progressDiff > 0.0001) {
-                this.stopOnProfitSliderCtrl.progress = data.sliderProgress;
-            }
-        }
-    }
-
-    onStopOnProfitSliderChange(slider: Slider | Event | any) {
-        if (slider && typeof slider.progress === "number" && !isNaN(slider.progress)) {
-            this.handleStopOnProfitSliderChange(slider.progress);
-        }
-    }
-
-    @render(HyperSpinStore, (store) => ({
-        formattedStopOnLoss: store.formattedStopOnLoss,
-        sliderProgress: store.stopOnLossSliderProgress,
-        interactable: store.interactableStopOnLoss
-    }))
-    private renderStopOnLoss(data: {
-        formattedStopOnLoss: string;
-        sliderProgress: number;
-        interactable: { increase: boolean; decrease: boolean };
-    }) {
-        this.updateStopOnLossDisplay(data);
-    }
-
-    private updateStopOnLossDisplay(data: {
-        formattedStopOnLoss: string;
-        sliderProgress: number;
-        interactable: { increase: boolean; decrease: boolean };
-    }) {
-        if (this.stopOnLossLabel) {
-            this.stopOnLossLabel.string = data.formattedStopOnLoss;
-        }
-
-        if (this.stopOnLossDecreaseBtn) {
-            this.stopOnLossDecreaseBtn.interactable = data.interactable.decrease;
-        }
-        if (this.stopOnLossIncreaseBtn) {
-            this.stopOnLossIncreaseBtn.interactable = data.interactable.increase;
-        }
-
-        if (this.stopOnLossSliderCtrl) {
-            const currentProgress = this.stopOnLossSliderCtrl.progress;
-            const progressDiff = Math.abs(currentProgress - data.sliderProgress);
-            if (progressDiff > 0.0001) {
-                this.stopOnLossSliderCtrl.progress = data.sliderProgress;
-            }
-        }
-    }
-
-    onStopOnLossSliderChange(slider: Slider | Event | any) {
-        if (slider && typeof slider.progress === "number" && !isNaN(slider.progress)) {
-            this.handleStopOnLossSliderChange(slider.progress);
-        }
-    }
-
-    @render(BetControlStore, (store) => store.formattedTotalBet)
-    private renderHyperSpinTotalBet(formattedTotalBet: string) {
-        this.updateTotalBetPerRoundDisplay(formattedTotalBet);
-    }
-
-    private updateTotalBetPerRoundDisplay(formattedValue: string) {
-        if (this.totalBetPerRoundLabel) {
-            this.totalBetPerRoundLabel.string = formattedValue;
-        }
-
-        if (this.totalBetPerRoundSliderLabel) {
-            this.totalBetPerRoundSliderLabel.string = formattedValue;
-        }
-    }
-
-    @render(BetControlStore, (store) => store.interactableTotalBet)
-    private updateTotalBetPerRoundButtonStatus(interactableTotalBet: { increase: boolean; decrease: boolean }) {
-        if (this.totalBetPerRoundDecreaseBtn) {
-            this.totalBetPerRoundDecreaseBtn.interactable = interactableTotalBet.decrease;
-        }
-
-        if (this.totalBetPerRoundSliderDecreaseBtn) {
-            this.totalBetPerRoundSliderDecreaseBtn.interactable = interactableTotalBet.decrease;
-        }
-
-        if (this.totalBetPerRoundIncreaseBtn) {
-            this.totalBetPerRoundIncreaseBtn.interactable = interactableTotalBet.increase;
-        }
-
-        if (this.totalBetPerRoundSliderIncreaseBtn) {
-            this.totalBetPerRoundSliderIncreaseBtn.interactable = interactableTotalBet.increase;
-        }
     }
 
     @render(HyperSpinStore, (store) => ({ selectedRoundOnPopup: store.selectedRoundOnPopup, isHyperSpin: store.isHyperSpin, roundsHyperSpin: store.roundsHyperSpin }))
@@ -569,31 +313,5 @@ export class HyperSpinBetControl extends ObserverComponent {
 
         const formattedBalance = gc.FormatUtils.truncateFixedDecimals(value, 2).toString();
         this.balanceLabel && (this.balanceLabel.string = formattedBalance);
-    }
-
-    @render(BetControlStore, (store) => ({
-        formattedTotalBet: store.formattedTotalBet,
-        sliderProgress: store.totalBetSliderProgress
-    }))
-    private renderTotalBet(data: { formattedTotalBet: string; sliderProgress: number }) {
-        this.updateTotalBetDisplay(data);
-    }
-
-    private updateTotalBetDisplay(data: { formattedTotalBet: string; sliderProgress: number }) {
-        if (this.totalBetPerRoundSliderLabel) {
-            this.totalBetPerRoundSliderLabel.string = data.formattedTotalBet;
-        }
-
-        if (this.totalBetPerRoundLabel) {
-            this.totalBetPerRoundLabel.string = data.formattedTotalBet;
-        }
-
-        if (this.totalBetSliderCtrl) {
-            const currentProgress = this.totalBetSliderCtrl.progress;
-            const progressDiff = Math.abs(currentProgress - data.sliderProgress);
-            if (progressDiff > 0.0001) {
-                this.totalBetSliderCtrl.progress = data.sliderProgress;
-            }
-        }
     }
 }
