@@ -56,14 +56,13 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
             this.playSound(AudioIds.WIN);
             this.setMultiplierValue(mItem.multiplier);
             
-            const isBottomPosition = this.isNodeAtBottomBoard(mItem.value.node);
             
             if (this.currentTotalMultiplier > 0) {
-                await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView, isBottomPosition);
+                await this.movingMultiplierToTotalMultiplier(mItem.value.node, this.effectContainer, totalMultiplierView);
                 accumulatedMultiplier += +mItem.multiplier;
                 totalMultiplierView.setTotalMultiplierTmp(this.currentTotalMultiplier + accumulatedMultiplier);
             } else {
-                await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node, isBottomPosition);
+                await this.movingMultiplier(mItem.value.node, this.effectContainer, tumbleWinView.multiplier.node);
             }
             
         }
@@ -139,24 +138,26 @@ export class PortraitCascadingSlotBoard extends CascadingSlotBoard {
         });
     }
 
-    movingMultiplier(multiplierNode: Node, container: Node, destNode: Node, isBottomPosition?: boolean) {
+    movingMultiplier(multiplierNode: Node, container: Node, destNode: Node) {
         return new Promise<void>((resolve) => {
             const node = this.initStartNode(multiplierNode, container);
             const destPos = ComponentUtils.convertPosition(container, destNode);
-            const duration = isBottomPosition 
+            const isBottom = this.isNodeAtBottomBoard(multiplierNode);
+            const duration = isBottom 
                 ? getConfigGameSpeed("bottomMultiplierAnimDuration", this.gameSpeed)
                 : getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
         });
     }
 
-    movingMultiplierToTotalMultiplier(multiplierNode: Node, container: Node, totalMultiplierView: TotalMultiplierView, isBottomPosition?: boolean) {
+    movingMultiplierToTotalMultiplier(multiplierNode: Node, container: Node, totalMultiplierView: TotalMultiplierView) {
         return new Promise<void>((resolve) => {
             const node = this.initStartNode(multiplierNode, container);
             const destPosTmp = ComponentUtils.convertPosition(container, totalMultiplierView.total.node);
             const totalValueWidth = totalMultiplierView.total.node.getComponent(UITransform).width;
             const destPos = v3(destPosTmp.x - totalValueWidth / 2, destPosTmp.y, 0);
-            const duration = isBottomPosition 
+            const isBottom = this.isNodeAtBottomBoard(multiplierNode);
+            const duration = isBottom 
                 ? getConfigGameSpeed("bottomMultiplierAnimDuration", this.gameSpeed)
                 : getConfigGameSpeed("totalMultiplierAnimDuration", this.gameSpeed);
             this.animMoveMultiplier(node, destPos, duration, resolve);
