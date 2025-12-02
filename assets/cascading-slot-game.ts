@@ -6,6 +6,8 @@ import { StaticGroupId } from "db://shared-components/shared/common-components/s
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { ComponentUtils } from "db://shared-components/shared/utils/component-utils";
 import Observer from "observer";
+
+import { AudioIds } from "db://assets/game/audios/AudioIds";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import {
@@ -13,10 +15,10 @@ import {
     FreeSpinSource,
     FSBPromotionUIStore,
 } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
+import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { GameComponentBase } from "db://shared-components/game/scripts/components/game-component-base";
 import { bundleManager } from "db://shared-components/shared/common-components/bundle-manager/bundle-manager";
 import { GameVisibility } from "db://shared-components/shared/common-components/game-visibility/game-visibility";
-import { GameVisibilityStore } from "db://shared-components/shared/common-components/game-visibility/game-visibility-store";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { ColorJson, convertData, DialogName, GameFeatureJson, getCustomDuration, resourcesCache } from "./cascading-slot-utils";
 import { CascadingSlotBoard } from "./components/slot-board/components/cascading-slot-board";
@@ -25,15 +27,19 @@ import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
-import { HyperSpinManager } from "./handlers/hyper-spin-manager";
+import { InterruptionHandlers } from "./handlers/interruption-handlers";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
+import { HyperSpinManager } from "./handlers/hyper-spin-manager";
+
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories } = gc;
 
 @ccclass
 export class CascadingSlotGame extends GameComponentBase {
+    private hyperSpinManager: HyperSpinManager = null;
+
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
 
@@ -42,9 +48,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @property(TumbleWinWiew)
     tumbleWinView: TumbleWinWiew = null;
-
-    // Inject HyperSpinManager directly to ensure availability
-    private hyperSpinManager: HyperSpinManager = null;
 
     @property(Node)
     effectContainer: Node = null;
@@ -69,8 +72,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     public isTurboMode = false;
 
-    // Lazy-loaded handlers - none currently
-
     onLoad() {
         this.initConfig();
         this.registerEventShowHideGame();
@@ -89,21 +90,6 @@ export class CascadingSlotGame extends GameComponentBase {
         this.loadSlotSymbols();
         this.board.colorInfo = this.colorInfo;
         this.board.initBoardFullItems();
-
-        // Initialize HyperSpinManager
-        this.initializeHyperSpinManager();
-    }
-
-    private initializeHyperSpinManager() {
-        try {
-            const container = (Observer as any).config?.[this.namespace || 'portrait-wukong']?.container ||
-                (Observer as any).config?.default?.container;
-            if (container && typeof container.get === 'function') {
-                this.hyperSpinManager = container.get(HyperSpinManager);
-            } else {
-            }
-        } catch (error) {
-        }
     }
 
     protected registerEventShowHideGame() {
@@ -127,7 +113,6 @@ export class CascadingSlotGame extends GameComponentBase {
             });
             ComponentUtils.setEmptyLabels(lblList);
         }
-
     }
 
     @handle(gc.Connection.ConnectionHandlers.ConnectHandler)
@@ -135,6 +120,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
+        console.log(`LoadScene ${gameName}`);
         console.timeEnd("Game Load Time");
     }
 
@@ -148,19 +134,11 @@ export class CascadingSlotGame extends GameComponentBase {
     initPlayerSelections() { }
 
     @handle(HideGame.HideGameHandler)
-    onHideGame() {
-        // reload here will run when page appears from hidden
-        // to fix issue on iOS that EVENT_SHOW are not triggered when phone active
-        // if (sys.os === sys.OS.IOS) {
-        //     setTimeout(() => {
-        //         window.location.reload();
-        //     }, 100);
-        // }
-    }
+    @handle(InterruptionHandlers, (handler) => handler.onGameHide())
+    onHideGame() { }
 
-    onShowGame() {
-        window.location.reload();
-    }
+    @handle(InterruptionHandlers, (handler) => handler.onGameShow())
+    onShowGame() { }
 
     @render(CascadingUIStore, (store) => store.isTrialMode)
     renderTrialMode(isTrialMode: boolean) {
@@ -171,8 +149,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(Connection.ConnectionHandlers.InGameHandler, (handler) => handler.requestInGame())
-    inGame() {
-    }
+    inGame() { }
 
     @handle(FSBPromotionUIHandler, (handler, isTrialMode: boolean) => handler.handleTrialMode(isTrialMode))
     handleTrialModeWithPromo(isTrialMode: boolean) {
@@ -181,8 +158,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingUIStore, (store) => store.isFreeSpins)
     notifyFreeSpinFromGame(isActive: boolean) {
-        const signal = { source: FreeSpinSource.GAME, active: isActive };
-        this.notifyFreeSpin(signal);
+        this.notifyFreeSpin({ source: FreeSpinSource.GAME, active: isActive });
     }
 
     @handle(FSBPromotionUIHandler, (handler, signal: FreeSpinSignal) => handler.handleFreeSpin(signal))
@@ -192,7 +168,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     loadSlotSymbols() {
         const cache = resourcesCache.slotSymbols || {};
-
         for (let index = 0; index < CascadingSlotConfig?.symbolCount; index++) {
             if (cache[index]) {
                 continue;
@@ -202,7 +177,20 @@ export class CascadingSlotGame extends GameComponentBase {
         }
 
         resourcesCache.slotSymbols = cache;
+    }
 
+
+    private getHyperSpinManager(): HyperSpinManager | null {
+        if (this.hyperSpinManager) {
+            return this.hyperSpinManager;
+        }
+
+        const staticInstance = HyperSpinManager.getInstance();
+        if (staticInstance) {
+            return staticInstance;
+        }
+
+        return null;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
@@ -211,17 +199,11 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
 
-        // Check if hyper-spin should handle this settlement
         const hyperSpinManager = this.getHyperSpinManager();
-        if (hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(
-            finishData,
-            this.tumbleWinView,
-            this.totalMultiplierView
-        )) {
-            return; // Hyper-spin handled the settlement
+        if (hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(finishData)) {
+            return;
         }
 
-        // Normal mode settlement (master-branch logic)
         this.handleChangeUserBalance(false);
         const {
             win,
@@ -238,7 +220,7 @@ export class CascadingSlotGame extends GameComponentBase {
             actualBetwin,
             freeSpins,
         } = finishData;
-        const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: this.isTurboMode, tumbles };
+        const symbolsBoard = { symbols: convertData(result), multipliers: tumbles[0]?.multipliers, isTurbo: false, tumbles };
         await this.board.spinResult(symbolsBoard, this.isTurboMode);
         await this.board.handleTumbles(tumbles, this.isTurboMode);
         const winTumbles = tumbles.length > 1;
@@ -248,7 +230,7 @@ export class CascadingSlotGame extends GameComponentBase {
         if (win > 0) {
             this.getBalance();
             this.handleChangeUserBalance(true);
-            if (winTumbles && this.tumbleWinView) {
+            if (winTumbles) {
                 await this.tumbleWinView.setTotalWinValue(actualBetwin);
             }
             this.handleTotalWin({ win: win, isActualWin: true });
@@ -272,75 +254,9 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-
-    /**
-     * Get handler from Observer container
-     */
-    private getHandlerFromObserver<T>(HandlerClass: new (...args: any[]) => T): T | null {
-        try {
-            // Observer stores container in its configuration
-            const observerConfig = (Observer as any).config;
-            if (observerConfig) {
-                // Try game namespace first
-                const gameNamespace = this.namespace || 'portrait-wukong';
-                let container = observerConfig[gameNamespace]?.container;
-
-                // Fallback to default namespace
-                if (!container) {
-                    container = observerConfig.default?.container;
-                }
-
-                // Fallback to any namespace
-                if (!container) {
-                    const namespaces = Object.keys(observerConfig);
-                    if (namespaces.length > 0) {
-                        container = observerConfig[namespaces[0]].container;
-                    }
-                }
-
-                if (container && typeof container.get === 'function') {
-                    const handler = container.get(HandlerClass);
-                    return handler;
-                }
-            }
-        } catch (error) {
-        }
-        return null;
-    }
-
-    /**
-     * Get HyperSpinManager from Observer container
-     */
-    private getHyperSpinManager(): HyperSpinManager | null {
-        // Return cached instance if available
-        if (this.hyperSpinManager) {
-            return this.hyperSpinManager;
-        }
-
-        // Fallback: Try to get from container
-        try {
-            const container = (Observer as any).config?.[this.namespace || 'portrait-wukong']?.container ||
-                (Observer as any).config?.default?.container;
-            if (container && typeof container.get === 'function') {
-                this.hyperSpinManager = container.get(HyperSpinManager);
-                return this.hyperSpinManager;
-            }
-        } catch (error) {
-        }
-
-        // Last resort: Try static instance
-        const staticInstance = HyperSpinManager.getInstance();
-        if (staticInstance) {
-            return staticInstance;
-        }
-
-        return null;
-    }
-
     protected async showTotalMultiplierView(totalMultiplier: number, isFreeSpin: boolean, winMultiplier: boolean) {
         const needShowTotalMultiplier = totalMultiplier > 0;
-
-        if (winMultiplier && isFreeSpin && needShowTotalMultiplier && this.tumbleWinView) {
+        if (winMultiplier && isFreeSpin && needShowTotalMultiplier) {
             await this.totalMultiplierView.showView(true);
             await this.board.movingMultiplier(
                 this.tumbleWinView.multiplier.node,
@@ -355,47 +271,27 @@ export class CascadingSlotGame extends GameComponentBase {
         return completed;
     }
 
-
-
-    /**
-     * Check next round - routes to hyper-spin if active, otherwise normal mode.
-     */
     @render(CascadingUIStore, (store) => store.isFreeSpinEffectCompleted)
     async checkNextRound(isFreeSpinEffectCompleted: boolean) {
-        if (!isFreeSpinEffectCompleted) {
-            return;
-        }
-
-        // Check if hyper-spin should handle next round
-        const hyperSpinManager = this.getHyperSpinManager();
-        if (hyperSpinManager && await hyperSpinManager.handleNextRoundIfActive()) {
-            return; // Hyper-spin handled the next round
-        }
-
-        // Normal mode handling (master-branch logic)
-        const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
-        if (delayForNextSpin > 0) {
+        if (isFreeSpinEffectCompleted) {
+            const delayForNextSpin = getCustomDuration("delayForNextSpin", this.isTurboMode);
             await AnimationUtils.delayTime(delayForNextSpin);
+
+            // Enable autoplay when free spin effect is completed
+            this.enableAutoPlayOnFreeSpinCompleted();
+
+            // When the free spin effect is completed, handle the next round
+            // by automatically spinning
+            this.handleEndGameApiError();
+            this.checkSpinNextRound();
         }
-
-        // Enable autoplay when free spin effect is completed
-        this.enableAutoPlayOnFreeSpinCompleted();
-
-        // When the free spin effect is completed, handle the next round
-        // by automatically spinning
-        this.handleEndGameApiError();
-        this.checkSpinNextRound();
     }
-
-
 
     @handle(CascadingSlotErrorHandler, (handler) => handler.handleEndGameApiError())
-    handleEndGameApiError() {
-    }
+    handleEndGameApiError() { }
 
     @handle(AutoPlayHandler, (handler) => handler.checkAutoPlayWhenSettlementCompleted())
-    enableAutoPlayOnFreeSpinCompleted() {
-    }
+    enableAutoPlayOnFreeSpinCompleted() { }
 
     @render(CascadingUIStore, (store) => store.roundId)
     renderRoundId(roundId: number) {
@@ -403,13 +299,11 @@ export class CascadingSlotGame extends GameComponentBase {
             this.lblRoundId && (this.lblRoundId.string = "");
             return;
         }
-
         this.lblRoundId && (this.lblRoundId.string = `#${roundId}`);
     }
 
     @handle(CascadingUIHandler, (handler) => handler.handleNewRound())
-    handleNewRound() {
-    }
+    handleNewRound() { }
 
     @handle(CascadingUIHandler, (handle, freespins: number) => handle.handleFreeSpinsTotal(freespins))
     setFreeSpinsTotal(freespins: number) {
@@ -422,9 +316,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(AutoPlayHandler, (handler) => handler.checkSpinNextRound())
-    checkSpinNextRound() {
-    }
-
+    checkSpinNextRound() { }
 
     @render(FSBPromotionUIStore, (store) => store.changeUserBalance)
     handleUpdateBalance(isUpdateBalance: boolean) {
@@ -443,13 +335,11 @@ export class CascadingSlotGame extends GameComponentBase {
         if (value === undefined || value === null) {
             return;
         }
-
         this.lblBalance && (this.lblBalance.string = FormatUtils.truncateFixedDecimals(value, 2).toString());
     }
 
     @handle(gc.Auth.AuthHandlers.GetBalance)
-    getBalance() {
-    }
+    getBalance() { }
 
     @render(CascadingUIStore, (store) => store.isTurboMode)
     renderTurboMode(isTurboMode: boolean) {
@@ -488,6 +378,7 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @handle(CascadingUIHandler, (handle, params: any) => handle.handleTotalWin(params))
     handleTotalWin(params: { win: number; isActualWin: boolean }) {
+        AudioUtils.playSFX(AudioIds.WIN);
         return params;
     }
 
@@ -506,21 +397,8 @@ export class CascadingSlotGame extends GameComponentBase {
         }
     }
 
-    @render(GameVisibilityStore, (store) => store.isVisible)
-    renderGameVisibility(isVisible: boolean) {
-        if (!isVisible) {
-            this.handleOnGameHide();
-        }
-    }
-
-    @handle(CascadingUIHandler, (handler) => handler.handleOnGameHide())
-    handleOnGameHide() {
-    }
-
     @handle(CascadingUIHandler, (handler) => handler.handleTriggerWinMultiplier())
-    handleTriggerWinMultiplier() {
-    }
-
+    handleTriggerWinMultiplier() { }
 
     @handle(FSBPromotionUIHandler, (handler, payload: { win: number; totalFreeSpins: number }) => handler.updateTotalWin(payload))
     updateTotalWinPromo(payload: { win: number; totalFreeSpins: number }) {
@@ -528,6 +406,5 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
     @handle(CascadingUIHandler, (handler) => handler.triggerOpenDialog(DialogName.DUMMY_DIALOG))
-    clickOnBackground() {
-    }
+    clickOnBackground() { }
 }

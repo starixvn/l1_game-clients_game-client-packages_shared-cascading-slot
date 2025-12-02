@@ -21,7 +21,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private readonly SETTLEMENT_WAIT_TIMEOUT_MS = 10000;
     private lastSettlementCheckTime = 0;
     private isBatchInterrupted = false;
-    private isCompletionPending = false;
 
     private checkNextRoundTimeout: number | null = null;
     private placeBetTimeout: number | null = null;
@@ -74,9 +73,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.roundsHyperSpin = this.hyperSpinStore.selectedRoundOnPopup;
         this.hyperSpinStore.isOpenHyperSpinPopup = false;
 
-        setTimeout(() => {
-            this.startHyperSpinWithRounds();
-        }, 500);
+        this.startHyperSpinWithRounds();
     }
 
     private startHyperSpinWithRounds() {
@@ -310,11 +307,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             if (!hasEnoughMoney) {
                 this.stopHyperSpin();
             } else {
-                setTimeout(() => {
-                    if (!this.isCancelled && this.hyperSpinStore.isHyperSpin) {
-                        this.placeHyperSpinBet();
-                    }
-                }, 1000);
+                if (!this.isCancelled && this.hyperSpinStore.isHyperSpin) {
+                    this.placeHyperSpinBet();
+                }
             }
         }
     }
@@ -402,7 +397,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.setHyperSpinActive(false);
         this.hyperSpinStore.stopHyperSpinSessionTracking();
         this.hyperSpinStore.completeHyperSpinBatch();
-        this.isCompletionPending = false;
 
         this.hyperSpinStore.isOpenHyperSpinPopup = false;
 
@@ -426,8 +420,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         (this.gameState as any).bottomMessageState = SlotNotification.SETTLED;
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
-
-        this.isCompletionPending = false;
 
         this.showHyperSpinCompletedMessage();
     }
@@ -510,21 +502,16 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         if (!this.settlementWaitTimeout) {
-            this.settlementWaitTimeout = window.setTimeout(() => {
-                if (!this.isCancelled) {
-                    this.isBatchInterrupted = true;
-                    this.handleBatchInterruption();
-                }
-            }, this.SETTLEMENT_WAIT_TIMEOUT_MS);
+            if (!this.isCancelled) {
+                this.isBatchInterrupted = true;
+                this.handleBatchInterruption();
+            }
+            return;
         }
 
-        const timeoutId = window.setTimeout(() => {
-            this.checkNextRoundTimeout = null;
-            if (!this.isCancelled) {
-                this.checkHyperSpinNextRound();
-            }
-        }, 0);
-        this.checkNextRoundTimeout = timeoutId;
+        if (!this.isCancelled) {
+            this.checkHyperSpinNextRound();
+        }
     }
 
     private clearSettlementTimeoutIfNeeded() {
@@ -636,7 +623,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.setHyperSpinActive(false);
 
         this.updateHyperSpinRounds(0);
-        this.isCompletionPending = false;
 
         if (this.hyperSpinStore.currentBatchData) {
             this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus = "Cancel";

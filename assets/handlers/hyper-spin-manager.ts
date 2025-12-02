@@ -1,5 +1,4 @@
 import inversify from "inversify";
-import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { HyperSpinStore } from "../stores/hyper-spin-store";
 import { HyperSpinSettlementHandler } from "./hyper-spin-settlement-handler";
 import { HyperSpinHandler } from "./hyper-spin-handler";
@@ -9,7 +8,6 @@ const { injectable, inject } = inversify;
 @injectable()
 export class HyperSpinManager {
     @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
-    @inject(CascadingUIStore) protected readonly gameState: CascadingUIStore;
     @inject(HyperSpinSettlementHandler) protected readonly hyperSpinSettlementHandler: HyperSpinSettlementHandler;
     @inject(HyperSpinHandler) protected readonly hyperSpinHandler: HyperSpinHandler;
     private static _instance: HyperSpinManager | null = null;
@@ -39,7 +37,7 @@ export class HyperSpinManager {
             return false;
         }
 
-        await this.hyperSpinHandler.checkHyperSpinNextRound();
+        this.hyperSpinHandler.checkHyperSpinNextRound();
         return true;
     }
 
