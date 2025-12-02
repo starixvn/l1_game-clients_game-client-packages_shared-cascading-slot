@@ -1,13 +1,13 @@
+import gc from "@sg/game-client-base";
 import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-store";
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
-import gc from "@sg/game-client-base";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { AutoPlayStore } from "./auto-play-store";
-import { CascadingUIStore } from "./cascading-ui-store";
-import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { BetControlStore } from "./bet-control-store";
+import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
+import { CascadingUIStore } from "./cascading-ui-store";
 const { injectable, inject } = inversify;
 const { FormatUtils } = gc;
 
@@ -18,30 +18,24 @@ export type HyperSpinStatus = "Ready" | "Playing" | "Paused" | "Interrupted" | "
 export type WinTag = "Bronze" | "Silver" | "Gold" | "Amethyst" | null;
 
 // Individual cascade step within a winning spin
-export interface CascadeRecord {
-    step: number; // Step number in cascade (1, 2, 3...)
+export interface DetailRecord {
     winAmount: number; // Win amount for this step
-    winAmountFormatted: string; // Formatted win amount
     multiplier: number; // Multiplier for this step
-    multiplierFormatted: string; // Formatted multiplier
-    hasScatterTrigger: boolean; // Whether this step triggered scatters
-    hasMultiplier: boolean; // Whether this step has multipliers
+    winLevel: number;
 }
 
 // Single spin data within a hyper-spin batch
 export interface HyperSpinSingleSpinData {
-    spinId: string | number; // Spin ID (1,2,3...) or free spin marker
-    isFreeSpin: boolean; // Whether this is a free spin
-    spinWinAmount: string; // Formatted win amount (e.g., "1,234.56")
-    spinWinAmountRaw: number; // Raw win amount for calculations
-    spinWinMultiplier: string; // Formatted multiplier (e.g., "1.5x")
-    spinWinMultiplierRaw: number; // Raw multiplier for calculations
-    winTag: WinTag; // Win tag for special wins
-    spinBalance: string; // Formatted ending balance
-    spinBalanceRaw: number; // Raw ending balance for calculations
-    stake: number; // Stake amount for this spin
-    isCascadeRecord?: boolean; // Whether this represents a complete cascade (deprecated - use cascadeRecords instead)
-    cascadeRecords?: CascadeRecord[]; // Array of individual cascade steps (if cascade occurred)
+    spinId: number;
+    isFreeSpin: boolean;
+    balanceBefore: number;
+    bet: number;
+
+    totalWin?: number;
+    totalMultiplier?: number;
+    winLevel?: number;
+    balanceAfter?: number;
+    detailRecords?: DetailRecord[];
 }
 
 // Hyper-spin batch summary data
@@ -49,12 +43,9 @@ export interface HyperSpinBatchSummary {
     totalBet: string; // Formatted total bet amount
     totalBetRaw: number; // Raw total bet for calculations
     hyperSpinStatus: HyperSpinStatus; // Current batch status
-    totalWin: string; // Formatted total win amount
-    totalWinRaw: number; // Raw total win for calculations
-    startingBalance: string; // Formatted starting balance
-    startingBalanceRaw: number; // Raw starting balance for calculations
-    endBalance: string; // Formatted ending balance
-    endBalanceRaw: number; // Raw ending balance for calculations
+    totalWin: number;
+    startingBalance: number;
+    endBalance: number;
 }
 
 // Complete hyper-spin batch data
@@ -180,6 +171,7 @@ export class HyperSpinStore {
     selectedRoundOnPopup = this.roundsList[2]; // Default to 100
     roundsHyperSpin = 0;
     isActiveHyperSpin = false;
+    winLevelConfig = [6, 20, 30];
 
     get isTurnOnHyperSpin() {
         return this.isOpenHyperSpinPopup || this.isActiveHyperSpin;
@@ -363,18 +355,9 @@ export class HyperSpinStore {
     }
 
     startHyperSpinSessionTracking() {
-        if (!this.cascadingUIStore) {
-            return;
-        }
-
         this._hyperSpinInitialBalance = this.cascadingUIStore.userBalance;
         this._hyperSpinCurrentProfit = 0;
         this._hyperSpinCurrentLoss = 0;
-    }
-
-    // Fallback for cached code compatibility
-    initializeHyperSpinTrackingFallback() {
-        this.startHyperSpinSessionTracking();
     }
 
     stopHyperSpinSessionTracking() {
@@ -431,50 +414,33 @@ export class HyperSpinStore {
 
 
     // Batch data tracking
-    private _currentBatchData: HyperSpinBatchData | null = null;
+    private _spinBatchData: HyperSpinBatchData | null = null;
     private _hyperSpinRoundCounter = 0; // Hyper-spin rounds (excludes free spins)
     private _freeSpinCounter = 0; // Free spin counter
 
     // Cascade tracking for hyper-spin mode
-    private _currentCascadeData: {
-        spinId: string | number;
-        isFreeSpin: boolean;
-        mainSpinRecord: HyperSpinSingleSpinData | null;
-        accumulatedWin: number;
-        stake: number;
-        startTime: number;
-        hasBigWin: boolean;
-        hasMegaWin: boolean;
-        hasSuperWin: boolean;
-        hasReachMaxWin: boolean;
-        freeSpinsTriggered: number;
-        totalFreeSpins: number;
-        cascadeRecords: CascadeRecord[];
-    } | null = null;
+    private _singleSpinData: HyperSpinSingleSpinData = null;
 
-    get currentBatchData(): HyperSpinBatchData | null {
-        return this._currentBatchData;
+    get spinBatchData(): HyperSpinBatchData {
+        return this._spinBatchData;
     }
 
     // Computed property for MobX reactivity
     get spinsLength(): number {
-        return this._currentBatchData?.spins?.length || 0;
+        return this._spinBatchData?.spins?.length || 0;
     }
 
     initializeHyperSpinBatch() {
         const startingBalanceRaw = this.cascadingUIStore?.userBalance ?? 0;
 
-        this._currentBatchData = {
+        this._spinBatchData = {
             summary: {
                 totalBet: this.formatNumber(0, 2),
                 totalBetRaw: 0,
                 hyperSpinStatus: "Ready",
-                totalWin: this.formatNumber(0, 2),
-                totalWinRaw: 0,
-                startingBalance: this.formatNumber(startingBalanceRaw, 2),
-                startingBalanceRaw: startingBalanceRaw,
-                endBalance: this.formatNumber(0, 2),
-                endBalanceRaw: 0
+                totalWin: 0,
+                startingBalance: startingBalanceRaw,
+                endBalance: 0
             },
             spins: []
         };
@@ -484,54 +450,46 @@ export class HyperSpinStore {
     }
 
     startHyperSpinBatch() {
-        if (!this._currentBatchData) {
+        if (!this._spinBatchData) {
             this.initializeHyperSpinBatch();
         }
-        if (this._currentBatchData) {
-            this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        if (this._spinBatchData) {
+            this._spinBatchData.summary.hyperSpinStatus = "Playing";
         }
     }
 
     pauseHyperSpinBatch() {
-        if (this._currentBatchData) {
-            this._currentBatchData.summary.hyperSpinStatus = "Paused";
+        if (this._spinBatchData) {
+            this._spinBatchData.summary.hyperSpinStatus = "Paused";
         }
     }
 
     resumeHyperSpinBatch() {
-        if (this._currentBatchData) {
-            this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        if (this._spinBatchData) {
+            this._spinBatchData.summary.hyperSpinStatus = "Playing";
         }
     }
 
     completeHyperSpinBatch() {
-        if (this._currentBatchData) {
-            this._currentBatchData.summary.hyperSpinStatus = "Ready";
+        if (this._spinBatchData) {
+            this._spinBatchData.summary.hyperSpinStatus = "Ready";
 
             const endBalanceRaw = this.cascadingUIStore?.userBalance ?? 0;
-            this._currentBatchData.summary.endBalance = this.formatNumber(endBalanceRaw, 2);
-            this._currentBatchData.summary.endBalanceRaw = endBalanceRaw;
+            this._spinBatchData.summary.endBalance = endBalanceRaw;
         }
     }
 
     addSpinToBatch(spinData: HyperSpinSingleSpinData) {
-        if (!this._currentBatchData) {
-            this.initializeHyperSpinBatch();
-        }
-
-        if (this._currentBatchData) {
-            this._currentBatchData.spins.push(spinData);
+        if (this._spinBatchData) {
+            this._spinBatchData.spins.push(spinData);
 
             // Update totals
-            this._currentBatchData.summary.totalBetRaw += spinData.stake;
-            this._currentBatchData.summary.totalBet = this.formatNumber(
-                this._currentBatchData.summary.totalBetRaw, 2
+            this._spinBatchData.summary.totalBetRaw += spinData.bet;
+            this._spinBatchData.summary.totalBet = this.formatNumber(
+                this._spinBatchData.summary.totalBetRaw, 2
             );
 
-            this._currentBatchData.summary.totalWinRaw += spinData.spinWinAmountRaw;
-            this._currentBatchData.summary.totalWin = this.formatNumber(
-                this._currentBatchData.summary.totalWinRaw, 2
-            );
+            this._spinBatchData.summary.totalWin += spinData.totalWin;
         }
     }
 
@@ -583,16 +541,16 @@ export class HyperSpinStore {
     }
 
     clearBatchData() {
-        this._currentBatchData = null;
+        this._spinBatchData = null;
         this.resetBatchCounters();
     }
 
     recoverInterruptedBatch(): boolean {
-        if (!this._currentBatchData || this._currentBatchData.summary.hyperSpinStatus !== "Interrupted") {
+        if (!this._spinBatchData || this._spinBatchData.summary.hyperSpinStatus !== "Interrupted") {
             return false;
         }
 
-        this._currentBatchData.summary.hyperSpinStatus = "Playing";
+        this._spinBatchData.summary.hyperSpinStatus = "Playing";
         this.setHyperSpinActive(true);
         return true;
     }
@@ -603,81 +561,53 @@ export class HyperSpinStore {
             return; // Only track cascades in hyper-spin mode
         }
 
-        // Get current balance for the main spin record
-        const currentBalance = this.cascadingUIStore?.userBalance ?? 0;
-
-        // Create initial main spin record (will be updated as cascade progresses)
-        const mainSpinRecord: HyperSpinSingleSpinData = {
-            spinId,
-            isFreeSpin,
-            spinWinAmount: FormatUtils.numberWithCommas(0, 2, false), // Will be updated
-            spinWinAmountRaw: 0, // Will be updated
-            spinWinMultiplier: FormatUtils.numberWithCommas(0, 2, false), // Will be updated
-            spinWinMultiplierRaw: 0, // Will be updated
-            winTag: null, // Will be updated
-            spinBalance: FormatUtils.numberWithCommas(currentBalance, 2, false),
-            spinBalanceRaw: currentBalance,
-            stake,
-            cascadeRecords: [] // Will be populated with cascade steps
-        };
-
-        this._currentCascadeData = {
-            spinId,
-            isFreeSpin,
-            mainSpinRecord,
-            accumulatedWin: 0,
-            stake,
-            startTime: Date.now(),
-            hasBigWin: false,
-            hasMegaWin: false,
-            hasSuperWin: false,
-            hasReachMaxWin: false,
-            freeSpinsTriggered: 0,
-            totalFreeSpins: 0,
-            cascadeRecords: []
-        };
 
     }
 
-    accumulateCascadeWin(winAmount: number, bigWin: boolean = false, megaWin: boolean = false, superWin: boolean = false, reachMaxWin: boolean = false, freeSpins: number = 0, totalFreeSpins: number = 0, hasScatterTrigger: boolean = false, hasMultiplier: boolean = false) {
-        if (!this._currentCascadeData) {
+    initNewSingleSpinData(info: { isFreeSpin: boolean, bet: number, balance: number }) {
+        if (!this.isCascadeTrackingActive()) {
+            let spinId: number;
+            if (info.isFreeSpin) {
+                spinId = this.getNextFreeSpinId();
+            } else {
+                spinId = this.getNextHyperSpinId();
+            }
+
+            this._singleSpinData = {
+                spinId,
+                isFreeSpin: info.isFreeSpin,
+                bet: info.bet,
+                balanceBefore: info.balance
+            };
+        }
+    }
+
+    updateSettlementSingleSpinData(info: { totalWin: number, balanceAfter: number, detailRecords?: DetailRecord[] }) {
+        if (!this._singleSpinData) {
             return;
         }
 
-        // Calculate step multiplier (win / stake)
-        const stepMultiplier = this._currentCascadeData.stake > 0 ? winAmount / this._currentCascadeData.stake : 0;
+        this._singleSpinData.totalWin = info.totalWin;
+        this._singleSpinData.balanceAfter = info.balanceAfter;
+        this._singleSpinData.detailRecords = info.detailRecords;
 
-        // Create cascade record for this step
-        const cascadeRecord: CascadeRecord = {
-            step: this._currentCascadeData.cascadeRecords.length + 1,
-            winAmount,
-            winAmountFormatted: FormatUtils.numberWithCommas(winAmount, 2, false),
-            multiplier: stepMultiplier,
-            multiplierFormatted: FormatUtils.numberWithCommas(stepMultiplier, 2, false),
-            hasScatterTrigger,
-            hasMultiplier
-        };
+        const { multiplier, winLevel } = this.calculateMultiplier(info.totalWin, this._singleSpinData.bet);
+        this._singleSpinData.totalMultiplier = multiplier;
+        this._singleSpinData.winLevel = winLevel;
+    }
 
-        // Add to cascade records array
-        this._currentCascadeData.cascadeRecords.push(cascadeRecord);
-
-        // Update accumulated totals
-        this._currentCascadeData.accumulatedWin += winAmount;
-        this._currentCascadeData.hasBigWin = this._currentCascadeData.hasBigWin || bigWin;
-        this._currentCascadeData.hasMegaWin = this._currentCascadeData.hasMegaWin || megaWin;
-        this._currentCascadeData.hasSuperWin = this._currentCascadeData.hasSuperWin || superWin;
-        this._currentCascadeData.hasReachMaxWin = this._currentCascadeData.hasReachMaxWin || reachMaxWin;
-        this._currentCascadeData.freeSpinsTriggered = Math.max(this._currentCascadeData.freeSpinsTriggered, freeSpins);
-        this._currentCascadeData.totalFreeSpins = Math.max(this._currentCascadeData.totalFreeSpins, totalFreeSpins);
-
+    calculateMultiplier(winAmount: number, stake: number): { multiplier: number, winLevel: number } {
+        const multiplier = stake > 0 ? winAmount / stake : 0;
+        const winLevel = this.winLevelConfig.findIndex(level => multiplier < level);
+        return { multiplier, winLevel };
     }
 
     completeCascadeTracking(): HyperSpinSingleSpinData | null {
-        if (!this._currentCascadeData) {
+        if (!this._singleSpinData) {
             return null;
         }
 
-        const cascadeData = this._currentCascadeData;
+        const cascadeData = this._singleSpinData;
         const multiplier = cascadeData.stake > 0 ? cascadeData.accumulatedWin / cascadeData.stake : 0;
 
         // Determine win tag based on accumulated cascade results
@@ -695,31 +625,28 @@ export class HyperSpinStore {
 
         // Update the main spin record with final cascade data
         const mainSpinRecord = cascadeData.mainSpinRecord!;
-        mainSpinRecord.spinWinAmount = FormatUtils.numberWithCommas(cascadeData.accumulatedWin, 2, false);
-        mainSpinRecord.spinWinAmountRaw = cascadeData.accumulatedWin;
-        mainSpinRecord.spinWinMultiplier = FormatUtils.numberWithCommas(multiplier, 2, false);
-        mainSpinRecord.spinWinMultiplierRaw = multiplier;
+        mainSpinRecord.totalWin = cascadeData.accumulatedWin;
+        mainSpinRecord.totalMultiplier = multiplier;
         mainSpinRecord.winTag = winTag;
-        mainSpinRecord.spinBalance = FormatUtils.numberWithCommas(currentBalance, 2, false);
-        mainSpinRecord.spinBalanceRaw = currentBalance;
+        mainSpinRecord.balanceBefore = currentBalance;
 
         // Only include cascadeRecords if there were actual cascade steps
-        if (cascadeData.cascadeRecords.length > 0) {
-            mainSpinRecord.cascadeRecords = [...cascadeData.cascadeRecords];
+        if (cascadeData.detailRecords.length > 0) {
+            mainSpinRecord.cascadeRecords = [...cascadeData.detailRecords];
         }
 
         // Clear cascade tracking
-        this._currentCascadeData = null;
+        this._singleSpinData = null;
 
 
         return mainSpinRecord;
     }
 
     isCascadeTrackingActive(): boolean {
-        return this._currentCascadeData !== null;
+        return this._singleSpinData !== null;
     }
 
     getCurrentCascadeData() {
-        return this._currentCascadeData;
+        return this._singleSpinData;
     }
 }

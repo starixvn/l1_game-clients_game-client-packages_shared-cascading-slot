@@ -153,6 +153,5 @@ export enum DialogName {
 
     BUY_CONFIRMATION = "buy-fs-confirmation",
     BUY_FS_CONGRATULATION = "buy-fs-congratulation",
-    FREESPINS_MESSAGE = "freespins-message",
     HYPER_SPIN = "hyper-spin",
 }

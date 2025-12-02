@@ -4,7 +4,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
-import { CascadeRecord, HyperSpinBatchData, HyperSpinSingleSpinData, HyperSpinStore } from "../../stores/hyper-spin-store";
+import { DetailRecord, HyperSpinBatchData, HyperSpinSingleSpinData, HyperSpinStore } from "../../stores/hyper-spin-store";
 import HyperSpinRecordBodyItem from "../hyper-spin/hyper-spin-record-body-item";
 
 const { ccclass, menu, property } = _decorator;
@@ -38,69 +38,19 @@ export class HyperSpinBetRecords extends ObserverComponent {
     endBalanceNode: Node = null;
 
     private initHyperSpinRecords(spins: HyperSpinBatchData['spins']) {
-        if (!spins || !Array.isArray(spins) || spins.length === 0) {
+        if (!spins || spins.length === 0) {
             return;
         }
 
-        if (!this.hyperSpinRecordBodyContentNode) {
-            return;
-        }
-
-        if (!this.prfHyperSpinRecordBodyItem) {
-            return;
-        }
-
+        console.trace('initHyperSpinRecords');
         this.hyperSpinRecordBodyContentNode.destroyAllChildren();
 
         // For decreasing sort order, render cascade records first, then main records
         // This ensures cascade records appear below their parent when sorted in reverse
-        spins.forEach((spin, idx) => {
-            // First render cascade records (they will appear below parent in reverse sort)
-            // Only render for winning spins that have winTag and cascade records
-            if (spin.cascadeRecords && spin.cascadeRecords.length > 0 && spin.winTag) {
-                spin.cascadeRecords.forEach((cascadeRecord) => {
-                    this.renderCascadeRecord(spin.spinId, cascadeRecord);
-                });
-            }
-
+        spins.forEach((spin) => {
             // Then render main spin record
             this.renderSpinRecord(spin);
         });
-    }
-
-    private appendNewSpinRecords(spins: HyperSpinBatchData['spins']) {
-        if (!spins || !Array.isArray(spins)) {
-            return;
-        }
-
-        if (!this.hyperSpinRecordBodyContentNode) {
-            return;
-        }
-
-        if (!this.prfHyperSpinRecordBodyItem) {
-            return;
-        }
-
-        const currentChildrenCount = this.hyperSpinRecordBodyContentNode.children?.length || 0;
-
-        // For simplicity, if the counts don't match, re-initialize everything
-        // In a more complex implementation, we could track which records are cascade records
-        // and only append the new ones. For now, we'll re-init when there are changes.
-        const expectedCount = this.calculateExpectedRecordCount(spins);
-        if (expectedCount !== currentChildrenCount) {
-            this.initHyperSpinRecords(spins);
-        }
-    }
-
-    private calculateExpectedRecordCount(spins: HyperSpinBatchData['spins']): number {
-        let count = 0;
-        spins.forEach(spin => {
-            count++; // Main spin record
-            if (spin.cascadeRecords && spin.cascadeRecords.length > 0 && spin.winTag) {
-                count += spin.cascadeRecords.length; // Cascade records only for winning spins with winTag
-            }
-        });
-        return count;
     }
 
     private renderSpinRecord(spin: HyperSpinSingleSpinData) {
@@ -110,10 +60,9 @@ export class HyperSpinBetRecords extends ObserverComponent {
         if (recordBodyItem) {
             const spinData = {
                 spinId: spin.spinId,
-                spinWinAmount: spin.spinWinAmount || "0.00",
-                spinWinAmountRaw: spin.spinWinAmountRaw || 0,
-                spinBalance: spin.spinBalance || "0.00",
-                spinWinMultiplier: spin.spinWinMultiplier || "0.00x",
+                spinWinAmount: spin.totalWin || 0,
+                spinBalance: spin.balanceBefore || 0,
+                spinWinMultiplier: spin.totalMultiplier || 0,
                 isCascadeRecord: false // Main spin records are not cascade records
             };
 
@@ -123,48 +72,43 @@ export class HyperSpinBetRecords extends ObserverComponent {
         this.hyperSpinRecordBodyContentNode.addChild(node);
     }
 
-    private renderCascadeRecord(parentSpinId: string | number, cascadeRecord: CascadeRecord) {
-        const node = instantiate(this.prfHyperSpinRecordBodyItem);
-        const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
+    private renderCascadeRecord(parentSpinId: string | number, cascadeRecord: DetailRecord) {
+        // const node = instantiate(this.prfHyperSpinRecordBodyItem);
+        // const recordBodyItem = node.getComponent(HyperSpinRecordBodyItem);
 
-        if (recordBodyItem) {
-            // For cascade records, show step number and cascade win data
-            const spinData = {
-                spinId: `↳ ${cascadeRecord.step}`, // Arrow + step number
-                spinWinAmount: cascadeRecord.winAmountFormatted,
-                spinWinAmountRaw: cascadeRecord.winAmount,
-                spinBalance: "-", // No balance change for cascade steps
-                spinWinMultiplier: cascadeRecord.multiplierFormatted,
-                isCascadeRecord: true // Mark as cascade record for special styling
-            };
+        // if (recordBodyItem) {
+        //     // For cascade records, show step number and cascade win data
+        //     const spinData = {
+        //         spinId: `↳ ${cascadeRecord.step}`, // Arrow + step number
+        //         spinWinAmount: cascadeRecord.winAmountFormatted,
+        //         spinWinAmountRaw: cascadeRecord.winAmount,
+        //         spinBalance: "-", // No balance change for cascade steps
+        //         spinWinMultiplier: cascadeRecord.multiplierFormatted,
+        //         isCascadeRecord: true // Mark as cascade record for special styling
+        //     };
 
-            recordBodyItem.setSpinData(spinData);
-        }
+        //     recordBodyItem.setSpinData(spinData);
+        // }
 
-        this.hyperSpinRecordBodyContentNode.addChild(node);
+        // this.hyperSpinRecordBodyContentNode.addChild(node);
     }
 
-    @render(HyperSpinStore, (store) => {
-        const spinsLength = store.spinsLength;
-        const batchData = store.currentBatchData;
-        return batchData ? { batchData, spinsLength } : null;
-    })
-    private renderHyperSpinRecords(data: { batchData: HyperSpinBatchData; spinsLength: number } | null) {
-        const spins = data?.batchData?.spins;
+    @render(HyperSpinStore, (store) => store.spinBatchData)
+    private renderHyperSpinRecords(data: HyperSpinBatchData) {
+        if (!data) {
+            return;
+        }
 
-        if (spins && Array.isArray(spins)) {
+        const spins = data?.spins;
+        if (spins) {
             // Always re-initialize for now since the structure is more complex
             // with cascade records mixed in. Could be optimized later.
             this.initHyperSpinRecords(spins);
-        } else {
-            if (this.hyperSpinRecordBodyContentNode) {
-                this.hyperSpinRecordBodyContentNode.destroyAllChildren();
-            }
         }
     }
 
 
-    @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.totalWin)
+    @render(HyperSpinStore, (store) => store.spinBatchData?.summary?.totalWin)
     private updateHyperTotalWinValue(totalWin: string) {
         if (this.hyperTotalWinValue) {
             const displayValue = totalWin || "0.00";
@@ -174,7 +118,7 @@ export class HyperSpinBetRecords extends ObserverComponent {
     }
 
 
-    @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.totalBet)
+    @render(HyperSpinStore, (store) => store.spinBatchData?.summary?.totalBet)
     private updateLblTotalBetValue(totalBet: string) {
         if (this.lblTotalBetValue) {
             const displayValue = totalBet || "0.00";
@@ -184,8 +128,8 @@ export class HyperSpinBetRecords extends ObserverComponent {
     }
 
     @render(HyperSpinStore, (store) => ({
-        batchStartingBalance: store.currentBatchData?.summary?.startingBalance,
-        hasBatchData: !!store.currentBatchData
+        batchStartingBalance: store.spinBatchData?.summary?.startingBalance,
+        hasBatchData: !!store.spinBatchData
     }))
     private updateStartingBalanceLabel(data: { batchStartingBalance: string; hasBatchData: boolean }) {
         if (this.startingBalanceLabel) {
@@ -204,9 +148,9 @@ export class HyperSpinBetRecords extends ObserverComponent {
     }
 
     @render(HyperSpinStore, (store) => ({
-        batchEndBalance: store.currentBatchData?.summary?.endBalance,
-        hasBatchData: !!store.currentBatchData,
-        batchStatus: store.currentBatchData?.summary?.hyperSpinStatus
+        batchEndBalance: store.spinBatchData?.summary?.endBalance,
+        hasBatchData: !!store.spinBatchData,
+        batchStatus: store.spinBatchData?.summary?.hyperSpinStatus
     }))
     private updateEndBalanceLabel(data: { batchEndBalance: string; hasBatchData: boolean; batchStatus: string }) {
         if (this.endBalanceLabel) {
@@ -224,7 +168,7 @@ export class HyperSpinBetRecords extends ObserverComponent {
         }
     }
 
-    @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.hyperSpinStatus)
+    @render(HyperSpinStore, (store) => store.spinBatchData?.summary?.hyperSpinStatus)
     private updateHyperSpinStatusLabel(hyperSpinStatus: string) {
         if (this.lblHyperSpinStatus) {
             const displayValue = hyperSpinStatus?.toUpperCase() || "";
@@ -233,9 +177,9 @@ export class HyperSpinBetRecords extends ObserverComponent {
     }
 
     @render(HyperSpinStore, (store) => ({
-        batchStatus: store.currentBatchData?.summary?.hyperSpinStatus,
-        batchEndBalance: store.currentBatchData?.summary?.endBalance,
-        hasBatchData: !!store.currentBatchData
+        batchStatus: store.spinBatchData?.summary?.hyperSpinStatus,
+        batchEndBalance: store.spinBatchData?.summary?.endBalance,
+        hasBatchData: !!store.spinBatchData
     }))
     private updateEndBalanceNodeVisibility(data: { batchStatus: string; batchEndBalance: string; hasBatchData: boolean }) {
         if (this.endBalanceNode) {

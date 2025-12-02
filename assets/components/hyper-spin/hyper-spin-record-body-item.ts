@@ -1,7 +1,7 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label, Node, Sprite, SpriteAtlas, UITransform } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { WinTag } from "../../stores/hyper-spin-store";
-
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -40,10 +40,9 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
      */
     setSpinData(spinData: {
         spinId: string | number;
-        spinWinAmount: string;
-        spinWinAmountRaw: number;
-        spinBalance: string;
-        spinWinMultiplier: string;
+        spinWinAmount: number;
+        spinBalance: number;
+        spinWinMultiplier: number;
         isCascadeRecord?: boolean;
         winTag?: WinTag;
     }) {
@@ -76,12 +75,12 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
 
         // 2.2: assign spin.spinWinAmount to lbl-win-value
         if (this.lblWinValue) {
-            this.lblWinValue.string = spinData.spinWinAmount;
+            this.lblWinValue.string = gc.FormatUtils.numberWithCommas(spinData.spinWinAmount, 2, false);
         }
 
         // 2.3: assign spin.spinBalance to lbl-balance
         if (this.lblBalance) {
-            this.lblBalance.string = spinData.spinBalance;
+            this.lblBalance.string = gc.FormatUtils.numberWithCommas(spinData.spinBalance, 2, false);
         }
 
         // 2.4: assign spin.spinWinMultiplier to lbl-multiplier-value
@@ -91,7 +90,7 @@ export default class HyperSpinRecordBodyItem extends ObserverComponent {
 
         // 2.5: activate winningBgNode for winning records (including cascade records as children of winning records)
         if (this.winningBgNode) {
-            this.winningBgNode.active = spinData.spinWinAmountRaw > 0;
+            this.winningBgNode.active = spinData.spinWinAmount > 0;
         }
 
         // 2.6: activate WinTag sprite based on winTag value

@@ -57,7 +57,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => ({
         isHyperSpin: store.isActiveHyperSpin,
-        isPaused: store.currentBatchData?.summary.hyperSpinStatus === "Paused"
+        isPaused: store.spinBatchData?.summary.hyperSpinStatus === "Paused"
     }))
     updatePlayHyperSpinButton(data: { isHyperSpin: boolean; isPaused: boolean }) {
         const { isHyperSpin, isPaused } = data;
@@ -76,7 +76,7 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => ({
         isSettingsOpen: store.isSettingsOpen,
-        hyperSpinStatus: store.currentBatchData?.summary.hyperSpinStatus
+        hyperSpinStatus: store.spinBatchData?.summary.hyperSpinStatus
     }))
     updateSettingsButton(data: { isSettingsOpen: boolean; hyperSpinStatus: string }) {
         const { isSettingsOpen, hyperSpinStatus } = data;
@@ -141,7 +141,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         }
     }
 
-    @render(HyperSpinStore, (store) => store.currentBatchData?.summary?.totalWin)
+    @render(HyperSpinStore, (store) => store.spinBatchData?.summary?.totalWin)
     private updateTotalWinningsLabels(totalWin: string) {
         const displayValue = totalWin || "0.00";
 
