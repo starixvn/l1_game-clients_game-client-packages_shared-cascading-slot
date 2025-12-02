@@ -23,7 +23,6 @@ import {
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
-import { IBoardRenderer } from "../../../interfaces/board-renderer.interface";
 import { BetControlStore } from "../../../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../../stores/cascading-ui-store";
@@ -36,7 +35,7 @@ const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
 @ccclass
-export class CascadingSlotBoard extends ObserverComponent implements IBoardRenderer {
+export class CascadingSlotBoard extends ObserverComponent {
     @property(Prefab)
     prfFlyLabelWin: Prefab = null;
 
@@ -64,7 +63,6 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
     public minPeekScatterCount = 3;
 
     protected readonly PEEK_EFFECT_DURATION = 1;
-
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -109,6 +107,7 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
         const multipliers =
             resourcesCache.gameFeatures?.newMultiplierRange ? [[3], [8], [12], [20], [100]] : [[3], [8], [12], [15], [18]];
         const randomIndex = random(samples.length - 1);
+        console.log(`B${randomIndex}`);
         return { symbols: samples[randomIndex], multipliers: multipliers[randomIndex] };
     }
 
@@ -145,100 +144,62 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
         }
     }
 
-    async handleTumbles(
-        tumbles: Tumble[],
-        isTurbo: boolean,
-        skipAnimations?: boolean
-    ) {
+    async handleTumbles(tumbles: Tumble[], isTurbo: boolean) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
 
-        const shouldSkip = skipAnimations ?? false;
+        this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
 
-        if (!shouldSkip) {
-            this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
-        }
-
+        let multiplierCount = tumbles[0].multipliers.length;
         for (let i = 0; i < tumbles.length - 1; i++) {
-            await this.processSingleTumble(tumbles, i, isTurbo, shouldSkip);
+            const tumble = tumbles[i];
+            const { icons, win: tumbleWin, settlement } = tumble;
+            const newTumbleMultipliers = [...tumbles[i + 1].multipliers];
+            const getMoreMultiplier = newTumbleMultipliers.length > multiplierCount;
+            if (getMoreMultiplier) {
+                multiplierCount = newTumbleMultipliers.length;
+            }
+            const tumbleMultipliers = newTumbleMultipliers;
+
+            const explode = convertBoardValue(settlement.explode);
+            const newItems = convertBoardValue(settlement.new);
+
+            if (tumbleWin > 0) {
+                Object.keys(icons).forEach((iconKey) => {
+                    const winIconDetail: WinIconDetail = icons[iconKey];
+                    const node = this.getRandomWinItem(explode, +iconKey);
+                    const position = ComponentUtils.convertPosition(this.effectContainer, node);
+                    this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
+                });
+                this.setTumbles(tumbles);
+                this.handleTotalWinTumble(tumbleWin);
+                this.setTumbleIcons(tumble);
+                this.playSound(AudioIds.SYMBOL_MATCH);
+            }
+
+            await this.removeItems(explode, i);
+            await this.fallIn(false, false);
+
+            const remains = this.reels.map((reel) => reel.getItemsData());
+            const hasPeekEffect = !isTurbo ? this.checkPeekEffectInTumbles(remains) : null;
+            if (hasPeekEffect) {
+                this.reels.forEach((reel) => reel.peekEffectScatterItems());
+                AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+
+                this.showPeekEffectInTumbles(newItems);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+            }
+            this.addItems(newItems, hasPeekEffect);
+            this.updateMultiplierItems(tumbleMultipliers);
+            await this.fallIn(hasPeekEffect, false);
+            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+            if (hasPeekEffect && i === tumbles.length - 2) {
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+            }
         }
 
         this.hidePeekEffects();
-    }
-
-    private async processSingleTumble(tumbles: Tumble[], tumbleIndex: number, isTurbo: boolean, skipAnimations: boolean) {
-        const tumble = tumbles[tumbleIndex];
-        const tumbleMultipliers = this.calculateTumbleMultipliers(tumbles, tumbleIndex);
-
-        const explode = convertBoardValue(tumble.settlement.explode);
-        const newItems = convertBoardValue(tumble.settlement.new);
-
-        if (tumble.win > 0) {
-            await this.handleTumbleWin(tumble, explode, skipAnimations);
-        }
-
-        await this.handleTumbleAnimations(explode, tumbleIndex, isTurbo, skipAnimations);
-        await this.handlePeekEffectInTumble(newItems, isTurbo, skipAnimations, tumbleIndex, tumbles.length);
-
-        this.addItems(newItems, !isTurbo && !skipAnimations ? this.checkPeekEffectInTumbles(this.reels.map((reel) => reel.getItemsData())) : null);
-        this.updateMultiplierItems(tumbleMultipliers);
-    }
-
-    private calculateTumbleMultipliers(tumbles: Tumble[], tumbleIndex: number): number[] {
-        return [...tumbles[tumbleIndex + 1].multipliers];
-    }
-
-    private async handleTumbleWin(tumble: Tumble, explode: any[], skipAnimations: boolean) {
-        if (!skipAnimations) {
-            this.processWinIcons(tumble, explode);
-            this.setTumbles([tumble]); // Pass array for compatibility
-            this.handleTotalWinTumble(tumble.win);
-            this.setTumbleIcons(tumble);
-            this.playSound(AudioIds.SYMBOL_MATCH);
-        } else {
-            this.handleTotalWinTumble(tumble.win);
-        }
-    }
-
-    private processWinIcons(tumble: Tumble, explode: any[]) {
-        Object.keys(tumble.icons).forEach((iconKey) => {
-            const winIconDetail: WinIconDetail = tumble.icons[iconKey];
-            const node = this.getRandomWinItem(explode, +iconKey);
-            const position = ComponentUtils.convertPosition(this.effectContainer, node);
-            this.createFlyWinLabel(this.effectContainer, position, winIconDetail.win);
-        });
-    }
-
-    private async handleTumbleAnimations(explode: any[], tumbleIndex: number, isTurbo: boolean, skipAnimations: boolean) {
-        if (!skipAnimations) {
-            await this.removeItems(explode, tumbleIndex);
-            await this.fallIn(false, false);
-        }
-    }
-
-    private async handlePeekEffectInTumble(newItems: any[], isTurbo: boolean, skipAnimations: boolean, tumbleIndex: number, totalTumbles: number) {
-        if (isTurbo || skipAnimations) {
-            return;
-        }
-
-        const remains = this.reels.map((reel) => reel.getItemsData());
-        const hasPeekEffect = this.checkPeekEffectInTumbles(remains);
-
-        if (hasPeekEffect) {
-            this.reels.forEach((reel) => reel.peekEffectScatterItems());
-            AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
-            this.showPeekEffectInTumbles(newItems);
-            await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-            await this.fallIn(true, false);
-            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
-
-            if (tumbleIndex === totalTumbles - 2) {
-                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-            }
-        } else {
-            await this.fallIn(false, false);
-        }
     }
 
     @handle(CascadingUIHandler, (handler, tumbleWin: number) => handler.handleTotalWinTumble(tumbleWin))
@@ -246,98 +207,35 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
         return tumbleWin;
     }
 
-    public async spinResult(
-        symbolsBoard: SymbolBoard,
-        isTurbo: boolean,
-        skipAnimations?: boolean
-    ) {
+    public async spinResult(symbolsBoard: SymbolBoard, isTurbo: boolean) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
-        const shouldSkip = skipAnimations ?? false;
+        this.playSpinAudio(isTurbo);
 
-        await this.handleSpinSetup(isTurbo, shouldSkip, delayEachReelFallOut);
+        await this.fallOut(isTurbo, delayEachReelFallOut);
 
-        const peekEffect = this.shouldCheckPeekEffect(isTurbo, shouldSkip) ? this.checkPeekEffect(symbols) : null;
-        const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
-
+        const peekEffect = !isTurbo ? this.checkPeekEffect(symbols) : null;
         for (let i = 0; i < this.reels.length; i++) {
-            const reelSpinParams = {
-                reelIndex: i,
-                reelSymbols: symbols[i],
-                multipliers,
-                isTurbo,
-                skipAnimations: shouldSkip,
-                delayEachReelFallOut,
-                awaitReelIndex,
-                peekEffect
-            };
-            await this.processReelSpin(reelSpinParams);
-        }
-
-        this.finalizeSpinResult();
-    }
-
-    private async handleSpinSetup(isTurbo: boolean, skipAnimations: boolean, delayEachReelFallOut: number) {
-        if (!skipAnimations) {
-            this.playSpinAudio(isTurbo);
-            await this.fallOut(isTurbo, delayEachReelFallOut);
-        }
-    }
-
-    private shouldCheckPeekEffect(isTurbo: boolean, skipAnimations: boolean): boolean {
-        return !isTurbo && !skipAnimations;
-    }
-
-    private async processReelSpin(params: {
-        reelIndex: number;
-        reelSymbols: any[];
-        multipliers: number[] | undefined;
-        isTurbo: boolean;
-        skipAnimations: boolean;
-        delayEachReelFallOut: number;
-        awaitReelIndex: number;
-        peekEffect: any;
-    }) {
-        const { reelIndex, reelSymbols, multipliers, isTurbo, skipAnimations, delayEachReelFallOut, awaitReelIndex } = params;
-
-        if (!skipAnimations && !isTurbo && reelIndex > 0) {
-            await AnimationUtils.delayTime(delayEachReelFallOut);
-        }
-
-        if (skipAnimations) {
-            this.setReelDataInstantly(reelIndex, reelSymbols, multipliers);
-        } else if (reelIndex < awaitReelIndex) {
-            this.reels[reelIndex].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(reelIndex));
-        } else if (reelIndex === awaitReelIndex) {
-            await this.reels[reelIndex].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(reelIndex));
-        } else {
-            await this.handlePeekEffectReelSpin(reelIndex, reelSymbols, multipliers, isTurbo, awaitReelIndex);
-        }
-    }
-
-    private setReelDataInstantly(reelIndex: number, reelSymbols: any[], multipliers: number[] | undefined) {
-        if (this.reels[reelIndex] && typeof this.reels[reelIndex].setItemData === 'function') {
-            this.reels[reelIndex].setItemData(reelSymbols, multipliers || []);
-            if (typeof this.reels[reelIndex].setStartPositionForItems === 'function') {
-                this.reels[reelIndex].setStartPositionForItems();
+            if (!isTurbo && i > 0) {
+                await AnimationUtils.delayTime(delayEachReelFallOut);
+            }
+            const reelSymbols = symbols[i];
+            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+            if (i < awaitReelIndex) {
+                this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+            } else if (i === awaitReelIndex) {
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
+            } else {
+                this.showScattersOnPreviousReels(i);
+                const begin = i === awaitReelIndex + 1;
+                begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+                this.showPeekEffect(false, i);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                this.reels[i].peekEffectHighlightAllItems();
+                await this.reels[i].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(i));
             }
         }
-    }
-
-    private async handlePeekEffectReelSpin(reelIndex: number, reelSymbols: any[], multipliers: number[] | undefined, isTurbo: boolean, awaitReelIndex: number) {
-        this.showScattersOnPreviousReels(reelIndex);
-        const begin = reelIndex === awaitReelIndex + 1;
-        if (begin) {
-            AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
-        }
-        this.showPeekEffect(false, reelIndex);
-        await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-        this.reels[reelIndex].peekEffectHighlightAllItems();
-        await this.reels[reelIndex].spin(reelSymbols, multipliers, isTurbo, this.playSoundOnBottomItem(reelIndex));
-    }
-
-    private finalizeSpinResult() {
         AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
         this.hidePeekEffects();
     }
@@ -692,11 +590,13 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
 
     onLoad() {
         super.onLoad();
+
         if (this.effectContainer) {
             if (resourcesCache.gameFeatures?.effectIntroMultiplier) {
                 this.loadEffectMultiplierPrefab();
                 globalEmitter.on(SlotClientEvent.EFFECT_INTRO_MULTIPLIER, this.playEffectIntroMultiplier, this);
             }
+
             if (resourcesCache.gameFeatures?.enablePeekEffect) {
                 this.loadPeekEffectPrefab().then(() => {
                     this.initPeekEffectPool();
@@ -895,3 +795,4 @@ export class CascadingSlotBoard extends ObserverComponent implements IBoardRende
         });
     }
 }
+
