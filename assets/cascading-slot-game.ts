@@ -215,7 +215,6 @@ export class CascadingSlotGame extends GameComponentBase {
         const hyperSpinManager = this.getHyperSpinManager();
         if (hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(
             finishData,
-            this.board,
             this.tumbleWinView,
             this.totalMultiplierView
         )) {
