@@ -30,14 +30,11 @@ export class CascadingSlotReelItem extends Component {
     }
 
     protected replaceItem(index: number) {
-        if (!this.content) {
-            return;
-        }
-
         this.content.children.forEach((child) => child.destroy());
         this._effectSpine = null;
 
         if (index < 0) {
+            console.error("replaceItem wrong index: " + index);
             return;
         }
         const symbolPrefabIndex = index >= SpecialSymbol.MULTIPLIER_SYMBOL ? 1 : 0;
@@ -45,18 +42,16 @@ export class CascadingSlotReelItem extends Component {
         this.content.addChild(node);
         const reelSymbol = node.getComponent(CascadingSlotReelSymbol);
 
-        if (reelSymbol) {
-            reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
-        }
+        reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
     }
 
     getMultiplierItem() {
-        if (!this.content) {
-            return null;
-        }
         const validChildren = this.content.children.filter((child) => child.isValid && child.activeInHierarchy);
         const items = validChildren.map((child) => child.getComponent(MultiplierItem)).filter((item) => item !== null);
         if (items.length > 0) {
+            if (items.length > 1) {
+                warn("Wrong here, should not have more than 1 multiplier item !!!!!");
+            }
             return items[0];
         }
         return null;
@@ -91,7 +86,7 @@ export class CascadingSlotReelItem extends Component {
     }
 
     get effectSpine(): sp.Skeleton {
-        if (!this._effectSpine && this.content) {
+        if (!this._effectSpine) {
             this._effectSpine = this.content.getComponentInChildren(sp.Skeleton);
         }
         return this._effectSpine;
