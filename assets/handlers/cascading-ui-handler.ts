@@ -6,19 +6,19 @@ import mobx from "mobx";
 import { BuyFreespinsStore } from "../buy-freespins/handler/buy-freespins-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet, DialogName, resourcesCache, SlotNotification } from "../cascading-slot-utils";
+import { IUIHandler } from "../interfaces/ui-handler.interface";
 import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../stores/cascading-slot-configs-store";
 import { CascadingSlotSettlementStore } from "../stores/cascading-slot-settlement-store";
 import { CascadingSlotTumblesStore } from "../stores/cascading-slot-tumbles-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
-import { HyperSpinStore } from "../stores/hyper-spin-store";
 import { BetControlHandlers } from "./bet-control-handlers";
 
 const { injectable, inject } = inversify;
 
 @injectable()
-export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
+export class CascadingUIHandler implements gc.Shared.IMultipleHandlers, IUIHandler {
     @inject(CascadingUIStore) protected readonly uiStore: CascadingUIStore;
     @inject(CascadingSlotTumblesStore) protected readonly tumblesStore: CascadingSlotTumblesStore;
     @inject(CascadingSlotSettlementStore) protected readonly settlementStore: CascadingSlotSettlementStore;
@@ -30,7 +30,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     @inject(gc.GameUserSettings.GameUserSettingHandler)
     protected readonly gameUserSettingHandler: gc.GameUserSettings.GameUserSettingHandler;
     @inject(BuyFreespinsStore) protected readonly buyFsStore: BuyFreespinsStore;
-    @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
 
     constructor() {
         setTimeout(() => {
@@ -74,43 +73,15 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     private handleFreeSpinActivation(previousFreeSpinsTotal: number, freeSpinsTotal: number) {
-        const isHyperSpinActiveOrSetup = this.uiStore.isHyperSpinActive || (this.hyperSpinStore?.roundsHyperSpin ?? 0) > 0;
-        const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0 && isHyperSpinActiveOrSetup;
+        const conditionMet = previousFreeSpinsTotal === 0 && freeSpinsTotal > 0;
 
         if (!conditionMet) {
             return;
         }
 
-        this.handleHyperSpinPopupBehavior();
         this.updateFreespinCountMsgBottom(freeSpinsTotal);
         this.handleTriggerDuringFreeSpinBonus();
         this.uiStore.isFreeSpinEffectCompleted = true;
-    }
-
-    private handleHyperSpinPopupBehavior() {
-        if (!this.hyperSpinStore) {
-            return;
-        }
-
-        if (this.hyperSpinStore.stopOnFeature) {
-            this.closeHyperSpinPopup();
-        } else {
-            this.ensureHyperSpinActive();
-        }
-    }
-
-    private closeHyperSpinPopup() {
-        this.hyperSpinStore.isOpenHyperSpinPopup = false;
-        this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
-        this.hyperSpinStore.setHyperSpinActive(false);
-        this.uiStore.isHyperSpinActive = false;
-    }
-
-    private ensureHyperSpinActive() {
-        const wasHyperSpinActive = this.hyperSpinStore.isHyperSpinActive;
-        if (wasHyperSpinActive && !this.hyperSpinStore.isHyperSpinActive) {
-            this.hyperSpinStore.setHyperSpinActive(true);
-        }
     }
 
     private handleFreeSpinDeactivation(freeSpinsTotal: number) {
@@ -153,14 +124,9 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
 
     }
 
-    resetProcessingBet(resetBottom: boolean) {
+    resetProcessingBet() {
         this.changeCascadingState(CascadingSlotState.READY_BET);
-
-        if (resetBottom || !(this.uiStore.bottomMessageState === SlotNotification.FREESPINS
-            || this.uiStore.bottomMessageState === SlotNotification.AUTO_SPIN)
-        ) {
-            this.resetBottomMessageState();
-        }
+        this.resetBottomMessageState();
     }
 
     resetBottomMessageState() {
@@ -169,15 +135,27 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleNewRound() {
+        // Reset spin control flags
         this.uiStore.checkToSpinNext = false;
+
+        // Reset tumble data
         this.tumblesStore.tumbles = [];
         this.tumblesStore.isShowTumbleWinFrame = false;
         this.uiStore.totalTumbleWin = 0;
+
+        // Reset settlement data
         this.settlementStore.finishData = null;
-        this.uiStore.isFreeSpinEffectCompleted = false;
+
+        // Reset completion flags - but preserve free spin effects during hyper spin
+        // Don't reset isFreeSpinEffectCompleted during hyper spin to prevent race conditions
+        if (!this.uiStore.isHyperSpinActive) {
+            this.uiStore.isFreeSpinEffectCompleted = false;
+        }
         this.uiStore.isBigWinCompleted = false;
         this.uiStore.isHighlightScattersCompleted = false;
         this.uiStore.showReachMaxWin = false;
+
+        // Reset multiplier and win data
         this.uiStore.multiplier = 0;
         const shouldResetTotalMultiplier = !this.uiStore.isFreeSpins && !this.fsbPromotionUIStore.isFSBPromotionInProgress;
 
@@ -186,9 +164,11 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             this.uiStore.portraitshowTotalMultiplierView = false;
         }
 
+        // Reset win and effect data
         this.uiStore.totalWin = 0;
         this.uiStore.activePeekEffect = false;
 
+        // Don't close HYPER_SPIN dialog during hyper-spin
         if (!this.uiStore.isHyperSpinActive) {
             this.triggerOpenDialog(DialogName.DUMMY_DIALOG);
         }
@@ -215,6 +195,8 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleFreespinsJoinGame(freespins: any) {
+        // Warn when free spins are received from service join game message
+
         if (!freespins || freespins.total === 0 || freespins.length === 0) {
 
             if (this.betControlStore.lastSetting) {
@@ -301,11 +283,7 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     }
 
     handleHaveFreeSpin(haveFreeSpin: boolean) {
-        if (this.uiStore.isHyperSpinActive && haveFreeSpin && !this.hyperSpinStore.stopOnFeature) {
-            this.uiStore.haveFreeSpin = false;
-        } else {
-            this.uiStore.haveFreeSpin = haveFreeSpin;
-        }
+        this.uiStore.haveFreeSpin = haveFreeSpin;
     }
 
     handleFreeSpinEffectCompleted(completed: boolean) {
@@ -344,7 +322,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
     updateFreespinCountMsgBottom(count: number) {
         this.uiStore.bottomMessageState = SlotNotification.FREESPINS;
         this.uiStore.freespinCountMsgBottom = count;
-        this.triggerOpenDialog(DialogName.FREESPINS_MESSAGE);
     }
 
     updateConnectedTrialService(connected: boolean) {
@@ -368,10 +345,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
             return;
         }
 
-        if (this.uiStore.isHyperSpinActive && trigger && !this.hyperSpinStore.stopOnFeature) {
-            return;
-        }
-
         this.uiStore.triggerDuringFreeSpinBonus = trigger;
     }
 
@@ -387,58 +360,6 @@ export class CascadingUIHandler implements gc.Shared.IMultipleHandlers {
         this.uiStore.dialogOpenEvent = { name };
     }
 
-    checkHyperSpinBatchRecovery() {
-        if (!this.hyperSpinStore?.currentBatchData) {
-            return;
-        }
-
-        const batchStatus = this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus;
-        const roundsRemaining = this.hyperSpinStore.roundsHyperSpin;
-
-        // Check if batch was interrupted
-        if (batchStatus === "Interrupted" && roundsRemaining > 0) {
-
-            // Show recovery dialog
-            this.showBatchRecoveryDialog();
-        } else if (batchStatus === "Playing" && !this.hyperSpinStore.isHyperSpin) {
-            // Batch was in progress but hyper-spin is not active - likely due to game restart
-
-            // Mark as interrupted and show recovery options
-            this.hyperSpinStore.currentBatchData.summary.hyperSpinStatus = "Interrupted";
-            this.showBatchRecoveryDialog();
-        }
-    }
-
-    private showBatchRecoveryDialog() {
-        if (this.uiStore) {
-            this.uiStore.bottomMessageState = "HYPER_SPIN_RECOVERY_AVAILABLE";
-        }
-    }
-
-    handleBatchRecoveryChoice(recover: boolean) {
-        if (recover) {
-            const recoverySuccess = this.hyperSpinStore?.recoverInterruptedBatch();
-            if (!recoverySuccess) {
-                this.showRecoveryFailedMessage();
-            }
-        } else {
-            this.cleanupInterruptedBatch();
-        }
-    }
-
-    private showRecoveryFailedMessage() {
-    }
-
-    private cleanupInterruptedBatch() {
-        if (this.hyperSpinStore) {
-            this.hyperSpinStore.clearBatchData();
-            this.hyperSpinStore.setHyperSpinActive(false);
-        }
-
-        if (this.uiStore) {
-            this.uiStore.bottomMessageState = SlotNotification.BEFORE_SPIN;
-        }
-    }
 
     eventHandleList = [
         {

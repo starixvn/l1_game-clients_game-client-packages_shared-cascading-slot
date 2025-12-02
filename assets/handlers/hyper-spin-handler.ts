@@ -1,14 +1,17 @@
 import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
-import { CascadingSlotState } from "../cascading-slot-state";
-import { DialogName, SlotNotification } from "../cascading-slot-utils";
-import { BetControlStore } from "../stores/bet-control-store";
-import { CascadingUIStore } from "../stores/cascading-ui-store";
-import { HyperSpinStore } from "../stores/hyper-spin-store";
-import { BetControlHandlers } from "./bet-control-handlers";
 import { CascadingUIHandler } from "./cascading-ui-handler";
+import { DialogName, SlotNotification } from "../cascading-slot-utils";
+import { CascadingSlotState } from "../cascading-slot-state";
+import { HyperSpinStore } from "../stores/hyper-spin-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { BetControlStore } from "../stores/bet-control-store";
+import { BetControlHandlers } from "./bet-control-handlers";
 import { SlotBetHandler } from "./slot-bet-handler";
+import { IUIHandler } from "../interfaces/ui-handler.interface";
+import { IBetManager } from "../interfaces/bet-manager.interface";
+import { IGameState } from "../interfaces/game-state.interface";
 
 const { injectable, inject } = inversify;
 
@@ -39,9 +42,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
-    @inject(CascadingUIHandler) protected readonly cascadingUIHandler: CascadingUIHandler;
-    @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
-    @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
+    @inject(CascadingUIHandler) protected readonly uiHandler: IUIHandler;
+    @inject(CascadingUIStore) protected readonly gameState: IGameState;
+    @inject(BetControlStore) protected readonly betManager: IBetManager;
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     @inject(gc.Notices.NoticeStore) private readonly noticeStore: gc.Notices.NoticeStore;
@@ -51,8 +54,10 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     handle() { }
 
     clickHyperSpin() {
-        this.cascadingUIHandler.triggerOpenDialog(DialogName.HYPER_SPIN);
+        // Note: triggerOpenDialog is not in IUIHandler interface, keeping direct access for now
+        (this.uiHandler as any).triggerOpenDialog(DialogName.HYPER_SPIN);
         this.showHyperSpinBetControl();
+
     }
 
     openHyperSpinPopup() {
@@ -132,7 +137,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        const totalBetUnique = this.betControlStore.totalBetUnique;
+        const totalBetUnique = this.betManager.totalBetUnique;
         if (!totalBetUnique || totalBetUnique.length === 0) {
             return;
         }
@@ -156,8 +161,10 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         const clampedIndex = Math.max(0, Math.min(totalBetUnique.length - 1, closestIndex));
-        if (this.betControlStore.currentTotalBetIndex !== clampedIndex) {
-            this.betControlStore.currentTotalBetIndex = clampedIndex;
+        // Note: currentTotalBetIndex is not in IBetManager interface, using direct access
+        const betControlStore = this.betManager as any as BetControlStore;
+        if (betControlStore.currentTotalBetIndex !== clampedIndex) {
+            betControlStore.currentTotalBetIndex = clampedIndex;
         }
     }
 
@@ -233,14 +240,14 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private isValidHyperSpinBet(): boolean {
-        const hasEnoughMoney = this.betControlStore.totalBet <= this.cascadingUIStore.userBalance;
+        const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
         const hasValidRounds = this.hyperSpinStore.selectedRoundOnPopup > 0;
 
         // ✅ FIX: Allow starting when currentBatchData is null (no active batch)
         // OR when game is not spinning
         // OR when batch status is Ready or Cancel
-        const isValidGameState = !this.cascadingUIStore.isPlacingBet &&
-            (this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING ||
+        const isValidGameState = !this.gameState.isPlacingBet &&
+            (this.gameState.cascadingState !== CascadingSlotState.SPINNING ||
                 !this.hyperSpinStore.currentBatchData || // ✅ Allow when batch data is cleared
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Ready" ||
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel");
@@ -254,15 +261,16 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private handleHyperSpinError() {
-        const hasEnoughMoney = this.betControlStore.totalBet <= this.cascadingUIStore.userBalance;
+        const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
         if (!hasEnoughMoney) {
             this.showNotEnoughMoneyForHyperSpin();
         }
-        this.cascadingUIHandler.resetBottomMessageState();
+        // Note: resetBottomMessageState is not in IUIHandler interface, keeping direct access
+        (this.uiHandler as any).resetBottomMessageState();
     }
 
     private showNotEnoughMoneyForHyperSpin() {
-        const message = `Not enough balance for Hyper-Spin. Required: ${this.betControlStore.totalBet}, Available: ${this.cascadingUIStore.userBalance}`;
+        const message = `Not enough balance for Hyper-Spin. Required: ${this.betManager.totalBet}, Available: ${this.gameState.userBalance}`;
         this.noticeStore.addWarning(message);
     }
 
@@ -287,7 +295,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             // Continue even if tracking fails
         }
 
-        this.cascadingUIStore.bottomMessageState = "HYPER_SPIN";
+        // Note: bottomMessageState is not in IGameState interface, using direct access
+        (this.gameState as any).bottomMessageState = "HYPER_SPIN";
         this.placeHyperSpinBet();
     }
 
@@ -298,14 +307,22 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         // Don't place new bets if cascade is still active (free spins in progress)
-        if (this.hyperSpinStore.isCascadeTrackingActive() && this.cascadingUIStore.freeSpinsTotal > 0) {
+        if (this.hyperSpinStore.isCascadeTrackingActive() && this.gameState.freeSpinsTotal > 0) {
             return;
         }
 
         this.lastSpinTimestamp = Date.now();
 
-        if (this.cascadingUIStore.freeSpinsTotal > 0 && !this.hyperSpinStore.isCascadeTrackingActive()) {
-            return; // Skip during free spins that aren't part of current cascade
+        // Handle freespins based on stopOnFeature setting
+        if (this.gameState.freeSpinsTotal > 0) {
+            if (this.hyperSpinStore.stopOnFeature) {
+                // stopOnFeature=true: Stop hyper-spin batch and let normal freespins take over
+                this.stopHyperSpin();
+                return;
+            } else {
+                // stopOnFeature=false: Continue hyper-spin mode - treat freespins as part of hyper-spin
+                // Continue with bet placement - freespins will be handled as hyper-spin spins
+            }
         }
 
         if (this.shouldStopHyperSpin()) {
@@ -313,29 +330,22 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        const originalTotalBet = this.betControlStore.totalBet;
+        const originalTotalBet = this.betManager.totalBet;
 
-        this.cascadingUIHandler.handleNewRound();
+        this.uiHandler.handleNewRound();
         const success = this.slotBetHandler.handle();
 
-        this.betControlStore.totalBet = originalTotalBet;
+        // Note: totalBet setter is not in IBetManager interface, using direct access
+        (this.betManager as any).totalBet = originalTotalBet;
 
         if (success) {
-            // Only decrement rounds if this is a new hyper-spin round (not a free spin continuation)
-            if (!this.hyperSpinStore.isCascadeTrackingActive()) {
-                this.hyperSpinStore.roundsHyperSpin--;
-
-                if (this.hyperSpinStore.roundsHyperSpin <= 0) {
-                    // Mark completion as pending until after cascade data is recorded
-                    this.isCompletionPending = true;
-                }
-            }
-
+            // Note: roundsHyperSpin is now decremented after cascade completes in handleRecordSpinData
+            // This ensures completion happens after the final spin is recorded
         } else {
             // ✅ IMPROVED: Don't stop batch immediately on bet failure
             // Only stop if it's a critical error (e.g., insufficient balance)
             // Otherwise, retry after delay
-            const hasEnoughMoney = this.betControlStore.totalBet <= this.cascadingUIStore.userBalance;
+            const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
 
             if (!hasEnoughMoney) {
                 // Critical error - insufficient balance, stop batch
@@ -379,13 +389,15 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         const currentProfit = this.calculateCurrentProfit();
         const currentLoss = this.calculateCurrentLoss();
 
-        // Don't stop if completion is pending (final round being processed)
-        if (this.isCompletionPending) {
-            return false;
+        // Check if rounds are exhausted
+        const roundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
+        if (roundsExhausted) {
+            return true;
         }
 
-        if (this.hyperSpinStore.stopOnFeature && this.cascadingUIStore.freeSpinsTotal > 0) {
-            return false;
+        // Check stop on feature condition - stop batch when freespins triggered and stopOnFeature is true
+        if (this.hyperSpinStore.stopOnFeature && this.gameState.freeSpinsTotal > 0) {
+            return true; // Stop the batch
         }
 
         // Check profit stop condition
@@ -406,13 +418,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             }
         }
 
-        // Check if rounds are exhausted
-        const roundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
-
-        if (roundsExhausted) {
-            return true;
-        }
-
         return false;
     }
 
@@ -431,11 +436,17 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         return this.hyperSpinStore.getCurrentHyperSpinLoss();
     }
 
-    private stopHyperSpin() {
-        // ✅ NEW: Guard - Don't stop if batch just started (within 1 second)
-        const batchAge = Date.now() - this.hyperSpinBatchStartTime;
-        if (batchAge < 1000 && this.hyperSpinBatchStartTime > 0) {
-            return;
+    public stopHyperSpin() {
+        // ✅ MODIFIED: Only prevent premature stop for profit/loss conditions, not rounds exhaustion
+        // Don't apply guard when stopping due to rounds being exhausted (roundsHyperSpin <= 0)
+        const isRoundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
+
+        if (!isRoundsExhausted) {
+            // Only apply premature stop guard for profit/loss/other conditions
+            const batchAge = Date.now() - this.hyperSpinBatchStartTime;
+            if (batchAge < 1000 && this.hyperSpinBatchStartTime > 0) {
+                return;
+            }
         }
 
         // Clear all pending timeouts when stopping
@@ -448,7 +459,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.completeHyperSpinBatch();
         this.isCompletionPending = false; // Reset pending completion
 
-        this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+        // Close popup when stopping due to features (allows normal freespin UI to show)
+        this.hyperSpinStore.isOpenHyperSpinPopup = false;
+
+        // Note: bottomMessageState is not in IGameState interface, using direct access
+        (this.gameState as any).bottomMessageState = SlotNotification.SETTLED;
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
 
@@ -466,9 +481,13 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.completeHyperSpinBatch();
 
         this.hyperSpinStore.roundsHyperSpin = 0;
-        this.cascadingUIStore.bottomMessageState = SlotNotification.SETTLED;
+        // Note: bottomMessageState is not in IGameState interface, using direct access
+        (this.gameState as any).bottomMessageState = SlotNotification.SETTLED;
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
+
+        // Reset completion flag
+        this.isCompletionPending = false;
 
         this.showHyperSpinCompletedMessage();
     }
@@ -486,6 +505,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     resumeHyperSpinBatch() {
+
+
         // Check cancellation flag before resuming
         if (this.isCancelled) {
             return;
@@ -497,7 +518,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
     private lastSpinTimestamp = 0;
 
-    checkHyperSpinNextRound() {
+    checkHyperSpinNextRound(immediate: boolean = false) {
         if (!this.isHyperSpinValidForNextRound()) {
             return;
         }
@@ -513,7 +534,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        this.handleContinueOrStopHyperSpin();
+        this.handleContinueOrStopHyperSpin(immediate);
     }
 
     private isHyperSpinValidForNextRound(): boolean {
@@ -527,6 +548,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return false;
         }
 
+        // NOTE: Since this method is only called from hyper-spin context,
+        // the isHyperSpin check is redundant but kept for defensive programming
         if (!this.hyperSpinStore.isHyperSpin) {
             return false;
         }
@@ -535,7 +558,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private shouldWaitForSettlementEffects(): boolean {
-        return this.hyperSpinStore.stopOnFeature !== false && !this.cascadingUIStore.isFreeSpinEffectCompleted;
+        // NOTE: This method is only called from hyper-spin context due to isolation,
+        // so the stopOnFeature check below should always be false (we disable it for hyper-spin).
+        // However, keeping the check for defensive programming in case routing changes.
+        // Note: isFreeSpinEffectCompleted is not in IGameState interface, using direct access
+        return this.hyperSpinStore.stopOnFeature !== false && !(this.gameState as any).isFreeSpinEffectCompleted;
     }
 
     private scheduleSettlementWaitTimeout() {
@@ -581,9 +608,15 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private shouldSkipDueToFreeSpinsOrPause(): boolean {
-        // Handle free spins
-        if (this.cascadingUIStore.freeSpinsTotal > 0) {
-            return true; // Let normal flow handle free spins
+        // Handle free spins based on stopOnFeature setting
+        if (this.gameState.freeSpinsTotal > 0) {
+            if (this.hyperSpinStore.stopOnFeature) {
+                // stopOnFeature=true: Skip and let normal freespins take over
+                return true;
+            } else {
+                // stopOnFeature=false: Continue hyper-spin mode, don't skip
+                return false;
+            }
         }
 
         // Check if paused
@@ -594,12 +627,21 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         return false;
     }
 
-    private handleContinueOrStopHyperSpin() {
+    private handleContinueOrStopHyperSpin(immediate: boolean = false) {
         // Continue or stop
         if (this.shouldStopHyperSpin()) {
             this.stopHyperSpin();
+            return; // IMPORTANT: Return here to prevent continuing to place another bet
+        }
+
+        // Only continue if we haven't stopped
+        if (immediate) {
+            // FAST-PATH: Call placeHyperSpinBet immediately without setTimeout delay
+            if (!this.isCancelled) {
+                this.placeHyperSpinBet();
+            }
         } else {
-            // Store timeout ID for cleanup
+            // NORMAL-PATH: Use setTimeout for MobX reactivity propagation
             const timeoutId = window.setTimeout(() => {
                 this.placeBetTimeout = null;
                 if (!this.isCancelled) {
@@ -646,8 +688,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         // Update UI to show interruption state
-        if (this.cascadingUIStore) {
-            this.cascadingUIStore.bottomMessageState = "HYPER_SPIN_INTERRUPTED";
+        if (this.gameState) {
+            // Note: bottomMessageState is not in IGameState interface, using direct access
+            (this.gameState as any).bottomMessageState = "HYPER_SPIN_INTERRUPTED";
         }
     }
 
@@ -723,23 +766,29 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
      * Clears all pending timeouts to prevent batch from continuing after cancellation.
      */
     private clearAllPendingTimeouts() {
+        let clearedCount = 0;
+
         // Clear recursive checkHyperSpinNextRound timeout
         if (this.checkNextRoundTimeout !== null) {
             clearTimeout(this.checkNextRoundTimeout);
             this.checkNextRoundTimeout = null;
+            clearedCount++;
         }
 
         // Clear placeHyperSpinBet timeout
         if (this.placeBetTimeout !== null) {
             clearTimeout(this.placeBetTimeout);
             this.placeBetTimeout = null;
+            clearedCount++;
         }
 
         // Clear settlement wait timeout
         if (this.settlementWaitTimeout !== null) {
             clearTimeout(this.settlementWaitTimeout);
             this.settlementWaitTimeout = null;
+            clearedCount++;
         }
+
     }
 
     handleRecordSpinData(finishData: any) {
@@ -767,7 +816,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         } = finishData;
 
         // Determine stake amount (use totalBet for hyper-spin)
-        const stake = this.betControlStore.totalBet || 0;
+        const stake = this.betManager.totalBet || 0;
 
         // Check if this is the start of a new cascade (no active cascade tracking)
         if (!this.hyperSpinStore.isCascadeTrackingActive()) {
@@ -781,6 +830,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             }
 
             this.hyperSpinStore.startCascadeTracking(spinId, isFreeSpin, stake);
+
         }
 
         // Accumulate win data for this cascade step
@@ -802,9 +852,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         );
 
         // Check if cascade is complete (no more free spins pending and not in middle of settlement)
-        const isCascadeComplete = this.cascadingUIStore.freeSpinsTotal === 0 &&
-            !this.cascadingUIStore.isPlacingBet &&
-            this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING;
+        // In hyper-spin mode, always complete cascade after settlement since each settlement represents a complete round
+        const isCascadeComplete = this.hyperSpinStore.isHyperSpin ||
+            (this.gameState.freeSpinsTotal === 0 &&
+                !this.gameState.isPlacingBet &&
+                this.gameState.cascadingState !== CascadingSlotState.SPINNING);
 
         if (isCascadeComplete) {
             // Complete the cascade and record the accumulated data
@@ -814,9 +866,15 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 // Add the complete cascade as a single spin entry to the batch
                 this.hyperSpinStore.addSpinToBatch(cascadeSpinData);
 
-                // If completion was pending, complete it now that cascade data is recorded
-                if (this.isCompletionPending) {
-                    this.isCompletionPending = false;
+                // Decrement roundsHyperSpin after recording the spin
+                // This ensures completion happens after the final spin is recorded
+                // Don't decrement rounds for freespins during hyper-spin batch
+                if (!this.hyperSpinStore.isCascadeTrackingActive() && !isFreeSpin) {
+                    this.hyperSpinStore.roundsHyperSpin--;
+                }
+
+                // Check if this was the final spin (rounds are exhausted)
+                if (this.hyperSpinStore.roundsHyperSpin < 0) {
                     this.completeHyperSpin();
                 }
             }

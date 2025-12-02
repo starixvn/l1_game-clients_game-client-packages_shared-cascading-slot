@@ -36,11 +36,13 @@ export class SlotModeContextFactory {
     
     /**
      * Create context for hyper-spin mode.
-     * 
+     *
      * Hyper-spin mode skips animations for maximum speed, unless:
      * - Free spins are active AND
-     * - stopOnFeature is enabled (user wants to see free spin UI)
-     * 
+     * - stopOnFeature is enabled (user wants to see free spin UI and stop hyper-spin)
+     *
+     * When stopOnFeature=true and freespins are active, show animations as hyper-spin will stop.
+     *
      * @param stopOnFeature - Whether to stop and show UI when features trigger
      * @param isFreeSpinActive - Whether free spins are currently active
      */
@@ -48,8 +50,9 @@ export class SlotModeContextFactory {
         stopOnFeature: boolean,
         isFreeSpinActive: boolean
     ): SlotModeContext {
-        // Skip animations unless free spins + stopOnFeature
-        const skipAnimations = !(isFreeSpinActive && stopOnFeature);
+        // Skip animations only when continuing hyper-spin batch
+        // Show animations when stopOnFeature=true and freespins active (hyper-spin will stop)
+        const skipAnimations = !isFreeSpinActive || !stopOnFeature;
         
         return {
             mode: 'hyper-spin',

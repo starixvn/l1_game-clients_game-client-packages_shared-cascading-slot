@@ -20,10 +20,10 @@ import {
     SymbolBoard,
     WinIconDetail,
 } from "../../../cascading-slot-utils";
-import { SlotModeContext } from "../../../mode/slot-mode-context";
 import { GameServiceMessageCascading, Tumble } from "../../../game-messages-cascading";
 import { CascadingSlotTumblesHandlers } from "../../../handlers/cascading-slot-tumbles-handlers";
 import { CascadingUIHandler } from "../../../handlers/cascading-ui-handler";
+import { IBoardRenderer } from "../../../interfaces/board-renderer.interface";
 import { BetControlStore } from "../../../stores/bet-control-store";
 import { CascadingSlotConfigsStore } from "../../../stores/cascading-slot-configs-store";
 import { CascadingUIStore } from "../../../stores/cascading-ui-store";
@@ -36,7 +36,7 @@ const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
 @ccclass
-export class CascadingSlotBoard extends ObserverComponent {
+export class CascadingSlotBoard extends ObserverComponent implements IBoardRenderer {
     @property(Prefab)
     prfFlyLabelWin: Prefab = null;
 
@@ -65,9 +65,6 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     protected readonly PEEK_EFFECT_DURATION = 1;
 
-    protected shouldSkipAnimations(context: SlotModeContext): boolean {
-        return context.skipAnimations;
-    }
 
     public createReels() {
         if (this.reels.length > 0) {
@@ -150,20 +147,21 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     async handleTumbles(
         tumbles: Tumble[],
-        modeContext: SlotModeContext
+        isTurbo: boolean,
+        skipAnimations?: boolean
     ) {
         if (!tumbles || tumbles.length <= 1) {
             return;
         }
 
-        const skipAnimations = this.shouldSkipAnimations(modeContext);
+        const shouldSkip = skipAnimations ?? false;
 
-        if (!skipAnimations) {
+        if (!shouldSkip) {
             this.handleBottomMessage(SlotNotification.TUMBLE_WIN);
         }
 
         for (let i = 0; i < tumbles.length - 1; i++) {
-            await this.processSingleTumble(tumbles, i, modeContext.isTurbo, skipAnimations);
+            await this.processSingleTumble(tumbles, i, isTurbo, shouldSkip);
         }
 
         this.hidePeekEffects();
@@ -250,16 +248,17 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     public async spinResult(
         symbolsBoard: SymbolBoard,
-        modeContext: SlotModeContext
+        isTurbo: boolean,
+        skipAnimations?: boolean
     ) {
         const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
         const { symbols, multipliers } = symbolsBoard;
 
-        const skipAnimations = this.shouldSkipAnimations(modeContext);
+        const shouldSkip = skipAnimations ?? false;
 
-        await this.handleSpinSetup(modeContext.isTurbo, skipAnimations, delayEachReelFallOut);
+        await this.handleSpinSetup(isTurbo, shouldSkip, delayEachReelFallOut);
 
-        const peekEffect = this.shouldCheckPeekEffect(modeContext.isTurbo, skipAnimations) ? this.checkPeekEffect(symbols) : null;
+        const peekEffect = this.shouldCheckPeekEffect(isTurbo, shouldSkip) ? this.checkPeekEffect(symbols) : null;
         const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
 
         for (let i = 0; i < this.reels.length; i++) {
@@ -267,8 +266,8 @@ export class CascadingSlotBoard extends ObserverComponent {
                 reelIndex: i,
                 reelSymbols: symbols[i],
                 multipliers,
-                isTurbo: modeContext.isTurbo,
-                skipAnimations,
+                isTurbo,
+                skipAnimations: shouldSkip,
                 delayEachReelFallOut,
                 awaitReelIndex,
                 peekEffect
@@ -722,6 +721,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     protected initPeekEffectPool() {
+        // Pre-instantiate a few nodes for the pool
         for (let i = 0; i < BoardSize.COLUMN; i++) {
             const node = instantiate(this.peekEffectTumblePrefab);
             this.peekEffectTumblePool.put(node);
