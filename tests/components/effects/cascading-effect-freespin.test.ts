@@ -11,6 +11,14 @@ jest.mock("@sg/game-client-base", () => {
                 CLICK: "click_sound",
             },
         },
+        App: {
+            AppHandlers: {
+                UserGesturePage: class {},
+            },
+        },
+        Translator: {
+            getLanguageId: jest.fn(() => "en"),
+        },
         Configs: {
             SiteConfigs: jest.fn(() => ({
                 systemType: "test",
