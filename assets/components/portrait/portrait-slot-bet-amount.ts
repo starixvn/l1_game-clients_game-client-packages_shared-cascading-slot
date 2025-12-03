@@ -1,8 +1,8 @@
-import gc from "@sg/game-client-base";
 import { _decorator, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 import { BetControlStore } from "../../stores/bet-control-store";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
 
@@ -13,7 +13,7 @@ export class PortraitSlotBetAmount extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.lblBetAmount.string = gc.FormatUtils.numberWithCommas(totalBet, 6, true);
+        this.lblBetAmount.string = formatStringXMode(totalBet);
 
     }
 }

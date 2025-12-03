@@ -1,14 +1,12 @@
-import gc from "@sg/game-client-base";
-const { MainPlayerStore } = gc.Player;
 import { _decorator, Label, Layout, Node, tween, UIOpacity, UITransform, v3 } from "cc";
 import { CascadingUIStore } from "db://shared-cascading-slot/stores/cascading-ui-store";
 import { FadeAppearanceNode } from "db://shared-components/shared/common-components/fade-appearance-node";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import Observer from "observer";
 import { CascadingSlotTumblesStore } from "../../stores/cascading-slot-tumbles-store";
-import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
-const { observer, render, handle } = Observer;
+const { render } = Observer;
 
 @ccclass
 export class TumbleWinWiew extends FadeAppearanceNode {
@@ -64,7 +62,7 @@ export class TumbleWinWiew extends FadeAppearanceNode {
 
     setTotalWinValue(value: number) {
         return new Promise<void>((resolve) => {
-            this.totalWin.string = gc.FormatUtils.numberWithCommas(value, 6);
+            this.totalWin.string = formatStringXMode(value);
             this.showTotalWin(true);
 
             tween(this.totalWin.node)

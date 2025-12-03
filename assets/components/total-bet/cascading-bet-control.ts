@@ -9,6 +9,7 @@ import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { DialogName } from "../../cascading-slot-utils";
 import { BetControlHandlers } from "../../handlers/bet-control-handlers";
 import { BetControlStore } from "../../stores/bet-control-store";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -65,7 +66,7 @@ export class CascadingBetControl extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private renderTotalBet(totalBet: number) {
-        this.totalBet.string = gc.FormatUtils.numberWithCommas(totalBet, 6, true);
+        this.totalBet.string = formatStringXMode(totalBet);
     }
 
     @render(BetControlStore, (store) => store.betLevel)

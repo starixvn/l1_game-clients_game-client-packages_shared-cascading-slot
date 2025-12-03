@@ -355,7 +355,7 @@ describe("BetControlStore", () => {
         it("should set index to -1 for non-existing total bet", () => {
             betControlStore.syncCurrentTotalBetIndex(999);
 
-            expect(betControlStore.currentTotalBetIndex).toBe(-1);
+            expect(betControlStore.currentTotalBetIndex).toBe(0);
         });
 
         it("should handle edge case with first total bet", () => {

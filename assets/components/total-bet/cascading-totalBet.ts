@@ -1,4 +1,3 @@
-import gc from "@sg/game-client-base";
 import { _decorator, Label, Node } from "cc";
 import { AudioUtils } from "db://shared-components/game/audios/utils";
 import { StatusButton } from "db://shared-components/shared/common-components/button/status-button";
@@ -11,6 +10,7 @@ import { CascadingUIHandler } from "../../handlers/cascading-ui-handler";
 import { BetControlStore } from "../../stores/bet-control-store";
 import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { CascadingBetControl } from "./cascading-bet-control";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -44,7 +44,7 @@ export class CascadingTotalBet extends ObserverComponent {
 
     @render(BetControlStore, (store) => store.totalBet)
     private updateTotalBet(totalBet: number) {
-        this.totalBetLabel.string = gc.FormatUtils.numberWithCommas(totalBet, 6, true);
+        this.totalBetLabel.string = formatStringXMode(totalBet);
     }
 
     @render(BetControlStore, (store) => store.interactableTotalBet)

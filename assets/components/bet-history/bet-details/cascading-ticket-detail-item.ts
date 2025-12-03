@@ -3,6 +3,7 @@ import { _decorator, Component, instantiate, Label, Node, Prefab, sys, UITransfo
 import { convertBoardValue, convertData } from "db://shared-cascading-slot/cascading-slot-utils";
 import { CascadingSlotBoard } from "db://shared-cascading-slot/components/slot-board/components/cascading-slot-board";
 import { CascadingTumbleItem } from "db://shared-cascading-slot/components/tumbles/cascading-tumble-item";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 import Observer from "observer";
 
 const { ccclass, property } = _decorator;
@@ -97,7 +98,7 @@ export class CascadingTicketDetailItem extends Component {
         const control = tumbleNode.getComponent(CascadingTumbleItem);
         control.setDataForFreeSpinTumble(data);
         this.content.addChild(tumbleNode);
-        this.win.string = gc.FormatUtils.numberWithCommas(data.currWinTumble, 6);
+        this.win.string = formatStringXMode(data.currWinTumble);
         this.index.string = (data.index + 1).toString();
         this.calculateHeightRow(1);
         return tumbleNode;
