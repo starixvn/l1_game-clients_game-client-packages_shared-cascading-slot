@@ -7,7 +7,7 @@ import { ChangeNodeColor } from "db://shared-components/shared/common-components
 import { LocalizedLabel } from "../../../i18n/assets/LocalizedLabel";
 import { resourcesCache } from "../cascading-slot-utils";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
-import { setXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 
 const { ccclass, property } = _decorator;

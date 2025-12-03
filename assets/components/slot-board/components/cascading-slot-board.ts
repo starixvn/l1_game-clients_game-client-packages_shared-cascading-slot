@@ -31,7 +31,6 @@ import { CascadingPreviewOddsPopup } from "../../preview-symbol/cascading-previe
 import { CascadingSlotReel } from "../../slot-reel/cascading-slot-reel";
 import { TotalMultiplierView } from "../../total-multiplier/cascading-total-multiplier-view";
 import { TumbleWinWiew } from "../../tumbles/tumble-win-view";
-import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { observer, render, handle } = Observer;
 const { ccclass, property } = _decorator;
 
