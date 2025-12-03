@@ -139,7 +139,8 @@ export class BetControlStore {
     }
 
     syncCurrentTotalBetIndex(totalBet: number) {
-        this.currentTotalBetIndex = this.totalBetUnique.findIndex((detail) => +Object.keys(detail)[0] === totalBet);
+        const index = this.totalBetUnique.findIndex((detail) => +Object.keys(detail)[0] === totalBet);
+        this.currentTotalBetIndex = index === -1 ? 0 : index;
     }
 
     onChangeCoinAndBetLevel() {

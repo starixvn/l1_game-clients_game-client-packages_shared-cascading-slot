@@ -6,7 +6,7 @@ import Pagination from 'db://shared-components/game/pagination/scripts/component
 import Observer from 'observer';
 import TouchSwipeBase from 'db://shared-components/shared/common-components/touch-swipe-base';
 import { AudioUtils } from 'db://shared-components/game/audios/utils';
-import { formatStringXMode, getXMode } from 'db://shared-common-slot/x-mode/scripts/utils/xMode-utils';
+import { formatStringXMode } from 'db://shared-common-slot/x-mode/scripts/utils/xMode-utils';
 const { ccclass, property } = _decorator;
 const { render } = Observer;
 interface PortraitBetHistoryLog extends gc.BetHistory.BetHistoryLog {
@@ -122,11 +122,10 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private updateBasicDetails(betHistoryLog: any) {
-        const xMode = getXMode();
         this.timeDetail.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.betLevelDetail.string = betHistoryLog.betLevel;
-        this.coinValueDetail.string = formatStringXMode(betHistoryLog.coinValue * xMode);
-        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount * xMode);
+        this.coinValueDetail.string = formatStringXMode(betHistoryLog.coinValue);
+        this.totalBetDetail.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount);
         this.currentId = betHistoryLog.id;
     }
 
@@ -142,10 +141,9 @@ export class PortraitCascadingTicketDetail extends CascadingTicketDetail {
     }
 
     private calculateMultiplierString(betHistoryLog: any): string {
-        const xMode = getXMode();
         const winFreeSpin = gc.FormatUtils.numberWithCommas(betHistoryLog.settlementResult.freeSpins?.win, 2, false);
         const hasWinFreeSpin = betHistoryLog.settlementResult.freeSpins?.win > 0;
-        const totalTumbleWin = formatStringXMode(betHistoryLog.totalTumbleWin * xMode);
+        const totalTumbleWin = formatStringXMode(betHistoryLog.totalTumbleWin);
 
         const multiplier = betHistoryLog.freeSpin ? betHistoryLog.totalMultiplier : betHistoryLog.multiplier;
         const baseString = `${totalTumbleWin}x${multiplier}`;

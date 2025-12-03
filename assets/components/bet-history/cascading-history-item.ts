@@ -1,6 +1,6 @@
 import gc from "@sg/game-client-base";
 import { _decorator, Color, Label, Node } from "cc";
-import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 const { ccclass, property } = _decorator;
@@ -41,15 +41,14 @@ export class CascadingHistoryItem extends ObserverComponent {
         const { betHistoryLog, index } = data;
         this.betHistoryLog = betHistoryLog;
         const win = betHistoryLog.betwin;
-        const xMode = getXMode();
         this.node.active = true;
         this.bg.active = index % 2 > 0;
         this.time.string = gc.DateTimeUtils.getStringDateByTime(betHistoryLog.time);
         this.roundID.string = betHistoryLog.id;
         this.betLevel.string = betHistoryLog.betLevel;
-        this.coinValue.string = formatStringXMode(betHistoryLog.coinValue * xMode);
-        this.totalBet.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount * xMode);
-        this.totalWin.string = formatStringXMode(win * xMode);
+        this.coinValue.string = formatStringXMode(betHistoryLog.coinValue);
+        this.totalBet.string = betHistoryLog.freeSpin ? "0" : formatStringXMode(betHistoryLog.totalAmount);
+        this.totalWin.string = formatStringXMode(win);
         this.data = betHistoryLog;
 
         if (betHistoryLog.betwin > 0) {

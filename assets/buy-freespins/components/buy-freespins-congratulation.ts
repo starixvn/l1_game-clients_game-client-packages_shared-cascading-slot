@@ -12,7 +12,7 @@ import { CascadingUIStore } from "../../stores/cascading-ui-store";
 import { BuyFsResult } from "../handler/buy-freespins-definitions";
 import { BuyFreespinsHandler } from "../handler/buy-freespins-handlers";
 import { BuyFreespinsStore } from "../handler/buy-freespins-store";
-import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { render, handle } = Observer;
@@ -56,7 +56,7 @@ export class BuyFreespinsCongratulation extends ObserverComponent {
             return;
         }
 
-        this.labelTotalWin.string = formatStringXMode(total.totalWin * getXMode());
+        this.labelTotalWin.string = formatStringXMode(total.totalWin);
         this.labelTotalFreespins.string = total.numberOfFreeSpins.toString();
     }
 

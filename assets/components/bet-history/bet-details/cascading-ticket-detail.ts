@@ -6,7 +6,7 @@ import { ObserverComponent } from "db://shared-components/shared/common-componen
 import Observer from "observer";
 import { CascadingTotalMultiplier } from "../cascading-total-multiplier";
 import { CascadingTicketDetailItem } from "./cascading-ticket-detail-item";
-import { formatStringXMode, getXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { ccclass, property } = _decorator;
 const { handle } = Observer;
@@ -53,7 +53,6 @@ export class CascadingTicketDetail extends ObserverComponent {
 
     setData(data: { betHistoryLog: GameServiceMessageCascading.BetDetailData }) {
         const { betHistoryLog } = data;
-        const xMode = getXMode();
         if (!betHistoryLog) {
             return;
         }
@@ -82,7 +81,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             const detailItem = this.loadDetailItem();
             const control = detailItem.getComponent(CascadingTicketDetailItem);
             if ((index === tumbles.length - 1 && isShowNextRow) || index < tumbles.length - 1) {
-                currWinTumble += tumble.win * xMode;
+                currWinTumble += tumble.win;
                 control.setData(tumble, index, betHistoryLog, currWinTumble);
                 this.content.addChild(detailItem);
             }
@@ -97,8 +96,7 @@ export class CascadingTicketDetail extends ObserverComponent {
             }
         });
         this.handleMultiplierData(betHistoryLog);
-        const totalWin = betHistoryLog.betwin * xMode;
-        this.winTotal.string = formatStringXMode(totalWin);
+        this.winTotal.string = formatStringXMode(betHistoryLog.betwin);
         this.reachMaxText.node.active = isReachMaxWin;
     }
 
