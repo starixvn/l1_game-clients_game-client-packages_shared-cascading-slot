@@ -1,6 +1,6 @@
+import gc from "@sg/game-client-base";
 import { _decorator, Label, Layout, Node, tween, v3 } from "cc";
 import { TumbleWinWiew } from "./tumble-win-view";
-import { formatStringXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 const { ccclass, property } = _decorator;
 
 @ccclass
@@ -41,7 +41,7 @@ export class PortraitTumbleWinWiew extends TumbleWinWiew {
             .call(() => {
                 this.totalWinNode.active = false;
                 this.totalWinNode.scale = v3(0, 0, 0);
-                this.totalWinLabel.string = formatStringXMode(totalTumbleWin);
+                this.totalWinLabel.string = gc.FormatUtils.numberWithCommas(totalTumbleWin, 6);
                 this.totalWinNode.active = true;
             })
             .to(0.2, { scale: v3(1.2, 1.2, 1.2) }, { easing: "sineOut" })

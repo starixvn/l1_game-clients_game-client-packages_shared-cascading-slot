@@ -9,7 +9,7 @@ import { AutoPlayStore } from "./auto-play-store";
 import { CascadingSlotConfigsStore } from "./cascading-slot-configs-store";
 import { CascadingSlotTumblesStore } from "./cascading-slot-tumbles-store";
 import { HoldActionStore } from "./hold-action-store";
-import { formatNumberXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
+import { formatNumberXMode, setXMode } from "db://shared-common-slot/x-mode/scripts/utils/xMode-utils";
 
 const { injectable, inject } = inversify;
 
@@ -132,6 +132,7 @@ export class CascadingUIStore {
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }
+        setXMode(this.mainPlayerStore.xMode);
         return formatNumberXMode(this.mainPlayerStore.balance);
     }
 

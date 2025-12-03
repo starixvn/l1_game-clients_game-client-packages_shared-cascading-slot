@@ -419,7 +419,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         node.position = position;
 
         const label = node.getComponent(Label);
-        label.string = formatStringXMode(value);
+        label.string = gc.FormatUtils.numberWithCommas(value, 6);
         this.flyWinLabelAnimation(node);
     }
 

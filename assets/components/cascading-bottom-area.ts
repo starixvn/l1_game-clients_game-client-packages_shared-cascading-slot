@@ -1,5 +1,3 @@
-import gc from "@sg/game-client-base";
-const { MainPlayerStore } = gc.Player;
 import { _decorator, Color, Label } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import { AnimationUtils } from "db://shared-components/shared/utils";
@@ -20,11 +18,6 @@ export class CascadingBottomArea extends ObserverComponent {
     totalWinLabel: Label = null;
 
     protected colorConfig: any;
-
-    @render(MainPlayerStore, (store) => store.xMode)
-    setXMode(value: number) {
-        setXMode(value);
-    }
 
     onLoad(): void {
         this.colorConfig = resourcesCache.colorJson;
