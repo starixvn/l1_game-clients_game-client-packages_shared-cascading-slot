@@ -180,6 +180,7 @@ export class HyperSpinStore {
     selectedRoundOnPopup = this.roundsList[2]; // Default to 100
     roundsHyperSpin = 0;
     isActiveHyperSpin = false;
+    autoClosePopupByTurnOnFeature = false;
 
     get isTurnOnHyperSpin() {
         return this.isOpenHyperSpinPopup || this.isActiveHyperSpin;

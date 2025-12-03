@@ -2,6 +2,7 @@ import gc from "@sg/game-client-base";
 import inversify from "inversify";
 
 import { CascadingUIHandler } from "./cascading-ui-handler";
+import { cascadingSlotLogger } from "../cascading-slot-logger";
 import { DialogName, SlotNotification } from "../cascading-slot-utils";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { HyperSpinStore } from "../stores/hyper-spin-store";
@@ -32,13 +33,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
     @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
     @inject(CascadingUIHandler) protected readonly uiHandler: CascadingUIHandler;
-    @inject(CascadingUIStore) protected readonly gameState: CascadingUIStore;
+    @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(BetControlStore) protected readonly betManager: BetControlStore;
     @inject(BetControlHandlers) protected readonly betControlHandlers: BetControlHandlers;
     @inject(SlotBetHandler) protected readonly slotBetHandler: SlotBetHandler;
     @inject(gc.Notices.NoticeStore) private readonly noticeStore: gc.Notices.NoticeStore;
-    @inject(gc.Bet.BetStore) private readonly betStore: gc.Bet.BetStore;
-    @inject(gc.Rounds.RoundStore) private readonly roundStore: gc.Rounds.RoundStore;
 
     handle() { }
 
@@ -55,18 +54,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
     updateHyperSpinRounds(rounds: number) {
         this.hyperSpinStore.selectedRoundOnPopup = rounds;
-    }
-
-    changeHyperSpinRounds(increase: boolean) {
-        const currentRounds = this.hyperSpinStore.selectedRoundOnPopup;
-        const roundsList = this.hyperSpinStore.roundsList;
-        const currentIndex = roundsList.indexOf(currentRounds);
-
-        if (increase && currentIndex < roundsList.length - 1) {
-            this.updateHyperSpinRounds(roundsList[currentIndex + 1]);
-        } else if (!increase && currentIndex > 0) {
-            this.updateHyperSpinRounds(roundsList[currentIndex - 1]);
-        }
     }
 
     confirmHyperSpinRoundsAndStart() {
@@ -97,14 +84,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         if (!this.hyperSpinStore.isActiveHyperSpin) {
             this.hyperSpinStore.setHyperSpinActive(false);
-        }
-    }
-
-    closeHyperSpinBetControl() {
-        this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
-
-        if (this.hyperSpinStore.isActiveHyperSpin) {
-            this.cancelHyperSpin();
         }
     }
 
@@ -198,6 +177,27 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.cancelHyperSpin();
     }
 
+    autoClosePopupByTurnOnFeature() {
+        this.closeHyperSpinPopup();
+    }
+
+    public checkAndTriggerFreeSpinAfterFeature() {
+        // If hyper spin was closed due to feature and we have free spins, trigger a spin
+        if (this.hyperSpinStore.autoClosePopupByTurnOnFeature &&
+            this.cascadingUIStore.freeSpinsTotal > 0) {
+
+            // Trigger free spin with delay to ensure settlement is complete and UI is ready
+            setTimeout(() => {
+                // Double-check conditions before triggering
+                if (this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING &&
+                    !this.cascadingUIStore.isPlacingBet &&
+                    this.slotBetHandler && typeof this.slotBetHandler.handle === 'function') {
+                    this.slotBetHandler.handle();
+                }
+            }, 1000); // Longer delay to ensure settlement is fully complete
+        }
+    }
+
     onClickPlayButton() {
         const isPaused = this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Paused";
 
@@ -218,11 +218,11 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private isValidHyperSpinBet(): boolean {
-        const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
+        const hasEnoughMoney = this.betManager.totalBet <= this.cascadingUIStore.userBalance;
         const hasValidRounds = this.hyperSpinStore.selectedRoundOnPopup > 0;
 
-        const isValidGameState = !this.gameState.isPlacingBet &&
-            (this.gameState.cascadingState !== CascadingSlotState.SPINNING ||
+        const isValidGameState = !this.cascadingUIStore.isPlacingBet &&
+            (this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING ||
                 !this.hyperSpinStore.currentBatchData ||
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Ready" ||
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel");
@@ -235,7 +235,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private handleHyperSpinError() {
-        const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
+        const hasEnoughMoney = this.betManager.totalBet <= this.cascadingUIStore.userBalance;
         if (!hasEnoughMoney) {
             this.showNotEnoughMoneyForHyperSpin();
         }
@@ -243,7 +243,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private showNotEnoughMoneyForHyperSpin() {
-        const message = `Not enough balance for Hyper-Spin. Required: ${this.betManager.totalBet}, Available: ${this.gameState.userBalance}`;
+        const message = `Not enough balance for Hyper-Spin. Required: ${this.betManager.totalBet}, Available: ${this.cascadingUIStore.userBalance}`;
         this.noticeStore.addWarning(message);
     }
 
@@ -265,7 +265,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         } catch (error) {
         }
 
-        (this.gameState as any).bottomMessageState = "HYPER_SPIN";
+        (this.cascadingUIStore as any).bottomMessageState = "HYPER_SPIN";
         this.placeHyperSpinBet();
     }
 
@@ -274,17 +274,34 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return;
         }
 
-        if (this.hyperSpinStore.isCascadeTrackingActive() && this.gameState.freeSpinsTotal > 0) {
+        if (this.hyperSpinStore.isCascadeTrackingActive() && this.cascadingUIStore.freeSpinsTotal > 0) {
             return;
         }
 
         this.lastSpinTimestamp = Date.now();
 
-        if (this.gameState.freeSpinsTotal > 0) {
+        if (this.cascadingUIStore.freeSpinsTotal > 0) {
+            cascadingSlotLogger.log("placeHyperSpinBet: Free spins active during hyper spin bet placement", {
+                fileIdentifier: "hyper-spin-handler",
+                data: {
+                    freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                    stopOnFeature: this.hyperSpinStore.stopOnFeature,
+                    roundsRemaining: this.hyperSpinStore.roundsHyperSpin
+                }
+            });
+
             if (this.hyperSpinStore.stopOnFeature) {
+                cascadingSlotLogger.log("placeHyperSpinBet: Stopping hyper spin due to stopOnFeature=true and free spins active", {
+                    fileIdentifier: "hyper-spin-handler",
+                    level: "warn",
+                    data: { roundsRemaining: this.hyperSpinStore.roundsHyperSpin }
+                });
                 this.stopHyperSpin();
                 return;
             } else {
+                cascadingSlotLogger.log("placeHyperSpinBet: Continuing hyper spin despite free spins (stopOnFeature=false)", {
+                    fileIdentifier: "hyper-spin-handler"
+                });
             }
         }
 
@@ -300,9 +317,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         (this.betManager as any).totalBet = originalTotalBet;
 
-        if (success) {
-        } else {
-            const hasEnoughMoney = this.betManager.totalBet <= this.gameState.userBalance;
+        if (!success) {
+            const hasEnoughMoney = this.betManager.totalBet <= this.cascadingUIStore.userBalance;
 
             if (!hasEnoughMoney) {
                 this.stopHyperSpin();
@@ -314,30 +330,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
     }
 
-    private getStopReason(): string {
-        const reasons = [];
-
-        if (this.hyperSpinStore.stopOnProfit > 0) {
-            const currentProfit = this.calculateCurrentProfit();
-            if (currentProfit >= this.hyperSpinStore.stopOnProfit) {
-                reasons.push(`Profit reached: ${currentProfit} >= ${this.hyperSpinStore.stopOnProfit}`);
-            }
-        }
-
-        if (this.hyperSpinStore.stopOnLoss > 0) {
-            const currentLoss = this.calculateCurrentLoss();
-            if (currentLoss >= this.hyperSpinStore.stopOnLoss) {
-                reasons.push(`Loss reached: ${currentLoss} >= ${this.hyperSpinStore.stopOnLoss}`);
-            }
-        }
-
-        if (this.hyperSpinStore.roundsHyperSpin <= 0) {
-            reasons.push("All rounds completed");
-        }
-
-        return reasons.length > 0 ? reasons.join(", ") : "Unknown";
-    }
-
     private shouldStopHyperSpin(): boolean {
         const currentProfit = this.calculateCurrentProfit();
         const currentLoss = this.calculateCurrentLoss();
@@ -347,7 +339,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return true;
         }
 
-        if (this.hyperSpinStore.stopOnFeature && this.gameState.freeSpinsTotal > 0) {
+        if (this.hyperSpinStore.stopOnFeature && this.cascadingUIStore.freeSpinsTotal > 0) {
             return true;
         }
 
@@ -383,9 +375,26 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     public stopHyperSpin() {
         const isRoundsExhausted = this.hyperSpinStore.roundsHyperSpin <= 0;
 
+        cascadingSlotLogger.log("stopHyperSpin: Called to stop hyper spin", {
+            fileIdentifier: "hyper-spin-handler",
+            level: "warn",
+            data: {
+                isRoundsExhausted,
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                isActiveHyperSpin: this.hyperSpinStore.isActiveHyperSpin,
+                stopOnFeature: this.hyperSpinStore.stopOnFeature,
+                batchAge: this.hyperSpinBatchStartTime > 0 ? Date.now() - this.hyperSpinBatchStartTime : 0
+            }
+        });
+
+        // Allow stopping immediately if called due to feature trigger (free spins)
         if (!isRoundsExhausted) {
             const batchAge = Date.now() - this.hyperSpinBatchStartTime;
             if (batchAge < 1000 && this.hyperSpinBatchStartTime > 0) {
+                cascadingSlotLogger.log("stopHyperSpin: Batch too young, not stopping", {
+                    fileIdentifier: "hyper-spin-handler",
+                    data: { batchAge }
+                });
                 return;
             }
         }
@@ -394,15 +403,25 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         this.hyperSpinBatchEndTime = Date.now();
 
+        console.log('[HyperSpinHandler] stopHyperSpin: Setting isActiveHyperSpin to false');
         this.hyperSpinStore.setHyperSpinActive(false);
+        console.log('[HyperSpinHandler] stopHyperSpin: isActiveHyperSpin is now:', this.hyperSpinStore.isActiveHyperSpin);
         this.hyperSpinStore.stopHyperSpinSessionTracking();
         this.hyperSpinStore.completeHyperSpinBatch();
 
         this.hyperSpinStore.isOpenHyperSpinPopup = false;
 
-        (this.gameState as any).bottomMessageState = SlotNotification.SETTLED;
+        (this.cascadingUIStore as any).bottomMessageState = SlotNotification.SETTLED;
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
+
+        cascadingSlotLogger.log("stopHyperSpin: Hyper spin stopped successfully", {
+            fileIdentifier: "hyper-spin-handler",
+            data: {
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                totalWin: this.hyperSpinStore.currentBatchData?.summary?.totalWin || '0'
+            }
+        });
 
         this.showHyperSpinStoppedMessage();
     }
@@ -417,7 +436,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.hyperSpinStore.completeHyperSpinBatch();
 
         this.hyperSpinStore.roundsHyperSpin = 0;
-        (this.gameState as any).bottomMessageState = SlotNotification.SETTLED;
+        (this.cascadingUIStore as any).bottomMessageState = SlotNotification.SETTLED;
         this.hyperSpinBatchStartTime = 0;
         this.hyperSpinBatchEndTime = 0;
 
@@ -448,11 +467,32 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     private lastSpinTimestamp = 0;
 
     checkHyperSpinNextRound(immediate: boolean = false) {
+        cascadingSlotLogger.log("checkHyperSpinNextRound: Checking if hyper spin should continue", {
+            fileIdentifier: "hyper-spin-handler",
+            data: {
+                immediate,
+                isActiveHyperSpin: this.hyperSpinStore.isActiveHyperSpin,
+                roundsRemaining: this.hyperSpinStore.roundsHyperSpin,
+                freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                stopOnFeature: this.hyperSpinStore.stopOnFeature
+            }
+        });
+
         if (!this.isHyperSpinValidForNextRound()) {
+            cascadingSlotLogger.log("checkHyperSpinNextRound: Hyper spin not valid for next round", {
+                fileIdentifier: "hyper-spin-handler"
+            });
             return;
         }
 
         if (this.shouldWaitForSettlementEffects()) {
+            cascadingSlotLogger.log("checkHyperSpinNextRound: Waiting for settlement effects", {
+                fileIdentifier: "hyper-spin-handler",
+                data: {
+                    freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                    isFreeSpinEffectCompleted: (this.cascadingUIStore as any).isFreeSpinEffectCompleted
+                }
+            });
             this.scheduleSettlementWaitTimeout();
             return;
         }
@@ -460,6 +500,10 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         this.clearSettlementTimeoutIfNeeded();
 
         if (this.shouldSkipDueToFreeSpinsOrPause()) {
+            cascadingSlotLogger.log("checkHyperSpinNextRound: Skipping due to free spins or pause", {
+                fileIdentifier: "hyper-spin-handler",
+                level: "warn"
+            });
             return;
         }
 
@@ -484,7 +528,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private shouldWaitForSettlementEffects(): boolean {
-        return this.hyperSpinStore.stopOnFeature !== false && !(this.gameState as any).isFreeSpinEffectCompleted;
+        // Only wait for settlement effects if free spins are actually active
+        // The original logic incorrectly waited even when no free spins were triggered
+        return this.cascadingUIStore.freeSpinsTotal > 0 && !(this.cascadingUIStore as any).isFreeSpinEffectCompleted;
     }
 
     private scheduleSettlementWaitTimeout() {
@@ -503,7 +549,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
 
         if (!this.settlementWaitTimeout) {
             if (!this.isCancelled) {
-                this.isBatchInterrupted = true;
+                // this.isBatchInterrupted = true;
                 this.handleBatchInterruption();
             }
             return;
@@ -523,8 +569,19 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     private shouldSkipDueToFreeSpinsOrPause(): boolean {
-        if (this.gameState.freeSpinsTotal > 0) {
-            if (this.hyperSpinStore.stopOnFeature) {
+        if (this.cascadingUIStore.freeSpinsTotal > 0) {
+            const shouldSkip = this.hyperSpinStore.stopOnFeature;
+
+            cascadingSlotLogger.log("shouldSkipDueToFreeSpinsOrPause: Free spins active, checking stopOnFeature", {
+                fileIdentifier: "hyper-spin-handler",
+                data: {
+                    freeSpinsTotal: this.cascadingUIStore.freeSpinsTotal,
+                    stopOnFeature: this.hyperSpinStore.stopOnFeature,
+                    shouldSkip
+                }
+            });
+
+            if (shouldSkip) {
                 return true;
             } else {
                 return false;
@@ -532,6 +589,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         }
 
         if (this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Paused") {
+            cascadingSlotLogger.log("shouldSkipDueToFreeSpinsOrPause: Batch is paused", {
+                fileIdentifier: "hyper-spin-handler"
+            });
             return true;
         }
 
@@ -580,8 +640,8 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             this.noticeStore.addWarning(message);
         }
 
-        if (this.gameState) {
-            (this.gameState as any).bottomMessageState = "HYPER_SPIN_INTERRUPTED";
+        if (this.cascadingUIStore) {
+            (this.cascadingUIStore as any).bottomMessageState = "HYPER_SPIN_INTERRUPTED";
         }
     }
 
@@ -696,7 +756,6 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             }
 
             this.hyperSpinStore.startCascadeTracking(spinId, isFreeSpin, stake);
-
         }
 
         const hasScatterTrigger = freeSpins > 0;
@@ -715,9 +774,9 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
         );
 
         const isCascadeComplete = this.hyperSpinStore.isActiveHyperSpin ||
-            (this.gameState.freeSpinsTotal === 0 &&
-                !this.gameState.isPlacingBet &&
-                this.gameState.cascadingState !== CascadingSlotState.SPINNING);
+            (this.cascadingUIStore.freeSpinsTotal === 0 &&
+                !this.cascadingUIStore.isPlacingBet &&
+                this.cascadingUIStore.cascadingState !== CascadingSlotState.SPINNING);
 
         if (isCascadeComplete) {
             const cascadeSpinData = this.hyperSpinStore.completeCascadeTracking();

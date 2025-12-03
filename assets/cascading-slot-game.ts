@@ -30,7 +30,7 @@ import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { InterruptionHandlers } from "./handlers/interruption-handlers";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { HyperSpinSettlementHandler } from "./handlers/hyper-spin-settlement-handler";
+import { HyperSpinManager } from "./handlers/hyper-spin-manager";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -38,6 +38,9 @@ const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories }
 
 @ccclass
 export class CascadingSlotGame extends GameComponentBase {
+    private hyperSpinManager: HyperSpinManager = null;
+
+
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
 
@@ -178,21 +181,37 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
 
-    @handle(HyperSpinSettlementHandler, (handler, finishData: any) => handler.handleSettlementIfActive(finishData))
-    handleSettlementIfActive(finishData: any) {
-        return finishData;
+    private getHyperSpinManager(): HyperSpinManager | null {
+        if (this.hyperSpinManager) {
+            return this.hyperSpinManager;
+        }
+
+        const staticInstance = HyperSpinManager.getInstance();
+        if (staticInstance) {
+            return staticInstance;
+        }
+
+        return null;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
     async handleSettlement(finishData: any) {
-        if (!finishData) {
+        console.log("handleSettlement: finishData received:", finishData, "type:", typeof finishData);
+        if (!finishData || (typeof finishData === 'object' && Object.keys(finishData).length === 0)) {
+            console.log("handleSettlement: No finishData provided or empty object");
             return;
         }
 
-        if (await this.handleSettlementIfActive(finishData)) {
+        const hyperSpinManager = this.getHyperSpinManager();
+        console.log('[CascadingSlotGame] handleSettlement - hyperSpinManager:', !!hyperSpinManager, 'finishData:', !!finishData);
+        const isActiveHyperSpinSettlement = hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(finishData);
+        console.log('[CascadingSlotGame] isActiveHyperSpinSettlement result:', isActiveHyperSpinSettlement);
+        if (isActiveHyperSpinSettlement) {
+            console.log("handleSettlement: Hyper spin settlement completed");
             return;
         }
 
+        console.log("handleSettlement: Normal settlement completed");
         this.handleChangeUserBalance(false);
         const {
             win,
@@ -236,6 +255,15 @@ export class CascadingSlotGame extends GameComponentBase {
         this.setFreeSpinsByRound(freeSpins);
         this.setFreeSpinsTotal(totalFreeSpins);
         this.handleHaveFreeSpin(freeSpins > 0);
+
+        // Check if we should trigger free spin after hyper spin was closed due to feature
+        if (hyperSpinManager) {
+            // Access the hyperSpinHandler through the manager to trigger free spin
+            const hyperSpinHandler = (hyperSpinManager as any).hyperSpinHandler;
+            if (hyperSpinHandler && typeof hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature === 'function') {
+                hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature();
+            }
+        }
 
         const noWinMoreFreespins = freeSpins <= 0;
         if (noWinMoreFreespins && !isHaveBigWin) {

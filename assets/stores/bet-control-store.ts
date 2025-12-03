@@ -2,7 +2,6 @@ import { FSBPromotionStore } from "db://shared-common-slot/fsb-promotion/scripts
 import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
-import gc from "@sg/game-client-base";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { calculateTotalBet } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
@@ -161,5 +160,4 @@ export class BetControlStore {
             ? calculateTotalBet(this.fsbPromotionStore.promotion?.betLevel, this.fsbPromotionStore.promotion?.coinValue, this.betMultiplier)
             : this.totalBet;
     }
-
 }

@@ -20,6 +20,7 @@ export * from "./cascading-slot-logger";
 export * from "./handlers/hyper-spin-handler";
 export * from "./handlers/hyper-spin-settlement-handler";
 export * from "./stores/hyper-spin-store";
+export * from "./handlers/hyper-spin-manager";
 
 export const FEATURE_NAME = "cascading-slot";
 
