@@ -19,52 +19,21 @@ export class HyperSpinManager {
     static getInstance(): HyperSpinManager | null {
         return HyperSpinManager._instance;
     }
-    async handleSettlementIfActive(
-        finishData: any,
-    ): Promise<boolean> {
-        console.log('[HyperSpinManager] handleSettlementIfActive - isActiveHyperSpin:', this.hyperSpinStore.isActiveHyperSpin, 'autoClosePopupByTurnOnFeature:', this.hyperSpinStore.autoClosePopupByTurnOnFeature, 'finishData:', !!finishData);
 
-        // If hyper spin is not active at start, don't handle as hyper spin settlement
-        if (!this.hyperSpinStore.isActiveHyperSpin) {
-            console.log('[HyperSpinManager] Returning false - hyper spin not active');
+    async handleSettlementIfActive(finishData: any): Promise<boolean> {
+        if (!this.hyperSpinStore.isActiveHyperSpin || this.hyperSpinStore.autoClosePopupByTurnOnFeature) {
             return false;
         }
 
-        // If hyper spin was already stopped due to feature trigger, let normal settlement handle it
-        if (this.hyperSpinStore.autoClosePopupByTurnOnFeature) {
-            console.log('[HyperSpinManager] Returning false - autoClosePopupByTurnOnFeature is true');
-            return false;
-        }
-
-        console.log('[HyperSpinManager] Processing as hyper spin settlement');
-        // Handle as active hyper spin settlement
-        const wasActiveBeforeProcessing = this.hyperSpinStore.isActiveHyperSpin;
         await this.hyperSpinSettlementHandler.handleSettlement(finishData);
         this.hyperSpinHandler.handleRecordSpinData(finishData);
 
-        // Check if hyper spin was stopped during settlement processing
-        const isStillActiveAfterProcessing = this.hyperSpinStore.isActiveHyperSpin;
-        const wasStoppedDuringProcessing = wasActiveBeforeProcessing && !isStillActiveAfterProcessing;
-
-        if (wasStoppedDuringProcessing) {
-            console.log('[HyperSpinManager] Hyper spin was stopped during processing, returning false to allow normal settlement');
-            return false;
-        }
-
-        console.log('[HyperSpinManager] Returning true - hyper spin settlement completed normally');
-        return true;
-    }
-
-    async handleNextRoundIfActive(): Promise<boolean> {
-        if (!this.hyperSpinStore.isActiveHyperSpin) {
-            return false;
-        }
-
-        this.hyperSpinHandler.checkHyperSpinNextRound();
-        return true;
-    }
-
-    isActive(): boolean {
         return this.hyperSpinStore.isActiveHyperSpin;
+    }
+
+    checkAndTriggerFreeSpinAfterFeature(): void {
+        if (this.hyperSpinHandler && typeof this.hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature === 'function') {
+            this.hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature();
+        }
     }
 }

@@ -108,7 +108,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @render(HyperSpinStore, (store) => store.autoClosePopupByTurnOnFeature)
     updateAutoClosePopupByTurnOnFeature(autoClosePopupByTurnOnFeature: boolean) {
-        console.log("updateAutoClosePopupByTurnOnFeature", autoClosePopupByTurnOnFeature);
         if (this.node && autoClosePopupByTurnOnFeature) {
             this.node.destroy();
         }
@@ -116,7 +115,6 @@ export class HyperSpinBetControl extends ObserverComponent {
 
     @handle(HyperSpinHandler, (handle) => handle.closeHyperSpinPopup())
     onCloseHyperSpinBetControl() {
-        console.log("onCloseHyperSpinBetControl");
         this.playSoundClick();
         this.node.destroy();
     }

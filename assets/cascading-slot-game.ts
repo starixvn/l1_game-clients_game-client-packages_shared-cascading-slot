@@ -121,8 +121,6 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(gc.GameConfigs.GameSetting, (gameSetting) => gameSetting.name)
     logLoadScene(gameName: string) {
-        console.log(`LoadScene ${gameName}`);
-        console.timeEnd("Game Load Time");
     }
 
     @render(LogStore, (store) => store.message)
@@ -196,22 +194,16 @@ export class CascadingSlotGame extends GameComponentBase {
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
     async handleSettlement(finishData: any) {
-        console.log("handleSettlement: finishData received:", finishData, "type:", typeof finishData);
         if (!finishData || (typeof finishData === 'object' && Object.keys(finishData).length === 0)) {
-            console.log("handleSettlement: No finishData provided or empty object");
             return;
         }
 
         const hyperSpinManager = this.getHyperSpinManager();
-        console.log('[CascadingSlotGame] handleSettlement - hyperSpinManager:', !!hyperSpinManager, 'finishData:', !!finishData);
         const isActiveHyperSpinSettlement = hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(finishData);
-        console.log('[CascadingSlotGame] isActiveHyperSpinSettlement result:', isActiveHyperSpinSettlement);
         if (isActiveHyperSpinSettlement) {
-            console.log("handleSettlement: Hyper spin settlement completed");
             return;
         }
 
-        console.log("handleSettlement: Normal settlement completed");
         this.handleChangeUserBalance(false);
         const {
             win,
@@ -257,13 +249,7 @@ export class CascadingSlotGame extends GameComponentBase {
         this.handleHaveFreeSpin(freeSpins > 0);
 
         // Check if we should trigger free spin after hyper spin was closed due to feature
-        if (hyperSpinManager) {
-            // Access the hyperSpinHandler through the manager to trigger free spin
-            const hyperSpinHandler = (hyperSpinManager as any).hyperSpinHandler;
-            if (hyperSpinHandler && typeof hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature === 'function') {
-                hyperSpinHandler.checkAndTriggerFreeSpinAfterFeature();
-            }
-        }
+        hyperSpinManager?.checkAndTriggerFreeSpinAfterFeature();
 
         const noWinMoreFreespins = freeSpins <= 0;
         if (noWinMoreFreespins && !isHaveBigWin) {
