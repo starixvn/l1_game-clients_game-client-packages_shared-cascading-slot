@@ -26,11 +26,11 @@ import { TotalMultiplierView } from "./components/total-multiplier/cascading-tot
 import { TumbleWinWiew } from "./components/tumbles/tumble-win-view";
 import { AutoPlayHandler } from "./handlers/auto-play-handlers";
 import { CascadingSlotErrorHandler } from "./handlers/cascading-slot-error-handler";
+import { CascadingSlotFlashSpinHandler } from "./handlers/cascading-slot-flash-spin-handler";
 import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { InterruptionHandlers } from "./handlers/interruption-handlers";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { HyperSpinSettlementHandler } from "./handlers/hyper-spin-settlement-handler";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -178,7 +178,7 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
 
-    @handle(HyperSpinSettlementHandler, (handler, finishData: any) => handler.handleSettlementIfActive(finishData))
+    @handle(CascadingSlotFlashSpinHandler, (handler, finishData: any) => handler.handleSettlementIfActive(finishData))
     handleSettlementIfActive(finishData: any) {
         return finishData;
     }

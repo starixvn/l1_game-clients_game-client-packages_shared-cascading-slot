@@ -3,8 +3,8 @@ import { _decorator, instantiate, Node, Prefab } from "cc";
 import { ObserverComponent } from "db://shared-components/shared/common-components/observer-component/scripts/observer-component";
 import Observer from "observer";
 
-import { HyperSpinHandler } from "../../handlers/hyper-spin-handler";
-import { HyperSpinStore } from "../../stores/hyper-spin-store";
+import { FlashSpinHandler } from "../../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-handler";
+import { FlashSpinStore } from "../../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
 import HyperSpinRoundNumber from "./hyper-spin-round-number";
 
 const { Connection } = gc;
@@ -19,7 +19,7 @@ export default class HyperSpinPopup extends ObserverComponent {
     @property(Prefab)
     prfNoOfRound: Prefab = null;
 
-    @render(HyperSpinStore, (store) => store.roundsList)
+    @render(FlashSpinStore, (store) => store.roundsList)
     initContentRounds(roundsList: number[]) {
         this.nodeContent.destroyAllChildren();
 
@@ -32,7 +32,7 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     }
 
-    @render(HyperSpinStore, (store) => store.selectedRoundOnPopup)
+    @render(FlashSpinStore, (store) => store.selectedRoundOnPopup)
     renderSelectedRounds(noOfRounds: number) {
         this.nodeContent.children.forEach((child, index) => {
             const roundNumber = child.getComponent(HyperSpinRoundNumber);
@@ -42,12 +42,12 @@ export default class HyperSpinPopup extends ObserverComponent {
 
     }
 
-    @handle(HyperSpinHandler, (handle) => handle.closeHyperSpinPopup())
+    @handle(FlashSpinHandler, (handle) => handle.closeHyperSpinPopup())
     onClickclosePopup() {
         this.playSoundClick();
     }
 
-    @handle(HyperSpinHandler, (handle) => handle.confirmHyperSpinRoundsAndStart())
+    @handle(FlashSpinHandler, (handle) => handle.confirmHyperSpinRoundsAndStart())
     onClickStartButton() {
         this.playSoundClick();
     }

@@ -1,13 +1,13 @@
 import inversify from "inversify";
-import { HyperSpinStore } from "../stores/hyper-spin-store";
-import { HyperSpinHandler } from "./hyper-spin-handler";
+import { FlashSpinHandler } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-handler";
+import { FlashSpinStore } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
 
 const { injectable, inject } = inversify;
 
 @injectable()
-export class HyperSpinSettlementHandler {
-    @inject(HyperSpinStore) protected readonly hyperSpinStore: HyperSpinStore;
-    @inject(HyperSpinHandler) protected readonly hyperSpinHandler: HyperSpinHandler;
+export class CascadingSlotFlashSpinHandler {
+    @inject(FlashSpinStore) protected readonly hyperSpinStore: FlashSpinStore;
+    @inject(FlashSpinHandler) protected readonly hyperSpinHandler: FlashSpinHandler;
 
     async handleSettlementIfActive(
         finishData: any,
