@@ -8,6 +8,7 @@ import { ComponentUtils } from "db://shared-components/shared/utils/component-ut
 import Observer from "observer";
 
 import { AudioIds } from "db://assets/game/audios/AudioIds";
+import { FlashSpinStore } from "db://shared-common-slot/flash-spin/scripts/handlers/flash-spin-store";
 import { FSBPromotionUIManager } from "db://shared-common-slot/fsb-promotion/scripts/components/fsb-promotion-ui-manager";
 import { FSBPromotionUIHandler } from "db://shared-common-slot/fsb-promotion/scripts/handlers/fsb-promotion-ui-handler";
 import {
@@ -69,6 +70,7 @@ export class CascadingSlotGame extends GameComponentBase {
     gameFeatureInfo: JsonAsset = null;
 
     public isTurboMode = false;
+    private isActiveFlashSpin = false;
 
     onLoad() {
         this.initConfig();
@@ -178,9 +180,14 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
 
-    @handle(CascadingSlotFlashSpinHandler, (handler, finishData: any) => handler.handleSettlementIfActive(finishData))
-    handleSettlementIfActive(finishData: any) {
+    @handle(CascadingSlotFlashSpinHandler, (handler, finishData: any) => handler.handleFlashSpin(finishData))
+    handleFlashSpin(finishData: any) {
         return finishData;
+    }
+
+    @render(FlashSpinStore, (store) => store.isActiveHyperSpin)
+    renderActiveFlashSpin(isActiveHyperSpin: boolean) {
+        this.isActiveFlashSpin = isActiveHyperSpin;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
@@ -189,7 +196,8 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
 
-        if (await this.handleSettlementIfActive(finishData)) {
+        if (this.isActiveFlashSpin) {
+            this.handleFlashSpin(finishData);
             return;
         }
 

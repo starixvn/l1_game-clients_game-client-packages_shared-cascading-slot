@@ -140,8 +140,10 @@ export class AutoPlayHandler implements gc.Shared.IHandler<number> {
 
     placeBet() {
         if (this.cascadingUIStore.isPlacingBet) {
+            console.log("auto play is STOPPPP ---");
             return;
         }
+        console.log("auto play place bet ---");
         this.autoPlayStore.triggerBet = {};
         this.cascadingUIStore.isPlacingBet = this.placeBetSilent();
     }

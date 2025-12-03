@@ -17,8 +17,8 @@ export * from "./buy-freespins/handler/buy-freespins-handlers";
 export * from "./buy-freespins/handler/buy-freespins-store";
 export * from "./cascading-slot-logger";
 
-export * from "../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-handler";
-export * from "../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
+export * from "db://shared-common-slot/flash-spin/scripts/handlers/flash-spin-handler";
+export * from "db://shared-common-slot/flash-spin/scripts/handlers/flash-spin-store";
 export * from "./handlers/cascading-slot-flash-spin-handler";
 
 export const FEATURE_NAME = "cascading-slot";

@@ -1,50 +1,102 @@
+import { AnimationUtils } from "db://shared-components/shared/utils";
 import inversify from "inversify";
+import mobx from "mobx";
 import { FlashSpinHandler } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-handler";
-import { FlashSpinStore } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
-
+import { FlashSpinStore, SettlementInfo } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
+import { BetControlStore } from "../stores/bet-control-store";
+import { CascadingUIStore } from "../stores/cascading-ui-store";
+import { AutoPlayHandler } from "./auto-play-handlers";
 const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingSlotFlashSpinHandler {
     @inject(FlashSpinStore) protected readonly hyperSpinStore: FlashSpinStore;
     @inject(FlashSpinHandler) protected readonly hyperSpinHandler: FlashSpinHandler;
+    @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
+    @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
+    @inject(AutoPlayHandler) protected readonly autoPlayHandler: AutoPlayHandler;
 
-    async handleSettlementIfActive(
-        finishData: any,
-    ): Promise<boolean> {
-        if (!this.hyperSpinStore.isActiveHyperSpin) {
-            return false;
+
+    constructor() {
+        setTimeout(() => {
+            mobx.reaction(
+                () => this.hyperSpinStore.triggerPlaceBet,
+                (triggerPlaceBet) => {
+                    if (triggerPlaceBet) {
+                        console.log("cascading flash receive trigger place bet ---");
+                        this.onPlaceBet();
+                    }
+                }
+            );
+        }, 0);
+    }
+
+    async handleFlashSpin(finishData: any) {
+        const record = this.createSpinRecord(finishData);
+        this.hyperSpinHandler.updateSettlementSingleSpin(record);
+
+        if (record.detailRecords) {
+            const length = record.detailRecords.length;
+            await AnimationUtils.delayTime(length * 0.5);
         }
 
-        await this.handleSettlement(finishData);
+        this.hyperSpinStore.addSpinToBatch();
+        this.cascadingUIStore.isPlacingBet = false;
+        this.hyperSpinHandler.checkSpinNextRound();
+    }
 
-        this.hyperSpinHandler.handleRecordSpinData(finishData);
-        return true;
+    onPlaceBet() {
+        const info = {
+            isFreeSpin: this.cascadingUIStore.isFreeSpins,
+            bet: this.betControlStore.totalBet,
+            balance: this.cascadingUIStore.userBalance,
+        };
+        this.hyperSpinStore.initNewSingleSpinData(info);
+        this.autoPlayHandler.placeBet();
+    }
+
+
+    private createSpinRecord(finishData: any): SettlementInfo {
+        const tumbles = finishData.tumbles;
+        const detailRecords = tumbles.map(tumble => {
+            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(tumble.win, this.hyperSpinStore.singleSpinData.bet);
+            return {
+                winAmount: tumble.win,
+                multiplier: multiplier,
+                winLevel: winLevel,
+            };
+        });
+
+        return {
+            totalWin: finishData.win,
+            balanceAfter: this.cascadingUIStore.userBalance,
+            detailRecords: detailRecords.length > 0 ? detailRecords : undefined,
+        }
     }
 
     private async handleSettlement(finishData: any) {
-        if (!finishData) {
+        // if (!finishData) {
 
-            if (this.hyperSpinStore.isActiveHyperSpin) {
-                this.hyperSpinHandler.checkHyperSpinNextRound(true);
-            }
+        //     if (this.hyperSpinStore.isActiveHyperSpin) {
+        //         this.hyperSpinHandler.checkSpinNextRound(true);
+        //     }
 
-            return;
-        }
+        //     return;
+        // }
 
-        const settlementData = this.extractSettlementData(finishData);
-        const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
-        const skipPlayFreeSpin = this.shouldSkipPlayFreeSpin(isFreeSpinActive);
-        if (skipPlayFreeSpin && this.hyperSpinStore.isActiveHyperSpin) {
-            this.hyperSpinHandler.checkHyperSpinNextRound(true);
-            return;
-        }
+        // const settlementData = this.extractSettlementData(finishData);
+        // const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
+        // const skipPlayFreeSpin = this.shouldSkipPlayFreeSpin(isFreeSpinActive);
+        // if (skipPlayFreeSpin && this.hyperSpinStore.isActiveHyperSpin) {
+        //     this.hyperSpinHandler.checkSpinNextRound(true);
+        //     return;
+        // }
 
-        this.handleFreeSpinLogic(settlementData);
+        // this.handleFreeSpinLogic(settlementData);
 
-        if (this.hyperSpinStore.isActiveHyperSpin) {
-            this.hyperSpinHandler.checkHyperSpinNextRound(false);
-        }
+        // if (this.hyperSpinStore.isActiveHyperSpin) {
+        //     this.hyperSpinHandler.checkSpinNextRound(false);
+        // }
     }
 
     private extractSettlementData(finishData: any) {
