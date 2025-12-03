@@ -30,7 +30,7 @@ import { CascadingUIHandler } from "./handlers/cascading-ui-handler";
 import { InterruptionHandlers } from "./handlers/interruption-handlers";
 import { CascadingSlotSettlementStore } from "./stores/cascading-slot-settlement-store";
 import { CascadingUIStore } from "./stores/cascading-ui-store";
-import { HyperSpinManager } from "./handlers/hyper-spin-manager";
+import { HyperSpinSettlementHandler } from "./handlers/hyper-spin-settlement-handler";
 
 const { ccclass, property } = _decorator;
 const { observer, render, handle } = Observer;
@@ -38,8 +38,6 @@ const { Rounds, Connection, HideGame, Settlements, FormatUtils, RoundHistories }
 
 @ccclass
 export class CascadingSlotGame extends GameComponentBase {
-    private hyperSpinManager: HyperSpinManager = null;
-
     @property(CascadingSlotBoard)
     board: CascadingSlotBoard = null;
 
@@ -180,17 +178,9 @@ export class CascadingSlotGame extends GameComponentBase {
     }
 
 
-    private getHyperSpinManager(): HyperSpinManager | null {
-        if (this.hyperSpinManager) {
-            return this.hyperSpinManager;
-        }
-
-        const staticInstance = HyperSpinManager.getInstance();
-        if (staticInstance) {
-            return staticInstance;
-        }
-
-        return null;
+    @handle(HyperSpinSettlementHandler, (handler, finishData: any) => handler.handleSettlementIfActive(finishData))
+    handleSettlementIfActive(finishData: any) {
+        return finishData;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })
@@ -199,8 +189,7 @@ export class CascadingSlotGame extends GameComponentBase {
             return;
         }
 
-        const hyperSpinManager = this.getHyperSpinManager();
-        if (hyperSpinManager && await hyperSpinManager.handleSettlementIfActive(finishData)) {
+        if (await this.handleSettlementIfActive(finishData)) {
             return;
         }
 

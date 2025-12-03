@@ -56,7 +56,7 @@ export class HyperSpinBetControl extends ObserverComponent {
     }
 
     @render(HyperSpinStore, (store) => ({
-        isHyperSpin: store.isHyperSpin,
+        isHyperSpin: store.isActiveHyperSpin,
         isPaused: store.currentBatchData?.summary.hyperSpinStatus === "Paused"
     }))
     updatePlayHyperSpinButton(data: { isHyperSpin: boolean; isPaused: boolean }) {
@@ -123,7 +123,7 @@ export class HyperSpinBetControl extends ObserverComponent {
         return gc.Audios.AudioIds.CLICK;
     }
 
-    @render(HyperSpinStore, (store) => ({ selectedRoundOnPopup: store.selectedRoundOnPopup, isHyperSpin: store.isHyperSpin, roundsHyperSpin: store.roundsHyperSpin }))
+    @render(HyperSpinStore, (store) => ({ selectedRoundOnPopup: store.selectedRoundOnPopup, isHyperSpin: store.isActiveHyperSpin, roundsHyperSpin: store.roundsHyperSpin }))
     updateHyperSpinRoundsLabel(data: { selectedRoundOnPopup: number; isHyperSpin: boolean; roundsHyperSpin: number }) {
         if (this.hyperSpinRoundsLabel) {
             this.hyperSpinRoundsLabel.node.active = data.isHyperSpin;

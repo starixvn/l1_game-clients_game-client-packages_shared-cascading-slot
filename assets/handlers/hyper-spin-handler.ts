@@ -87,7 +87,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             this.hyperSpinStore.selectedRoundOnPopup = this.hyperSpinStore.roundsList[2];
         }
 
-        if (this.isCancelled && !this.hyperSpinStore.isHyperSpin) {
+        if (this.isCancelled && !this.hyperSpinStore.isActiveHyperSpin) {
             this.isCancelled = false;
         }
 
@@ -95,7 +95,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             this.hyperSpinStore.clearBatchData();
         }
 
-        if (!this.hyperSpinStore.isHyperSpin) {
+        if (!this.hyperSpinStore.isActiveHyperSpin) {
             this.hyperSpinStore.setHyperSpinActive(false);
         }
     }
@@ -103,7 +103,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     closeHyperSpinBetControl() {
         this.hyperSpinStore.isOpenHyperSpinBetControlPopup = false;
 
-        if (this.hyperSpinStore.isHyperSpin) {
+        if (this.hyperSpinStore.isActiveHyperSpin) {
             this.cancelHyperSpin();
         }
     }
@@ -201,7 +201,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     onClickPlayButton() {
         const isPaused = this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Paused";
 
-        if (this.hyperSpinStore.isHyperSpin) {
+        if (this.hyperSpinStore.isActiveHyperSpin) {
             if (isPaused) {
                 this.resumeHyperSpinBatch();
             }
@@ -227,7 +227,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Ready" ||
                 this.hyperSpinStore.currentBatchData?.summary.hyperSpinStatus === "Cancel");
 
-        const isNotActive = !this.hyperSpinStore.isHyperSpin;
+        const isNotActive = !this.hyperSpinStore.isActiveHyperSpin;
 
         const isValid = hasEnoughMoney && hasValidRounds && isValidGameState && isNotActive;
 
@@ -307,7 +307,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             if (!hasEnoughMoney) {
                 this.stopHyperSpin();
             } else {
-                if (!this.isCancelled && this.hyperSpinStore.isHyperSpin) {
+                if (!this.isCancelled && this.hyperSpinStore.isActiveHyperSpin) {
                     this.placeHyperSpinBet();
                 }
             }
@@ -476,7 +476,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             return false;
         }
 
-        if (!this.hyperSpinStore.isHyperSpin) {
+        if (!this.hyperSpinStore.isActiveHyperSpin) {
             return false;
         }
 
@@ -665,7 +665,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
     }
 
     recordSpinData(finishData: any) {
-        if (!this.hyperSpinStore.isHyperSpin) {
+        if (!this.hyperSpinStore.isActiveHyperSpin) {
             return;
         }
 
@@ -714,7 +714,7 @@ export class HyperSpinHandler implements gc.Shared.IHandler<number> {
             hasMultiplier
         );
 
-        const isCascadeComplete = this.hyperSpinStore.isHyperSpin ||
+        const isCascadeComplete = this.hyperSpinStore.isActiveHyperSpin ||
             (this.gameState.freeSpinsTotal === 0 &&
                 !this.gameState.isPlacingBet &&
                 this.gameState.cascadingState !== CascadingSlotState.SPINNING);

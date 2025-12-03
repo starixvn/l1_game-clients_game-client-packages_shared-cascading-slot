@@ -107,7 +107,7 @@ describe("HyperSpinStore", () => {
             expect(freshStore.isOpenHyperSpinPopup).toBe(false);
             expect(freshStore.selectedRoundOnPopup).toBe(100);
             expect(freshStore.roundsHyperSpin).toBe(0);
-            expect(freshStore.isHyperSpin).toBe(false);
+            expect(freshStore.isActiveHyperSpin).toBe(false);
             expect(freshStore.stopOnProfit).toBe(0);
             expect(freshStore.stopOnLoss).toBe(0);
             expect(freshStore.stopOnFeature).toBe(false);
@@ -129,7 +129,7 @@ describe("HyperSpinStore", () => {
             it("should be true when isOpenHyperSpinPopup is true", () => {
                 mobx.runInAction(() => {
                     hyperSpinStore.isOpenHyperSpinPopup = true;
-                    hyperSpinStore.isHyperSpin = false;
+                    hyperSpinStore.isActiveHyperSpin = false;
                 });
                 expect(hyperSpinStore.isTurnOnHyperSpin).toBe(true);
             });
@@ -137,7 +137,7 @@ describe("HyperSpinStore", () => {
             it("should be true when isHyperSpin is true", () => {
                 mobx.runInAction(() => {
                     hyperSpinStore.isOpenHyperSpinPopup = false;
-                    hyperSpinStore.isHyperSpin = true;
+                    hyperSpinStore.isActiveHyperSpin = true;
                 });
                 expect(hyperSpinStore.isTurnOnHyperSpin).toBe(true);
             });
@@ -145,7 +145,7 @@ describe("HyperSpinStore", () => {
             it("should be true when both popup and hyper spin are active", () => {
                 mobx.runInAction(() => {
                     hyperSpinStore.isOpenHyperSpinPopup = true;
-                    hyperSpinStore.isHyperSpin = true;
+                    hyperSpinStore.isActiveHyperSpin = true;
                 });
                 expect(hyperSpinStore.isTurnOnHyperSpin).toBe(true);
             });
@@ -153,7 +153,7 @@ describe("HyperSpinStore", () => {
             it("should be false when neither popup nor hyper spin are active", () => {
                 mobx.runInAction(() => {
                     hyperSpinStore.isOpenHyperSpinPopup = false;
-                    hyperSpinStore.isHyperSpin = false;
+                    hyperSpinStore.isActiveHyperSpin = false;
                 });
                 expect(hyperSpinStore.isTurnOnHyperSpin).toBe(false);
             });
@@ -700,7 +700,7 @@ describe("HyperSpinStore", () => {
             it("should set isHyperSpin and update UI store", () => {
                 hyperSpinStore.setHyperSpinActive(true);
 
-                expect(hyperSpinStore.isHyperSpin).toBe(true);
+                expect(hyperSpinStore.isActiveHyperSpin).toBe(true);
                 expect(hyperSpinStore.isHyperSpinActive).toBe(true);
                 expect(cascadingUIStore.isHyperSpinActive).toBe(true);
             });
@@ -708,7 +708,7 @@ describe("HyperSpinStore", () => {
             it("should deactivate hyper spin", () => {
                 hyperSpinStore.setHyperSpinActive(false);
 
-                expect(hyperSpinStore.isHyperSpin).toBe(false);
+                expect(hyperSpinStore.isActiveHyperSpin).toBe(false);
                 expect(hyperSpinStore.isHyperSpinActive).toBe(false);
                 expect(cascadingUIStore.isHyperSpinActive).toBe(false);
             });
@@ -721,10 +721,10 @@ describe("HyperSpinStore", () => {
 
         describe("isHyperSpinActive", () => {
             it("should return isHyperSpin value", () => {
-                hyperSpinStore.isHyperSpin = true;
+                hyperSpinStore.isActiveHyperSpin = true;
                 expect(hyperSpinStore.isHyperSpinActive).toBe(true);
 
-                hyperSpinStore.isHyperSpin = false;
+                hyperSpinStore.isActiveHyperSpin = false;
                 expect(hyperSpinStore.isHyperSpinActive).toBe(false);
             });
         });
@@ -990,7 +990,7 @@ describe("HyperSpinStore", () => {
 
                 expect(result).toBe(true);
                 expect(hyperSpinStore.currentBatchData?.summary.hyperSpinStatus).toBe("Playing");
-                expect(hyperSpinStore.isHyperSpin).toBe(true);
+                expect(hyperSpinStore.isActiveHyperSpin).toBe(true);
             });
 
             it("should return false when no batch exists", () => {
