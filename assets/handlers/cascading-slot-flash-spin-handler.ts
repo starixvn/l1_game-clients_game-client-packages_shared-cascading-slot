@@ -23,7 +23,6 @@ export class CascadingSlotFlashSpinHandler {
                 () => this.hyperSpinStore.triggerPlaceBet,
                 (triggerPlaceBet) => {
                     if (triggerPlaceBet) {
-                        console.log("cascading flash receive trigger place bet ---");
                         this.onPlaceBet();
                     }
                 }
@@ -59,18 +58,20 @@ export class CascadingSlotFlashSpinHandler {
     private createSpinRecord(finishData: any): SettlementInfo {
         const tumbles = finishData.tumbles;
         const detailRecords = tumbles.map(tumble => {
-            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(tumble.win, this.hyperSpinStore.singleSpinData.bet);
+            const win = tumble.win ?? 0;
+            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(win, this.hyperSpinStore.singleSpinData.bet);
+            console.log(`create spin record  ${win} ${multiplier} ${winLevel}`);
             return {
-                winAmount: tumble.win,
+                winAmount: win,
                 multiplier: multiplier,
                 winLevel: winLevel,
             };
         });
 
         return {
-            totalWin: finishData.win,
-            balanceAfter: this.cascadingUIStore.userBalance,
-            detailRecords: detailRecords.length > 0 ? detailRecords : undefined,
+            totalWin: finishData.actualBetwin,
+            balanceAfter: this.hyperSpinStore.singleSpinData.balanceBefore - this.hyperSpinStore.singleSpinData.bet + finishData.actualBetwin,
+            detailRecords: detailRecords.length > 1 ? detailRecords : undefined,//normal at least 1 record
         }
     }
 
