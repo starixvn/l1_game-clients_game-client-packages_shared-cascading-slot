@@ -97,10 +97,11 @@ export class CascadingEffectBigwin extends ObserverComponent {
 
         const megaThreshold = +this.bigWinRange?.[1];
         const superThreshold = +this.bigWinRange?.[2];
+
         this.handleLogBigWinRange(superThreshold, megaThreshold);
 
-        const isSuper = valueRatio >= superThreshold;
-        const isMega = valueRatio >= megaThreshold && !isSuper;
+        const isMega = valueRatio >= megaThreshold;
+        const isSuper = valueRatio >= superThreshold && !isMega;
 
         return { isMega, isSuper };
     }
@@ -136,7 +137,7 @@ export class CascadingEffectBigwin extends ObserverComponent {
             const node = instantiate(levelPrefab);
             this.changeLevel.removeAllChildren();
             this.changeLevel.addChild(node);
-        } catch (error) {}
+        } catch (error) { }
     }
 
     floatNumberBigWin(opt: { label: Label; amount: number; start?: number; totalBet?: number; coinValue?: number }) {
@@ -246,8 +247,8 @@ export class CascadingEffectBigwin extends ObserverComponent {
             this.isChangeLevelMega = true;
             this.winAmountForNoAnim(this.winAmount);
             const ratio = this.winAmount / this.totalBet;
-            const megaThreshold = this.bigWinRange?.[2];
-            const shouldShow = typeof megaThreshold === "number" ? ratio < megaThreshold : true;
+            const highestThreshold = this.bigWinRange?.[2];
+            const shouldShow = typeof highestThreshold === "number" ? ratio < highestThreshold : true;
             this.showHideBigWinNode(shouldShow);
             this.handleBigWinActions(true);
         } else {
