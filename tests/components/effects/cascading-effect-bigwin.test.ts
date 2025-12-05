@@ -257,12 +257,14 @@ describe("CascadingEffectBigwin", () => {
             const betWin = 50000;
             const totalBet = 1000;
             cascadingEffectBigwin.setAnimationChangeSuper = jest.fn();
+            cascadingEffectBigwin.setAnimationChangeMega = jest.fn();
             cascadingEffectBigwin.setAnimationChangeBig = jest.fn();
 
             await cascadingEffectBigwin.changeFrameForBigWinLevel(betWin, totalBet);
 
             expect(cascadingEffectBigwin.setAnimationChangeBig).not.toHaveBeenCalled();
-            expect(cascadingEffectBigwin.setAnimationChangeSuper).toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeSuper).not.toHaveBeenCalled();
+            expect(cascadingEffectBigwin.setAnimationChangeMega).toHaveBeenCalled();
 
             // Restore console.log
             (console.log as jest.Mock).mockRestore();

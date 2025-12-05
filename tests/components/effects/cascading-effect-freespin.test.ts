@@ -53,13 +53,9 @@ jest.mock("@sg/game-client-base", () => {
         },
         App: {
             AppHandlers: {
-                UserGesturePage: class {
-                    handleTouchScreen(value: boolean) {
-                        return value;
-                    }
-                }
-            }
-        }
+                UserGesturePage: "user_gesture_page_handler",
+            },
+        },
     };
     return mockGc;
 });
