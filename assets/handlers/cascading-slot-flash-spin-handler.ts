@@ -89,30 +89,6 @@ export class CascadingSlotFlashSpinHandler {
         }
     }
 
-    private async handleSettlement(finishData: any) {
-        // if (!finishData) {
-
-        //     if (this.hyperSpinStore.isActiveHyperSpin) {
-        //         this.hyperSpinHandler.checkSpinNextRound(true);
-        //     }
-
-        //     return;
-        // }
-
-        // const settlementData = this.extractSettlementData(finishData);
-        // const isFreeSpinActive = settlementData.isFreeSpin || settlementData.totalFreeSpins > 0;
-        // const skipPlayFreeSpin = this.shouldSkipPlayFreeSpin(isFreeSpinActive);
-        // if (skipPlayFreeSpin && this.hyperSpinStore.isActiveHyperSpin) {
-        //     this.hyperSpinHandler.checkSpinNextRound(true);
-        //     return;
-        // }
-
-        // this.handleFreeSpinLogic(settlementData);
-
-        // if (this.hyperSpinStore.isActiveHyperSpin) {
-        //     this.hyperSpinHandler.checkSpinNextRound(false);
-        // }
-    }
 
     private extractSettlementData(finishData: any) {
         return {
