@@ -66,10 +66,10 @@ export class CascadingSlotFlashSpinHandler {
             console.log(`create spin record  ${win} ${multiplier} ${winLevel}`);
 
             let bonusInfo = {};
-            if (finishData.totalMultiplier > 0) {
-                const { winLevel: bonusWinLevel } = this.hyperSpinStore.calculateMultiplier(win * finishData.totalMultiplier, bet);
+            if (finishData.multiplier > 0) {
+                const { winLevel: bonusWinLevel } = this.hyperSpinStore.calculateMultiplier(win * finishData.multiplier, bet);
                 bonusInfo = {
-                    bonusMultiplier: finishData.totalMultiplier,
+                    bonusMultiplier: finishData.multiplier,
                     bonusWinLevel,
                 };
             }
