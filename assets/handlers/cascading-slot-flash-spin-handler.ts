@@ -1,8 +1,10 @@
+import { STEP_DURATION } from "db://shared-common-slot/flash-spin/scripts/flash-spin-definitions";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import inversify from "inversify";
 import mobx from "mobx";
 import { FlashSpinHandler } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-handler";
 import { FlashSpinStore, SettlementInfo } from "../../../shared-common-slot/assets/flash-spin/scripts/handlers/flash-spin-store";
+import { GameServiceMessageCascading } from "../game-messages-cascading";
 import { BetControlStore } from "../stores/bet-control-store";
 import { CascadingUIStore } from "../stores/cascading-ui-store";
 import { AutoPlayHandler } from "./auto-play-handlers";
@@ -36,7 +38,7 @@ export class CascadingSlotFlashSpinHandler {
 
         if (record.detailRecords) {
             const length = record.detailRecords.length;
-            await AnimationUtils.delayTime(length * 0.5);
+            await AnimationUtils.delayTime((length + 1) * STEP_DURATION);
         }
 
         this.hyperSpinStore.addSpinToBatch();
@@ -55,16 +57,28 @@ export class CascadingSlotFlashSpinHandler {
     }
 
 
-    private createSpinRecord(finishData: any): SettlementInfo {
+    private createSpinRecord(finishData: GameServiceMessageCascading.CascadingSlotFinish): SettlementInfo {
         const tumbles = finishData.tumbles;
+        const bet = this.hyperSpinStore.singleSpinData.bet;
         const detailRecords = tumbles.map(tumble => {
             const win = tumble.win ?? 0;
-            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(win, this.hyperSpinStore.singleSpinData.bet);
+            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(win, bet);
             console.log(`create spin record  ${win} ${multiplier} ${winLevel}`);
+
+            let bonusInfo = {};
+            if (finishData.totalMultiplier > 0) {
+                const { winLevel: bonusWinLevel } = this.hyperSpinStore.calculateMultiplier(win * finishData.totalMultiplier, bet);
+                bonusInfo = {
+                    bonusMultiplier: finishData.totalMultiplier,
+                    bonusWinLevel,
+                };
+            }
+
             return {
                 winAmount: win,
                 multiplier: multiplier,
                 winLevel: winLevel,
+                ...bonusInfo,
             };
         });
 
