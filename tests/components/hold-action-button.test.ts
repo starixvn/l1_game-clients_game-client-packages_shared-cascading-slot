@@ -50,19 +50,12 @@ jest.mock("@sg/game-client-base", () => ({
         // Add any utility functions that might be needed
         // This prevents "Cannot read properties of undefined (reading 'utils')" error
     },
-    Shared: {
-        utils: {
-            StorageManager: {
-                setPrefixKey: jest.fn(),
-            },
-        },
-    },
 }));
 
 jest.mock("db://shared-components/shared/common-components/observer-component/scripts/observer-component", () => ({
     ObserverComponent: class {
-        onLoad() {}
-        onDestroy() {}
+        onLoad() { }
+        onDestroy() { }
     },
 }));
 
@@ -334,8 +327,8 @@ describe("HoldActionButton", () => {
                 const mockDescriptor = { value: jest.fn() };
 
                 // Act
-                const renderResult = Observer.render(HoldActionStore, () => {}, { fireImmediately: false });
-                const handleResult = Observer.handle(CascadingHoldActionHandlers, () => {});
+                const renderResult = Observer.render(HoldActionStore, () => { }, { fireImmediately: false });
+                const handleResult = Observer.handle(CascadingHoldActionHandlers, () => { });
 
                 // Assert
                 expect(typeof renderResult).toBe("function");
