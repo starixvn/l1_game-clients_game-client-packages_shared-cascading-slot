@@ -1,4 +1,4 @@
-import { EventTarget, Node, tween, UIOpacity } from "cc";
+import { EventTarget, Node, SpriteAtlas, tween, UIOpacity } from "cc";
 import { CascadingSlotConfig } from "./cascading-slot-base-configs";
 import { Tumble } from "./game-messages-cascading";
 
@@ -43,7 +43,7 @@ export const convertBoardValue = (data: number[]): number[][] => {
     for (let i = 0; i < column; i++) {
         result.push([]);
         for (let j = 0; j < row; j++) {
-            result[i].push(data[i * row + row - j - 1]);
+            result[i].push(data[i * row + j]);
         }
     }
 
@@ -92,6 +92,7 @@ interface ResourceCaches {
     slotSymbols?: any;
     gameFeatures?: GameFeatureJson;
     colorJson?: ColorJson;
+    gameAtlas?: SpriteAtlas;
 }
 
 export const resourcesCache: ResourceCaches = {
@@ -103,6 +104,9 @@ export const globalEmitter = new EventTarget();
 export enum SlotClientEvent {
     EFFECT_INTRO_MULTIPLIER = "effectIntroMultiplier",
 }
+
+export const SPIN_FOREVER = -1;
+export const SLOT_COLUMN_MAX_INDEX = BoardSize.COLUMN - 1;
 
 export interface SymbolBoard {
     symbols: number[][];

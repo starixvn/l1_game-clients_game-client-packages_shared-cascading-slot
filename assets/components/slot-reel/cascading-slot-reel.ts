@@ -202,6 +202,7 @@ export class CascadingSlotReel extends Component {
         let duration = 0;
         for (let i = startIndex; i < endIndex && i < this.items.length; i++) {
             const item = this.items[i];
+            console.log("this.items[i]---------------------", this.items);
             const posY = this.getItemPosY(i + offset);
 
             const distance = Math.abs(posY - item.node.position.y);

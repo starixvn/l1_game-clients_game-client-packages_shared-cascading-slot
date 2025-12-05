@@ -15,7 +15,7 @@ export class MultiplierItem extends Component {
 
     gameId: number;
     multiplierRange = 0;
-    private spine: sp.Skeleton;
+    protected spine: sp.Skeleton;
 
     get multiplier() {
         return this._multiplierValue;

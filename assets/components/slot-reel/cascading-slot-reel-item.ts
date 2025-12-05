@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, sp, warn } from "cc";
+import { _decorator, Component, instantiate, Node, Prefab, sp, tween, v3, warn } from "cc";
 import { AnimationUtils } from "db://shared-components/shared/utils";
 import { getConfigGameSpeed, resourcesCache, SpecialSymbol } from "../../cascading-slot-utils";
 import { MultiplierItem } from "../multiplier/multiplier-item";
@@ -13,12 +13,17 @@ export class CascadingSlotReelItem extends Component {
     @property(Node)
     content: Node = null;
 
+    @property(Node)
+    blurSymbol: Node = null;
+
     public index = -1;
     private _effectSpine: sp.Skeleton = null;
 
-    setItem(index: number) {
-        this.replaceItem(index);
-        this.index = index;
+    onLoad() {
+        if (this.blurSymbol) {
+            AnimationUtils.setOpacityNode(this.blurSymbol, 1);
+            this.blurSymbol.active = false;
+        }
     }
 
     get isScatterSymbol(): boolean {
@@ -41,7 +46,7 @@ export class CascadingSlotReelItem extends Component {
         const node = instantiate(this.itemPrefabs[symbolPrefabIndex]);
         this.content.addChild(node);
         const reelSymbol = node.getComponent(CascadingSlotReelSymbol);
-
+        reelSymbol.setBlurImg(index);
         reelSymbol.setAnimation(resourcesCache.slotSymbols[index]);
     }
 
@@ -100,5 +105,37 @@ export class CascadingSlotReelItem extends Component {
         const ratioSpeed = getConfigGameSpeed("ratioMatchAndExplosionSymbol", gameSpeed);
         const duration = this.effectSpine.findAnimation(animation).duration * ratioSpeed;
         await AnimationUtils.playSpine(this.effectSpine, animation, false, duration);
+    }
+
+    handleBlurAnim(isShowBlurSymbol: boolean) {
+        if (!this.effectSpine || !this.blurSymbol) {
+            return;
+        }
+
+        this.blurSymbol.active = isShowBlurSymbol;
+        this.effectSpine.node.active = !isShowBlurSymbol;
+        if (isShowBlurSymbol) {
+            AnimationUtils.setOpacityNode(this.blurSymbol, 255);
+            AnimationUtils.setOpacityNode(this.effectSpine.node, 1);
+
+            const scale = 1.5;
+            tween(this.blurSymbol)
+                .to(0.1, { scale: v3(1 / scale, 1, 1).multiplyScalar(scale) }, { easing: "sineInOut" })
+                .start();
+        } else {
+            AnimationUtils.setOpacityNode(this.blurSymbol, 1);
+            AnimationUtils.setOpacityNode(this.effectSpine.node, 255);
+            tween(this.blurSymbol)
+                .to(0.1, { scale: v3(1, 1, 1) }, { easing: "sineInOut" })
+                .start();
+        }
+    }
+
+    setItem(index: number) {
+        if (index === this.index) {
+            return;
+        }
+        this.index = index;
+        this.replaceItem(index);
     }
 }

@@ -1,5 +1,5 @@
 import gc from "@sg/game-client-base";
-import { _decorator, Game, game, JsonAsset, Label, Node } from "cc";
+import { _decorator, Game, game, JsonAsset, Label, Node, SpriteAtlas } from "cc";
 import { LogStore } from "db://shared-components/game/scripts/stores/log-store";
 import { StaticNode } from "db://shared-components/shared/common-components/static-node/scripts/static-node";
 import { StaticGroupId } from "db://shared-components/shared/common-components/static-node/scripts/static-node-info";
@@ -68,6 +68,9 @@ export class CascadingSlotGame extends GameComponentBase {
     @property(JsonAsset)
     gameFeatureInfo: JsonAsset = null;
 
+    @property(SpriteAtlas)
+    gameAtlas: SpriteAtlas = null;
+
     public gameSpeed = GameSpeed.NORMAL;
 
     onLoad() {
@@ -82,6 +85,7 @@ export class CascadingSlotGame extends GameComponentBase {
     initConfig() {
         resourcesCache.colorJson = this.colorInfo.json as ColorJson;
         resourcesCache.gameFeatures = this.gameFeatureInfo.json as GameFeatureJson;
+        resourcesCache.gameAtlas = this.gameAtlas;
     }
 
     start() {

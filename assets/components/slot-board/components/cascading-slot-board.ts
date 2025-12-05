@@ -191,6 +191,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             await AnimationUtils.delayTime(getConfigGameSpeed("delayBeforeRefillSymbols", gameSpeed));
 
             const remains = this.reels.map((reel) => reel.getItemsData());
+            console.log("remains---------------------", remains);
             // Store old items count before adding new items
             const oldItemsCount = this.reels.map((reel) => reel.getItems().length);
             const hasPeekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffectInTumbles(remains) : null;
@@ -204,7 +205,7 @@ export class CascadingSlotBoard extends ObserverComponent {
             }
 
             this.addItems(newItems, hasPeekEffect);
-            this.updateMultiplierItems(tumbleMultipliers);
+            tumbleMultipliers.length > 0 && this.updateMultiplierItems(tumbleMultipliers);
             await this.fallIn(hasPeekEffect, gameSpeed, oldItemsCount);
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             if (hasPeekEffect && i === tumbles.length - 2) {
@@ -256,7 +257,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.hidePeekEffects();
     }
 
-    private showScattersOnPreviousReels(i: number) {
+    protected showScattersOnPreviousReels(i: number) {
         this.reels.forEach((reel, index) => {
             if (index < i) {
                 reel.moveItemsBackToReelNode();
@@ -265,7 +266,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         });
     }
 
-    private playSoundOnBottomItem(index: number) {
+    protected playSoundOnBottomItem(index: number) {
         if (index % 2 === 0) {
             return null;
         }
@@ -275,7 +276,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         };
     }
 
-    private playSpinAudio(gameSpeed: string) {
+    playSpinAudio(gameSpeed: string) {
         if (gameSpeed === GameSpeed.NORMAL) {
             this.playSound(AudioIds.SPINNING_NORMAL);
         } else {
@@ -353,6 +354,7 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     public async fallIn(peekEffect: boolean, gameSpeed: string, remainSymbolsCount?: number[]) {
+        console.log("remainSymbolsCount---------------------", remainSymbolsCount);
         if (peekEffect) {
             for (let i = 0; i < this.reels.length; i++) {
                 const reel = this.reels[i];

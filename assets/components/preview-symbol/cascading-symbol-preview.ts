@@ -86,12 +86,16 @@ export class CascadingSymbolPreview extends Component {
         this.isLowestRow = this.node.position.y <= this.LOWEST_ROW_Y;
         const nodeTmp = instantiate(info.symbolItem.content.children[0]);
         this.content.addChild(nodeTmp);
-        const skeleton = nodeTmp.getComponent(sp.Skeleton);
+        const skeleton = this.getSkeletonComp(nodeTmp);
         skeleton.setAnimation(0, "highlight", false);
 
         ComponentUtils.setNodeColor(this.border, info.borderColor);
         this.renderInfo(info);
         this.scheduleOnce(this.updateBackground, 0); //trick, delay to wait labels update width
+    }
+
+    getSkeletonComp(node: Node) {
+        return node.getComponentInChildren(sp.Skeleton);
     }
 
     updateBackground() {
