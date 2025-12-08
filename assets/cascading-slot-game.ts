@@ -185,9 +185,9 @@ export class CascadingSlotGame extends GameComponentBase {
         return finishData;
     }
 
-    @render(FlashSpinStore, (store) => store.isActiveHyperSpin)
-    renderActiveFlashSpin(isActiveHyperSpin: boolean) {
-        this.isActiveFlashSpin = isActiveHyperSpin;
+    @render(FlashSpinStore, (store) => store.isActiveFlashSpin)
+    renderActiveFlashSpin(isActiveFlashSpin: boolean) {
+        this.isActiveFlashSpin = isActiveFlashSpin;
     }
 
     @render(CascadingSlotSettlementStore, (store) => store.finishData, { fireImmediately: false })

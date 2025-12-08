@@ -1,7 +1,7 @@
 import gc from "@sg/game-client-base";
+import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import inversify from "inversify";
 import mobx from "mobx";
-import { FSBPromotionUIStore } from "db://shared-common-slot/fsb-promotion/scripts/stores/fsb-promotion-ui-store";
 import { CascadingSlotState } from "../cascading-slot-state";
 import { DialogName, SlotNotification, SpinButtonState } from "../cascading-slot-utils";
 import { AutoPlayStore } from "./auto-play-store";
@@ -131,7 +131,7 @@ export class CascadingUIStore {
         if (this.isTrialMode) {
             return this.configsStore.trialUser?.balance;
         }
-        
+
         return this.mainPlayerStore.balance;
     }
 
@@ -218,14 +218,7 @@ export class CascadingUIStore {
         return this.isFreeSpins || this.autoPlayStore.isAutoplay;
     }
 
-    get disabledHyperSpin() {
-        // If hyper-spin is already active, don't disable it (allow it to continue during free spins)
-        // This ensures an active hyper-spin batch continues even when free spins are triggered
-        if (this.isHyperSpinActive) {
-            return false; // Keep hyper-spin active even during free spins
-        }
-
-        // Otherwise, disable button when conditions are met (prevents starting new hyper-spin)
+    get disabledFlashSpin() {
         return (
             this.holdActionStore.isHolding ||
             this.isFreeSpins ||

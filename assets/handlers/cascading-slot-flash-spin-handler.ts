@@ -15,8 +15,8 @@ const { injectable, inject } = inversify;
 
 @injectable()
 export class CascadingSlotFlashSpinHandler {
-    @inject(FlashSpinStore) protected readonly hyperSpinStore: FlashSpinStore;
-    @inject(FlashSpinHandler) protected readonly hyperSpinHandler: FlashSpinHandler;
+    @inject(FlashSpinStore) protected readonly flashSpinStore: FlashSpinStore;
+    @inject(FlashSpinHandler) protected readonly flashSpinHandler: FlashSpinHandler;
     @inject(CascadingUIStore) protected readonly cascadingUIStore: CascadingUIStore;
     @inject(BetControlStore) protected readonly betControlStore: BetControlStore;
     @inject(AutoPlayHandler) protected readonly autoPlayHandler: AutoPlayHandler;
@@ -27,7 +27,7 @@ export class CascadingSlotFlashSpinHandler {
     constructor() {
         setTimeout(() => {
             mobx.reaction(
-                () => this.hyperSpinStore.event,
+                () => this.flashSpinStore.event,
                 (event) => {
                     switch (event?.action) {
                         case FlashSpinEvent.PLACE_BET:
@@ -51,46 +51,42 @@ export class CascadingSlotFlashSpinHandler {
             mobx.reaction(
                 () => this.betControlStore.totalBet,
                 (totalBet) => {
-                    this.hyperSpinStore.totalBet = totalBet;
-                }
-            );
+                    this.flashSpinStore.totalBet = totalBet;
+                });
 
             mobx.reaction(
                 () => this.betControlStore.totalBetSliderProgress,
                 (totalBetSliderProgress) => {
-                    this.hyperSpinStore.totalBetSliderProgress = totalBetSliderProgress;
-                }
-            );
+                    this.flashSpinStore.totalBetSliderProgress = totalBetSliderProgress;
+                });
 
             mobx.reaction(
                 () => this.cascadingUIStore.userBalance,
                 (balance) => {
-                    this.hyperSpinStore.userBalance = balance;
-                }
-            );
+                    this.flashSpinStore.userBalance = balance;
+                });
 
             mobx.reaction(
                 () => this.cascadingUIStore.freeSpinsTotal,
                 (freeSpinsTotal) => {
-                    this.hyperSpinStore.freeSpinsTotal = freeSpinsTotal;
-                }
-            );
+                    this.flashSpinStore.freeSpinsTotal = freeSpinsTotal;
+                });
 
             mobx.reaction(() => this.configStore.gameConfigs?.maxWinPerRound,
                 (maxWinPerRound) => {
-                    this.hyperSpinStore.maxWinPerRound = maxWinPerRound ?? 0;
+                    this.flashSpinStore.maxWinPerRound = maxWinPerRound ?? 0;
                 });
             mobx.reaction(() => this.betControlStore.disabledChangeBet,
                 (disabledChangeBet) => {
-                    this.hyperSpinStore.disabledChangeBet = disabledChangeBet;
+                    this.flashSpinStore.disabledChangeBet = disabledChangeBet;
                 });
             mobx.reaction(() => this.betControlStore.interactableTotalBet,
                 (interactableTotalBet) => {
-                    this.hyperSpinStore.interactableTotalBet = interactableTotalBet;
+                    this.flashSpinStore.interactableTotalBet = interactableTotalBet;
                 });
-            mobx.reaction(() => this.cascadingUIStore.disabledHyperSpin,
-                (disabledHyperSpin) => {
-                    this.hyperSpinStore.disabledHyperSpin = disabledHyperSpin;
+            mobx.reaction(() => this.cascadingUIStore.disabledFlashSpin,
+                (disabledFlashSpin) => {
+                    this.flashSpinStore.disabledFlashSpin = disabledFlashSpin;
                 });
 
         }, 0);
@@ -98,16 +94,16 @@ export class CascadingSlotFlashSpinHandler {
 
     async handleFlashSpin(finishData: any) {
         const record = this.createSpinRecord(finishData);
-        this.hyperSpinHandler.updateSettlementSingleSpin(record);
+        this.flashSpinHandler.updateSettlementSingleSpin(record);
 
         if (record.detailRecords) {
             const length = record.detailRecords.length;
             await AnimationUtils.delayTime((length + 1) * STEP_DURATION);
         }
 
-        this.hyperSpinStore.addSpinToBatch();
+        this.flashSpinStore.addSpinToBatch();
         this.cascadingUIStore.isPlacingBet = false;
-        this.hyperSpinHandler.checkSpinNextRound();
+        this.flashSpinHandler.checkSpinNextRound();
     }
 
     onPlaceBet() {
@@ -116,22 +112,22 @@ export class CascadingSlotFlashSpinHandler {
             bet: this.betControlStore.totalBet,
             balance: this.cascadingUIStore.userBalance,
         };
-        this.hyperSpinStore.initNewSingleSpinData(info);
+        this.flashSpinStore.initNewSingleSpinData(info);
         this.autoPlayHandler.placeBet();
     }
 
 
     private createSpinRecord(finishData: GameServiceMessageCascading.CascadingSlotFinish): SettlementInfo {
         const tumbles = finishData.tumbles;
-        const bet = this.hyperSpinStore.singleSpinData.bet;
+        const bet = this.flashSpinStore.singleSpinData.bet;
         const detailRecords = tumbles.map(tumble => {
             const win = tumble.win ?? 0;
-            const { multiplier, winLevel } = this.hyperSpinStore.calculateMultiplier(win, bet);
+            const { multiplier, winLevel } = this.flashSpinStore.calculateMultiplier(win, bet);
             console.log(`create spin record  ${win} ${multiplier} ${winLevel}`);
 
             let bonusInfo = {};
             if (finishData.multiplier > 0) {
-                const { winLevel: bonusWinLevel } = this.hyperSpinStore.calculateMultiplier(win * finishData.multiplier, bet);
+                const { winLevel: bonusWinLevel } = this.flashSpinStore.calculateMultiplier(win * finishData.multiplier, bet);
                 bonusInfo = {
                     bonusMultiplier: finishData.multiplier,
                     bonusWinLevel,
@@ -148,7 +144,7 @@ export class CascadingSlotFlashSpinHandler {
 
         return {
             totalWin: finishData.actualBetwin,
-            balanceAfter: this.hyperSpinStore.singleSpinData.balanceBefore - this.hyperSpinStore.singleSpinData.bet + finishData.actualBetwin,
+            balanceAfter: this.flashSpinStore.singleSpinData.balanceBefore - this.flashSpinStore.singleSpinData.bet + finishData.actualBetwin,
             detailRecords: detailRecords.length > 1 ? detailRecords : undefined,//normal at least 1 record
         }
     }
@@ -173,15 +169,15 @@ export class CascadingSlotFlashSpinHandler {
     }
 
     private shouldSkipPlayFreeSpin(isFreeSpinActive: boolean): boolean {
-        const stopOnFeature = this.hyperSpinStore.stopOnFeature;
+        const stopOnFeature = this.flashSpinStore.stopOnFeature;
         return !isFreeSpinActive || !stopOnFeature;
     }
 
     private handleFreeSpinLogic(settlementData: any) {
-        const shouldStopForFeature = this.hyperSpinStore.stopOnFeature && settlementData.freeSpins > 0;
+        const shouldStopForFeature = this.flashSpinStore.stopOnFeature && settlementData.freeSpins > 0;
 
         if (shouldStopForFeature) {
-            this.hyperSpinHandler.stopHyperSpin();
+            this.flashSpinHandler.stopHyperSpin();
         }
     }
 
