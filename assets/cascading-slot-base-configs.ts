@@ -67,8 +67,8 @@ export const CascadingSlotConfig: CascadingSlotBaseConfig = {
         bottomMultiplierAnimDuration: 0.1,
         zoomInValueDuration: 0.1,
         scaleDurationMultiplier: 0.1,
-        labelTumbleWinAnimDuration: 0.5,
-        multiplierTumbleWinAnimDuration: 0.5,
+        labelTumbleWinAnimDuration: 0.08,
+        multiplierTumbleWinAnimDuration: 0.08,
     },
 
     itemTypeCount: 11,
