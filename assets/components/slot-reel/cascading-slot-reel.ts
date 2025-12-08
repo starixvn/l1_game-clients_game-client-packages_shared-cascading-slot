@@ -165,7 +165,7 @@ export class CascadingSlotReel extends Component {
             return baseSpeed * 1.5;
         }
         if (gameSpeed === GameSpeed.ULTRA) {
-            return baseSpeed * 4;
+            return baseSpeed * 8;
         }
 
         if (this.peekEffect) {
@@ -335,5 +335,63 @@ export class CascadingSlotReel extends Component {
             }
             ComponentUtils.moveToOtherNode(item.node, this.effectContainer);
         });
+    }
+
+    async spinUltra(data: number[], multiplier: number[], gameSpeed: string, onSpinEnded: () => void) {
+        const duration = 0.13;
+
+        // Store old items to destroy later
+        const oldItems = [...this.items];
+
+        // Clear current items array
+        this.items = [];
+
+        // Create new items and add to reel immediately
+        const newItems: CascadingSlotReelItem[] = [];
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] === -1) {
+                continue;
+            }
+            const item = this.addItem();
+            item.setItem(data[i]);
+            item.updateMultiplierItem(multiplier);
+            newItems.push(item);
+        }
+
+        // Set new items to start position (above visible area)
+        for (let i = 0; i < newItems.length; i++) {
+            const item = newItems[i];
+            item.node.position = v3(item.node.position.x, this.getItemPosY(this.itemDisplayCount + i), 0);
+        }
+
+        // Animate old items falling out and new items falling in simultaneously
+        for (let i = 0; i < oldItems.length; i++) {
+            const item = oldItems[i];
+            const posY = this.getItemPosY(i - this.itemDisplayCount);
+            tween(item.node)
+                .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
+                .start();
+        }
+
+        for (let i = 0; i < newItems.length; i++) {
+            const item = newItems[i];
+            const posY = this.getItemPosY(i);
+            tween(item.node)
+                .to(duration, { position: v3(item.node.position.x, posY, 0) }, { easing: "sineIn" })
+                .start();
+        }
+
+        // Wait for both animations to complete (they run simultaneously)
+        await AnimationUtils.delayTime(duration);
+
+        // Destroy old items after animation completes
+        oldItems.forEach((item) => {
+            if (item && item.node && item.node.isValid) {
+                item.node.destroy();
+            }
+        });
+
+        // Call onSpinEnded callback
+        onSpinEnded && onSpinEnded();
     }
 }

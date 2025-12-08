@@ -228,32 +228,45 @@ export class CascadingSlotBoard extends ObserverComponent {
 
         this.playSpinAudio(gameSpeed);
 
-        await this.fallOut(gameSpeed, delayEachReelFallOut);
+        if (gameSpeed === GameSpeed.ULTRA) {
+            console.time("spinResultUltra");
+            for (let i = 0; i < this.reels.length; i++) {
+                const reel = this.reels[i];
+                if (i < this.reels.length - 1) {
+                    reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+                } else {
+                    await reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+                }
+            }
+            console.timeEnd("spinResultUltra");
+        } else {
+            await this.fallOut(gameSpeed, delayEachReelFallOut);
 
-        const peekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffect(symbols) : null;
-        for (let i = 0; i < this.reels.length; i++) {
-            if (gameSpeed === GameSpeed.NORMAL && i > 0) {
-                await AnimationUtils.delayTime(delayEachReelFallIn);
+            const peekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffect(symbols) : null;
+            for (let i = 0; i < this.reels.length; i++) {
+                if (gameSpeed === GameSpeed.NORMAL && i > 0) {
+                    await AnimationUtils.delayTime(delayEachReelFallIn);
+                }
+                const reelSymbols = symbols[i];
+                const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+                if (i < awaitReelIndex) {
+                    this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+                } else if (i === awaitReelIndex) {
+                    await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+                } else {
+                    this.showScattersOnPreviousReels(i);
+                    const begin = i === awaitReelIndex + 1;
+                    begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+                    this.showPeekEffect(false, i);
+                    await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                    this.reels[i].peekEffectHighlightAllItems();
+                    await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+                }
             }
-            const reelSymbols = symbols[i];
-            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
-            if (i < awaitReelIndex) {
-                this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-            } else if (i === awaitReelIndex) {
-                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-            } else {
-                this.showScattersOnPreviousReels(i);
-                const begin = i === awaitReelIndex + 1;
-                begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
-                this.showPeekEffect(false, i);
-                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-                this.reels[i].peekEffectHighlightAllItems();
-                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-            }
+            console.timeEnd("spinResult");
+            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+            this.hidePeekEffects();
         }
-        console.timeEnd("spinResult");
-        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
-        this.hidePeekEffects();
     }
 
     private showScattersOnPreviousReels(i: number) {
