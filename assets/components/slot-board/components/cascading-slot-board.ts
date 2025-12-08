@@ -221,43 +221,46 @@ export class CascadingSlotBoard extends ObserverComponent {
     }
 
     public async spinResult(symbolsBoard: SymbolBoard, gameSpeed: string) {
-        const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
-        const delayEachReelFallIn = this.reels[0].DELAY_EACH_ITEM_FALL_IN_DELAY;
         const { symbols, multipliers } = symbolsBoard;
-        console.time("spinResult");
 
         this.playSpinAudio(gameSpeed);
 
         if (gameSpeed === GameSpeed.ULTRA) {
             await this.spinResultUltra(symbols, multipliers, gameSpeed);
         } else {
-            await this.fallOut(gameSpeed, delayEachReelFallOut);
-
-            const peekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffect(symbols) : null;
-            for (let i = 0; i < this.reels.length; i++) {
-                if (gameSpeed === GameSpeed.NORMAL && i > 0) {
-                    await AnimationUtils.delayTime(delayEachReelFallIn);
-                }
-                const reelSymbols = symbols[i];
-                const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
-                if (i < awaitReelIndex) {
-                    this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-                } else if (i === awaitReelIndex) {
-                    await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-                } else {
-                    this.showScattersOnPreviousReels(i);
-                    const begin = i === awaitReelIndex + 1;
-                    begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
-                    this.showPeekEffect(false, i);
-                    await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
-                    this.reels[i].peekEffectHighlightAllItems();
-                    await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-                }
-            }
-            console.timeEnd("spinResult");
-            AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
-            this.hidePeekEffects();
+            await this.spinResultNotUltra(symbols, multipliers, gameSpeed);
         }
+    }
+
+    private async spinResultNotUltra(symbols: number[][], multipliers: number[], gameSpeed: string) {
+        const delayEachReelFallOut = this.reels[0].DELAY_EACH_ITEM_FALL_OUT_DELAY;
+        const delayEachReelFallIn = this.reels[0].DELAY_EACH_ITEM_FALL_IN_DELAY;
+        await this.fallOut(gameSpeed, delayEachReelFallOut);
+
+        const peekEffect = gameSpeed === GameSpeed.NORMAL ? this.checkPeekEffect(symbols) : null;
+        for (let i = 0; i < this.reels.length; i++) {
+            if (gameSpeed === GameSpeed.NORMAL && i > 0) {
+                await AnimationUtils.delayTime(delayEachReelFallIn);
+            }
+            const reelSymbols = symbols[i];
+            const awaitReelIndex = peekEffect?.peekIndex || this.reels.length - 1;
+            if (i < awaitReelIndex) {
+                this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+            } else if (i === awaitReelIndex) {
+                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+            } else {
+                this.showScattersOnPreviousReels(i);
+                const begin = i === awaitReelIndex + 1;
+                begin && AudioUtils.playStoppableSFX(AudioIds.PEEK_EFFECT_REEL, true);
+                this.showPeekEffect(false, i);
+                await AnimationUtils.delayTime(this.PEEK_EFFECT_DURATION);
+                this.reels[i].peekEffectHighlightAllItems();
+                await this.reels[i].spin(reelSymbols, multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+            }
+        }
+        console.timeEnd("spinResult");
+        AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
+        this.hidePeekEffects();
     }
 
     private async spinResultUltra(symbols: number[][], multipliers: number[], gameSpeed: string) {
@@ -613,9 +616,10 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
-        if (this.gameSpeed !== GameSpeed.ULTRA) {
-            return id;
+        if (this.gameSpeed === GameSpeed.ULTRA) {
+            return "undefined";
         }
+        return id;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
