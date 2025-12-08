@@ -338,7 +338,7 @@ export class CascadingSlotReel extends Component {
     }
 
     async spinUltra(data: number[], multiplier: number[], gameSpeed: string, onSpinEnded: () => void) {
-        const duration = 0.13;
+        const duration = 0.07;
 
         // Store old items to destroy later
         const oldItems = [...this.items];
