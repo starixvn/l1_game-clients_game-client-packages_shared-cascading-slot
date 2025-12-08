@@ -348,12 +348,12 @@ export class CascadingSlotReel extends Component {
 
         // Create new items and add to reel immediately
         const newItems: CascadingSlotReelItem[] = [];
-        for (let i = 0; i < data.length; i++) {
-            if (data[i] === -1) {
+        for (const value of data) {
+            if (value === -1) {
                 continue;
             }
             const item = this.addItem();
-            item.setItem(data[i]);
+            item.setItem(value);
             item.updateMultiplierItem(multiplier);
             newItems.push(item);
         }

@@ -229,16 +229,7 @@ export class CascadingSlotBoard extends ObserverComponent {
         this.playSpinAudio(gameSpeed);
 
         if (gameSpeed === GameSpeed.ULTRA) {
-            console.time("spinResultUltra");
-            for (let i = 0; i < this.reels.length; i++) {
-                const reel = this.reels[i];
-                if (i < this.reels.length - 1) {
-                    reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-                } else {
-                    await reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
-                }
-            }
-            console.timeEnd("spinResultUltra");
+            await this.spinResultUltra(symbols, multipliers, gameSpeed);
         } else {
             await this.fallOut(gameSpeed, delayEachReelFallOut);
 
@@ -267,6 +258,19 @@ export class CascadingSlotBoard extends ObserverComponent {
             AudioUtils.stopStoppableSFX(AudioIds.PEEK_EFFECT_REEL);
             this.hidePeekEffects();
         }
+    }
+
+    private async spinResultUltra(symbols: number[][], multipliers: number[], gameSpeed: string) {
+        console.time("spinResultUltra");
+        for (let i = 0; i < this.reels.length; i++) {
+            const reel = this.reels[i];
+            if (i < this.reels.length - 1) {
+                reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+            } else {
+                await reel.spinUltra(symbols[i], multipliers, gameSpeed, this.playSoundOnBottomItem(i));
+            }
+        }
+        console.timeEnd("spinResultUltra");
     }
 
     private showScattersOnPreviousReels(i: number) {
@@ -609,10 +613,9 @@ export class CascadingSlotBoard extends ObserverComponent {
 
     @handle(gc.Audios.AudioHandler, (handle, id: string) => handle.playSFX(id))
     playSound(id: string) {
-        if (this.gameSpeed === GameSpeed.ULTRA) {
-            return;
+        if (this.gameSpeed !== GameSpeed.ULTRA) {
+            return id;
         }
-        return id;
     }
 
     @render(CascadingSlotConfigsStore, (store) => store.gameConfigs, { fireImmediately: false })
